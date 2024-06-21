@@ -1,5 +1,7 @@
-package demo.lowcode.common;
+package demo.lowcode.common.extend.device;
 
+import demo.lowcode.common.Action;
+import demo.lowcode.common.EventListener;
 import lombok.Data;
 
 import java.util.ArrayList;
@@ -7,13 +9,13 @@ import java.util.List;
 
 @Data
 public abstract class Device implements Action {
-    protected List<Service> services = new ArrayList<>();
+    protected List<DeviceService> deviceServices = new ArrayList<>();
     protected List<String> properties = new ArrayList<>();
     protected List<String> operations = new ArrayList<>();
     protected List<String> events = new ArrayList<>();
 
-    public void bindService(Service service) {
-        services.add(service);
+    public void bindService(DeviceService deviceService) {
+        deviceServices.add(deviceService);
     }
 
     public void addProperties(String property) {

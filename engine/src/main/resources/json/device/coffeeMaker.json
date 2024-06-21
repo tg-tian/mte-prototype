@@ -11,5 +11,23 @@
     "onCheckStart",
     "onCheckComplete",
     "onCheckError"
+  ],
+  "services": [
+    {
+      "name": "AService",
+      "operations": {
+        "start": "on",
+        "makeCoffee": "makeCoffee",
+        "check": ""
+      }
+    },
+    {
+      "name": "BService",
+      "operations": {
+        "start": "start",
+        "makeCoffee": "makeCoffee",
+        "check": "check"
+      }
+    }
   ]
 }

@@ -2,8 +2,8 @@ package demo.lowcode.device.coffeemaker;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import demo.lowcode.common.Device;
-import demo.lowcode.common.Service;
+import demo.lowcode.common.extend.device.Device;
+import demo.lowcode.common.extend.device.DeviceService;
 import demo.lowcode.common.EventListener;
 import demo.lowcode.device.coffeemaker.event.CoffeeMakerEvent;
 import demo.lowcode.device.coffeemaker.service.CoffeeMakerService;
@@ -100,11 +100,11 @@ public class CoffeeMaker extends Device {
         try {
             onStart(operation);// 操作前事件
             boolean flag = false; // 判断是否有符合的设备
-            for (Service service : services) {
-                if (service instanceof CoffeeMakerService) {
+            for (DeviceService deviceService : deviceServices) {
+                if (deviceService instanceof CoffeeMakerService) {
                     try {
                         Method method = CoffeeMakerService.class.getDeclaredMethod(operation);
-                        method.invoke(service);
+                        method.invoke(deviceService);
                         flag = true;
                         break;
                     } catch (InvocationTargetException e) {

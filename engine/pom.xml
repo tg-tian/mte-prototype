@@ -8,7 +8,7 @@
         <version>3.3.0</version>
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
-    <groupId>com.example</groupId>
+    <groupId>demo.lowcode</groupId>
     <artifactId>engine</artifactId>
     <version>0.0.1</version>
     <name>engine</name>
@@ -17,13 +17,6 @@
         <java.version>17</java.version>
     </properties>
     <dependencies>
-        <dependency>
-            <groupId>demo.lowcode</groupId>
-            <artifactId>deviceCommon</artifactId>
-            <version>0.0.1</version>
-            <scope>system</scope>
-            <systemPath>${project.basedir}/libs/common-0.0.1.jar</systemPath>
-        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>

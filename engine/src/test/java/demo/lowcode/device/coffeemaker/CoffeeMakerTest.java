@@ -1,7 +1,7 @@
 package demo.lowcode.device.coffeemaker;
 
-import demo.lowcode.common.Device;
-import demo.lowcode.common.Service;
+import demo.lowcode.common.extend.device.Device;
+import demo.lowcode.common.extend.device.DeviceService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,7 @@ class CoffeeMakerTest {
             Device device = (Device) deviceClass.getConstructor().newInstance();
 
             Class<?> AServiceClass = Class.forName("demo.lowcode.device.coffeemaker.service.type.AService");
-            device.bindService((Service) AServiceClass.getConstructor().newInstance());
+            device.bindService((DeviceService) AServiceClass.getConstructor().newInstance());
 
             device.execute("makeCoffee");
         }catch (Exception e) {

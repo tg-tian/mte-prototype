@@ -1,7 +1,6 @@
 package demo.lowcode.engine.business;
 
 import demo.lowcode.common.Action;
-import demo.lowcode.common.Device;
 import demo.lowcode.engine.model.ActionMeta;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -26,13 +25,13 @@ public class ProcessBusiness {
         actionMetaList.forEach(actionMeta -> {
             Action action = null;
             try {
-                action = actionBusiness.getAction(actionMeta.getType(), actionMeta.getObjectId());
+                action = actionBusiness.getAction(actionMeta.getType(), actionMeta.getObjectId(), actionMeta.getExecParam());
             } catch (Exception e) {
                 e.printStackTrace();
             }
 
             if (action != null) {
-                action.execute(actionMeta.getExecParam());
+                actionBusiness.executeAction(action, actionMeta.getExecParam());
             }
         });
     }

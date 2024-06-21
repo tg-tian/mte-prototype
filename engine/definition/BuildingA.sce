@@ -18,7 +18,31 @@
       "deviceName": "咖啡机器人A",
       "mainObject": {
         "deviceType": "CoffeeMaker",
-        "serviceType": "AService",
+        "serviceType": ["AService"],
+        "propertyMap": [],
+        "eventPath": "C:\\Users\\22435\\Desktop\\设备元建模\\demo\\engine\\eventsFile\\MakeCoffeeController.java",
+        "eventMap": [
+          {
+            "name": "onMakeCoffeeStart",
+            "value": "prepare"
+          },
+          {
+            "name": "onMakeCoffeeComplete",
+            "value": "sendMessage"
+          },
+          {
+            "name": "onCheckError",
+            "value": "errorAlert"
+          }
+        ]
+      }
+    },
+    {
+      "deviceId": "deviceId2",
+      "deviceName": "咖啡机器人B",
+      "mainObject": {
+        "deviceType": "CoffeeMaker",
+        "serviceType": ["BService"],
         "propertyMap": [],
         "eventPath": "C:\\Users\\22435\\Desktop\\设备元建模\\demo\\engine\\eventsFile\\MakeCoffeeController.java",
         "eventMap": [
