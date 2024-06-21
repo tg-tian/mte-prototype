@@ -1,0 +1,15 @@
+{
+  "type": "coffeeMaker",
+  "commands": ["start", "makeCoffee", "check"],
+  "events": [
+    "onStartStart",
+    "onStartComplete",
+    "onStartError",
+    "onMakeCoffeeStart",
+    "onMakeCoffeeComplete",
+    "onMakeCoffeeError",
+    "onCheckStart",
+    "onCheckComplete",
+    "onCheckError"
+  ]
+}
