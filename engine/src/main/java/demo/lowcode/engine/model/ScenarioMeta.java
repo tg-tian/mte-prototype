@@ -13,5 +13,5 @@ public class ScenarioMeta {
     private String scenarioName;
     private String domainId;
     private Map<String, String> map;
-    private List<String> deviceIds;
+    private List<DeviceMeta> devices;
 }

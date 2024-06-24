@@ -7,9 +7,9 @@ import demo.lowcode.common.extend.device.DeviceService;
 import demo.lowcode.common.EventListener;
 import demo.lowcode.device.coffeemaker.event.CoffeeMakerEvent;
 import demo.lowcode.device.coffeemaker.service.CoffeeMakerService;
-import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.Resource;
+import org.springframework.beans.factory.annotation.Value;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
@@ -21,18 +21,25 @@ public class CoffeeMaker extends Device {
     private Map<String, List<EventListener>> afterEventListeners = new HashMap<>();
     private Map<String, List<EventListener>> errorEventListeners = new HashMap<>();
 
+    @Value("${definitionPath}")
+    private String definitionPath;
+
     public CoffeeMaker() {
         ObjectMapper objectMapper = new ObjectMapper();
-        Resource resource = new ClassPathResource("json/device/coffeeMaker.json");
-        try (InputStream inputStream = resource.getInputStream()) {
-            JsonNode rootNode = objectMapper.readTree(inputStream);
+        try {
+            InputStream input = this.getClass().getClassLoader().getResourceAsStream("application.properties");
+            Properties properties = new Properties();
+            properties.load(input);
+            definitionPath = properties.getProperty("definitionPath");
+            File file = new File(definitionPath+"CoffeeMaker.json");
+            JsonNode rootNode = objectMapper.readTree(file);
 
             // 读取commands数组
             JsonNode commandsNode = rootNode.path("commands");
             List<String> commands = new ArrayList<>();
             if (commandsNode.isArray()) {
                 for (JsonNode command : commandsNode) {
-                    commands.add(command.asText());
+                    commands.add(command.path("name").asText());
                 }
             }
             setOperations(commands);

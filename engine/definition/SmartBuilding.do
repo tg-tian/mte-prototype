@@ -1,9 +1,10 @@
 {
-  "domainId": "smartBuilding",
+  "domainId": "SmartBuilding",
   "domainName": "智慧楼宇",
-  "deviceTypeList": [
+  "componentTypeList": [
     {
-      "deviceType": "CoffeeMaker",
+      "componentName": "CoffeeMaker",
+      "type": "Device",
       "serviceType": [
         "AService", "BService"
       ]

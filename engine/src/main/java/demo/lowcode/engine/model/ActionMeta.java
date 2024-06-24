@@ -11,8 +11,12 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 public class ActionMeta {
     private String actionId;
-    private String type; // Device/Page/Service
+    private String actionName;
+    private String type; // Default/Device/Page/Service
+    private String parentActionId;
     private String objectId;
     private String execParam;
-    private String parentActionId;
+    private Object inputParam;
+    private Object outputParam;
+    private String condition;
 }

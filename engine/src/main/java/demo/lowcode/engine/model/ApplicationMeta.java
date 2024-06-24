@@ -3,16 +3,17 @@ package demo.lowcode.engine.model;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProcessMeta {
-    private String processId;
-    private String processName;
+@Component
+public class ApplicationMeta {
     private String applicationId;
-    private String parentProcessId;
-    private List<ActionMeta> actions;
+    private String applicationName;
+    private String scenarioId;
+    private List<ProcessMeta> processes;
 }

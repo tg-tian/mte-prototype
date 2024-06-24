@@ -12,12 +12,6 @@ public class ProcessBusiness {
     @Resource
     ActionBusiness actionBusiness;
 
-    public void loadProcess(String processPath) {
-        // 读取该流程的json文件(Action列表)
-
-        addActionMeta("", "actionId", "Device", "deviceId");
-    }
-
     public void executeProcess(String processId) {
         List<ActionMeta> actionMetaList = getActionMetaList(processId);
 
@@ -32,6 +26,8 @@ public class ProcessBusiness {
 
             if (action != null) {
                 actionBusiness.executeAction(action, actionMeta.getExecParam());
+            }else {
+                System.out.println("无法获取action"+actionMeta.getActionName()+"对应的component："+actionMeta.getObjectId());
             }
         });
     }
@@ -41,8 +37,12 @@ public class ProcessBusiness {
     }
 
     public List<ActionMeta> getActionMetaList(String processId) {
-        ActionMeta actionMeta = new ActionMeta("actionId", "Device", "deviceId", "makeCoffee", "");
-        ActionMeta actionMeta2 = new ActionMeta("actionId2", "Device", "deviceId", "check", "");
-        return new ArrayList<>(Arrays.asList(actionMeta, actionMeta2));
+        if (Objects.equals(processId, "ConferenceService")){
+            ActionMeta actionMeta = new ActionMeta("start", "开始", "Default", "", "", "", null, null, "");
+            ActionMeta actionMeta1 = new ActionMeta("makeCoffee", "制作咖啡", "Device", "start", "CoffeeMaker", "makeCoffee", null, null, "");
+            ActionMeta actionMeta2 = new ActionMeta("check", "检查", "Device", "makeCoffee", "CoffeeMaker", "check", null, null, "${parent.outputParam} == 1");
+            return new ArrayList<>(Arrays.asList(actionMeta, actionMeta1, actionMeta2));
+        }
+        return new ArrayList<>();
     }
 }

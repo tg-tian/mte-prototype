@@ -2,11 +2,15 @@ package demo.lowcode.engine.business;
 
 import demo.lowcode.engine.model.DeviceInformation;
 import demo.lowcode.engine.model.DeviceMeta;
+import org.springframework.beans.factory.annotation.Value;
 
 import java.util.*;
 
 @org.springframework.stereotype.Service
 public class ScenarioBusiness {
+    @Value("${eventPath}")
+    private String eventFilePath;
+
     // 场景增删改查
     public void addScenario() {
 
@@ -40,20 +44,24 @@ public class ScenarioBusiness {
     }
 
     public List<DeviceMeta> getDeviceMetaList(String scenarioId) {
+        scenarioId = "BuildingA";
         String deviceType = "CoffeeMaker";
-        String serviceType = "AService";
-        DeviceInformation deviceInformation = new DeviceInformation("deviceId", null, serviceType, deviceType, null, null);
-
-        String controllerJavaFile = System.getProperty("user.dir")+"\\eventsFile\\MakeCoffeeController.java";
+        String controllerJavaFile = eventFilePath+"MakeCoffeeController.java";
         Map<String, String> eventMap = new HashMap<>(){{
             put("onMakeCoffeeStart", "prepare");
             put("onMakeCoffeeComplete", "sendMessage");
             put("onCheckError", "errorAlert");
         }};
-        deviceInformation.setEventPath(controllerJavaFile);
-        deviceInformation.setEventMap(eventMap);
 
-        DeviceMeta deviceMeta = new DeviceMeta("deviceId", "deviceName", scenarioId, deviceInformation);
-        return new ArrayList<>(Arrays.asList(deviceMeta));
+        // 咖啡机器人A
+        String serviceType = "AService";
+        DeviceInformation deviceInformation = new DeviceInformation("deviceId", null, serviceType, deviceType, eventMap, controllerJavaFile);
+        DeviceMeta deviceMeta = new DeviceMeta("deviceId", "咖啡机器人A", scenarioId, deviceInformation);
+
+        // 咖啡机器人B
+        String serviceType2 = "BService";
+        DeviceInformation deviceInformation2 = new DeviceInformation("deviceId", null, serviceType2, deviceType, eventMap, controllerJavaFile);
+        DeviceMeta deviceMeta2 = new DeviceMeta("deviceId2", "咖啡机器人B", scenarioId, deviceInformation2);
+        return new ArrayList<>(Arrays.asList(deviceMeta, deviceMeta2));
     }
 }

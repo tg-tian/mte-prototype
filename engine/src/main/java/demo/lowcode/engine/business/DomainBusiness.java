@@ -12,16 +12,16 @@ import java.util.*;
 @Service
 public class DomainBusiness {
     // domain增删改查
-    public void addDomain(String domainId, String domainName, List<String> deviceTypeList, Map<String, List<String>> serviceMap) {
+    public DomainMeta addDomain(String domainId, String domainName, Map<String, Map<String, List<String>>> componentMap) {
         DomainMeta domainMeta = new DomainMeta();
         domainMeta.setDomainId(domainId);
         domainMeta.setDomainName(domainName);
-        domainMeta.setDeviceType(deviceTypeList);
-        domainMeta.setServiceType(serviceMap);
+        domainMeta.setComponentType(componentMap);
         System.out.println("加载领域信息："+domainMeta);
+        return domainMeta;
     }
 
-    public void loadDomain(String domainPath) throws IOException {
+    public DomainMeta loadDomain(String domainPath) throws IOException {
         // 读取该领域的json文件(领域信息、设备类型列表、应用功能列表)
         File file = new File(domainPath);
         ObjectMapper objectMapper = new ObjectMapper();
@@ -29,52 +29,67 @@ public class DomainBusiness {
         String domainId = rootNode.path("domainId").asText();
         String domainName = rootNode.path("domainName").asText();
 
-        List<String> deviceTypeList = new ArrayList<>();
-        Map<String, List<String>> serviceMap = new HashMap<>();
-        JsonNode deviceTypeListNode = rootNode.path("deviceTypeList");
-        if (deviceTypeListNode.isArray()){
-            for (JsonNode deviceTypeNode: deviceTypeListNode){
-                String deviceType = deviceTypeNode.path("deviceType").asText();
-                JsonNode serviceTypeListNode = deviceTypeNode.path("serviceType");
+        Map<String, Map<String, List<String>>> componentMap = new HashMap<>();
+        JsonNode componentTypeListNode = rootNode.path("componentTypeList");
+        if (componentTypeListNode.isArray()){
+            for (JsonNode componentTypeNode: componentTypeListNode){
+                String componentName = componentTypeNode.path("componentName").asText();
+                String type = componentTypeNode.path("type").asText();
+                JsonNode serviceTypeListNode = componentTypeNode.path("serviceType");
                 List<String> serviceType = new ArrayList<>();
                 if (serviceTypeListNode.isArray()) {
                     for (JsonNode serviceNode : serviceTypeListNode) {
                         serviceType.add(serviceNode.asText());
                     }
                 }
-                // 添加设备类型列表
-                deviceTypeList.add(deviceType);
-                // 添加设备对应的服务列表
-                serviceMap.put(deviceType, serviceType);
+
+                if (componentMap.containsKey(type)){
+                    Map<String, List<String>> componentTypes = componentMap.get(type);
+                    if (componentTypes.containsKey(componentName)){
+                        System.out.println("领域内存在重复组件");
+                    }else {
+                        componentTypes.put(componentName, serviceType);
+                    }
+                }else {
+                    componentMap.put(type, new HashMap<>(){{
+                        put(componentName, serviceType);
+                    }});
+                }
             }
         }
 
         // 新增领域
-        addDomain(domainId,domainName,deviceTypeList,serviceMap);
-
+        return addDomain(domainId,domainName,componentMap);
     }
 
-    public void addDeviceType(String deviceType, String domainId) {
+    public void addComponentType(String componentName, String type, String domainId, List<String> services) {
         DomainMeta domainMeta = null;
-        List<String> deviceTypeList = domainMeta.getDeviceType();
-        deviceTypeList.add(deviceType);
-        domainMeta.setDeviceType(deviceTypeList);
+        Map<String, Map<String, List<String>>> componentTypeList = domainMeta.getComponentType();
+        if (componentTypeList.containsKey(type)) {
+            Map<String, List<String>> componentTypes = componentTypeList.get(type);
+            if (componentTypes.containsKey(componentName)){
+                System.out.println("领域内存在重复组件");
+            }else {
+                componentTypes.put(componentName, services);
+            }
+        }else {
+            componentTypeList.put(type, new HashMap<>(){{
+                put(componentName, services);
+            }});
+        }
+        domainMeta.setComponentType(componentTypeList);
     }
 
-    public List<String> getDeviceTypeList(String domainId) {
-        return new ArrayList<>(Arrays.asList("CoffeeMaker"));
+    public Map<String, List<String>> getDeviceTypeList(String domainId) {
+//        DomainMeta domainMeta = null;
+//        Map<String, Map<String, List<String>>> componentTypeList = domainMeta.getComponentType();
+//        return componentTypeList.get("Device");
+        return new HashMap<>(){{
+            put("CoffeeMaker", new ArrayList<>(Arrays.asList("AService", "BService")));
+        }};
     }
 
-    public void addServiceType(String serviceName, String deviceType, String domainId) {
-        DomainMeta domainMeta = null;
-        Map<String, List<String>> serviceTypeMap = domainMeta.getServiceType();
-        List<String> serviceType = serviceTypeMap.get(deviceType);
-        serviceType.add(serviceName);
-        serviceTypeMap.put(deviceType, serviceType);
-        domainMeta.setServiceType(serviceTypeMap);
-    }
-
-    public List<String> getServiceType(String deviceType, String domainId) {
+    public List<String> getDeviceServiceType(String deviceType, String domainId) {
         return new ArrayList<>(Arrays.asList("AService", "BService"));
     }
 }

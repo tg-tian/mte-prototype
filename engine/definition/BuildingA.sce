@@ -20,7 +20,7 @@
         "deviceType": "CoffeeMaker",
         "serviceType": ["AService"],
         "propertyMap": [],
-        "eventPath": "C:\\Users\\22435\\Desktop\\设备元建模\\demo\\engine\\eventsFile\\MakeCoffeeController.java",
+        "eventPath": "MakeCoffeeController.java",
         "eventMap": [
           {
             "name": "onMakeCoffeeStart",
@@ -44,7 +44,7 @@
         "deviceType": "CoffeeMaker",
         "serviceType": ["BService"],
         "propertyMap": [],
-        "eventPath": "C:\\Users\\22435\\Desktop\\设备元建模\\demo\\engine\\eventsFile\\MakeCoffeeController.java",
+        "eventPath": "MakeCoffeeController.java",
         "eventMap": [
           {
             "name": "onMakeCoffeeStart",
