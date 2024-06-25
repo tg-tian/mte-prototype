@@ -16,7 +16,6 @@ public class ActionMeta {
     private String parentActionId;
     private String objectId;
     private String execParam;
-    private Object inputParam;
-    private Object outputParam;
+    private String inputParam;
     private String condition;
 }

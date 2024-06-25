@@ -2,6 +2,7 @@ package demo.lowcode.device.coffeemaker;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import demo.lowcode.common.ActionExecResult;
 import demo.lowcode.common.extend.device.Device;
 import demo.lowcode.common.extend.device.DeviceService;
 import demo.lowcode.common.EventListener;
@@ -103,15 +104,26 @@ public class CoffeeMaker extends Device {
     }
 
     @Override
-    public int invokeOperation(String operation) {
+    public int invokeOperation(String operation, Object... args) {
         try {
             onStart(operation);// 操作前事件
             boolean flag = false; // 判断是否有符合的设备
             for (DeviceService deviceService : deviceServices) {
                 if (deviceService instanceof CoffeeMakerService) {
                     try {
-                        Method method = CoffeeMakerService.class.getDeclaredMethod(operation);
-                        method.invoke(deviceService);
+                        Method method;
+                        if (args.length > 0) {
+//                            // 找到匹配参数类型的方法
+//                            Class<?>[] parameterTypes = Arrays.stream(args)
+//                                    .map(Object::getClass)
+//                                    .toArray(Class<?>[]::new);
+                            method = CoffeeMakerService.class.getDeclaredMethod(operation, Object.class);
+                            method.invoke(deviceService, args);
+                        } else {
+                            // 找到无参数的方法
+                            method = CoffeeMakerService.class.getDeclaredMethod(operation);
+                            method.invoke(deviceService);
+                        }
                         flag = true;
                         break;
                     } catch (InvocationTargetException e) {
@@ -126,15 +138,22 @@ public class CoffeeMaker extends Device {
             return 0;
         } catch (Exception e) {
             onError(operation, new CoffeeMakerEvent(e.getMessage(), 400));// 操作异常事件
+            e.printStackTrace();
             return 1;
         }
     }
 
     @Override
-    public int execute(Object... args) {
-        if (args.length == 1 && args[0] instanceof String){
-            return invokeOperation((String) args[0]);
+    public ActionExecResult execute(Object... args) {// 第一个是调用的方法名；第二个参数是方法名的输入，类型为int/Map
+        ActionExecResult actionExecResult = new ActionExecResult();
+        if (args.length >= 1 && args[0] instanceof String) {
+            String operationName = (String) args[0];
+            Object[] operationArgs = Arrays.copyOfRange(args, 1, args.length);
+            int code = invokeOperation(operationName, operationArgs);
+            actionExecResult.setCode(code);
+        } else {
+            actionExecResult.setCode(2);
         }
-        return 2;
+        return actionExecResult;
     }
 }

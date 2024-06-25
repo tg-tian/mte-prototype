@@ -28,8 +28,6 @@ class ProcessTest {
 
     @Test
     public void processExecute() throws IOException {
-        //0624: Action节点不要绑定某个具体的设备而是根据要执行的操作分配给该场景下的合适的设备来执行,修改getAction()
-
         // 领域层面：获取定义（设备类型及其对应的功能服务列表）
         DomainMeta domainMeta = domainBusiness.loadDomain(System.getProperty("user.dir")+"\\definition\\SmartBuilding.do");
 

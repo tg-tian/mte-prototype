@@ -3,6 +3,7 @@ package demo.lowcode.engine.business;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.lowcode.common.Action;
+import demo.lowcode.common.ActionExecResult;
 import demo.lowcode.common.extend.device.Device;
 import demo.lowcode.common.EventListener;
 import demo.lowcode.common.extend.device.DeviceService;
@@ -102,13 +103,21 @@ public class ActionBusiness {
                     throw new RuntimeException(e.getMessage());
                 }
             }
+        }else if (Objects.equals(type, "Default")){
+            return new Action() {
+                @Override
+                public ActionExecResult execute(Object... args) {
+                    return null;
+                }
+            };
         }
         return null;
     }
 
-    public void executeAction(Action action, Object... args) {
+    public ActionExecResult executeAction(Action action, Object... args) {
         System.out.println("----------开始执行----------");
-        action.execute(args);
+        ActionExecResult result = action.execute(args);
         System.out.println("----------结束执行----------");
+        return result;
     }
 }

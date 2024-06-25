@@ -32,7 +32,6 @@
           "objectId": "CoffeeMaker",
           "execParam": "makeCoffee",
           "inputParam": "",
-          "outputParam": "",
           "condition": ""
         },
         {
@@ -43,8 +42,7 @@
           "objectId": "CoffeeMaker",
           "execParam": "check",
           "inputParam": "${parent.outputParam}",
-          "condition": "${parent.outputParam} == 1",
-          "outputParam": ""
+          "condition": "${parent.outputParam} == 1"
         }
       ]
     }

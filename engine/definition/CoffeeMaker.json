@@ -2,18 +2,18 @@
   "type": "coffeeMaker",
   "commands": [{
     "name": "start",
-    "inputParam": [],
-    "outputParam": []
+    "inputParam": "",
+    "outputParam": ""
   },
     {
       "name": "makeCoffee",
-      "inputParam": [],
-      "outputParam": []
+      "inputParam": "",
+      "outputParam": ""
     },
     {
       "name": "check",
-      "inputParam": [],
-      "outputParam": []
+      "inputParam": "Object",
+      "outputParam": ""
     }],
   "events": [
     "onStartStart",

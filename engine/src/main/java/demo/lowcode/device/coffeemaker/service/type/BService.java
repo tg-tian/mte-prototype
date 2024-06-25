@@ -62,9 +62,10 @@ public class BService extends CoffeeMakerService {
     }
 
     @Override
-    public void check() {
+    public void check(Object params) {
         try {
             BClass.getDeclaredMethod("check").invoke(coffeeMakerB);
+            System.out.println("Checking code is "+params.toString());
         } catch (Exception e) {
             e.printStackTrace();
         }

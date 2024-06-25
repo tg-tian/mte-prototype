@@ -30,6 +30,6 @@ public abstract class Device implements Action {
         events.add(event);
     }
 
-    public abstract int invokeOperation(String operation);
+    public abstract int invokeOperation(String operation, Object... args);
     public abstract void addEventListener(String eventName, EventListener eventListener);
 }

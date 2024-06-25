@@ -33,8 +33,11 @@ public class ApplicationBusiness {
     }
 
     public List<ProcessMeta> getProcesses(String applicationId) {
-        ProcessMeta processMeta = new ProcessMeta("EventRegistration", "活动申报", "GuestReception", "", null);
-        ProcessMeta processMeta2 = new ProcessMeta("ConferenceService","会议服务", "GuestReception", "EventRegistration", processBusiness.getActionMetaList("ConferenceService"));
+        ProcessMeta processMeta = new ProcessMeta("EventRegistration", "活动申报", "GuestReception", "",  null);
+        ProcessMeta processMeta2 = new ProcessMeta("ConferenceService","会议服务", "GuestReception", "EventRegistration",  processBusiness.getActionMetaList("ConferenceService"));
+
+        // TODO：初始化RTProcess
+
         return new ArrayList<>(Arrays.asList(processMeta, processMeta2));
     }
 }

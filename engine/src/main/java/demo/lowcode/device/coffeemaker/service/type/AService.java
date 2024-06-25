@@ -62,7 +62,7 @@ public class AService extends CoffeeMakerService {
     }
 
     @Override
-    public void check() {
+    public void check(Object params) {
         throw new RuntimeException("NoSupportedOperation");
     }
 }
