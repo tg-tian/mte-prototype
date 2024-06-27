@@ -14,7 +14,7 @@ import java.util.Map;
 public class DeviceInformation {
     private String deviceId;
     private Map<String, Object> propertyMap;
-    private String serviceType;
+    private DeviceConnectService service;
     private String deviceType;
     private Map<String, String> eventMap;
     private String eventPath;

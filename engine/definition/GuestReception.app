@@ -42,7 +42,7 @@
           "objectId": "CoffeeMaker",
           "execParam": "check",
           "inputParam": "${parent.outputParam}",
-          "condition": "${parent.outputParam} == 1"
+          "condition": "${parent.code} == 1"
         }
       ]
     }

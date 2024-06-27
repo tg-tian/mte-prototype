@@ -16,9 +16,25 @@ public class ProcessBusiness {
     @Resource
     ActionBusiness actionBusiness;
 
+    public Map<String, Action> getProcessActions(String processId) {
+        List<ActionMeta> actionMetaList = getActionMetaList(processId);
+        Map<String, Action> actions = new HashMap<>();
+
+        actionMetaList.forEach(actionMeta -> {
+            try {
+                Action action = actionBusiness.getAction(actionMeta.getType(), actionMeta.getObjectId(), actionMeta.getExecParam());
+                actions.put(actionMeta.getActionId(), action);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        });
+        return actions;
+    }
+
     // 运行时
     public void executeProcess(String processId) {
         List<ActionMeta> actionMetaList = getActionMetaList(processId);
+        Map<String, Action> actions = getProcessActions(processId);
         Map<String, Integer> executionStatus = new HashMap<>(); // 用于跟踪每个节点的执行状态
         // 初始化每个节点的执行状态
         actionMetaList.forEach(actionMeta -> executionStatus.put(actionMeta.getActionId(), 1));
@@ -51,9 +67,8 @@ public class ProcessBusiness {
             }
 
             if (shouldExecute) {
-                Action action = null;
                 try {
-                    action = actionBusiness.getAction(actionMeta.getType(), actionMeta.getObjectId(), actionMeta.getExecParam());
+                    Action action = actions.get(actionMeta.getActionId());
 
                     if (action != null) {
                         // 执行

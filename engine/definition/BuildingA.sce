@@ -18,7 +18,14 @@
       "deviceName": "咖啡机器人A",
       "mainObject": {
         "deviceType": "CoffeeMaker",
-        "serviceType": ["AService"],
+        "service": {
+          "name": "AService",
+          "uri": "http://10.176.34.96:2030?action=",
+          "operations": {
+            "start": "on",
+            "makeCoffee": "makeCoffee"
+          }
+        },
         "propertyMap": [],
         "eventPath": "MakeCoffeeController.java",
         "eventMap": [
@@ -42,7 +49,15 @@
       "deviceName": "咖啡机器人B",
       "mainObject": {
         "deviceType": "CoffeeMaker",
-        "serviceType": ["BService"],
+        "service": {
+          "name": "BService",
+          "uri": "http://10.176.34.85:2000?action=",
+          "operations": {
+            "start": "start",
+            "makeCoffee": "makeCoffee",
+            "check": "check"
+          }
+        },
         "propertyMap": [],
         "eventPath": "MakeCoffeeController.java",
         "eventMap": [

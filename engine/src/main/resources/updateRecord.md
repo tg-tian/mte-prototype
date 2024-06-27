@@ -14,8 +14,15 @@
 
 3、运行时实时修改RTProcess（运行时流程）及节点状态
 
+## 0626 & 0627
+
+1、添加具体设备时根据uri进行添加
+
+2、具体设备的Service代码动态生成并编译
+
 # TODO
 * 自定义设备：根据CoffeeMaker.json生成一套对应的java代码，而不是手动写 
 * 读取领域、场景、应用的json
 * 将元数据持久化，根据需要分设计时和运行时
 * controller对外API定义
+* bug:具体设备的实现（AService/BService）代码修改后,在不删除上一次生成文件的情况下,本次不会realize,要在下一次运行时才能正确realize。

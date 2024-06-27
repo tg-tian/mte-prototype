@@ -4,10 +4,7 @@
   "componentTypeList": [
     {
       "componentName": "CoffeeMaker",
-      "type": "Device",
-      "serviceType": [
-        "AService", "BService"
-      ]
+      "type": "Device"
     }
   ]
 }

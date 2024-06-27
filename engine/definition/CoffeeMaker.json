@@ -2,17 +2,20 @@
   "type": "coffeeMaker",
   "commands": [{
     "name": "start",
-    "inputParam": "",
+    "inputParam": [],
     "outputParam": ""
   },
     {
       "name": "makeCoffee",
-      "inputParam": "",
+      "inputParam": [],
       "outputParam": ""
     },
     {
       "name": "check",
-      "inputParam": "Object",
+      "inputParam": [{
+        "name": "code",
+        "type": "Integer"
+      }],
       "outputParam": ""
     }],
   "events": [
@@ -25,23 +28,5 @@
     "onCheckStart",
     "onCheckComplete",
     "onCheckError"
-  ],
-  "services": [
-    {
-      "name": "AService",
-      "operations": {
-        "start": "on",
-        "makeCoffee": "makeCoffee",
-        "check": ""
-      }
-    },
-    {
-      "name": "BService",
-      "operations": {
-        "start": "start",
-        "makeCoffee": "makeCoffee",
-        "check": "check"
-      }
-    }
   ]
 }

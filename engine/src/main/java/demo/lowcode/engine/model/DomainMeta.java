@@ -11,5 +11,5 @@ import java.util.Map;
 public class DomainMeta {
     private String domainId;
     private String domainName;
-    private Map<String, Map<String, List<String>>> componentType;
+    private Map<String, List<String>> componentType;
 }

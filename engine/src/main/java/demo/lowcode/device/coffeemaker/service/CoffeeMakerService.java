@@ -2,8 +2,16 @@ package demo.lowcode.device.coffeemaker.service;
 
 import demo.lowcode.common.extend.device.DeviceService;
 
-public abstract class CoffeeMakerService extends DeviceService {
-    public abstract void start();
-    public abstract void makeCoffee();
-    public abstract void check(Object params);
+public class CoffeeMakerService extends DeviceService {
+    public void start(){
+        throw new RuntimeException("NoSupportedOperation");
+    }
+
+    public void makeCoffee(){
+        throw new RuntimeException("NoSupportedOperation");
+    }
+
+    public void check(Integer code){
+        throw new RuntimeException("NoSupportedOperation");
+    }
 }

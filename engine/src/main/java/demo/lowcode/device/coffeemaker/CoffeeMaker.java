@@ -113,11 +113,12 @@ public class CoffeeMaker extends Device {
                     try {
                         Method method;
                         if (args.length > 0) {
-//                            // 找到匹配参数类型的方法
-//                            Class<?>[] parameterTypes = Arrays.stream(args)
-//                                    .map(Object::getClass)
-//                                    .toArray(Class<?>[]::new);
-                            method = CoffeeMakerService.class.getDeclaredMethod(operation, Object.class);
+                            // 获取参数类型数组
+                            Class<?>[] parameterTypes = new Class<?>[args.length];
+                            for (int i = 0; i < args.length; i++) {
+                                parameterTypes[i] = args[i].getClass();
+                            }
+                            method = CoffeeMakerService.class.getDeclaredMethod(operation, parameterTypes);
                             method.invoke(deviceService, args);
                         } else {
                             // 找到无参数的方法
