@@ -10,7 +10,6 @@ import demo.lowcode.engine.model.DeviceMeta;
 import demo.lowcode.engine.util.JavaDynamicCompiler;
 import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
-import org.springframework.beans.factory.annotation.Value;
 
 import java.lang.reflect.Method;
 import java.util.List;
@@ -22,8 +21,8 @@ public class ActionBusiness {
     @Resource
     ScenarioBusiness scenarioBusiness;
 
-    @Value("${definitionPath}")
-    private String definitionPath;
+    @Resource
+    MockBusiness mockBusiness;
 
     public Action getAction(String type, String objectId, String execParam) throws Exception {
         if (Objects.equals(type, "Device")) {
@@ -101,7 +100,15 @@ public class ActionBusiness {
 
     public ActionExecResult executeAction(Action action, Object... args) {
         System.out.println("----------开始执行----------");
+        mockBusiness.setCurrentOperation((String) args[0]);
+        mockBusiness.setStatus("忙碌");
         ActionExecResult result = action.execute(args);
+        if (result == null || result.getCode() == 0){
+            mockBusiness.setCurrentOperation("");
+            mockBusiness.setStatus("空闲");
+        }else {
+            mockBusiness.setStatus("错误");
+        }
         System.out.println("----------结束执行----------");
         return result;
     }

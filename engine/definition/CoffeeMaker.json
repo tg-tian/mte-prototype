@@ -1,22 +1,24 @@
 {
-  "type": "coffeeMaker",
+  "type": "CoffeeMaker",
   "commands": [{
     "name": "start",
     "inputParam": [],
-    "outputParam": ""
+    "outputParam": "void"
   },
     {
       "name": "makeCoffee",
-      "inputParam": [],
-      "outputParam": ""
+      "inputParam": [{
+        "code": "coffeeType",
+        "name": "咖啡类型",
+        "type": "Enum",
+        "optional": ["摩卡", "美式"]
+      }],
+      "outputParam": "void"
     },
     {
       "name": "check",
-      "inputParam": [{
-        "name": "code",
-        "type": "Integer"
-      }],
-      "outputParam": ""
+      "inputParam": [],
+      "outputParam": "void"
     }],
   "events": [
     "onStartStart",

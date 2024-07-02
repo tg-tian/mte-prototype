@@ -41,7 +41,7 @@
           "parentActionId": "makeCoffee",
           "objectId": "CoffeeMaker",
           "execParam": "check",
-          "inputParam": "${parent.outputParam}",
+          "inputParam": "",
           "condition": "${parent.code} == 1"
         }
       ]

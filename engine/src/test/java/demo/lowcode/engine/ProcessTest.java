@@ -1,9 +1,6 @@
 package demo.lowcode.engine;
 
-import demo.lowcode.engine.business.ApplicationBusiness;
-import demo.lowcode.engine.business.DomainBusiness;
-import demo.lowcode.engine.business.ProcessBusiness;
-import demo.lowcode.engine.business.ScenarioBusiness;
+import demo.lowcode.engine.business.*;
 import demo.lowcode.engine.model.ActionMeta;
 import demo.lowcode.engine.model.DeviceMeta;
 import demo.lowcode.engine.model.DomainMeta;
@@ -29,11 +26,15 @@ class ProcessTest {
     ProcessBusiness processBusiness;
     @Autowired
     ApplicationBusiness applicationBusiness;
+    @Autowired
+    DeviceComponentBusiness deviceComponentBusiness;
 
     @BeforeAll
     public void loadProcess() throws IOException {
         // 领域层面：获取定义（设备类型及其对应的功能服务列表）
         DomainMeta domainMeta = domainBusiness.loadDomain(System.getProperty("user.dir")+"\\definition\\SmartBuilding.do");
+
+//        deviceComponentBusiness.loadDevice("CoffeeMaker.json");
 
         List<String> deviceTypeList = domainBusiness.getDeviceTypeList("SmartBuilding");
         System.out.println("当前领域设备类型列表："+deviceTypeList.toString());

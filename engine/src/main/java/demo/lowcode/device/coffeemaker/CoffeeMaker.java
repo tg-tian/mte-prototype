@@ -8,7 +8,11 @@ import demo.lowcode.common.extend.device.DeviceService;
 import demo.lowcode.common.EventListener;
 import demo.lowcode.device.coffeemaker.event.CoffeeMakerEvent;
 import demo.lowcode.device.coffeemaker.service.CoffeeMakerService;
+import demo.lowcode.engine.business.MockBusiness;
+import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Component;
 
 import java.io.File;
 import java.io.IOException;
@@ -17,6 +21,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.*;
 
+@Component
 public class CoffeeMaker extends Device {
     private Map<String, List<EventListener>> beforeEventListeners = new HashMap<>();
     private Map<String, List<EventListener>> afterEventListeners = new HashMap<>();
@@ -125,6 +130,15 @@ public class CoffeeMaker extends Device {
                             method = CoffeeMakerService.class.getDeclaredMethod(operation);
                             method.invoke(deviceService);
                         }
+
+                        try {
+                            // 让当前线程休眠10秒
+                            Thread.sleep(10000);
+                        } catch (InterruptedException e) {
+                            // 捕获并处理中断异常
+                            e.printStackTrace();
+                        }
+
                         flag = true;
                         break;
                     } catch (InvocationTargetException e) {

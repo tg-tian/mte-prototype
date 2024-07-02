@@ -3,10 +3,12 @@ package demo.lowcode.engine.controller;
 import demo.lowcode.engine.business.ApplicationBusiness;
 import jakarta.annotation.Resource;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@CrossOrigin
 public class ApplicationController {
     @Resource
     ApplicationBusiness applicationBusiness;
