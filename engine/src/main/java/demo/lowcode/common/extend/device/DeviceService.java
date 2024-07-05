@@ -1,5 +1,9 @@
 package demo.lowcode.common.extend.device;
 
-public abstract class DeviceService {
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
+public abstract class DeviceService {
+    public abstract Map<String, Object> getProperty();
 }

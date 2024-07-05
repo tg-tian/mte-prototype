@@ -13,12 +13,12 @@
   </div>
 
   <el-dialog :title="configTitle" v-model="configVisible">
-    <el-form :model="config">
-      <el-form-item v-for="configItem in config" :label="configItem.name" :key="configItem.code">
+    <el-form :model="config[configId]">
+      <el-form-item v-for="configItem in config[configId]" :label="configItem.name" :key="configItem.code">
         <div style="width: 50%">
-          <el-input v-model="configItem.value" v-if="configItem.type === 'string'"></el-input>
-          <el-input v-model="configItem.value" v-if="configItem.type === 'number'" type="number"></el-input>
-          <el-select v-model="configItem.value" v-if="configItem.type === 'enum'">
+          <el-input v-model="configItem.value" v-if="configItem.type === 'String'"></el-input>
+          <el-input v-model="configItem.value" v-if="configItem.type === 'Number'" type="number"></el-input>
+          <el-select v-model="configItem.value" v-if="configItem.type === 'Enum'">
             <el-option v-for="option in configItem.option" :key="option" :label="option" :value="option"></el-option>
           </el-select>
         </div>
@@ -35,6 +35,7 @@
 <script setup lang="ts">
 
 import {executeProcess, getActionConfig} from "../../api/processApi";
+import {ElMessage} from "element-plus";
 
 interface State {
   processName: String;
@@ -43,6 +44,7 @@ interface State {
   scenarioName: String;
 
   executing: Boolean;
+
   configId: String;
   configTitle: String;
   configVisible: Boolean;
@@ -82,37 +84,57 @@ onActivated(() => {
   }
 })
 
+onMounted(() => {
+  fetchConfig()
+})
+
+const fetchConfig = () => {
+  config.value = {
+    makeCoffee: [{
+      code: "coffeeType",
+      name: "咖啡类型",
+      type: "Enum",
+      optional: ["摩卡", "美式"],
+      value: ""
+    }]
+  }
+}
+
 const openConfig = async (actionId, actionName) => {
   configId.value = actionId
   configTitle.value = actionName;
   configVisible.value = true;
-  config.value = [{
-    code: "coffeeType",
-    name: "咖啡类型",
-    type: "enum",
-    option: ["摩卡", "美式"],
-    value: ""
-  }]
-  saveConfig.value[actionId] = {}
-  // getActionConfig(actionId).then((res: any) => {
-  //   config.value = res.data
-  // })
 };
 
 const handleSaveConfig = () => {
   configVisible.value = false
 
-  // TODO
+  saveConfig.value[configId.value] = {}
+
+  config.value[configId.value].forEach(configItem =>{
+    saveConfig.value[configId.value][configItem.code] = configItem.value
+  })
+
+  // {
+  //   makeCoffee: {
+  //     coffeeType: "摩卡"
+  //   }
+  // }
 };
 
 const fetchExecuteProcess = () => {
-  executing.value = true
-  executeProcess(processId.value).then((res: any) => {
-    if (res.status === 200){
+  let configComplete = Object.keys(config.value).every(key => Object.keys(saveConfig.value).includes(key))
+  if (configComplete){
+    executing.value = true
+    executeProcess(processId.value, saveConfig.value).then((res: any) => {
+      if (res.status === 200){
 
-    }
-    executing.value = false
-  })
+      }
+      executing.value = false
+    })
+  }else {
+    ElMessage.warning("请进行相关配置")
+  }
 };
 
 </script>

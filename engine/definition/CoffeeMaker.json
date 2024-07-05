@@ -11,7 +11,7 @@
         "code": "coffeeType",
         "name": "咖啡类型",
         "type": "Enum",
-        "optional": ["摩卡", "美式"]
+        "optional": []
       }],
       "outputParam": "void"
     },
@@ -30,5 +30,28 @@
     "onCheckStart",
     "onCheckComplete",
     "onCheckError"
+  ],
+  "services": [
+    {
+      "name": "AService",
+      "operations": {
+        "start": "on",
+        "makeCoffee": "makeCoffee"
+      },
+      "properties": [
+        {
+          "name": "coffeeTypes",
+          "description": "可支持咖啡类型"
+        }
+      ]
+    },
+    {
+      "name": "BService",
+      "operations": {
+        "start": "start",
+        "makeCoffee": "makeCoffee",
+        "check": "check"
+      }
+    }
   ]
 }

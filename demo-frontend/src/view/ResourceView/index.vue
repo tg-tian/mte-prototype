@@ -52,7 +52,7 @@ const fetchData = ()=>{
       deviceName: "咖啡机器人A",
       deviceType: '咖啡机器人',
       deviceService: 'AService',
-      uri: 'http://10.176.34.96:2030?action='
+      uri: 'http://xx.xx.xx.xx'
     }
   ]
 }

@@ -63,7 +63,16 @@ public class JavaDynamicCompiler {
             writer.write("public class " + className + " extends "+deviceType+"Service {\n");
             writer.write("    private String uri;\n");
             writer.write("    public " + className + "(String uri) { this.uri = uri; }\n");
+
             // 根据父类的方法生成覆盖的方法
+            writer.write("    @Override\n");
+            writer.write("    public Map<String, Object> getProperty(){\n");
+            writer.write("          Map<String, Object> result = new HashMap<>();\n");
+            //mock
+            writer.write("          result.put(\"coffeeType\", Arrays.asList(\"摩卡\", \"美式\"));\n");
+            writer.write("          return result;\n");
+            writer.write("    }\n");
+
             for (Map.Entry<String, String> entry : operations.entrySet()) {
                 try {
                     Class<?> parentClass = Class.forName("demo.lowcode.device." + packageName.split("\\.")[3] + ".service."+deviceType+"Service");

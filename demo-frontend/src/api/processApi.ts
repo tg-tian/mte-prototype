@@ -1,9 +1,10 @@
 import request from '../utils/request'
 
-export const executeProcess = (processId: String) =>
+export const executeProcess = (processId: String, saveConfig: any) =>
     request({
         url: `/execute-process?processId=${processId}`,
-        method: 'post'
+        method: 'post',
+        data: saveConfig
     })
 
 export const getActionConfig = (actionId: String) =>

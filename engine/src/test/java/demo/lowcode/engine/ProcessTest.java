@@ -12,6 +12,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -59,7 +61,7 @@ class ProcessTest {
     public void executeProcess() {
         // 执行（根据DeviceMeta进行实际的绑定具体设备、注册事件）
         try {
-            processBusiness.executeProcess("ConferenceService");
+            processBusiness.executeProcess("ConferenceService", new HashMap<>());
         } catch (Exception e) {
             e.printStackTrace();
         }

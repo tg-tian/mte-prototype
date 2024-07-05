@@ -12,12 +12,12 @@ public class MockBusiness {
 
     public void setCurrentOperation(String currentOperation) {
         this.currentOperation = currentOperation;
-        System.out.println("当前操作："+currentOperation);
+//        System.out.println("当前操作："+currentOperation);
     }
 
     public void setStatus(String status) {
         this.status = status;
-        System.out.println("当前状态："+status);
+//        System.out.println("当前状态："+status);
     }
 
     public MockDeviceInformation getMockData(){

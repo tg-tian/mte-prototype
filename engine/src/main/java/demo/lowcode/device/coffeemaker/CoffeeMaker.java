@@ -113,37 +113,34 @@ public class CoffeeMaker extends Device {
         try {
             onStart(operation);// 操作前事件
             boolean flag = false; // 判断是否有符合的设备
-            for (DeviceService deviceService : deviceServices) {
-                if (deviceService instanceof CoffeeMakerService) {
-                    try {
-                        Method method;
-                        if (args.length > 0) {
-                            // 获取参数类型数组
-                            Class<?>[] parameterTypes = new Class<?>[args.length];
-                            for (int i = 0; i < args.length; i++) {
-                                parameterTypes[i] = args[i].getClass();
-                            }
-                            method = CoffeeMakerService.class.getDeclaredMethod(operation, parameterTypes);
-                            method.invoke(deviceService, args);
-                        } else {
-                            // 找到无参数的方法
-                            method = CoffeeMakerService.class.getDeclaredMethod(operation);
-                            method.invoke(deviceService);
+            if (deviceService instanceof CoffeeMakerService) {
+                try {
+                    Method method;
+                    if (args.length > 0) {
+                        // 获取参数类型数组
+                        Class<?>[] parameterTypes = new Class<?>[args.length];
+                        for (int i = 0; i < args.length; i++) {
+                            parameterTypes[i] = args[i].getClass();
                         }
-
-                        try {
-                            // 让当前线程休眠10秒
-                            Thread.sleep(10000);
-                        } catch (InterruptedException e) {
-                            // 捕获并处理中断异常
-                            e.printStackTrace();
-                        }
-
-                        flag = true;
-                        break;
-                    } catch (InvocationTargetException e) {
-                        // ignore
+                        method = CoffeeMakerService.class.getDeclaredMethod(operation, parameterTypes);
+                        method.invoke(deviceService, args);
+                    } else {
+                        // 找到无参数的方法
+                        method = CoffeeMakerService.class.getDeclaredMethod(operation);
+                        method.invoke(deviceService);
                     }
+
+                    try {
+                        // 让当前线程休眠8秒
+                        Thread.sleep(8000);
+                    } catch (InterruptedException e) {
+                        // 捕获并处理中断异常
+                        e.printStackTrace();
+                    }
+
+                    flag = true;
+                } catch (InvocationTargetException e) {
+                    // ignore
                 }
             }
             if (!flag){
@@ -159,7 +156,7 @@ public class CoffeeMaker extends Device {
     }
 
     @Override
-    public ActionExecResult execute(Object... args) {// 第一个是调用的方法名；第二个参数是方法名的输入，类型为int/Map
+    public ActionExecResult execute(Object... args) {// 第一个是调用的方法名；第二个参数是父节点的输出，类型为int/Map；第三个参数是用户输入的参数值Map
         ActionExecResult actionExecResult = new ActionExecResult();
         if (args.length >= 1 && args[0] instanceof String) {
             String operationName = (String) args[0];

@@ -77,7 +77,7 @@ public class ScenarioBusiness {
            put("start", "on");
            put("makeCoffee", "makeCoffee");
         }};
-        DeviceConnectService service = new DeviceConnectService("AService", "http://10.176.34.96:2030?action=", operationMap);
+        DeviceConnectService service = new DeviceConnectService("AService", "http://xx.xx.xx.xx?action=", operationMap);
         DeviceInformation deviceInformation = new DeviceInformation("deviceId", null, service, deviceType, eventMap, controllerJavaFile);
         DeviceMeta deviceMeta = new DeviceMeta("deviceId", "咖啡机器人A", scenarioId, deviceInformation);
 
@@ -87,7 +87,7 @@ public class ScenarioBusiness {
             put("makeCoffee", "makeCoffee");
             put("check", "check");
         }};
-        DeviceConnectService service2 = new DeviceConnectService("BService", "http://10.176.34.85:2000?action=", operationMap2);
+        DeviceConnectService service2 = new DeviceConnectService("BService", "http://xx.xx.xx.xx?action=", operationMap2);
         DeviceInformation deviceInformation2 = new DeviceInformation("deviceId", null, service2, deviceType, eventMap, controllerJavaFile);
         DeviceMeta deviceMeta2 = new DeviceMeta("deviceId2", "咖啡机器人B", scenarioId, deviceInformation2);
 

@@ -9,13 +9,13 @@ import java.util.List;
 
 @Data
 public abstract class Device implements Action {
-    protected List<DeviceService> deviceServices = new ArrayList<>();
+    protected DeviceService deviceService = null;
     protected List<String> properties = new ArrayList<>();
     protected List<String> operations = new ArrayList<>();
     protected List<String> events = new ArrayList<>();
 
     public void bindService(DeviceService deviceService) {
-        deviceServices.add(deviceService);
+        this.deviceService = deviceService;
     }
 
     public void addProperties(String property) {

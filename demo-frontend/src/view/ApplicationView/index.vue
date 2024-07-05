@@ -7,7 +7,7 @@
         <el-table-column prop="processName" label="功能名" />
         <el-table-column label="操作" width="150">
           <template #default="scope">
-            <el-button type="primary" size="small" @click="goToDetail(scope.row.processId, scope.row.processName)">查看详情</el-button>
+            <el-button type="primary" size="small" @click="goToDetail(scope.row.processId, scope.row.processName)">打开</el-button>
           </template>
         </el-table-column>
       </el-table>

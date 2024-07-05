@@ -1,7 +1,7 @@
 {
   "scenarioId": "BuildingA",
   "scenarioName": "交叉二号楼",
-  "domainId": "smartBuilding",
+  "domainId": "SmartBuilding",
   "map": [
     {
       "name": "房间号",
@@ -20,11 +20,7 @@
         "deviceType": "CoffeeMaker",
         "service": {
           "name": "AService",
-          "uri": "http://10.176.34.96:2030?action=",
-          "operations": {
-            "start": "on",
-            "makeCoffee": "makeCoffee"
-          }
+          "uri": "http://xx.xx.xx.xx"
         },
         "propertyMap": [],
         "eventPath": "MakeCoffeeController.java",
@@ -52,11 +48,6 @@
         "service": {
           "name": "BService",
           "uri": "http://10.176.34.85:2000?action=",
-          "operations": {
-            "start": "start",
-            "makeCoffee": "makeCoffee",
-            "check": "check"
-          }
         },
         "propertyMap": [],
         "eventPath": "MakeCoffeeController.java",
