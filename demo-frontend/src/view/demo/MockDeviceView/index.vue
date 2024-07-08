@@ -12,7 +12,7 @@
 </template>
 
 <script setup lang="ts">
-  import {getMockDeviceInformation} from "../../api/mockDeviceApi";
+  import {getMockDeviceInformation} from "../../../api/mockDeviceApi";
 
   onMounted(()=>{
     setInterval(function(){

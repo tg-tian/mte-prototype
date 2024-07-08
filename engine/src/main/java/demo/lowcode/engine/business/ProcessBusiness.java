@@ -1,11 +1,14 @@
 package demo.lowcode.engine.business;
 
+import com.yomahub.liteflow.core.FlowExecutor;
+import com.yomahub.liteflow.flow.LiteflowResponse;
 import demo.lowcode.common.Action;
 import demo.lowcode.common.ActionExecResult;
 import demo.lowcode.common.extend.device.Device;
 import demo.lowcode.common.extend.device.DeviceService;
 import demo.lowcode.engine.dto.ExecuteActionArgs;
 import demo.lowcode.engine.entity.Param;
+import demo.lowcode.engine.liteflow.CustomContext;
 import demo.lowcode.engine.model.ActionMeta;
 import demo.lowcode.engine.model.RTProcess;
 import jakarta.annotation.Resource;
@@ -19,6 +22,8 @@ import static demo.lowcode.engine.util.JsonUtils.evaluateCondition;
 public class ProcessBusiness {
     @Resource
     ActionBusiness actionBusiness;
+    @Resource
+    private FlowExecutor flowExecutor;
 
     public Map<String, Action> getProcessActions(String processId) {
         List<ActionMeta> actionMetaList = getActionMetaList(processId);
@@ -33,6 +38,22 @@ public class ProcessBusiness {
             }
         });
         return actions;
+    }
+
+    public void executeLiteFlow(String processId, Map<String, Map<String, Object>> executeActionArgs) {
+        List<ActionMeta> actionMetaList = getActionMetaList(processId);
+        Map<String, Action> actions = getProcessActions(processId);
+        Map<String, Integer> executionStatus = new HashMap<>(); // 用于跟踪每个节点的执行状态
+        // 初始化每个节点的执行状态
+        actionMetaList.forEach(actionMeta -> executionStatus.put(actionMeta.getActionId(), 1));
+        Map<String, ActionExecResult> actionResults = new HashMap<>();
+
+        CustomContext customContext = new CustomContext();
+        customContext.setActionMap(actions);
+        customContext.setActionMetaList(actionMetaList);
+        customContext.setExecutionStatus(executionStatus);
+        customContext.setActionResults(actionResults);
+        LiteflowResponse response = flowExecutor.execute2Resp("ConferenceService", new HashMap<>(){{put("coffeeType", "美式");}});
     }
 
     // 运行时

@@ -34,7 +34,7 @@
 
 <script setup lang="ts">
 
-import {executeProcess, getActionConfig} from "../../api/processApi";
+import {executeProcess, getActionConfig} from "../../../api/processApi";
 import {ElMessage} from "element-plus";
 
 interface State {

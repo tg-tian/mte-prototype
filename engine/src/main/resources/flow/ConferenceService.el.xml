@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<flow>
+    <nodes>
+        <node id="makeCoffee" name="做咖啡" type="script" file="flow/component/makeCoffeeCmp.java"/>
+        <node id="check" name="自检" type="script" file="flow/component/checkCmp.java"/>
+    </nodes>
+
+    <chain name="ConferenceService">
+        THEN(
+            start,
+            makeCoffee,
+            check
+        );
+    </chain>
+</flow>

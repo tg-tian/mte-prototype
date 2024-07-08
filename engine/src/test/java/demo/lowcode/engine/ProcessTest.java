@@ -1,5 +1,7 @@
 package demo.lowcode.engine;
 
+import com.yomahub.liteflow.core.FlowExecutor;
+import com.yomahub.liteflow.flow.LiteflowResponse;
 import demo.lowcode.engine.business.*;
 import demo.lowcode.engine.model.ActionMeta;
 import demo.lowcode.engine.model.DeviceMeta;
@@ -31,7 +33,7 @@ class ProcessTest {
     @Autowired
     DeviceComponentBusiness deviceComponentBusiness;
 
-    @BeforeAll
+    @Test
     public void loadProcess() throws IOException {
         // 领域层面：获取定义（设备类型及其对应的功能服务列表）
         DomainMeta domainMeta = domainBusiness.loadDomain(System.getProperty("user.dir")+"\\definition\\SmartBuilding.do");
@@ -61,7 +63,7 @@ class ProcessTest {
     public void executeProcess() {
         // 执行（根据DeviceMeta进行实际的绑定具体设备、注册事件）
         try {
-            processBusiness.executeProcess("ConferenceService", new HashMap<>());
+            processBusiness.executeLiteFlow("ConferenceService", new HashMap<>(){{put("makeCoffee", new HashMap<>(){{put("coffeeType", "美式");}});}});
         } catch (Exception e) {
             e.printStackTrace();
         }
