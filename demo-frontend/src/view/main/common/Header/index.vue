@@ -1,13 +1,13 @@
 <template>
   <div class="header">
-    <div class="header-title">
+    <div class="header-title" style="cursor: pointer" @click="router.push({path:'/'})">
       <img width="30" height="30" title="低代码" :src="logo" />
       <div style="line-height: 32px; padding-left: 10px">场景化低代码开发工具</div>
     </div>
     <div class="header-right">
-      <el-button link style="margin-right: 20px;display: flex;color: white">
-        <el-icon style="margin-right: 2px; margin-top: 1px;" size="20" color="white"><DataBoard /></el-icon>
-      </el-button>
+<!--      <el-button link style="margin-right: 20px;display: flex;color: white">-->
+<!--        <el-icon style="margin-right: 2px; margin-top: 1px;" size="20" color="white"><DataBoard /></el-icon>-->
+<!--      </el-button>-->
       <div style="margin-right: 20px">
         <el-dropdown>
           <el-button link style="display: flex;color: white">
@@ -30,7 +30,7 @@
 <script setup lang="ts">
 import logo from '../../../../assets/logo.png'
 import {Setting, DataBoard} from "@element-plus/icons-vue";
-
+const router = useRouter()
 </script>
 
 <style scoped>

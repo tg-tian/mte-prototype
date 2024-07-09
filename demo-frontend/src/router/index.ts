@@ -6,7 +6,9 @@ import ApplicationView from '../view/demo/ApplicationView/index.vue'
 import ApplicationListView from '../view/demo/ApplicationListView/index.vue'
 import ResourceView from '../view/demo/ResourceView/index.vue'
 import ScenarioView from '../view/demo/ScenarioView/index.vue'
+import MainLayout from '../view/main/MainLayout/index.vue'
 import HomeView from '../view/main/HomeView/index.vue'
+import DomainAndComponentView from '../view/designer/DomainAndComponentView/index.vue'
 import { getToken } from '../utils/auth.ts'
 const router = createRouter({
   history: createWebHistory(),
@@ -14,12 +16,43 @@ const router = createRouter({
     {
       path: '',
       name: '首页',
-      component: HomeView,
+      component: MainLayout,
       meta: {
         title: '首页',
         keepAlive: true
       },
-      children: []
+      children: [
+        {
+          path: '',
+          name: 'main',
+          component: HomeView
+        },
+        {
+          path: '/auth',
+          name: '权限配置',
+          component: null
+        },
+        {
+          path: '/publish-setting',
+          name: '应用发布',
+          component: null
+        },
+        {
+          path: '/user',
+          name: '用户管理',
+          component: null
+        },
+        {
+          path: '/template',
+          name: '模板库',
+          component: null
+        },
+        {
+          path: '/my-workspace',
+          name: '我的空间',
+          component: DomainAndComponentView
+        }
+      ]
     },
     {
       path: '/demo',
@@ -37,7 +70,7 @@ const router = createRouter({
           component: ResourceView
         },
         {
-          path: '/application',
+          path: '/applicationList',
           name: '应用列表',
           component: ApplicationListView
         },

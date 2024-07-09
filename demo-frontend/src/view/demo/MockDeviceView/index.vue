@@ -32,7 +32,7 @@
   const { currentStatus, currentOperation } = toRefs(state)
 
   const imageUrl = computed(() => {
-    return new URL(`../../assets/images/${currentStatus.value === "-" ? "空闲" : currentStatus.value}.png`, import.meta.url).href;
+    return new URL(`../../../assets/images/${currentStatus.value === "-" ? "空闲" : currentStatus.value}.png`, import.meta.url).href;
   });
 
   const getDeviceInformation = () => {

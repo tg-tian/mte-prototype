@@ -1,30 +1,9 @@
-<template xmlns="">
-  <div class="common-layout">
-    <el-container style="width: 100%; height: 100%">
-      <el-header style="padding: 0"><Header/></el-header>
-      <el-container>
-        <el-aside width="200px"><AsideBar /></el-aside>
-        <el-main style="padding: 50px; padding-top: 30px">
-          <RouterView v-slot="slotProps">
-            <keep-alive>
-              <component :is="slotProps.Component"></component>
-            </keep-alive>
-          </RouterView>
-        </el-main>
-      </el-container>
-    </el-container>
+<template>
+  <div style="width: 80%;">
+    <img :src="imageUrl" alt="总体设计" style="width: 100%">
   </div>
 </template>
 
 <script setup lang="ts">
-import AsideBar from '../common/ASideBar/index.vue'
-import Header from '../common/Header/index.vue'
+import imageUrl from '/src/assets/images/总体设计.png';
 </script>
-
-<style scoped>
-.common-layout {
-  width: 100%;
-  height: 100%;
-}
-</style>
-
