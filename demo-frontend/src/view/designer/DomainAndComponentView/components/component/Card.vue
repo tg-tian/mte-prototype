@@ -27,8 +27,6 @@
 
 <script setup lang="ts">
 import {More} from "@element-plus/icons-vue";
-import { defineProps, defineEmits } from 'vue';
-
 
 const props = defineProps({
   imageUrl: String,

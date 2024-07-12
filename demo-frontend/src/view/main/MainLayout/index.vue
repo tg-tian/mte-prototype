@@ -3,7 +3,7 @@
     <el-container style="width: 100%; height: 100%">
       <el-header style="padding: 0"><Header/></el-header>
       <el-container>
-        <el-aside width="200px"><AsideBar /></el-aside>
+        <el-aside width="200px" v-if="isAuthenticated"><AsideBar /></el-aside>
         <el-main style="padding: 50px; padding-top: 30px">
           <RouterView v-slot="slotProps">
             <keep-alive>
@@ -19,6 +19,11 @@
 <script setup lang="ts">
 import AsideBar from '../common/ASideBar/index.vue'
 import Header from '../common/Header/index.vue'
+import {useUserStore} from "../../../store/modules/userStore";
+import {storeToRefs} from "pinia";
+
+const userStore = useUserStore()
+const { isAuthenticated } = storeToRefs(userStore)
 </script>
 
 <style scoped>

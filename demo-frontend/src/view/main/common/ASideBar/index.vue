@@ -1,49 +1,79 @@
 <template>
   <el-menu :default-active="selectedItem" class="nav-menu" @select="handleMenuSelect">
-    <div style="margin-top: 10px">
+<!--  管理员面板:2领域定义、1场景绑定（设备）  -->
+    <div style="margin-top: 10px" v-if="roles.includes('admin')">
       <div class="sub-title">系统业务</div>
       <el-sub-menu index="0" class="nav-item">
         <template #title>
           <el-icon><Monitor /></el-icon>
           <div class="menu-item">应用管理</div>
         </template>
-        <el-menu-item index="0-1" class="sub-menu-item">权限配置</el-menu-item>
-        <el-menu-item index="0-2" class="sub-menu-item">应用发布</el-menu-item>
+        <el-menu-item index="auth" class="sub-menu-item">权限配置</el-menu-item>
+        <el-menu-item index="publish-setting" class="sub-menu-item">应用发布</el-menu-item>
       </el-sub-menu>
-      <el-menu-item index="1" class="nav-item">
+      <el-menu-item index="userManage" class="nav-item">
         <el-icon><User /></el-icon>
         <div class="menu-item">用户管理</div>
       </el-menu-item>
     </div>
-    <div style="margin-top: 10px">
+  <!--
+  开发人员面板：
+  领域定义员（设置领域——增删改,设定领域组件/模板——UI/流程/设备）
+  场景设置员（设置场景，设定场景资源——设备/外部应用）
+  应用开发者（选定场景开发应用，应用增删改）
+    -->
+    <div style="margin-top: 10px" v-if="roles.includes('developer')">
       <div class="sub-title">工作台</div>
-      <el-menu-item index="2" class="nav-item">
+      <el-menu-item index="template" class="nav-item">
         <el-icon><Compass /></el-icon>
         <div class="menu-item">模板库</div>
       </el-menu-item>
-      <el-menu-item index="3" class="nav-item">
+      <el-menu-item index="workspace" class="nav-item">
         <el-icon><DataBoard /></el-icon>
         <div class="menu-item">我的空间</div>
       </el-menu-item>
     </div>
-    <div style="margin-top: 10px">
-      <div class="sub-title">我的应用</div>
-      <el-menu-item
-          v-for="item in domainItems"
-          :key="item.index"
-          :index="item.index"
-          class="nav-item"
-      >
-        <el-icon><Folder /></el-icon>
-        <div class="menu-item">{{ item.name }}</div>
+<!--  普通用户面板：3应用示范  -->
+    <div style="margin-top: 10px" v-if="roles.includes('user')">
+      <el-menu-item index="application" class="nav-item">
+        <el-icon><House /></el-icon>
+        <div class="menu-item">我的应用</div>
       </el-menu-item>
+      <div>
+<!--        <div class="sub-title">设置</div>-->
+        <el-menu-item index="profile" class="nav-item">
+          <el-icon><User /></el-icon>
+          <div class="menu-item">个人资料</div>
+        </el-menu-item>
+        <el-menu-item index="setting" class="nav-item">
+          <el-icon><Setting /></el-icon>
+          <div class="menu-item">账号设置</div>
+        </el-menu-item>
+      </div>
+<!--      <div>-->
+<!--        <div class="sub-title">我的领域</div>-->
+<!--        <el-menu-item-->
+<!--            v-for="item in domainItems"-->
+<!--            :key="item.index"-->
+<!--            :index="item.index"-->
+<!--            class="nav-item"-->
+<!--        >-->
+<!--          <el-icon><Folder /></el-icon>-->
+<!--          <div class="menu-item">{{ item.name }}</div>-->
+<!--        </el-menu-item>-->
+<!--      </div>-->
     </div>
   </el-menu>
 </template>
 
 <script setup lang="ts">
-import { House, Monitor, User, Compass, DataBoard, Folder } from '@element-plus/icons-vue'
+import { House, Monitor, User, Compass, DataBoard, Folder, Setting } from '@element-plus/icons-vue'
 import router from '../../../../router/index.ts'
+import {useUserStore} from "../../../../store/modules/userStore";
+import {storeToRefs} from "pinia";
+
+const userStore = useUserStore()
+const { roles } = storeToRefs(userStore)
 
 const fetchMenuItems = async () => {
   return [
@@ -59,33 +89,43 @@ interface State {
 }
 
 const state = reactive<State>({
-  selectedItem: '0',
+  selectedItem: '',
   domainItems: [],
   items: [
     {
-      index: '0-1',
+      index: 'auth',
       name: '权限配置',
       route: '/auth'
     },
     {
-      index: '0-2',
+      index: 'publish-setting',
       name: '应用发布',
       route: '/publish-setting'
     },
     {
-      index: '1',
+      index: 'userManage',
       name: '用户管理',
-      route: '/user'
+      route: '/userManage'
     },
     {
-      index: '2',
+      index: 'template',
       name: '模板库',
       route: '/template'
     },
     {
-      index: '3',
+      index: 'workspace',
       name: '我的空间',
       route: '/my-workspace'
+    },
+    {
+      index: 'profile',
+      name: '个人资料',
+      route: '/my-profile'
+    },
+    {
+      index: 'setting',
+      name: '账号设置',
+      route: '/my-setting'
     }
   ]
 })

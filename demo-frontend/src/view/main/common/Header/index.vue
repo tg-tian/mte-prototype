@@ -2,7 +2,7 @@
   <div class="header">
     <div class="header-title" style="cursor: pointer" @click="router.push({path:'/'})">
       <img width="30" height="30" title="低代码" :src="logo" />
-      <div style="line-height: 32px; padding-left: 10px">场景化低代码开发工具</div>
+      <div style="line-height: 32px; padding-left: 10px">面向场景计算的低代码平台</div>
     </div>
     <div class="header-right">
 <!--      <el-button link style="margin-right: 20px;display: flex;color: white">-->
@@ -20,9 +20,21 @@
           </template>
         </el-dropdown>
       </div>
-      <div>
-        登录/注册
-      </div>
+
+      <el-dropdown @command="handleCommand">
+        <el-button link style="display: flex;color: white;font-size: 16px">
+          <div>
+            {{ isAuthenticated ? username : '登录/注册' }}
+          </div>
+        </el-button>
+        <template #dropdown>
+          <el-dropdown-menu>
+            <el-dropdown-item command="admin">管理员</el-dropdown-item>
+            <el-dropdown-item command="developer">开发人员</el-dropdown-item>
+            <el-dropdown-item command="user">普通用户</el-dropdown-item>
+          </el-dropdown-menu>
+        </template>
+      </el-dropdown>
     </div>
   </div>
 </template>
@@ -30,7 +42,27 @@
 <script setup lang="ts">
 import logo from '../../../../assets/logo.png'
 import {Setting, DataBoard} from "@element-plus/icons-vue";
+import {useUserStore} from "../../../../store/modules/userStore";
+import {storeToRefs} from "pinia";
 const router = useRouter()
+
+const userStore = useUserStore()
+const { username, isAuthenticated, roles } = storeToRefs(userStore)
+
+const handleCommand = (command) => {
+  userStore.login({
+    username: 'test',
+    roles: [command]
+  })
+  router.push({path: '/'})
+}
+
+// 监听 store 状态变化
+watch([isAuthenticated, username, roles], () => {
+  console.log('isAuthenticated:', isAuthenticated.value);
+  console.log('username:', username.value);
+  console.log('roles', roles.value)
+});
 </script>
 
 <style scoped>

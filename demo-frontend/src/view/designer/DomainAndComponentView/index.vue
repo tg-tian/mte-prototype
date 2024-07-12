@@ -20,7 +20,6 @@
   </div>
 </template>
 <script lang="ts" setup>
-import { ref } from 'vue'
 import type { TabsPaneContext } from 'element-plus'
 import {Plus} from "@element-plus/icons-vue";
 import MyDomain from "./components/MyDomain.vue";

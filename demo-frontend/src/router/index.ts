@@ -10,6 +10,8 @@ import MainLayout from '../view/main/MainLayout/index.vue'
 import HomeView from '../view/main/HomeView/index.vue'
 import DomainAndComponentView from '../view/designer/DomainAndComponentView/index.vue'
 import { getToken } from '../utils/auth.ts'
+import { useUserStore } from "../store/modules/userStore";
+import {ElMessage} from "element-plus";
 const router = createRouter({
   history: createWebHistory(),
   routes: [
@@ -28,29 +30,72 @@ const router = createRouter({
           component: HomeView
         },
         {
-          path: '/auth',
-          name: '权限配置',
-          component: null
+          path: '/admin',
+          name: '管理员页面',
+          component: null,
+          meta: {
+            requiresAuth: true,
+            roles: ['admin']
+          },
+          children: [
+            {
+              path: '/auth',
+              name: '权限配置',
+              component: null
+            },
+            {
+              path: '/publish-setting',
+              name: '应用发布',
+              component: null
+            },
+            {
+              path: '/userManage',
+              name: '用户管理',
+              component: null
+            },
+          ]
         },
         {
-          path: '/publish-setting',
-          name: '应用发布',
-          component: null
+          path: '/developer',
+          name: '开发人员页面',
+          component: null,
+          meta: {
+            requiresAuth: true,
+            roles: ['developer']
+          },
+          children: [
+            {
+              path: '/template',
+              name: '模板库',
+              component: null
+            },
+            {
+              path: '/my-workspace',
+              name: '我的空间',
+              component: DomainAndComponentView
+            }
+          ]
         },
         {
           path: '/user',
-          name: '用户管理',
-          component: null
-        },
-        {
-          path: '/template',
-          name: '模板库',
-          component: null
-        },
-        {
-          path: '/my-workspace',
-          name: '我的空间',
-          component: DomainAndComponentView
+          name: '普通用户页面',
+          component: null,
+          meta: {
+            requiresAuth: true,
+            roles: ['user']
+          },
+          children: [
+            {
+              path: '/my-profile',
+              name: '个人资料',
+              component: null
+            },
+            {
+              path: '/my-setting',
+              name: '账号设置',
+              component: null
+            }
+          ]
         }
       ]
     },
@@ -101,14 +146,31 @@ const router = createRouter({
 
 // 登录拦截
 router.beforeEach((to, _from, next) => {
-  if (to.meta.requiresAuth && !getToken()) {
-    // 如果路由需要身份验证并且用户未登录，重定向到登录页
-    // next('/login')
-    next()
+  const userStore = useUserStore();
+  const { isAuthenticated, roles } = userStore;
+
+  if (to.meta.requiresAuth){
+    if (!isAuthenticated) {
+      ElMessage.warning('请先登录')
+      next('/');
+    } else if (to.meta.roles && !to.meta.roles.some(role => roles.includes(role))) {
+      ElMessage.warning('权限不足')
+      next('/');
+    } else {
+      next();
+    }
   } else {
-    // 否则，继续导航
     next()
   }
+
+  // if (to.meta.requiresAuth && !getToken()) {
+  //   // 如果路由需要身份验证并且用户未登录，重定向到登录页
+  //   next('/login')
+  //   // next()
+  // } else {
+  //   // 否则，继续导航
+  //   next()
+  // }
 })
 
 export default router
