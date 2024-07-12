@@ -1,27 +1,26 @@
 <template>
   <div class="file-item">
-    <div class="file-card-item" :class="{ 'file-card-item-selected': isSelected }" @mouseover="isHovered = true" @mouseleave="isHovered = false">
-      <div style="z-index: 3">
-        <el-checkbox v-bind="isSelected" @change="handleCheckboxChange" class="checkbox" v-show="isHovered || isSelected" size="large"></el-checkbox>
+    <div class="file-card-item" :class="{ 'file-card-item-selected': cardItem.isSelected }" @mouseover="isHovered = true" @mouseleave="isHovered = false">
+      <div style="z-index: 3" v-if="canSelect">
+        <el-checkbox v-bind="cardItem.isSelected" @change="handleCheckboxChange" class="checkbox" v-show="isHovered || cardItem.isSelected" size="large"></el-checkbox>
       </div>
-      <div style="z-index: 1; margin: 15px">
-        <el-image :src="imageUrl" class="folder-icon"></el-image>
+      <div style="z-index: 1; margin: 15px" @click="handleItemClick">
+        <el-image :src="cardItem.imageUrl" class="folder-icon"></el-image>
       </div>
 
-      <el-dropdown trigger="click" class="more-options" @command="handleDropdownItemClick">
+      <el-dropdown trigger="click" class="more-options" @command="handleDropdownItemClick" v-if="dropDownItems.length !== 0">
         <div >
           <el-button v-if="isHovered">
             <el-icon><More /></el-icon></el-button>
         </div>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item command="rename">重命名</el-dropdown-item>
-            <el-dropdown-item command="delete">删除</el-dropdown-item>
+            <el-dropdown-item v-for="item in dropDownItems" :key="item.code" :command="item.code">{{item.name}}</el-dropdown-item>
           </el-dropdown-menu>
         </template>
       </el-dropdown>
     </div>
-    <div class="file-name">{{name}}</div>
+    <div class="file-name">{{cardItem.name}}</div>
   </div>
 </template>
 
@@ -29,11 +28,17 @@
 import {More} from "@element-plus/icons-vue";
 
 const props = defineProps({
-  imageUrl: String,
-  name: String,
-  isSelected: Boolean
+  cardItem: Object,
+  dropDownItems: {
+    type: Array,
+    default: []
+  },
+  canSelect: {
+    type: Boolean,
+    default: false
+  }
 });
-const emit = defineEmits(['update:isSelected']);
+const emit = defineEmits(['update:isSelected', 'commandClick', 'itemClick']);
 
 const handleCheckboxChange = (value) => {
   emit('update:isSelected', value);
@@ -41,26 +46,19 @@ const handleCheckboxChange = (value) => {
 
 interface State {
   isHovered: Boolean;
-  dropdownItems: any[]
 }
 const state = reactive<State>({
-  isHovered: false,
-  dropdownItems: [
-    {
-      id: 'rename',
-      label: '重命名'
-    },
-    {
-      id: 'delete',
-      label: '删除'
-    },
-  ]
+  isHovered: false
 })
-const {isHovered, dropdownItems} = toRefs(state)
+const {isHovered} = toRefs(state)
+
+const handleItemClick = () => {
+  emit('itemClick')
+}
 
 const handleDropdownItemClick = (item) => {
-  console.log('Clicked item:', item);
   // 处理菜单项点击事件逻辑
+  emit('commandClick', item)
 };
 </script>
 

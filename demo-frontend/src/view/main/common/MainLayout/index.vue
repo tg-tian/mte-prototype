@@ -17,9 +17,9 @@
 </template>
 
 <script setup lang="ts">
-import AsideBar from '../common/ASideBar/index.vue'
-import Header from '../common/Header/index.vue'
-import {useUserStore} from "../../../store/modules/userStore";
+import AsideBar from '../ASideBar/index.vue'
+import Header from '../Header/index.vue'
+import {useUserStore} from "../../../../store/modules/userStore";
 import {storeToRefs} from "pinia";
 
 const userStore = useUserStore()

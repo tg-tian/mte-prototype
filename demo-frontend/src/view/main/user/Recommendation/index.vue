@@ -1,0 +1,60 @@
+<template>
+  <div style="display: flex;flex-wrap: wrap;gap: 20px">
+    <div v-for="(application, index) in applicationList" :key="index">
+      <Card
+          :cardItem="application"
+          @itemClick="handleClick(application)"/>
+    </div>
+  </div>
+</template>
+<script setup lang="ts">
+import Card from "../../common/Card.vue";
+
+const router = useRouter()
+
+interface State {
+  applicationList: any[],
+  dropDownItems: any[]
+}
+
+onActivated(()=>{
+  applicationList.value = [
+    {
+      code: "GuestReception",
+      name: "来访接待",
+      imageUrl: new URL('@/assets/logo.png', import.meta.url).href,
+      isSelected: false,
+      route: '/application/detail?applicationId=GuestReception&applicationName=来访接待&scenarioName=交叉二号楼'
+    }
+  ]
+})
+
+const state = reactive<State>({
+  applicationList: [],
+  dropDownItems: [
+    {
+      code: 'rename',
+      name: '重命名'
+    },
+    {
+      code: 'delete',
+      name: '删除'
+    }
+  ]
+})
+const { applicationList, dropDownItems } = toRefs(state)
+
+const updateIsSelected = (index, value) => {
+  applicationList.value[index].isSelected = value;
+};
+
+const handleCommand = (application, command)=>{
+  console.log('Clicked item:', application, command);
+}
+
+const handleClick = (application)=>{
+  console.log(application)
+  const fullPath = router.resolve(application.route).href
+  window.open(fullPath, '_blank')
+}
+</script>

@@ -6,9 +6,10 @@ import ApplicationView from '../view/demo/ApplicationView/index.vue'
 import ApplicationListView from '../view/demo/ApplicationListView/index.vue'
 import ResourceView from '../view/demo/ResourceView/index.vue'
 import ScenarioView from '../view/demo/ScenarioView/index.vue'
-import MainLayout from '../view/main/MainLayout/index.vue'
-import HomeView from '../view/main/HomeView/index.vue'
-import DomainAndComponentView from '../view/designer/DomainAndComponentView/index.vue'
+import MainLayout from '../view/main/common/MainLayout/index.vue'
+import HomeView from '../view/main/common/HomeView/index.vue'
+import WorkspaceView from '../view/main/developer/Workspace/index.vue'
+import RecommendationView from '../view/main/user/Recommendation/index.vue'
 import { getToken } from '../utils/auth.ts'
 import { useUserStore } from "../store/modules/userStore";
 import {ElMessage} from "element-plus";
@@ -30,7 +31,7 @@ const router = createRouter({
           component: HomeView
         },
         {
-          path: '/admin',
+          path: 'admin',
           name: '管理员页面',
           component: null,
           meta: {
@@ -39,45 +40,45 @@ const router = createRouter({
           },
           children: [
             {
-              path: '/auth',
+              path: 'auth',
               name: '权限配置',
               component: null
             },
             {
-              path: '/publish-setting',
+              path: 'publish-setting',
               name: '应用发布',
               component: null
             },
             {
-              path: '/userManage',
+              path: 'userManage',
               name: '用户管理',
               component: null
             },
           ]
         },
         {
-          path: '/developer',
+          path: 'developer',
           name: '开发人员页面',
           component: null,
           meta: {
             requiresAuth: true,
-            roles: ['developer']
+            roles: ['admin','developer']
           },
           children: [
             {
-              path: '/template',
+              path: 'template',
               name: '模板库',
               component: null
             },
             {
-              path: '/my-workspace',
+              path: 'workspace',
               name: '我的空间',
-              component: DomainAndComponentView
-            }
+              component: WorkspaceView
+            },
           ]
         },
         {
-          path: '/user',
+          path: 'user',
           name: '普通用户页面',
           component: null,
           meta: {
@@ -86,12 +87,22 @@ const router = createRouter({
           },
           children: [
             {
-              path: '/my-profile',
+              path: 'recommendation',
+              name: '为你推荐',
+              component: RecommendationView
+            },
+            {
+              path: 'my-application',
+              name: '我的应用',
+              component: null
+            },
+            {
+              path: 'my-profile',
               name: '个人资料',
               component: null
             },
             {
-              path: '/my-setting',
+              path: 'my-setting',
               name: '账号设置',
               component: null
             }

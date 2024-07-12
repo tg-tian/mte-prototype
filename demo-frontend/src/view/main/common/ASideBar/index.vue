@@ -1,6 +1,6 @@
 <template>
   <el-menu :default-active="selectedItem" class="nav-menu" @select="handleMenuSelect">
-<!--  管理员面板:2领域定义、1场景绑定（设备）  -->
+<!--  管理员面板  -->
     <div style="margin-top: 10px" v-if="roles.includes('admin')">
       <div class="sub-title">系统业务</div>
       <el-sub-menu index="0" class="nav-item">
@@ -18,11 +18,11 @@
     </div>
   <!--
   开发人员面板：
-  领域定义员（设置领域——增删改,设定领域组件/模板——UI/流程/设备）
-  场景设置员（设置场景，设定场景资源——设备/外部应用）
+  2领域定义员（设置领域——增删改,设定领域组件/模板——UI/流程/设备）
+  1场景设置员（设置场景，设定场景资源——设备/外部应用）
   应用开发者（选定场景开发应用，应用增删改）
     -->
-    <div style="margin-top: 10px" v-if="roles.includes('developer')">
+    <div style="margin-top: 10px" v-if="roles.includes('developer') || roles.includes('admin')">
       <div class="sub-title">工作台</div>
       <el-menu-item index="template" class="nav-item">
         <el-icon><Compass /></el-icon>
@@ -33,14 +33,18 @@
         <div class="menu-item">我的空间</div>
       </el-menu-item>
     </div>
-<!--  普通用户面板：3应用示范  -->
+<!--  普通用户面板  -->
     <div style="margin-top: 10px" v-if="roles.includes('user')">
+      <el-menu-item index="recommendation" class="nav-item">
+        <el-icon><Compass /></el-icon>
+        <div class="menu-item">为你推荐</div>
+      </el-menu-item>
       <el-menu-item index="application" class="nav-item">
         <el-icon><House /></el-icon>
         <div class="menu-item">我的应用</div>
       </el-menu-item>
       <div>
-<!--        <div class="sub-title">设置</div>-->
+        <div class="sub-title">设置</div>
         <el-menu-item index="profile" class="nav-item">
           <el-icon><User /></el-icon>
           <div class="menu-item">个人资料</div>
@@ -50,18 +54,6 @@
           <div class="menu-item">账号设置</div>
         </el-menu-item>
       </div>
-<!--      <div>-->
-<!--        <div class="sub-title">我的领域</div>-->
-<!--        <el-menu-item-->
-<!--            v-for="item in domainItems"-->
-<!--            :key="item.index"-->
-<!--            :index="item.index"-->
-<!--            class="nav-item"-->
-<!--        >-->
-<!--          <el-icon><Folder /></el-icon>-->
-<!--          <div class="menu-item">{{ item.name }}</div>-->
-<!--        </el-menu-item>-->
-<!--      </div>-->
     </div>
   </el-menu>
 </template>
@@ -75,67 +67,67 @@ import {storeToRefs} from "pinia";
 const userStore = useUserStore()
 const { roles } = storeToRefs(userStore)
 
-const fetchMenuItems = async () => {
-  return [
-    { index: '4', name: '智慧楼宇', route: '/demo' },
-    { index: '5', name: '智慧矿山', route: '/demo2' }
-  ];
-};
-
 interface State {
   selectedItem: string
-  domainItems: any;
   items: any;
 }
 
 const state = reactive<State>({
   selectedItem: '',
-  domainItems: [],
   items: [
+      // 管理员
     {
       index: 'auth',
       name: '权限配置',
-      route: '/auth'
+      route: '/admin/auth'
     },
     {
       index: 'publish-setting',
       name: '应用发布',
-      route: '/publish-setting'
+      route: '/admin/publish-setting'
     },
     {
       index: 'userManage',
       name: '用户管理',
-      route: '/userManage'
+      route: '/admin/userManage'
     },
+      // 开发人员
     {
       index: 'template',
       name: '模板库',
-      route: '/template'
+      route: '/developer/template'
     },
     {
       index: 'workspace',
       name: '我的空间',
-      route: '/my-workspace'
+      route: '/developer/workspace'
+    },
+      // 普通用户
+    {
+      index: 'recommendation',
+      name: '为你推荐',
+      route: '/user/recommendation'
+    },
+    {
+      index: 'application',
+      name: '我的应用',
+      route: '/user/my-application'
     },
     {
       index: 'profile',
       name: '个人资料',
-      route: '/my-profile'
+      route: '/user/my-profile'
     },
     {
       index: 'setting',
       name: '账号设置',
-      route: '/my-setting'
+      route: '/user/my-setting'
     }
   ]
 })
-const { selectedItem, domainItems, items } = toRefs(state)
+const { selectedItem, items } = toRefs(state)
 
 onMounted(async ()=>{
-  domainItems.value = await fetchMenuItems();
-  domainItems.value.forEach((item) => {
-    items.value.push(item)
-  })
 })
 
 watchEffect(() => {
