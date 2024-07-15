@@ -5,7 +5,7 @@
           {{domain.domainName + '(' + domain.children.length + ')'}}
         </div>
       </div>
-      <div style="display: flex;flex-wrap: wrap;gap: 20px">
+      <div style="display: flex;flex-wrap: wrap;gap: 20px;">
         <Card
             v-for="(scenario, index2) in domain.children"
             :key="index2"
@@ -25,6 +25,7 @@ interface State {
   scenarioList: any[],
   dropDownItems: any[]
 }
+const router = useRouter()
 
 onActivated(()=>{
   scenarioList.value = [
@@ -66,10 +67,6 @@ const state = reactive<State>({
     {
       code: 'delete',
       name: '删除'
-    },
-    {
-      code: 'edit',
-      name: '编辑'
     }
   ]
 })
@@ -85,12 +82,13 @@ const handleCommand = (scenario, command)=>{
 
 const handleClick = (scenario)=>{
   console.log(scenario)
+  router.push({path: '/developer/scenario/detail', query: {scenarioId: scenario.code, scenarioName: scenario.name}})
 }
 </script>
 <style scoped>
 .collapse-block {
-  margin-top: 10px;
-  margin-bottom: 5px;
+  margin-top: 20px;
+  margin-bottom: 10px;
   display: flex;
 }
 

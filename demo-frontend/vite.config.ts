@@ -10,6 +10,7 @@ import { ElementPlusResolver } from 'unplugin-vue-components/resolvers' // eleme
 import fs from 'fs'
 // @ts-ignore
 import dotenv from 'dotenv'
+import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }): UserConfig => {
@@ -50,9 +51,13 @@ export default defineConfig(({ mode }): UserConfig => {
       })
     ],
     resolve: {
-      alias: {
-        '@': fileURLToPath(new URL('./src', import.meta.url))
-      }
+      alias: [
+        {
+          find: '@',
+          replacement: path.resolve(__dirname, 'src')
+        }
+      ]
+        // '@': fileURLToPath(new URL('./src', import.meta.url))
     },
     css: {
       preprocessorOptions: {
