@@ -15,6 +15,7 @@ public class ScenarioController {
 
 
     // load场景定义
+    // TODO: 解释引擎不用加载scenario。应该放到开发工具中。但是scenario这个概念还是可以在engine中保留。
     @PostMapping(value = "/load-scenario")
     public ResponseEntity<?> loadScenario(String scePath) {
         scenarioBusiness.loadScenario(scePath);

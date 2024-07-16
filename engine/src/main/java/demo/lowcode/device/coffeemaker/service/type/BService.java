@@ -19,15 +19,38 @@ public class BService extends CoffeeMakerService {
 
     @Override
     public void start() {
-        System.out.println("Accessing URI: " + uri + "start");
+        System.out.println("Starting Coffee Maker BService ...");
+        try {
+            // 让当前线程休眠8秒
+            Thread.sleep(3000);
+        } catch (InterruptedException e) {
+            // 捕获并处理中断异常
+            e.printStackTrace();
+        }
+        System.out.println("Started (B).");
     }
     @Override
     public void check(Integer param0) {
-        System.out.println("Accessing URI: " + uri + "check");
-//        System.out.println("Param0: " + param0);
+        System.out.println("Finishing (B)");
+        try {
+            // 让当前线程休眠8秒
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            // 捕获并处理中断异常
+            e.printStackTrace();
+        }
+        System.out.println("Check finished");
     }
     @Override
     public void makeCoffee(LinkedHashMap executeArgs) {
-        System.out.println("Accessing URI: " + uri + "makeCoffee");
+        System.out.println("Starting making coffee (Accessing URI: " + uri + " (B)");
+        try {
+            // 让当前线程休眠8秒
+            Thread.sleep(8000);
+        } catch (InterruptedException e) {
+            // 捕获并处理中断异常
+            e.printStackTrace();
+        }
+        System.out.println("Done making coffee.");
     }
 }

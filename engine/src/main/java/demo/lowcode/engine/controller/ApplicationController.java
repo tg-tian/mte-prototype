@@ -14,6 +14,7 @@ public class ApplicationController {
     ApplicationBusiness applicationBusiness;
 
     // load应用定义
+    // TODO: 解释引擎：可能要加载多个app。不同app应该有不同的入口
     @PostMapping(value = "/load-application")
     public ResponseEntity<?> loadScenario(String appPath) {
         applicationBusiness.loadApplication(appPath);

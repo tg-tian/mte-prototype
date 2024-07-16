@@ -57,6 +57,7 @@ public class ProcessBusiness {
     }
 
     // 运行时
+    // TODO: 当有多个应用时，不同应用的功能执行应该可以并发/并行。executeProcess是否应该是 线程级 的？
     public void executeProcess(String processId, Map<String, Map<String, Object>> executeActionArgs) {
         System.out.println(executeActionArgs.toString());
         List<ActionMeta> actionMetaList = getActionMetaList(processId);
@@ -154,6 +155,7 @@ public class ProcessBusiness {
 
     }
 
+    // TODO: read from CurrentApp
     public List<ActionMeta> getActionMetaList(String processId) {
         if (Objects.equals(processId, "ConferenceService")){
             ActionMeta actionMeta = new ActionMeta("start", "开始", "Default", "", "", "", null, "");

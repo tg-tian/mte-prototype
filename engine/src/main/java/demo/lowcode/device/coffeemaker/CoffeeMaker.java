@@ -130,14 +130,6 @@ public class CoffeeMaker extends Device {
                         method.invoke(deviceService);
                     }
 
-                    try {
-                        // 让当前线程休眠8秒
-                        Thread.sleep(8000);
-                    } catch (InterruptedException e) {
-                        // 捕获并处理中断异常
-                        e.printStackTrace();
-                    }
-
                     flag = true;
                 } catch (InvocationTargetException e) {
                     // ignore

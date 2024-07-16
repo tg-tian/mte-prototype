@@ -19,6 +19,8 @@ public class ApplicationBusiness {
 
     }
 
+    // TODO: load application definition
+    // TODO: 解释引擎：可能要加载多个app，不同的app应该有不同的入口
     public void loadApplication(String appPath) {
         // 读取该应用的json文件
 
