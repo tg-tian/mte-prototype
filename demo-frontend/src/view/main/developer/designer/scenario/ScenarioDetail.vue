@@ -27,12 +27,6 @@
           <div>
             <DetailDevice :scenarioId="scenarioId" :scenarioName="scenarioName"/>
           </div>
-          <div>
-            <DetailComponent :scenarioId="scenarioId" :scenarioName="scenarioName"/>
-          </div>
-          <div>
-            <DetailUIComponent :scenarioId="scenarioId" :scenarioName="scenarioName"/>
-          </div>
         </div>
       </div>
     </el-col>
@@ -53,23 +47,16 @@
         <el-anchor-link href="#场景资源" title="场景资源" >
           <template #sub-link>
             <el-anchor-link href="#设备" title="设备" />
-            <el-anchor-link href="#业务组件" title="业务组件" />
-            <el-anchor-link href="#UI组件" title="UI组件" />
           </template>
         </el-anchor-link>
       </el-anchor>
     </el-col>
   </el-row>
-  <div>
-
-  </div>
 </template>
 
 <script setup lang="ts">
 import DetailArea from "@/view/main/developer/designer/scenario/component/DetailArea.vue";
 import DetailDevice from "@/view/main/developer/designer/scenario/component/DetailDevice.vue";
-import DetailComponent from "@/view/main/developer/designer/scenario/component/DetailComponent.vue";
-import DetailUIComponent from "@/view/main/developer/designer/scenario/component/DetailUIComponent.vue";
 
 const imageUrl = computed(() => {
   return new URL('@/assets/images/map.png', import.meta.url).href;

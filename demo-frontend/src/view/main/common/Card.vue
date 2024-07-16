@@ -1,6 +1,6 @@
 <template>
   <div class="file-item">
-    <div class="file-card-item" :class="{ 'file-card-item-selected': cardItem.isSelected }" @mouseover="isHovered = true" @mouseleave="isHovered = false">
+    <div class="file-card-item" :class="{ 'file-card-item-selected': canSelect && cardItem.isSelected }" @mouseover="isHovered = true" @mouseleave="isHovered = false">
       <div style="z-index: 3" v-if="canSelect">
         <el-checkbox v-bind="cardItem.isSelected" @change="handleCheckboxChange" class="checkbox" v-show="isHovered || cardItem.isSelected" size="large"></el-checkbox>
       </div>
