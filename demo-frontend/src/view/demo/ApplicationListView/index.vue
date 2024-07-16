@@ -49,6 +49,6 @@ const fetchData = ()=>{
 }
 
 const goToDetail = (applicationId: String, applicationName: String)=>{
-  router.push({ path: '/application/detail', query: { applicationId: applicationId, applicationName: applicationName, scenarioName: scenarioName.value } })
+  router.push({ path: '/demo/application/detail', query: { applicationId: applicationId, applicationName: applicationName, scenarioName: scenarioName.value } })
 }
 </script>

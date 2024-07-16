@@ -54,6 +54,6 @@ const fetchData = ()=>{
 }
 
 const goToDetail = (processId: String, processName: String)=>{
-  router.push({ path: '/page', query: { processId: processId, processName: processName, applicationName: applicationName.value, scenarioName: scenarioName.value } })
+  router.push({ path: '/demo/page', query: { processId: processId, processName: processName, applicationName: applicationName.value, scenarioName: scenarioName.value } })
 }
 </script>

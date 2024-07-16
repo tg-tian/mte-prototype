@@ -24,7 +24,7 @@ onActivated(()=>{
       name: "来访接待",
       imageUrl: new URL('@/assets/logo.png', import.meta.url).href,
       isSelected: false,
-      route: '/application/detail?applicationId=GuestReception&applicationName=来访接待&scenarioName=交叉二号楼'
+      route: '/demo/application/detail?applicationId=GuestReception&applicationName=来访接待&scenarioName=交叉二号楼'
     }
   ]
 })

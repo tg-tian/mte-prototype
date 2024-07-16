@@ -42,10 +42,10 @@ const fetchData = ()=>{
 }
 
 const goToApplicationList = (scenarioId: String, scenarioName: String)=>{
-  router.push({ path: '/applicationList', query: { scenarioId: scenarioId, scenarioName: scenarioName } })
+  router.push({ path: '/demo/applicationList', query: { scenarioId: scenarioId, scenarioName: scenarioName } })
 }
 
 const goToResourceList = (scenarioId: String, scenarioName: String)=>{
-  router.push({ path: '/resource', query: { scenarioId: scenarioId, scenarioName: scenarioName } })
+  router.push({ path: '/demo/resource', query: { scenarioId: scenarioId, scenarioName: scenarioName } })
 }
 </script>

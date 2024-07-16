@@ -1,15 +1,16 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import MockDeviceView from '../view/demo/MockDeviceView/index.vue'
-import PageView from '../view/demo/PageView/index.vue'
-import ProcessView from '../view/demo/ProcessView/index.vue'
-import ApplicationView from '../view/demo/ApplicationView/index.vue'
-import ApplicationListView from '../view/demo/ApplicationListView/index.vue'
-import ResourceView from '../view/demo/ResourceView/index.vue'
-import ScenarioView from '../view/demo/ScenarioView/index.vue'
+import PageDemoView from '../view/demo/PageView/index.vue'
+import ProcessDemoView from '../view/demo/ProcessView/index.vue'
+import ApplicationDemoView from '../view/demo/ApplicationView/index.vue'
+import ApplicationListDemoView from '../view/demo/ApplicationListView/index.vue'
+import ResourceDemoView from '../view/demo/ResourceView/index.vue'
+import ScenarioDemoView from '../view/demo/ScenarioView/index.vue'
 import MainLayout from '../view/main/common/MainLayout/index.vue'
 import HomeView from '../view/main/common/HomeView/index.vue'
 import WorkspaceView from '../view/main/developer/Workspace/index.vue'
 import RecommendationView from '../view/main/user/Recommendation/index.vue'
+import ScenarioDetail from '../view/main/developer/designer/scenario/ScenarioDetail.vue'
 import { getToken } from '../utils/auth.ts'
 import { useUserStore } from "../store/modules/userStore";
 import {ElMessage} from "element-plus";
@@ -75,6 +76,11 @@ const router = createRouter({
               name: '我的空间',
               component: WorkspaceView
             },
+            {
+              path: 'scenario/detail',
+              name: '场景详情',
+              component: ScenarioDetail
+            }
           ]
         },
         {
@@ -112,43 +118,49 @@ const router = createRouter({
     },
     {
       path: '/demo',
-      name: '咖啡机器人应用demo',
+      name: '应用demo',
       component: null,
       children: [
         {
           path: '',
-          name: '场景列表',
-          component: ScenarioView
-        },
-        {
-          path: '/resource',
-          name: '资源列表',
-          component: ResourceView
-        },
-        {
-          path: '/applicationList',
-          name: '应用列表',
-          component: ApplicationListView
-        },
-        {
-          path: '/application/detail',
-          name: '应用功能列表',
-          component: ApplicationView
-        },
-        {
-          path: '/process',
-          name: '应用功能流程',
-          component: ProcessView
-        },
-        {
-          path: '/page',
-          name: '应用功能页面',
-          component: PageView
-        },
-        {
-          path: '/mock-device',
-          name: '模拟设备页面',
-          component: MockDeviceView
+          name: '智慧楼宇',
+          children: [
+            {
+              path: '',
+              name: '场景列表',
+              component: ScenarioDemoView
+            },
+            {
+              path: 'resource',
+              name: '资源列表',
+              component: ResourceDemoView
+            },
+            {
+              path: 'applicationList',
+              name: '应用列表',
+              component: ApplicationListDemoView
+            },
+            {
+              path: 'application/detail',
+              name: '应用功能列表',
+              component: ApplicationDemoView
+            },
+            {
+              path: 'process',
+              name: '应用功能流程',
+              component: ProcessDemoView
+            },
+            {
+              path: 'page',
+              name: '应用功能页面',
+              component: PageDemoView
+            },
+            {
+              path: 'mock-device',
+              name: '模拟设备页面',
+              component: MockDeviceView
+            }
+          ]
         }
       ]
     }

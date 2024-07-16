@@ -34,6 +34,13 @@ import MyApplication from "./component/MyApplication.vue";
 
 const activeName = ref('domain')
 
+const router = useRouter()
+watchEffect(() => {
+  if (typeof router.currentRoute.value.query.active === 'string') {
+    activeName.value = router.currentRoute.value.query.active || ''
+  }
+})
+
 const handleClick = (tab: TabsPaneContext, event: Event) => {
 }
 </script>
