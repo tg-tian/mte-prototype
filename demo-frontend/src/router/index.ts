@@ -11,6 +11,7 @@ import HomeView from '../view/main/common/HomeView/index.vue'
 import WorkspaceView from '../view/main/developer/Workspace/index.vue'
 import RecommendationView from '../view/main/user/Recommendation/index.vue'
 import ScenarioDetail from '../view/main/developer/designer/scenario/ScenarioDetail.vue'
+import DomainDetail from "@/view/main/developer/designer/domain/DomainDetail.vue"
 import { getToken } from '../utils/auth.ts'
 import { useUserStore } from "../store/modules/userStore";
 import {ElMessage} from "element-plus";
@@ -80,6 +81,11 @@ const router = createRouter({
               path: 'scenario/detail',
               name: '场景详情',
               component: ScenarioDetail
+            },
+            {
+              path:'domain/detail',
+              name:'领域详情',
+              component: DomainDetail
             }
           ]
         },

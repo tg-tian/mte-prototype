@@ -19,6 +19,8 @@ interface State {
   dropDownItems: any[]
 }
 
+const router = useRouter() //引入路由
+
 onActivated(()=>{
   domainList.value = [
     {
@@ -65,5 +67,6 @@ const handleCommand = (domain, command)=>{
 
 const handleClick = (domain)=>{
   console.log(domain)
+  router.push({path: '/developer/domain/detail',query: {domainId: domain.code, domainName: domain.name }})
 }
 </script>

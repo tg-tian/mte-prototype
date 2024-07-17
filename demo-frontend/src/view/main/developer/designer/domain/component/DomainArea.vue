@@ -4,18 +4,19 @@
     <el-button type="primary">新增字段</el-button>
   </div>
   <div class="domain-content">
-    <Table :header="header" :data="data"/>
+    <Table :header="header" :data="data" />
   </div>
 </template>
 
 <script setup lang="ts">
 
-import {defineComponent} from "vue";
 import Table from "@/view/main/common/Table.vue";
 
-export default defineComponent({
-  components: {Table}
-})
+//暂时没用
+const props = defineProps({
+  domainId: String,
+  domainName: String
+});
 
 interface State{
   header: any[];
@@ -24,7 +25,7 @@ interface State{
 
 const state = reactive<State>({
   header: [],
-  date:[],
+  data:[],
 })
 
 const  {header ,data} = toRefs(state)
@@ -58,7 +59,3 @@ onMounted(()=>{
   }]
 })
 </script>
-
-<style scoped>
-
-</style>

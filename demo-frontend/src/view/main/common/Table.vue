@@ -1,5 +1,6 @@
 <template>
   <el-table :data="data" border stripe style="width: 100%">
+    <el-table-column type="selection" width="55"  v-if="canChoose"/>
     <el-table-column v-for="col in header" :key="col.code" :prop="col.code" :label="col.name">
       <template v-slot="scope">
         <img
@@ -34,9 +35,15 @@
 </template>
 
 <script setup lang="ts">
+
 const props = defineProps({
   data: Array,
-  header: Array
+  header: Array,
+
+  canChoose:{
+    type: Boolean,
+    default: false
+  }
 });
 
 interface State{
@@ -66,4 +73,8 @@ const handleImageClick = (imageUrl)=>{
 const handleDialogClose = ()=>{
   selectedImage.value=''
 }
+
+onActivated(()=>{
+  console.log(props.canChoose)
+})
 </script>
