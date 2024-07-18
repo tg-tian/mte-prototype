@@ -13,6 +13,9 @@
 </template>
 <script setup lang="ts">
 import Card from "../../../common/Card.vue";
+import {useApplicationStore} from "@/store/modules/applicationStore";
+
+const router = useRouter()
 
 interface State {
   applicationList: any[],
@@ -57,7 +60,14 @@ const handleCommand = (application, command)=>{
   console.log('Clicked item:', application, command);
 }
 
+const applicationStore = useApplicationStore()
 const handleClick = (application)=>{
   console.log(application)
+  applicationStore.loadApplication({
+    applicationId: application.code,
+    applicationName: application.name
+  })
+  const fullPath = router.resolve(`/design/index`).href
+  window.open(fullPath, '_blank')
 }
 </script>

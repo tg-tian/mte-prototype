@@ -25,6 +25,9 @@
       </div>
     </div>
 <!--  填写具体设备信息  -->
+<!--  TODO：边缘设备获取  -->
+<!--  TODO：选择品牌  -->
+<!--  TODO： 数据和json文件对齐  -->
     <div v-else>
       <div style="padding: 20px">
         <el-form

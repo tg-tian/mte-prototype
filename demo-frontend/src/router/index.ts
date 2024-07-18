@@ -12,6 +12,12 @@ import WorkspaceView from '../view/main/developer/Workspace/index.vue'
 import RecommendationView from '../view/main/user/Recommendation/index.vue'
 import ScenarioDetail from '../view/main/developer/designer/scenario/ScenarioDetail.vue'
 import DomainDetail from "@/view/main/developer/designer/domain/DomainDetail.vue"
+import ApplicationDetail from '../view/main/developer/designer/application/ApplicationDetail.vue'
+import DesignIndex from '../view/main/developer/designer/application/detailComponents/DesignIndex.vue'
+import DesignProcess from '../view/main/developer/designer/application/detailComponents/DesignProcess.vue'
+import DesignPage from '../view/main/developer/designer/application/detailComponents/DesignPage.vue'
+import ProcessEdit from '../view/main/developer/designer/application/process/ProcessEdit.vue'
+import PageEdit from '../view/main/developer/designer/application/page/PageEdit.vue'
 import { getToken } from '../utils/auth.ts'
 import { useUserStore } from "../store/modules/userStore";
 import {ElMessage} from "element-plus";
@@ -117,6 +123,52 @@ const router = createRouter({
               path: 'my-setting',
               name: '账号设置',
               component: null
+            }
+          ]
+        }
+      ]
+    },
+    {
+      path: '/design',
+      name: '设计页面',
+      component: null,
+      children: [
+        {
+          path: '',
+          name: '设计目录',
+          component: ApplicationDetail,
+          children: [
+            {
+              path: 'index',
+              name: '设计首页',
+              component: DesignIndex
+            },
+            {
+              path: 'process',
+              name: '流程列表',
+              component: DesignProcess
+            },
+            {
+              path: 'page',
+              name: '页面列表',
+              component: DesignPage
+            },
+          ]
+        },
+        {
+          path: 'edit',
+          name: '编辑界面',
+          component: null,
+          children: [
+            {
+              path: 'process',
+              name: '流程编辑页面',
+              component: ProcessEdit
+            },
+            {
+              path: 'page',
+              name: '视图编辑页面',
+              component: PageEdit
             }
           ]
         }
