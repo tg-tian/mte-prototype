@@ -20,17 +20,23 @@
       "inputParam": [],
       "outputParam": "void"
     }],
-  "events": [
-    "onStartStart",
-    "onStartComplete",
-    "onStartError",
-    "onMakeCoffeeStart",
-    "onMakeCoffeeComplete",
-    "onMakeCoffeeError",
-    "onCheckStart",
-    "onCheckComplete",
-    "onCheckError"
-  ],
+  "events": {
+    "eventPath": "MakeCoffeeController.java",
+    "eventMap": [
+      {
+        "name": "onMakeCoffeeStart",
+        "value": "prepare"
+      },
+      {
+        "name": "onMakeCoffeeComplete",
+        "value": "sendMessage"
+      },
+      {
+        "name": "onCheckError",
+        "value": "errorAlert"
+      }
+    ]
+  },
   "services": [
     {
       "name": "AService",
