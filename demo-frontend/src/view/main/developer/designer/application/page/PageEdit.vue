@@ -47,11 +47,20 @@
               <el-option v-for="option in [{label: '咖啡服务', value: 'ConferenceService'}]" :key="option.value" :label="option.label" :value="option.value"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item v-for="configItem in buttonConfig.params" :label="configItem.name" :key="configItem.code" :prop="configItem.code">
-            <div style="width: 50%">
-              <el-input v-model="configItem.value"></el-input>
-            </div>
-          </el-form-item>
+          <div v-for="action in buttonConfig.params">
+            <div style="font-size: 15px;color: gray;margin-bottom: 10px">{{action.actionName}}</div>
+            <el-form-item
+                v-for="configItem in action.executeArgs"
+                :label="configItem.name"
+                :key="configItem.code"
+                :prop="configItem.code"
+                style="margin-left: 30px"
+            >
+              <div style="width: 50%">
+                <el-input v-model="configItem.value"></el-input>
+              </div>
+            </el-form-item>
+          </div>
         </el-form>
       </div>
     </div>
@@ -121,9 +130,15 @@ const handleProcessChange = (processId)=>{
   if (processId === 'ConferenceService') {
     buttonConfig.value.params = [
       {
-        code: 'coffeeType',
-        name: '咖啡类型',
-        value: '${coffeeType}'
+        "actionId": "makeCoffee",
+        "actionName": "制作咖啡",
+        "executeArgs": [
+          {
+            code: 'coffeeType',
+            name: '咖啡类型',
+            value: '${coffeeType}'
+          }
+        ]
       }
     ]
   }else {

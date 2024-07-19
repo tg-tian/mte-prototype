@@ -26,8 +26,6 @@
     </div>
 <!--  填写具体设备信息  -->
 <!--  TODO：边缘设备获取  -->
-<!--  TODO：选择品牌  -->
-<!--  TODO： 数据和json文件对齐  -->
     <div v-else>
       <div style="padding: 20px">
         <el-form
@@ -40,9 +38,17 @@
           <el-form-item label="设备ID" prop="deviceId">
             <el-input v-model="deviceForm.deviceId" placeholder="请输入"/>
           </el-form-item>
+          <el-form-item label="设备名" prop="deviceName">
+            <el-input v-model="deviceForm.deviceName" placeholder="请输入"/>
+          </el-form-item>
           <el-form-item label="设备类型" prop="deviceType.code">
             <el-select v-model="deviceForm.deviceType.code" disabled>
               <el-option v-for="device in domainDevice" :key="device.code" :label="device.name" :value="device.code" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="设备品牌/厂商" prop="deviceService.code">
+            <el-select v-model="deviceForm.deviceService.code" placeholder="请选择品牌/厂商">
+              <el-option v-for="service in domainDevice.find(v=>v.code===deviceForm.deviceType.code)?.services ?? []" :key="service.code" :label="service.name" :value="service.code" />
             </el-select>
           </el-form-item>
           <el-form-item label="协议" prop="contract">
@@ -96,8 +102,18 @@ const state = reactive<State>({
       type: "String"
     },
     {
+      code: "deviceName",
+      name: "设备名",
+      type: "String"
+    },
+    {
       code: "deviceType",
       name: "设备类型",
+      type: "String"
+    },
+    {
+      code: "deviceService",
+      name: "品牌/厂商",
       type: "String"
     },
     {
@@ -126,7 +142,9 @@ const {header, data, domainDevice, dialogVisible, selectedDevice, searchInput} =
 
 interface RuleForm {
   deviceId: String;
+  deviceName: String;
   deviceType: any;
+  deviceService: any;
   contract: String;
   host: String;
   port: number|string;
@@ -134,7 +152,9 @@ interface RuleForm {
 const deviceFormRef = ref<FormInstance>()
 const deviceForm = reactive<RuleForm>({
   deviceId: '',
+  deviceName: '',
   deviceType: '',
+  deviceService: '',
   contract: '',
   host: '',
   port: ''
@@ -143,8 +163,14 @@ const rules = reactive<FormRules<RuleForm>>({
   deviceId: [
     { required: true, message: '请填写设备ID', trigger: 'blur' },
   ],
-  deviceType: [
+  deviceName: [
+    { required: true, message: '请填写设备名', trigger: 'blur' },
+  ],
+  "deviceType.code": [
     { required: true, message: '请选择设备类型', trigger: 'blur' },
+  ],
+  "deviceService.code": [
+    { required: true, message: '请选择设备品牌/厂商', trigger: 'blur' },
   ],
   contract: [
     { required: true, message: '请选择协议', trigger: 'blur' },
@@ -159,21 +185,43 @@ const rules = reactive<FormRules<RuleForm>>({
 
 onMounted(()=>{
   data.value = [{
-    deviceId: "mock",
+    deviceId: "deviceId",
+    deviceName: "咖啡机器人A",
     deviceType: "咖啡机器人",
+    deviceService: "A品牌",
     contract: "HTTP",
-    host: "xx.xx.xx.xx",
+    host: "http://aservice.coffee",
+    port: 8080
+  },
+    {
+    deviceId: "deviceId2",
+    deviceName: "咖啡机器人B",
+    deviceType: "咖啡机器人",
+    deviceService: "B品牌",
+    contract: "HTTP",
+    host: "http://bservice.coffee",
     port: 8080
   }]
 
   domainDevice.value = [{
     code: "CoffeeMaker",
     name: "咖啡机器人",
+    services: [
+      {
+        code: "AService",
+        name: "A品牌"
+      },
+      {
+        code: "BService",
+        name: "B品牌"
+      }
+    ],
     imageUrl: new URL('@/assets/logo.png', import.meta.url).href
   },
     {
       code: "Temperature",
       name: "温度传感器",
+      services: [],
       imageUrl: new URL('@/assets/logo.png', import.meta.url).href
     }]
 })

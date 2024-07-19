@@ -2,6 +2,8 @@
   "applicationId": "GuestReception",
   "applicationName": "来访接待",
   "scenarioId": "BuildingA",
+  "domainId": "SmartBuilding",
+  "tag": ["SmartBuilding", "咖啡服务"],
   "processes": [
     {
       "processId": "EventRegistration",

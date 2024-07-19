@@ -1,6 +1,7 @@
 {
   "type": "CoffeeMaker",
-  "commands": [{
+  "commands": [
+    {
     "name": "start",
     "inputParam": [],
     "outputParam": "void"

@@ -20,7 +20,7 @@
         "deviceType": "CoffeeMaker",
         "service": {
           "name": "AService",
-          "uri": "http://xx.xx.xx.xx"
+          "uri": "http://aservice.coffee"
         }
       }
     },
@@ -31,7 +31,7 @@
         "deviceType": "CoffeeMaker",
         "service": {
           "name": "BService",
-          "uri": "http://10.176.34.85:2000?action=",
+          "uri": "http://bservice.coffee"
         }
       }
     }
