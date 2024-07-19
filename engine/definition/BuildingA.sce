@@ -20,24 +20,8 @@
         "deviceType": "CoffeeMaker",
         "service": {
           "name": "AService",
-          "uri": "http://xx.xx.xx.xx"
-        },
-        "propertyMap": [],
-        "eventPath": "MakeCoffeeController.java",
-        "eventMap": [
-          {
-            "name": "onMakeCoffeeStart",
-            "value": "prepare"
-          },
-          {
-            "name": "onMakeCoffeeComplete",
-            "value": "sendMessage"
-          },
-          {
-            "name": "onCheckError",
-            "value": "errorAlert"
-          }
-        ]
+          "uri": "http://aservice.coffee"
+        }
       }
     },
     {
@@ -47,24 +31,8 @@
         "deviceType": "CoffeeMaker",
         "service": {
           "name": "BService",
-          "uri": "http://10.176.34.85:2000?action=",
-        },
-        "propertyMap": [],
-        "eventPath": "MakeCoffeeController.java",
-        "eventMap": [
-          {
-            "name": "onMakeCoffeeStart",
-            "value": "prepare"
-          },
-          {
-            "name": "onMakeCoffeeComplete",
-            "value": "sendMessage"
-          },
-          {
-            "name": "onCheckError",
-            "value": "errorAlert"
-          }
-        ]
+          "uri": "http://bservice.coffee"
+        }
       }
     }
   ]

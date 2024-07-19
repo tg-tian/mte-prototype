@@ -42,7 +42,7 @@
 <script setup lang="ts">
 import logo from '../../../../assets/logo.png'
 import {Setting, DataBoard} from "@element-plus/icons-vue";
-import {useUserStore} from "../../../../store/modules/userStore";
+import {useUserStore} from "@/store/modules/userStore";
 import {storeToRefs} from "pinia";
 const router = useRouter()
 
@@ -65,7 +65,7 @@ watch([isAuthenticated, username, roles], () => {
 });
 </script>
 
-<style scoped>
+<style>
 .header {
   width: 100%;
   height: 100%;

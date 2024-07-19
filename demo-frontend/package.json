@@ -17,7 +17,8 @@
     "pinia": "^2.1.7",
     "terser": "^5.31.0",
     "vue": "^3.4.21",
-    "vue-router": "^4.3.2"
+    "vue-router": "^4.3.2",
+    "vue3-ace-editor": "^2.2.4"
   },
   "devDependencies": {
     "@types/node": "^20.12.12",
