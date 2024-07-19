@@ -1,14 +1,11 @@
 <template>
   <div class="domain-subtitle" style="display: flex;justify-content: space-between">
-    <el-button type="primary" style="margin-left: auto;">新增组件</el-button>
+    <el-button type="primary" style="margin-left: auto;">添加组件类型</el-button>
   </div>
   <div class = "domain-content">
     <Table :header="header" :data="data" :canChoose="true" />
   </div>
-  <div class="domain-subtitle" style="display: flex;justify-content: space-between">
-    <el-button type="primary" style="margin-left: auto;" plain>保存选择</el-button>
-    <el-button type="primary" style="margin-right: auto;" plain>清除选择</el-button>
-  </div>
+
 </template>
 
 <script setup lang="ts">
@@ -38,8 +35,8 @@ const {header, data} = toRefs(state)
 onMounted(()=> {
   header.value = [{
     code: "number",
-    name: "序号",
-    type: "String"
+    name: "组件号",
+    type: "Int"
   },{
     code: "name",
     name: "组件名称",
