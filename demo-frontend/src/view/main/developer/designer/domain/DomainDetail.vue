@@ -15,7 +15,7 @@
           </div>
         </div>
         <div class="domain-resource">
-          <div class="domain-title" id="资源分配管理">资源分配管理</div>
+          <div class="domain-title" id="领域模板管理">模板管理</div>
           <div style="margin-top: 30px">
             <DomainResource :domainId="domainId" :domainName="domainName"/>
           </div>
@@ -27,13 +27,13 @@
         :container= "anchorRef"
         :offset = "30"
         direction="vertical"
-        marker = true
+        marker
         type="default"
         class="anchor"
       >
         <el-anchor-link href="#领域设置" title="领域设置">
         </el-anchor-link>
-        <el-anchor-link href="#资源分配管理" title="资源分配管理">
+        <el-anchor-link href="#领域模板管理" title="领域模板管理">
           <!--
                     <template #sub-link>
             <el-anchor-link href="#设备" title="设备" />

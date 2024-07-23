@@ -67,7 +67,7 @@ const handleClick = (application)=>{
     applicationId: application.code,
     applicationName: application.name
   })
-  const fullPath = router.resolve(`/design/index`).href
+  const fullPath = router.resolve(`/design/index?applicationId=${application.code}&applicationName=${application.name}`).href
   window.open(fullPath, '_blank')
 }
 </script>

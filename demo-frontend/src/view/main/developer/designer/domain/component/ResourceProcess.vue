@@ -5,33 +5,29 @@
   <div class = "domain-content">
     <Table :header="header" :data="data" :canChoose="true" />
   </div>
-  <el-dialog v-model = "dialogVisible" title="添加流程类型" width="50%">
-    <div style="padding: 20px">
-    <el-form
-      :model="ProcessForm"
-      :rules="rules"
-      ref="processFormRef"
-      label-width="auto"
-      label-position="left"
-      style="max-width: 500px"
-    >
-      <el-form-item label="流程号" prop="ProcessNumber">
-        <el-input v-model="ProcessForm.ProcessNumber" placeholder="请输入"/>
-      </el-form-item>
-      <el-form-item label="流程名称" prop="ProcessName">
-        <el-input v-model="ProcessForm.ProcessName" placeholder="请输入"/>
-      </el-form-item>
-      <el-form-item label="流程简介" prop="ProcessBrief">
-        <el-input v-model="ProcessForm.ProcessBrief" placeholder="请输入"/>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" @click="submitForm(processFormRef)">
-          确认
-        </el-button>
-        <el-button @click="resetForm(ruleFormRef)">重置</el-button>
-      </el-form-item>
-
-    </el-form>
+  <el-dialog v-model = "dialogVisible" title="添加流程类型" width="50%" @close="clearProcess">
+    <div style="display: flex;justify-content: space-between;font-size: 16px;margin-bottom: 20px;margin-top: 10px">
+      <div>模板库</div>
+      <div style="color: #50a5fb">
+        <el-input
+            v-model="searchInput"
+            style="width: 240px"
+            placeholder="搜索"
+            :prefix-icon="Search"
+        />
+      </div>
+    </div>
+    <div style="display: flex;flex-wrap: wrap;gap: 20px;">
+      <Card
+          v-for="(process, index) in domainProcess"
+          :key="process.code"
+          :cardItem="process"
+          canSelect
+          @update:isSelected="updateIsSelected(index, $event)"/>
+    </div>
+    <div style="margin-top: 20px;display: flex;justify-content: end">
+      <el-button type="primary">确定</el-button>
+      <el-button @click="clearProcess">清空</el-button>
     </div>
   </el-dialog>
 </template>
@@ -39,67 +35,28 @@
 <script setup lang = "ts">
 
 import Table from "@/view/main/common/Table.vue";
-import {FormInstance, FormRules} from "element-plus";
+import Card from '@/view/main/common/Card.vue'
+import {Search} from "@element-plus/icons-vue";
 
 const props = defineProps({
-  resourceId: String,
-  resourceName: String
+  domainId: String,
+  domainName: String
 })
 
 //定义状态接口
 interface State{
   header: any[];
   data: any[];
+  searchInput: String;
   dialogVisible: boolean;
-  selectedDevice: String;
+  domainProcess: any[];
+  selectedProcessList: String;
 }
-
-//定义表格接口
-interface RuleForm
-{
-  ProcessNumber: String;
-  ProcessName:String;
-  ProcessBrief:String;
-}
-
-//表格规则（接口形式）初始化
-
-const rules = reactive<FormRules<RuleForm>>({
-  ProcessNumber:[
-    {required: true, message: '请填写流程号', trigger:'blur'},
-  ],
-  ProcessName:[
-    {required: true, message: '请填写流程名称', trigger:'blur'}
-  ],
-  ProcessBrief:[
-    {required: true, message: '请填写流程简介', trigger:'blur'}
-  ],
-})
-
-const processFormRef = ref<FormInstance>()
-//接口初始化
-const ProcessForm = reactive<RuleForm>({
-  ProcessNumber: "",
-  ProcessName:"",
-  ProcessBrief:""
-})
 
 //初始化
 const state = reactive<State>({
-  header:[],
-  data:[],
-  dialogVisible: false,
-  selectedProcess:"",
-})
-
-//从初始化的state中获取元素结点
-const {header, data,dialogVisible,selectedProcess} = toRefs(state)
-
-//获取
-
-//赋值
-onMounted(()=> {
-  header.value = [{
+  header:[
+      {
     code: "number",
     name: "流程号",
     type: "String"
@@ -111,32 +68,48 @@ onMounted(()=> {
     code: "brief",
     name: "流程简介",
     type: "String"
-  }]
+  }],
+  data:[],
+  searchInput: '',
+  dialogVisible: false,
+  domainProcess: [],
+  selectedProcessList:[],
+})
+
+//从初始化的state中获取元素结点
+const {header, data,searchInput,dialogVisible,selectedProcessList, domainProcess} = toRefs(state)
+
+//赋值
+onMounted(()=> {
   data.value = [{
     number: "001",
     name: "预约流程",
     brief: "此流程用于各类预约系统，可以实现预约时间选择、预约队列管理等"
   }]
+  domainProcess.value = [{
+    code: "001",
+    name: "预约流程",
+    isSelected: false,
+    imageUrl: new URL('@/assets/logo.png', import.meta.url).href
+  },
+    {
+      code: "002",
+      name: "审批流程",
+      isSelected: false,
+      imageUrl: new URL('@/assets/logo.png', import.meta.url).href
+    }
+  ]
 })
 
+const updateIsSelected = (index, value) => {
+  domainProcess.value[index].isSelected = value;
+};
 
-
-const resetForm = () => {
-  if(processFormRef){
-    processFormRef.value.resetFields()
-  }
-  return
-}
-
-const submitForm = async (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  await formEl.validate((valid, fields) => {
-    if (valid) {
-      console.log('submit!', ProcessForm)
-    } else {
-      console.log('error submit!', fields)
-    }
+const clearProcess = ()=>{
+  domainProcess.value.forEach((device)=>{
+    device.isSelected=false
   })
+  selectedProcessList.value = []
 }
 </script>
 

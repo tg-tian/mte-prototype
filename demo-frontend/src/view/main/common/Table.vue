@@ -95,8 +95,4 @@ const handleImageClick = (imageUrl)=>{
 const handleDialogClose = ()=>{
   selectedImage.value=''
 }
-
-onActivated(()=>{
-  console.log(props.canChoose)
-})
 </script>

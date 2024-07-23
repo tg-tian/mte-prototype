@@ -29,6 +29,12 @@
 <script setup lang="ts">
 import router from "@/router";
 import {Connection, Document, House} from "@element-plus/icons-vue";
+import {useApplicationStore} from "@/store/modules/applicationStore";
+
+const props = defineProps({
+  applicationId: String,
+  applicationName: String
+});
 
 interface State {
   selectedItem: string
@@ -71,7 +77,7 @@ const handleMenuSelect = (key: string, _keyPath: string[]) => {
   selectedItem.value = key
   const selectedItemData = items.value.find(item => item.index === key);
   if (selectedItemData) {
-    router.push(selectedItemData.route)
+    router.push({path: selectedItemData.route, query: { applicationId: props.applicationId, applicationName: props.applicationName}})
   }
 }
 </script>

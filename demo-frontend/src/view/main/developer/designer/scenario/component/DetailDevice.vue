@@ -219,8 +219,8 @@ onMounted(()=>{
     imageUrl: new URL('@/assets/logo.png', import.meta.url).href
   },
     {
-      code: "Temperature",
-      name: "温度传感器",
+      code: "AirConditioner",
+      name: "空调",
       services: [],
       imageUrl: new URL('@/assets/logo.png', import.meta.url).href
     }]

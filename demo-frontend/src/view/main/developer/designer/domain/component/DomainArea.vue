@@ -1,6 +1,6 @@
 <template>
   <div class="domain-subtitle" style="display: flex;justify-content: space-between">
-    <div id="字段列表">字段列表</div>
+    <div id="区域字段列表">区域字段列表</div>
     <el-button @click="dialogVisible = true" type="primary" style="margin-left: auto;">新增字段</el-button>
   </div>
   <div class="domain-content">
