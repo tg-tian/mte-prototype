@@ -1,0 +1,149 @@
+[
+  {
+    "type": "domainUI",
+    "name": "领域UI控件",
+    "items": [
+      {
+        "id": "ScenarioNavigation",
+        "type": "navigation",
+        "name": "场景化导航",
+        "category": "container",
+        "icon": "guide.svg"
+      },
+      {
+        "id": "BarChart",
+        "type": "chart-group",
+        "name": "柱状图",
+        "category": "chart",
+        "icon": "bar.svg"
+      }
+    ]
+  },
+  {
+    "type": "domainDevice",
+    "name": "领域设备类型",
+    "items": [
+      {
+        "id": "CoffeeMaker",
+        "type": "deviceType",
+        "name": "咖啡机器人",
+        "category": "command"
+      },
+      {
+        "id": "AirConditioner",
+        "type": "deviceType",
+        "name": "空调",
+        "category": "command"
+      }
+    ]
+  },
+  {
+    "type": "input",
+    "name": "输入类控件",
+    "items": [
+      {
+        "id": "TextBox",
+        "type": "input-group",
+        "name": "文本",
+        "category": "input"
+      },
+      {
+        "id": "MultiTextBox",
+        "type": "input-group",
+        "name": "多行文本",
+        "category": "input"
+      },
+      {
+        "id": "TimePicker",
+        "type": "time-picker",
+        "name": "时间选择",
+        "category": "input"
+      },
+      {
+        "id": "Dropdown",
+        "type": "dropdown",
+        "name": "下拉列表",
+        "category": "input"
+      },
+      {
+        "id": "NumericBox",
+        "type": "number-spinner",
+        "name": "数值",
+        "category": "input"
+      },
+      {
+        "id": "CheckBox",
+        "type": "checkbox",
+        "name": "复选框组",
+        "category": "input"
+      },
+      {
+        "id": "RadioGroup",
+        "type": "radio-group",
+        "name": "单选组",
+        "category": "input"
+      },
+      {
+        "id": "SwitchField",
+        "type": "switch",
+        "name": "开关",
+        "category": "input"
+      },
+      {
+        "id": "Image",
+        "type": "image",
+        "name": "图像",
+        "category": "input"
+      },
+      {
+        "id": "ColorPicker",
+        "type": "color-picker",
+        "name": "颜色选择器",
+        "category": "input"
+      }
+    ]
+  },
+  {
+    "type": "command",
+    "name": "命令类控件",
+    "items": [
+      {
+        "id": "Button",
+        "type": "button-group",
+        "name": "按钮",
+        "category": "command"
+      }
+    ]
+  },
+  {
+    "type": "container",
+    "name": "容器类控件",
+    "items": [
+      {
+        "id": "Tab",
+        "type": "tabs",
+        "name": "标签页区域",
+        "category": "container"
+      },
+      {
+        "id": "ContentContainer",
+        "type": "content-container",
+        "name": "容器",
+        "category": "container"
+      },
+      {
+        "id": "ModalContainer",
+        "type": "modal-container",
+        "name": "弹窗容器",
+        "category": "container"
+      },
+      {
+        "id": "ScenarioNavigation",
+        "type": "nav",
+        "name": "场景化导航",
+        "category": "container",
+        "icon": "guide.svg"
+      }
+    ]
+  }
+]
