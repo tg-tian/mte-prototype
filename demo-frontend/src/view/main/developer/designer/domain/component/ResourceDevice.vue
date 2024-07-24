@@ -60,7 +60,7 @@ const state = reactive<State>({
   header:[
     {
       code: "ID",
-      name: "设备ID",
+      name: "类型ID",
       type: "String"
     },{
       code: "name",
