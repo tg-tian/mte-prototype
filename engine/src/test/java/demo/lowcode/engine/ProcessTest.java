@@ -60,7 +60,7 @@ class ProcessTest {
     }
 
     @Test
-    public void executeProcess() {
+    public void executeLiteFlowProcess() {
         // 执行（根据DeviceMeta进行实际的绑定具体设备、注册事件）
         try {
             processBusiness.executeLiteFlow("ConferenceService", new HashMap<>(){{put("makeCoffee", new HashMap<>(){{put("coffeeType", "美式");}});}});

@@ -21,7 +21,7 @@ public class CoffeeMakerService extends DeviceService {
         throw new RuntimeException("NoSupportedOperation");
     }
 
-    public void check(Integer code){
+    public void check(){
         throw new RuntimeException("NoSupportedOperation");
     }
 }

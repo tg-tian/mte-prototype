@@ -35,8 +35,14 @@
       "execParam": "check",
       "executeArgs": ""
     }
-
-  ]
+  ],
+  "flow": {
+    "chain": [
+      {
+        "name": "ConferenceService",
+        "value": "THEN(start,makeCoffee,check)"
+      }
+    ]
+  }
 }
-
 

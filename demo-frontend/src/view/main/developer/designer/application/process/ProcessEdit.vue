@@ -1,25 +1,73 @@
 <template>
-  <div style="padding: 20px">
-    <div>流程编辑页面</div>
-    <div style="margin-top: 10px;margin-bottom: 10px">
-      <el-button type="primary" @click="saveFile">保存</el-button>
-      <el-button type="primary">发布</el-button>
+  <div style="display: flex;flex-direction: column;height: 100%">
+    <div class="process-header">
+      <div>{{processName}}-流程编辑页面</div>
+      <div>
+        <el-button type="primary" @click="saveFile">保存</el-button>
+        <el-button type="primary">发布</el-button>
+      </div>
     </div>
-    <!-- 配置节点（选择设备及操作后，会对应加载该操作需要的参数） -->
-    <VAceEditor
-        v-model:value="content"
-        lang="json"
-        theme="monokai"
-        :options="options"
-        class="vue-ace-editor">
-    </VAceEditor>
+    <div class="process-content">
+      <div style="border: 1px solid lightgray; padding: 20px;width: 25%;overflow-y: auto">
+        <div style="margin-bottom: 10px">工具栏</div>
+        <el-input
+            placeholder="搜索"
+            :prefix-icon="Search"
+        />
+        <ToolBox :toolboxJson="processTool"/>
+      </div>
+
+      <div style="border: 1px solid lightgray; padding: 20px;margin-left: 20px;width: 50%;overflow-y: auto">
+        <!-- 配置节点（选择设备及操作后，会对应加载该操作需要的参数） -->
+        <VAceEditor
+            v-model:value="content"
+            lang="json"
+            theme="monokai"
+            :options="options"
+            class="vue-ace-editor">
+        </VAceEditor>
+      </div>
+
+      <div style="border: 1px solid lightgray; padding: 20px;margin-left: 20px;width: 20%;overflow-y: auto">
+        属性配置区
+
+        <el-form>
+          <el-form-item label="id" class="attribute-item">
+            <el-input placeholder="请输入"></el-input>
+          </el-form-item>
+        </el-form>
+      </div>
+    </div>
   </div>
 </template>
 <script setup lang="ts">
+import ToolBox from '@/view/main/common/ToolBox/index.vue'
 import { VAceEditor } from "vue3-ace-editor";
 import "@/aceConfig.js";
 import type { Ace } from "ace-builds";
 import {getFileData, saveFileData} from "@/api/fileApi";
+import processTool from './processTool.json'
+import {Search} from "@element-plus/icons-vue";
+
+interface State{
+  processId: String;
+  processName: String;
+}
+const state = reactive<State>({
+  processId: '',
+  processName: '',
+})
+const {processId, processName} = toRefs(state)
+
+const router = useRouter()
+watchEffect(() => {
+  if (typeof router.currentRoute.value.query.processId === 'string') {
+    processId.value = router.currentRoute.value.query.processId || ''
+  }
+  if (typeof router.currentRoute.value.query.processName === 'string') {
+    processName.value = router.currentRoute.value.query.processName || ''
+  }
+})
 
 const content = ref(''); // 显示的内容
 
@@ -51,9 +99,28 @@ const saveFile=()=>{
 <style scoped>
 .vue-ace-editor {
   /* ace-editor默认没有高度，所以必须设置高度，或者同时设置最小行和最大行使编辑器的高度自动增高 */
-  height: 600px;
-  width: 70%;
+  height: 99%;
+  width: 99%;
   font-size: 16px;
   border: 1px solid;
+}
+
+.process-header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: lightgray 1px solid;
+  padding: 10px;
+  margin: 20px 20px 10px;
+}
+
+.process-content {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  margin: 20px;
+}
+
+.attribute-item {
+  margin-top: 10px;
 }
 </style>

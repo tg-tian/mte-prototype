@@ -1,13 +1,25 @@
 <template>
-  <div style="padding: 20px">
-    <div>页面编辑</div>
-    <div style="margin-top: 10px;margin-bottom: 10px">
-      <el-button type="primary">保存</el-button>
-      <el-button type="primary" @click="goToPage">试运行</el-button>
+  <div style="display: flex;flex-direction: column;height: 100%">
+    <div class="page-header">
+      <div>{{pageName}}-页面编辑</div>
+      <div>
+        <el-button type="primary">保存</el-button>
+        <el-button type="primary" @click="goToPage">试运行</el-button>
+      </div>
     </div>
+
     <!-- 绑定process，加载需要的参数 -->
-    <div style="display: flex">
-      <div style="border: 1px solid lightgray; padding: 20px;width: 70%">
+    <div class="page-container">
+      <div style="border: 1px solid lightgray; padding: 20px;width: 25%;overflow-y: auto">
+        <div style="margin-bottom: 10px">工具栏</div>
+        <el-input
+            placeholder="搜索"
+            :prefix-icon="Search"
+        />
+        <ToolBox :toolboxJson="pageTool"/>
+      </div>
+
+      <div style="border: 1px solid lightgray; padding: 20px;margin-left:20px;width: 50%;overflow-y: auto">
         编辑区
         <div style="margin-top: 20px;">
           <el-breadcrumb :separator-icon="ArrowRight">
@@ -34,7 +46,7 @@
           </el-button></div>
       </div>
 
-      <div style="border: 1px solid lightgray; padding: 20px;margin-left: 20px;width: 25%">
+      <div style="border: 1px solid lightgray; padding: 20px;margin-left: 20px;width: 20%;overflow-y: auto">
         属性配置区
         <el-form :model="commonConfig" ref="configFormRefs" style="margin-top: 10px" v-if="selectItem!==''">
           <el-form-item label="id">
@@ -69,6 +81,9 @@
 
 <script setup lang="ts">
 import { ArrowRight } from '@element-plus/icons-vue'
+import ToolBox from '@/view/main/common/ToolBox/index.vue'
+import pageTool from './pageTool.json'
+import {Search} from "@element-plus/icons-vue";
 const router = useRouter()
 
 const goToPage = ()=>{
@@ -78,6 +93,8 @@ const goToPage = ()=>{
 
 const formRefs = ref({});
 interface State {
+  pageId: String;
+  pageName: String;
   config: any;
   rules: any;
   selectItem: String;
@@ -85,13 +102,15 @@ interface State {
   buttonConfig: any;
 }
 const state = reactive<State>({
+  pageId: '',
+  pageName: '',
   config: {},
   rules: {},
   commonConfig: {},
   buttonConfig: {},
   selectItem: ''
 })
-const {config, rules, buttonConfig, selectItem, commonConfig} = toRefs(state)
+const {pageId, pageName, config, rules, buttonConfig, selectItem, commonConfig} = toRefs(state)
 
 onMounted(() => {
   fetchConfig()
@@ -123,6 +142,15 @@ const fetchConfig = () => {
 }
 
 watchEffect(() => {
+  if (typeof router.currentRoute.value.query.pageId === 'string') {
+    pageId.value = router.currentRoute.value.query.pageId || ''
+  }
+  if (typeof router.currentRoute.value.query.pageName === 'string') {
+    pageName.value = router.currentRoute.value.query.pageName || ''
+  }
+})
+
+watchEffect(() => {
   commonConfig.value.id = selectItem.value
 })
 
@@ -147,3 +175,20 @@ const handleProcessChange = (processId)=>{
 }
 
 </script>
+
+<style scoped>
+.page-header {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: lightgray 1px solid;
+  padding: 10px;
+  margin: 20px 20px 10px;
+}
+
+.page-container {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  margin: 20px;
+}
+</style>

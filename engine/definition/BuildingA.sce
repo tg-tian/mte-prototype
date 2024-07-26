@@ -2,16 +2,16 @@
   "scenarioId": "BuildingA",
   "scenarioName": "交叉二号楼",
   "domainId": "SmartBuilding",
-  "map": [
-    {
-      "mapPath": "map.img",
-      "mapList": {
+  "map": {
+    "mapPath": "map.img",
+    "mapList": [
+      {
         "name": "二层",
         "description": "交叉二号楼二楼",
         "planPath": "plan.img"
       }
-    }
-  ],
+    ]
+  },
   "devices": [
     {
       "deviceId": "deviceId",

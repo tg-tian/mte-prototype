@@ -1,0 +1,122 @@
+[
+  {
+    "type": "domainUI",
+    "name": "领域UI控件",
+    "items": [
+      {
+        "id": "ScenarioNavigation",
+        "type": "navigation",
+        "name": "场景化导航",
+        "category": "container",
+        "icon": "guide.svg"
+      },
+      {
+        "id": "BarChart",
+        "type": "chart-group",
+        "name": "柱状图",
+        "category": "chart",
+        "icon": "bar.svg"
+      }
+    ]
+  },
+  {
+    "type": "domainDevice",
+    "name": "领域设备类型",
+    "items": [
+      {
+        "id": "CoffeeMaker",
+        "type": "deviceType",
+        "name": "咖啡机器人",
+        "category": "command",
+        "icon": "deviceType.png"
+      },
+      {
+        "id": "AirConditioner",
+        "type": "deviceType",
+        "name": "空调",
+        "category": "command",
+        "icon": "deviceType.png"
+      }
+    ]
+  },
+  {
+    "type": "scenarioDevice",
+    "name": "场景设备",
+    "items": [
+      {
+        "id": "CoffeeMakerA",
+        "type": "device",
+        "name": "咖啡机器人A",
+        "category": "command",
+        "icon": "device.png"
+      },
+      {
+        "id": "CoffeeMakerB",
+        "type": "device",
+        "name": "咖啡机器人B",
+        "category": "command",
+        "icon": "device.png"
+      }
+    ]
+  },
+  {
+    "type": "input",
+    "name": "输入类控件",
+    "items": [
+      {
+        "id": "TextBox",
+        "type": "input-group",
+        "name": "文本",
+        "category": "input",
+        "icon": "text.png"
+      },
+      {
+        "id": "Image",
+        "type": "image",
+        "name": "图像",
+        "category": "input",
+        "icon": "image.png"
+      }
+    ]
+  },
+  {
+    "type": "command",
+    "name": "命令类控件",
+    "items": [
+      {
+        "id": "Button",
+        "type": "button-group",
+        "name": "按钮",
+        "category": "command",
+        "icon": "button.png"
+      }
+    ]
+  },
+  {
+    "type": "container",
+    "name": "容器类控件",
+    "items": [
+      {
+        "id": "ContentContainer",
+        "type": "content-container",
+        "name": "容器",
+        "category": "container",
+        "icon": "container.png"
+      },
+      {
+        "id": "ModalContainer",
+        "type": "modal-container",
+        "name": "弹窗容器",
+        "category": "container",
+        "icon": "modal.png"
+      },
+      {
+        "id": "ScenarioNavigation",
+        "type": "nav",
+        "name": "场景化导航",
+        "category": "container",
+        "icon": "guide.svg"
+      }
+    ]
+  }
+]

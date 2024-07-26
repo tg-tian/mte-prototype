@@ -15,7 +15,7 @@ import java.util.Map;
 @NoArgsConstructor
 public class CustomContext {
     Map<String, Action> actionMap;
-    List<ActionMeta> actionMetaList;
+    Map<String, ActionMeta> actionMetaMap;
     Map<String, Integer> executionStatus; // 每个节点执行后的状态
     Map<String, ActionExecResult> actionResults;
 }
