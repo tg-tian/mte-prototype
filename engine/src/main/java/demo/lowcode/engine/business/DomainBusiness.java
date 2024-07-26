@@ -3,6 +3,8 @@ package demo.lowcode.engine.business;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.lowcode.engine.model.DomainMeta;
+import demo.lowcode.engine.model.DomainJson;
+import demo.lowcode.engine.model.Domain_ComponentJson;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -21,8 +23,24 @@ public class DomainBusiness {
         return domainMeta;
     }
 
+    public  DomainJson addDomainJson(String domainId, String domainName, Map<String, List<String>> domainField){
+        DomainJson domainJson = new DomainJson();
+        domainJson.setDomainID(domainId);
+        domainJson.setDomainName(domainName);
+        domainJson.setDomainField(domainField);
+        System.out.println("正在加载领域信息："+ domainJson);
+        return domainJson;
+    }
+
+    public Domain_ComponentJson addComponentJson(String componentType, Map<String,List<String>> componentAbout){
+        Domain_ComponentJson domain_componentJson = new Domain_ComponentJson();
+        domain_componentJson.setComponentType(componentType);
+        domain_componentJson.setComponentAbout(componentAbout);
+        System.out.println("正在加载领域"+componentType+"信息：");
+        return domain_componentJson;
+    }
     public DomainMeta loadDomain(String domainPath) throws IOException {
-        // 读取该领域的json文件(领域信息、设备类型列表、应用功能列表)
+        // 读取该领域信息
         File file = new File(domainPath);
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
@@ -41,7 +59,7 @@ public class DomainBusiness {
                     if (componentTypes.contains(componentName)){
                         System.out.println("领域内存在重复组件");
                     }else {
-                        componentTypes.add(componentName);
+                        componentTypes.add(componentName); //?
                     }
                 }else {
                     componentMap.put(type, new ArrayList<>(List.of(componentName)));
@@ -52,6 +70,79 @@ public class DomainBusiness {
         // 新增领域
         return addDomain(domainId,domainName,componentMap);
     }
+
+    public Domain_ComponentJson loadComponentJson(String componentType) throws IOException {
+        File file = new File("definition/SmartBuilding.do");//获取文件夹
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(file);
+        //组件信息表，定义在文件 definition/SmartBuilding.do 使用componentID作为“键”，使用剩下的内容作为“值”的List
+        Map<String,List<String>> componentMap = new HashMap<>(); //用于存储componentAbout
+
+        JsonNode componentTypeListNode = rootNode.path("componentTypeList"); //获取组件列表
+        if(componentTypeListNode.isArray()){
+            for(JsonNode componentTypeNode : componentTypeListNode){
+                if(Objects.equals(componentTypeNode.path("componentType").asText(), componentType)){ //找寻对应的组件
+                    JsonNode componentAboutNode = componentTypeNode.path("componentAbout");
+                    for(JsonNode componentAbout : componentAboutNode){ //遍历componentAbout
+                        /*
+                          在下方添加json文件componentAbout的组件。
+                          */
+                        List<String> componentAboutList = new ArrayList<>();
+
+                        JsonNode componentIDNode = componentAbout.path("componentID"); //组件ID
+                        String componentID = componentIDNode.asText();
+
+                        JsonNode componentNameNode = componentAbout.path("componentName"); //组件名称
+                        if(!componentNameNode.isMissingNode()) componentAboutList.add(componentNameNode.asText());
+
+                        JsonNode imgPathNode = componentAbout.path("imgPath"); //图像路径
+                        if(!imgPathNode.isMissingNode()) componentAboutList.add(imgPathNode.asText());
+
+                        JsonNode componentBriefNode = componentAbout.path("componentBrief"); //流程简介
+                        if(!componentBriefNode.isMissingNode()) componentAboutList.add(componentBriefNode.asText());
+
+                        componentMap.put(componentID,componentAboutList); //导入集合
+                    }
+                }
+            }
+        }
+        return addComponentJson(componentType,componentMap);
+    }
+
+    public DomainJson loadJson() throws IOException {
+        // 读取该领域的json文件(领域ID、名称、字段表、组件类型列表)
+            //获取json文件
+        File file = new File("definition/SmartBuilding.do");  //获取文件类
+        ObjectMapper objectMapper = new ObjectMapper(); //?
+        JsonNode rootNode = objectMapper.readTree(file); //获取json树状结构
+            //组织json文件
+        String domainId = rootNode.path("domainId").asText(); //ID
+        String domainName = rootNode.path("domainName").asText(); //名称
+
+                //获取字段表内容
+        Map<String, List<String>> domainFieldMap = new HashMap<>(); //字段表集合
+        JsonNode domainFieldListNode = rootNode.path("domainField"); //嵌套获取字段表内容
+        if(domainFieldListNode.isArray()){//如果字段表列表非空
+            for(JsonNode domainFieldNode : domainFieldListNode){ //遍历字段列表
+                String fieldID = domainFieldNode.path("fieldID").asText(); //字段ID
+                String fieldName = domainFieldNode.path("fieldName").asText(); //字段名称
+                String  type= domainFieldNode.path("type").asText(); //字段数据类型
+                //判断重复字段
+                if(domainFieldMap.containsKey(fieldID)){
+                    List<String> fieldMessage = domainFieldMap.get(fieldID); //利用字段ID作为集合的键，查看数值内容
+                    if(new HashSet<>(fieldMessage).containsAll(List.of(fieldName,type))){
+                        System.out.println("领域内存在重复组件");
+                    }
+                }
+                else{
+                    domainFieldMap.put(fieldID,new ArrayList<>(List.of(fieldName,type))); //domain字段集合写入
+                }
+            }
+        }
+        return  addDomainJson(domainId,domainName,domainFieldMap);
+    }
+
+
 
     public void addComponentType(String componentName, String type, String domainId) {
         DomainMeta domainMeta = null;

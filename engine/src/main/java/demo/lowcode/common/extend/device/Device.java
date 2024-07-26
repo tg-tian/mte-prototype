@@ -10,9 +10,9 @@ import java.util.List;
 @Data
 public abstract class Device implements Action {
     protected DeviceService deviceService = null;
-    protected List<String> properties = new ArrayList<>();
-    protected List<String> operations = new ArrayList<>();
-    protected List<String> events = new ArrayList<>();
+    protected List<String> properties = new ArrayList<>(); //属性
+    protected List<String> operations = new ArrayList<>(); //操作
+    protected List<String> events = new ArrayList<>();  // 事件
 
     public void bindService(DeviceService deviceService) {
         this.deviceService = deviceService;

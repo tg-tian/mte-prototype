@@ -5,51 +5,56 @@
     {
         "fieldID": "001",
         "fieldName": "楼层",
-        "type": "String",
+        "type": "String"
     },
     {
         "fieldID": "002",
         "fieldName": "描述",
-        "type": "String",
+        "type": "String"
     },
     {
         "fieldID": "003",
         "fieldName": "平面图",
-        "type": "Img",
-    },
+        "type": "Img"
+    }
   ],
   "componentTypeList": [
-    Device:[
-       {
+    {
+      "componentType": "Device",
+      "componentAbout":[
+        {
           "componentID": "CoffeeMaker",
-          "componentName": "咖啡机",
-          "componentType": "Device",
-       },{
+          "componentName": "咖啡机"
+
+        },{
           "componentID":"AirConditioner",
-          "componentName": "空调",
-          "componentType": "Device",
-       },
-    ],
-    UI:[
-       {
+          "componentName": "空调"
+        }
+      ]
+    },
+    {
+      "componentType": "UI",
+      "componentAbout":[
+        {
           "componentID": "001",
           "componentName": "场景化导航",
-          "componentType": "UI",
-          "imgPath":"guide.png",
-       },{
+          "imgPath":"guide.png"
+        },{
           "componentID":"002",
           "componentName": "柱状图",
-          "componentType": "UI",
-          "imgPath":"bar.png",
-       },
-    ],
-    Process:[
-       {
+          "imgPath":"bar.png"
+        }
+      ]
+    },
+    {
+      "componentType": "Process",
+      "componentAbout":[
+        {
           "componentID": "001",
           "componentName": "预约流程",
-          "componentBrief": "此流程用于各类预约系统，可以实现预约时间选择、预约队列管理等",
-          "componentType": "Process",
-       },
-    ],
-  ],
+          "componentBrief": "此流程用于各类预约系统，可以实现预约时间选择、预约队列管理等"
+        }
+      ]
+    }
+  ]
 }

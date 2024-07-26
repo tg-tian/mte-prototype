@@ -27,4 +27,27 @@ public class DomainController {
         }
         return null;
     }
+
+    // load领域json文件
+    @PostMapping(value = "/load-domain-json")
+    public ResponseEntity<?> loadDomainJson() {
+        try {
+            domainBusiness.loadJson();
+            System.out.println("领域字段loading成功！");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    @PostMapping(value = "/loadcomponent-json")
+    public ResponseEntity<?> loadDomainComponentJson(String componentType) {
+        try {
+            domainBusiness.loadComponentJson(componentType);
+            System.out.println("领域组件loading成功！");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
 }

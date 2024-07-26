@@ -6,10 +6,12 @@ import org.springframework.stereotype.Component; //导入Spring注解包，Compo
 import java.util.List;
 import java.util.Map;
 
-@Data //@Data   ：注解在类上；提供类所有属性的 getting 和 setting 方法，此外还提供了equals、canEqual、hashCode、toString 方法
+@Data
 @Component
-public class DomainMeta {
-    private String domainId;
-    private String domainName;
-    private Map<String, List<String>> componentType;
+public class DomainJson {
+    private String domainID;
+    private  String domainName;
+    private Map<String, List<String>> domainField;
+    //private List<Map<String,List<String>>> componentTypeList;
 }
+
