@@ -41,6 +41,7 @@
 
 import Table from "@/view/main/common/Table.vue";
 import {FormInstance, FormRules} from "element-plus";
+import {getDomainJson} from  "../../../../../../api/DomainApi";
 
 //暂时没用
 const props = defineProps({
@@ -103,6 +104,7 @@ onMounted(()=>{
     name: "数据类型",
     type: "String"
   }]
+  getDomainData()
   data.value = [{
     number: "001",
     name: "楼层",
@@ -134,5 +136,14 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       console.log('error submit!', fields)
     }
   })
+}
+
+const getDomainData = () =>{
+  getDomainJson().then((res:any) =>{
+    if (res.status === 200){
+        console.log(res.data)
+      }
+    }
+  )
 }
 </script>

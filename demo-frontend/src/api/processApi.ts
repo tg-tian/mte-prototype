@@ -12,3 +12,5 @@ export const getActionConfig = (actionId: String) =>
         url: `/action/config?actionId=${actionId}`,
         method: 'get'
     })
+
+
