@@ -7,7 +7,8 @@
         "id": "Reservation",
         "type": "process",
         "name": "预约流程",
-        "category": "flow-template"
+        "category": "flow-template",
+        "icon": "process-template.png"
       }
     ]
   },
@@ -19,37 +20,43 @@
         "id": "StartNode",
         "type": "flow-group",
         "name": "开始节点",
-        "category": "flow"
+        "category": "flow",
+        "icon": "startNode.png"
       },
       {
         "id": "EndNode",
         "type": "flow-group",
         "name": "结束节点",
-        "category": "flow"
+        "category": "flow",
+        "icon": "endNode.png"
       },
       {
         "id": "XORNode",
         "type": "flow-group",
         "name": "异或网关",
-        "category": "flow"
+        "category": "flow",
+        "icon": "xor.png"
       },
       {
         "id": "ParallelNode",
         "type": "flow-group",
         "name": "并行网关",
-        "category": "flow"
+        "category": "flow",
+        "icon": "parallel.png"
       },
       {
         "id": "DecisionNode",
         "type": "flow-group",
         "name": "决策节点",
-        "category": "flow"
+        "category": "flow",
+        "icon": "decision.png"
       },
       {
         "id": "LoopNode",
         "type": "flow-group",
         "name": "循环节点",
-        "category": "flow"
+        "category": "flow",
+        "icon": "xunhuan.png"
       }
     ]
   },
@@ -61,13 +68,15 @@
         "id": "CoffeeMaker",
         "type": "deviceType",
         "name": "咖啡机器人",
-        "category": "command"
+        "category": "command",
+        "icon": "deviceType.png"
       },
       {
         "id": "AirConditioner",
         "type": "deviceType",
         "name": "空调",
-        "category": "command"
+        "category": "command",
+        "icon": "deviceType.png"
       }
     ]
   },
@@ -79,13 +88,15 @@
         "id": "CoffeeMakerA",
         "type": "device",
         "name": "咖啡机器人A",
-        "category": "command"
+        "category": "command",
+        "icon": "device.png"
       },
       {
         "id": "CoffeeMakerB",
         "type": "device",
         "name": "咖啡机器人B",
-        "category": "command"
+        "category": "command",
+        "icon": "device.png"
       }
     ]
   }

@@ -3,6 +3,7 @@ package demo.lowcode.platform.eventhandler.classes;
 import demo.lowcode.device.coffeemaker.event.CoffeeMakerEvent;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import java.util.Arrays;
 
 @Component
 @AllArgsConstructor
@@ -11,8 +12,9 @@ public class MakeCoffeeController {
         System.out.println("Before making coffee...");
     }
 
-    public void sendMessage() {
-        System.out.println("发送短信...");
+    public void sendMessage(CoffeeMakerEvent event) {
+        System.out.println("Coffee is ready. Sending message...");
+        System.out.println("Your coffee is ready. coffee information: "+Arrays.toString(event.getInformation()));
     }
 
     public void errorAlert(CoffeeMakerEvent event) {

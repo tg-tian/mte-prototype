@@ -11,8 +11,11 @@
     <!-- 绑定process，加载需要的参数 -->
     <div class="page-container">
       <div style="border: 1px solid lightgray; padding: 20px;width: 25%;overflow-y: auto">
-        工具栏
-
+        <div style="margin-bottom: 10px">工具栏</div>
+        <el-input
+            placeholder="搜索"
+            :prefix-icon="Search"
+        />
         <ToolBox :toolboxJson="pageTool"/>
       </div>
 
@@ -80,6 +83,7 @@
 import { ArrowRight } from '@element-plus/icons-vue'
 import ToolBox from '@/view/main/common/ToolBox/index.vue'
 import pageTool from './pageTool.json'
+import {Search} from "@element-plus/icons-vue";
 const router = useRouter()
 
 const goToPage = ()=>{

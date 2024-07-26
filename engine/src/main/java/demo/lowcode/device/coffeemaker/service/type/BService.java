@@ -30,7 +30,7 @@ public class BService extends CoffeeMakerService {
         System.out.println("Started (B).");
     }
     @Override
-    public void check(Integer param0) {
+    public void check() {
         System.out.println("Finishing (B)");
         try {
             // 让当前线程休眠8秒

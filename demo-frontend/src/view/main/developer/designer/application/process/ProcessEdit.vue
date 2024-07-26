@@ -9,8 +9,11 @@
     </div>
     <div class="process-content">
       <div style="border: 1px solid lightgray; padding: 20px;width: 25%;overflow-y: auto">
-        工具栏
-
+        <div style="margin-bottom: 10px">工具栏</div>
+        <el-input
+            placeholder="搜索"
+            :prefix-icon="Search"
+        />
         <ToolBox :toolboxJson="processTool"/>
       </div>
 
@@ -44,6 +47,7 @@ import "@/aceConfig.js";
 import type { Ace } from "ace-builds";
 import {getFileData, saveFileData} from "@/api/fileApi";
 import processTool from './processTool.json'
+import {Search} from "@element-plus/icons-vue";
 
 interface State{
   processId: String;
@@ -95,7 +99,7 @@ const saveFile=()=>{
 <style scoped>
 .vue-ace-editor {
   /* ace-editor默认没有高度，所以必须设置高度，或者同时设置最小行和最大行使编辑器的高度自动增高 */
-  height: 600px;
+  height: 99%;
   width: 99%;
   font-size: 16px;
   border: 1px solid;

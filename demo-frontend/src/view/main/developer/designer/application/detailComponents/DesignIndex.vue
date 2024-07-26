@@ -2,7 +2,6 @@
   <div class="application-title">{{applicationName}}应用设计</div>
   新增功能组件
   新增页面视图
-  开发页面：模板列表（设备类型、UI组件、流程）、设备列表
 </template>
 <script setup lang="ts">
 interface State{

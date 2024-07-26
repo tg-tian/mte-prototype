@@ -64,20 +64,28 @@ public class CoffeeMaker extends Device {
         }
     }
 
-    private void onStart(String operationType) {
+    private void onStart(String operationType, CoffeeMakerEvent event) {
         List<EventListener> listeners = beforeEventListeners.get(operationType);
         if (listeners != null) {
             for (EventListener listener: listeners) {
-                listener.handleEvent();
+                if (event != null){
+                    listener.handleEvent(event);
+                }else {
+                    listener.handleEvent();
+                }
             }
         }
     }
 
-    private void onComplete(String operationType) {
+    private void onComplete(String operationType, CoffeeMakerEvent event) {
         List<EventListener> listeners = afterEventListeners.get(operationType);
         if (listeners != null) {
             for (EventListener listener : listeners) {
-                listener.handleEvent();
+                if (event != null){
+                    listener.handleEvent(event);
+                }else {
+                    listener.handleEvent();
+                }
             }
         }
     }
@@ -86,7 +94,11 @@ public class CoffeeMaker extends Device {
         List<EventListener> listeners = errorEventListeners.get(operationType);
         if (listeners != null) {
             for (EventListener listener : listeners) {
-                listener.handleEvent(event);
+                if (event != null){
+                    listener.handleEvent(event);
+                }else {
+                    listener.handleEvent();
+                }
             }
         }
     }
@@ -111,7 +123,7 @@ public class CoffeeMaker extends Device {
     @Override
     public int invokeOperation(String operation, Object... args) {
         try {
-            onStart(operation);// 操作前事件
+            onStart(operation, null);// 操作前事件
             boolean flag = false; // 判断是否有符合的设备
             if (deviceService instanceof CoffeeMakerService) {
                 try {
@@ -124,12 +136,15 @@ public class CoffeeMaker extends Device {
                         }
                         method = CoffeeMakerService.class.getDeclaredMethod(operation, parameterTypes);
                         method.invoke(deviceService, args);
+
+                        onComplete(operation, new CoffeeMakerEvent(operation, 200, args));// 操作结束事件
                     } else {
                         // 找到无参数的方法
                         method = CoffeeMakerService.class.getDeclaredMethod(operation);
                         method.invoke(deviceService);
-                    }
 
+                        onComplete(operation, null);// 操作结束事件
+                    }
                     flag = true;
                 } catch (InvocationTargetException e) {
                     // ignore
@@ -138,7 +153,6 @@ public class CoffeeMaker extends Device {
             if (!flag){
                 throw new RuntimeException("There is no available service to handle operation "+operation);
             }
-            onComplete(operation);// 操作结束事件
             return 0;
         } catch (Exception e) {
             onError(operation, new CoffeeMakerEvent(e.getMessage(), 400));// 操作异常事件

@@ -45,15 +45,23 @@ public class ProcessBusiness {
         Map<String, Action> actions = getProcessActions(processId);
         Map<String, Integer> executionStatus = new HashMap<>(); // 用于跟踪每个节点的执行状态
         // 初始化每个节点的执行状态
-        actionMetaList.forEach(actionMeta -> executionStatus.put(actionMeta.getActionId(), 1));
+        Map<String, ActionMeta> actionMetaMap = new HashMap<>();
+        actionMetaList.forEach(actionMeta -> {
+            executionStatus.put(actionMeta.getActionId(), 1);
+            actionMetaMap.put(actionMeta.getActionId(), actionMeta);
+        });
         Map<String, ActionExecResult> actionResults = new HashMap<>();
 
         CustomContext customContext = new CustomContext();
         customContext.setActionMap(actions);
-        customContext.setActionMetaList(actionMetaList);
+        customContext.setActionMetaMap(actionMetaMap);
         customContext.setExecutionStatus(executionStatus);
         customContext.setActionResults(actionResults);
-        LiteflowResponse response = flowExecutor.execute2Resp("ConferenceService", new HashMap<>(){{put("coffeeType", "美式");}});
+        LiteflowResponse response = flowExecutor.execute2Resp("ConferenceService", new HashMap<>(){{
+            put("makeCoffee", new HashMap<>() {{
+                put("coffeeType", "美式");
+            }});
+        }}, customContext);
     }
 
     // 运行时
@@ -160,7 +168,7 @@ public class ProcessBusiness {
         if (Objects.equals(processId, "ConferenceService")){
             ActionMeta actionMeta = new ActionMeta("start", "开始", "Default", "", "", "", null, "");
             ActionMeta actionMeta1 = new ActionMeta("makeCoffee", "制作咖啡", "Device", "start", "CoffeeMaker", "makeCoffee", null, "");
-            ActionMeta actionMeta2 = new ActionMeta("check", "检查", "Device", "makeCoffee", "CoffeeMaker", "check", "${parent.code}", "${parent.code} == 0");
+            ActionMeta actionMeta2 = new ActionMeta("check", "检查", "Device", "makeCoffee", "CoffeeMaker", "check", null, "${parent.code} == 0");
             return new ArrayList<>(Arrays.asList(actionMeta, actionMeta1, actionMeta2));
         }
         return new ArrayList<>();
