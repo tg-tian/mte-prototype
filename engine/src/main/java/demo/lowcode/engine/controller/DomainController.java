@@ -1,10 +1,13 @@
 package demo.lowcode.engine.controller;
 
 import demo.lowcode.engine.business.DomainBusiness;
+import demo.lowcode.engine.dto.DomainJson;
+import demo.lowcode.engine.dto.Domain_ComponentJson;
 import jakarta.annotation.Resource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -29,25 +32,25 @@ public class DomainController {
     }
 
     // load领域json文件
-    @PostMapping(value = "/load-domain-json")
+    @GetMapping(value = "/load-domain-json")
     public ResponseEntity<?> loadDomainJson() {
         try {
-            domainBusiness.loadJson();
-            System.out.println("领域字段loading成功！");
+            DomainJson domainJson = domainBusiness.loadJson();
+            return new ResponseEntity<>(domainJson, HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
+            return new ResponseEntity<>("文件读取错误", HttpStatus.BAD_REQUEST);
         }
-        return null;
     }
 
-    @PostMapping(value = "/loadcomponent-json")
+    @GetMapping(value = "/load-domain-component-json")
     public ResponseEntity<?> loadDomainComponentJson(String componentType) {
         try {
-            domainBusiness.loadComponentJson(componentType);
-            System.out.println("领域组件loading成功！");
+            Domain_ComponentJson componentJson = domainBusiness.loadComponentJson(componentType);
+            return new ResponseEntity<>(componentJson, HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
+            return new ResponseEntity<>("文件读取错误", HttpStatus.BAD_REQUEST);
         }
-        return null;
     }
 }
