@@ -1,17 +1,101 @@
 package demo.lowcode.engine.business;
 
-import demo.lowcode.engine.model.DeviceInformation;
-import demo.lowcode.engine.model.DeviceMeta;
-import demo.lowcode.engine.model.DeviceConnectService;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import demo.lowcode.engine.model.*;
 import demo.lowcode.engine.util.JavaDynamicCompiler;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.*;
 
 @org.springframework.stereotype.Service
 public class ScenarioBusiness {
     @Value("${eventPath}")
     private String eventFilePath;
+
+
+    public ScenarioJson addScearioJson(String scenarioId, String scenarioName, String domainId,String mapPath,List<Map<String,String>> mapList)
+    {
+        ScenarioJson scenarioJson = new ScenarioJson();
+        scenarioJson.setScenarioId(scenarioId);
+        scenarioJson.setScenarioName(scenarioName);
+        scenarioJson.setDomainId(domainId);
+        scenarioJson.setMapPath(mapPath);
+        scenarioJson.setMaplist(mapList);
+
+        return scenarioJson;
+    }
+
+    public Scenario_ResourceJson addResourceJson( List<Map<String,String>> devicesList, Map<String,Map<String,String>> devices_service){
+        Scenario_ResourceJson scenario_resourceJson = new Scenario_ResourceJson();
+        scenario_resourceJson.setDevicesList(devicesList);
+        scenario_resourceJson.setDevices_service(devices_service);
+        return scenario_resourceJson;
+    }
+
+    public Scenario_ResourceJson loadResourceJson() throws IOException{
+        File file = new File("definition/BuildingA.sce"); //获取文件夹
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(file);
+
+        List<Map<String,String>> devicesList = new ArrayList<>();
+        Map<String,Map<String,String>> devices_service = new HashMap<>();
+
+        JsonNode devicesNodeList = rootNode.path("devices");
+        for(JsonNode devicesNode: devicesNodeList){
+            Map<String,String> devices_imf = new HashMap<>();
+
+            String deviceId = devicesNode.path("deviceId").asText();
+            devices_imf.put("deviceId",deviceId);
+            devices_imf.put("deviceName", devicesNode.path("deviceName").asText());
+            devices_imf.put("deviceType",devicesNode.path("deviceType").asText());
+            devicesList.add(devices_imf);
+
+            JsonNode serviceNode = devicesNode.path("service");
+            Map<String,String> service_imf = new HashMap<>();
+            service_imf.put("name",serviceNode.path("name").asText());
+            service_imf.put("protocol",serviceNode.path("protocol").asText());
+            service_imf.put("uri",serviceNode.path("uri").asText());
+            service_imf.put("port",serviceNode.path("port").asText());
+            devices_service.put(deviceId,service_imf);
+        }
+
+        return addResourceJson(devicesList,devices_service);
+    }
+
+    //获取领域基本信息json
+    public ScenarioJson loadScenarioJson() throws IOException{
+
+        File file = new File("definition/BuildingA.sce"); //获取文件夹
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(file);
+
+        //JsonNode ScenarioNodeList = rootNode.path("");
+        String scenarioId = rootNode.path("scenarioId").asText();
+        String scenarioName = rootNode.path("scenarioName").asText();
+        String domainId = rootNode.path("domainId").asText();
+
+        JsonNode mapNodeList = rootNode.path("map");
+        String mapPath = mapNodeList.path("mapPath").asText();
+        JsonNode mapListNodeList = mapNodeList.path("mapList");
+
+        List<Map<String,String>> mapList = new ArrayList<>();
+        for(JsonNode mapListNode : mapListNodeList){
+            //声明楼层字典存储楼层信息
+            Map<String,String> map_imf = new HashMap<>();
+            map_imf.put("name",mapListNode.path("name").asText());
+            map_imf.put("description",mapListNode.path("description").asText());
+            map_imf.put("planPath",mapListNode.path("planPath").asText());
+            mapList.add(map_imf);
+        }
+
+        return addScearioJson(scenarioId, scenarioName,domainId,mapPath,mapList);
+    }
+
+
 
     // 场景增删改查
     public void addScenario() {
@@ -93,4 +177,6 @@ public class ScenarioBusiness {
 
         return new ArrayList<>(Arrays.asList(deviceMeta, deviceMeta2));
     }
+
+
 }

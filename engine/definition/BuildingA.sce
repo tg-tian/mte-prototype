@@ -16,27 +16,23 @@
     {
       "deviceId": "deviceId",
       "deviceName": "咖啡机器人A",
-      "mainObject": {
-        "deviceType": "CoffeeMaker",
-        "service": {
-          "name": "AService",
-          "protocol": "HTTP",
-          "uri": "http://aservice.coffee",
-          "port": "8080"
+      "deviceType": "CoffeeMaker",
+      "service": {
+        "name": "AService",
+        "protocol": "HTTP",
+        "uri": "http://aservice.coffee",
+        "port": "8080"
         }
-      }
     },
     {
       "deviceId": "deviceId2",
       "deviceName": "咖啡机器人B",
-      "mainObject": {
-        "deviceType": "CoffeeMaker",
+      "deviceType": "CoffeeMaker",
         "service": {
           "name": "BService",
           "protocol": "HTTP",
           "uri": "http://bservice.coffee",
           "port": "8080"
-        }
       }
     }
   ]
