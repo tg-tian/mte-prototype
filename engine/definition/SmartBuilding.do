@@ -15,7 +15,7 @@
     {
         "fieldID": "003",
         "fieldName": "平面图",
-        "type": "Img"
+        "type": "Image"
     }
   ],
   "componentTypeList": [
@@ -38,11 +38,11 @@
         {
           "componentID": "001",
           "componentName": "场景化导航",
-          "imgPath":"guide.png"
+          "imgPath":"guide.svg"
         },{
           "componentID":"002",
           "componentName": "柱状图",
-          "imgPath":"bar.png"
+          "imgPath":"bar.svg"
         }
       ]
     },

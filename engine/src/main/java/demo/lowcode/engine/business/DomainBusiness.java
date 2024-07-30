@@ -2,9 +2,11 @@ package demo.lowcode.engine.business;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import demo.lowcode.engine.entity.ComponentAbout;
+import demo.lowcode.engine.entity.Property;
 import demo.lowcode.engine.model.DomainMeta;
-import demo.lowcode.engine.model.DomainJson;
-import demo.lowcode.engine.model.Domain_ComponentJson;
+import demo.lowcode.engine.dto.DomainJson;
+import demo.lowcode.engine.dto.Domain_ComponentJson;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -23,19 +25,19 @@ public class DomainBusiness {
         return domainMeta;
     }
 
-    public  DomainJson addDomainJson(String domainId, String domainName, Map<String, List<String>> domainField){
+    public  DomainJson addDomainJson(String domainId, String domainName, Map<String, Property> domainField){
         DomainJson domainJson = new DomainJson();
         domainJson.setDomainID(domainId);
         domainJson.setDomainName(domainName);
-        domainJson.setDomainField(domainField);
+        domainJson.setDomainField(domainField.values().stream().toList());
         System.out.println("正在加载领域信息："+ domainJson);
         return domainJson;
     }
 
-    public Domain_ComponentJson addComponentJson(String componentType, Map<String,List<String>> componentAbout){
+    public Domain_ComponentJson addComponentJson(String componentType, Map<String, ComponentAbout> componentAbout){
         Domain_ComponentJson domain_componentJson = new Domain_ComponentJson();
         domain_componentJson.setComponentType(componentType);
-        domain_componentJson.setComponentAbout(componentAbout);
+        domain_componentJson.setComponentAbout(componentAbout.values().stream().toList());
         System.out.println("正在加载领域"+componentType+"信息：");
         return domain_componentJson;
     }
@@ -76,7 +78,7 @@ public class DomainBusiness {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
         //组件信息表，定义在文件 definition/SmartBuilding.do 使用componentID作为“键”，使用剩下的内容作为“值”的List
-        Map<String,List<String>> componentMap = new HashMap<>(); //用于存储componentAbout
+        Map<String,ComponentAbout> componentMap = new HashMap<>(); //用于存储componentAbout
 
         JsonNode componentTypeListNode = rootNode.path("componentTypeList"); //获取组件列表
         if(componentTypeListNode.isArray()){
@@ -87,21 +89,22 @@ public class DomainBusiness {
                         /*
                           在下方添加json文件componentAbout的组件。
                           */
-                        List<String> componentAboutList = new ArrayList<>();
+                        ComponentAbout componentAboutInfo = new ComponentAbout();
 
                         JsonNode componentIDNode = componentAbout.path("componentID"); //组件ID
                         String componentID = componentIDNode.asText();
+                        componentAboutInfo.setComponentId(componentID);
 
                         JsonNode componentNameNode = componentAbout.path("componentName"); //组件名称
-                        if(!componentNameNode.isMissingNode()) componentAboutList.add(componentNameNode.asText());
+                        if(!componentNameNode.isMissingNode()) componentAboutInfo.setComponentName(componentNameNode.asText());
 
                         JsonNode imgPathNode = componentAbout.path("imgPath"); //图像路径
-                        if(!imgPathNode.isMissingNode()) componentAboutList.add(imgPathNode.asText());
+                        if(!imgPathNode.isMissingNode()) componentAboutInfo.setImgPath(imgPathNode.asText());
 
                         JsonNode componentBriefNode = componentAbout.path("componentBrief"); //流程简介
-                        if(!componentBriefNode.isMissingNode()) componentAboutList.add(componentBriefNode.asText());
+                        if(!componentBriefNode.isMissingNode()) componentAboutInfo.setBrief(componentBriefNode.asText());
 
-                        componentMap.put(componentID,componentAboutList); //导入集合
+                        componentMap.put(componentID,componentAboutInfo); //导入集合
                     }
                 }
             }
@@ -120,7 +123,7 @@ public class DomainBusiness {
         String domainName = rootNode.path("domainName").asText(); //名称
 
                 //获取字段表内容
-        Map<String, List<String>> domainFieldMap = new HashMap<>(); //字段表集合
+        Map<String, Property> domainFieldMap = new HashMap<>(); //字段表集合
         JsonNode domainFieldListNode = rootNode.path("domainField"); //嵌套获取字段表内容
         if(domainFieldListNode.isArray()){//如果字段表列表非空
             for(JsonNode domainFieldNode : domainFieldListNode){ //遍历字段列表
@@ -129,19 +132,16 @@ public class DomainBusiness {
                 String  type= domainFieldNode.path("type").asText(); //字段数据类型
                 //判断重复字段
                 if(domainFieldMap.containsKey(fieldID)){
-                    List<String> fieldMessage = domainFieldMap.get(fieldID); //利用字段ID作为集合的键，查看数值内容
-                    if(new HashSet<>(fieldMessage).containsAll(List.of(fieldName,type))){
-                        System.out.println("领域内存在重复组件");
-                    }
+                    System.out.println("领域内存在重复组件");
                 }
                 else{
-                    domainFieldMap.put(fieldID,new ArrayList<>(List.of(fieldName,type))); //domain字段集合写入
+                    Property property = new Property(fieldID, fieldName, type);
+                    domainFieldMap.put(fieldID,property); //domain字段集合写入
                 }
             }
         }
         return  addDomainJson(domainId,domainName,domainFieldMap);
     }
-
 
 
     public void addComponentType(String componentName, String type, String domainId) {
