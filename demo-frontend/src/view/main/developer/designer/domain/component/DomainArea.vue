@@ -30,7 +30,7 @@
           <el-button type="primary" @click="submitForm(fieldFormRef)">
             确认
           </el-button>
-          <el-button @click="resetForm(ruleFormRef)">重置</el-button>
+          <el-button @click="resetForm">重置</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -55,8 +55,7 @@ interface State{
   dialogVisible: boolean;
 }
 
-interface RuleForm
-{
+interface RuleForm {
   fieldNumber:String;
   fieldName:String;
   fieldType:String;
@@ -83,7 +82,21 @@ const FieldForm = reactive<RuleForm>({
 })
 
 const state = reactive<State>({
-  header: [],
+  header: [
+    {
+      code: "code",
+      name: "字段号",
+      type: "String"
+    },{
+      code: "name",
+      name: "字段名称",
+      type: "String"
+    },{
+      code: "type",
+      name: "数据类型",
+      type: "String"
+    }
+  ],
   data:[],
   dialogVisible: false,
 })
@@ -91,33 +104,23 @@ const state = reactive<State>({
 const  {header ,data,dialogVisible} = toRefs(state)
 
 onMounted(()=>{
-  header.value = [{
-    code: "number",
-    name: "字段号",
-    type: "String"
-  },{
-    code: "name",
-    name: "字段名称",
-    type: "String"
-  },{
-    code: "type",
-    name: "数据类型",
-    type: "String"
-  }]
-  getDomainData()
-  data.value = [{
-    number: "001",
-    name: "楼层",
-    type: "字符串"
-  },{
-    number: "002",
-    name: "描述",
-    type: "字符串"
-  },{
-    number: "003",
-    name: "平面图",
-    type: "图像"
-  }]
+  if (import.meta.env.VITE_MODE === "mock"){
+    data.value = [{
+      code: "001",
+      name: "楼层",
+      type: "String"
+    },{
+      code: "002",
+      name: "描述",
+      type: "String"
+    },{
+      code: "003",
+      name: "平面图",
+      type: "Image"
+    }]
+  }else {
+    getDomainData()
+  }
 })
 
 const resetForm = () => {
@@ -141,9 +144,8 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 const getDomainData = () =>{
   getDomainJson().then((res:any) =>{
     if (res.status === 200){
-        console.log(res.data)
-      }
+      data.value = res.data.domainField
     }
-  )
+  })
 }
 </script>
