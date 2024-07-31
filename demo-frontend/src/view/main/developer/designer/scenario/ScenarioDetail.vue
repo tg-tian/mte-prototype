@@ -11,14 +11,6 @@
         <div class="scenario-map">
           <div class="scenario-title" id="场景区域">场景区域</div>
           <div>
-            <div class="scenario-subtitle" style="display: flex;justify-content: space-between">
-              <div id="场景地图">场景地图</div>
-              <el-button type="primary">导入地图</el-button></div>
-            <div class="scenario-content">
-              <img :src="imageUrl" alt="场景地图" style="width: 80%;margin-left: 10%" />
-            </div>
-          </div>
-          <div>
             <DetailArea :scenarioId="scenarioId" :scenarioName="scenarioName"/>
           </div>
         </div>
@@ -58,9 +50,6 @@
 import DetailArea from "@/view/main/developer/designer/scenario/component/DetailArea.vue";
 import DetailDevice from "@/view/main/developer/designer/scenario/component/DetailDevice.vue";
 
-const imageUrl = computed(() => {
-  return new URL('@/assets/images/map.png', import.meta.url).href;
-});
 const anchorRef = ref<HTMLElement | null>(null)
 
 interface State {

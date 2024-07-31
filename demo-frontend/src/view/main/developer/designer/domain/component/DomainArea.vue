@@ -106,15 +106,15 @@ const  {header ,data,dialogVisible} = toRefs(state)
 onMounted(()=>{
   if (import.meta.env.VITE_MODE === "mock"){
     data.value = [{
-      code: "001",
+      code: "floor",
       name: "楼层",
       type: "String"
     },{
-      code: "002",
+      code: "description",
       name: "描述",
       type: "String"
     },{
-      code: "003",
+      code: "planPath",
       name: "平面图",
       type: "Image"
     }]

@@ -3,12 +3,12 @@
   "scenarioName": "交叉二号楼",
   "domainId": "SmartBuilding",
   "map": {
-    "mapPath": "map.img",
+    "mapPath": "map.png",
     "mapList": [
       {
-        "name": "二层",
+        "floor": "二层",
         "description": "交叉二号楼二楼",
-        "planPath": "plan.img"
+        "planPath": "floor.jpeg"
       }
     ]
   },
@@ -18,7 +18,8 @@
       "deviceName": "咖啡机器人A",
       "deviceType": "CoffeeMaker",
       "service": {
-        "name": "AService",
+        "code": "AService",
+        "name": "A品牌",
         "protocol": "HTTP",
         "uri": "http://aservice.coffee",
         "port": "8080"
@@ -29,7 +30,8 @@
       "deviceName": "咖啡机器人B",
       "deviceType": "CoffeeMaker",
         "service": {
-          "name": "BService",
+          "code": "BService",
+          "name": "B品牌",
           "protocol": "HTTP",
           "uri": "http://bservice.coffee",
           "port": "8080"

@@ -56,6 +56,7 @@ public class ScenarioBusiness {
 
             JsonNode serviceNode = devicesNode.path("service");
             Map<String,String> service_imf = new HashMap<>();
+            service_imf.put("code",serviceNode.path("code").asText());
             service_imf.put("name",serviceNode.path("name").asText());
             service_imf.put("protocol",serviceNode.path("protocol").asText());
             service_imf.put("uri",serviceNode.path("uri").asText());
@@ -86,9 +87,11 @@ public class ScenarioBusiness {
         for(JsonNode mapListNode : mapListNodeList){
             //声明楼层字典存储楼层信息
             Map<String,String> map_imf = new HashMap<>();
-            map_imf.put("name",mapListNode.path("name").asText());
-            map_imf.put("description",mapListNode.path("description").asText());
-            map_imf.put("planPath",mapListNode.path("planPath").asText());
+            Iterator<Map.Entry<String, JsonNode>> fieldsIterator = mapListNode.fields();
+            while (fieldsIterator.hasNext()){
+                Map.Entry<String, JsonNode> field = fieldsIterator.next();
+                map_imf.put(field.getKey(), field.getValue().asText());
+            }
             mapList.add(map_imf);
         }
 

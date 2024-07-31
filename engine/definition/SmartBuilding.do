@@ -3,17 +3,17 @@
   "domainName": "智慧楼宇",
   "domainField":[
     {
-        "fieldID": "001",
+        "fieldID": "floor",
         "fieldName": "楼层",
         "type": "String"
     },
     {
-        "fieldID": "002",
+        "fieldID": "description",
         "fieldName": "描述",
         "type": "String"
     },
     {
-        "fieldID": "003",
+        "fieldID": "planPath",
         "fieldName": "平面图",
         "type": "Image"
     }
