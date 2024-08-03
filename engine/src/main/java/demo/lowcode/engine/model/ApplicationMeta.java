@@ -6,6 +6,7 @@ import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
 import java.util.List;
+import  java.util.Map;
 
 @Data
 @AllArgsConstructor
@@ -16,4 +17,5 @@ public class ApplicationMeta {
     private String applicationName;
     private String scenarioId;
     private List<ProcessMeta> processes;
+
 }
