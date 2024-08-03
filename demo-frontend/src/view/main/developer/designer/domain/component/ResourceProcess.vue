@@ -37,6 +37,7 @@
 import Table from "@/view/main/common/Table.vue";
 import Card from '@/view/main/common/Card.vue'
 import {Search} from "@element-plus/icons-vue";
+import {getDomainComponent} from "@/api/DomainApi";
 
 const props = defineProps({
   domainId: String,
@@ -81,11 +82,15 @@ const {header, data,searchInput,dialogVisible,selectedProcessList, domainProcess
 
 //赋值
 onMounted(()=> {
-  data.value = [{
-    number: "001",
-    name: "预约流程",
-    brief: "此流程用于各类预约系统，可以实现预约时间选择、预约队列管理等"
-  }]
+  if (import.meta.env.VITE_MODE === "mock") {
+    data.value = [{
+      number: "001",
+      name: "预约流程",
+      brief: "此流程用于各类预约系统，可以实现预约时间选择、预约队列管理等"
+    }]
+  }else {
+    getDomainData()
+  }
   domainProcess.value = [{
     code: "001",
     name: "预约流程",
@@ -100,6 +105,21 @@ onMounted(()=> {
     }
   ]
 })
+
+const getDomainData = () =>{
+  getDomainComponent("Process").then((res:any) =>{
+    if (res.status === 200){
+      console.log(res.data)
+      data.value = res.data.componentAbout.map(v=>{
+        return {
+          number: v.componentId,
+          name: v.componentName,
+          brief: v.brief
+        }
+      })
+    }
+  })
+}
 
 const updateIsSelected = (index, value) => {
   domainProcess.value[index].isSelected = value;

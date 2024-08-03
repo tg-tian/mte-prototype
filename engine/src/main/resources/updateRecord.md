@@ -44,5 +44,6 @@
 * bug:具体设备的实现（AService/BService）代码修改后,在不删除上一次生成文件的情况下,本次不会realize,要在下一次运行时才能正确realize。
 * process需要添加控制节点
 
-*一页ppt讲清楚现在的前后端流程（对象如何定义、绑定流程
-如何拓展设备，重点体现元建模能力），手工画流程图
+* 流程运行过程中需要有原子性（makeCoffee和check应该是同一个coffeeMaker）；做两杯咖啡？（一个coffeeMaker/两个同时做）
+* 浪潮device-component代码，考虑迁移的可能性
+* json定义优化

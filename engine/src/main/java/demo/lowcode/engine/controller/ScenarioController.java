@@ -40,8 +40,8 @@ public class ScenarioController {
         }
     }
 
-    @GetMapping (value = "/loadresource-json")
-    public ResponseEntity<?> loadresourceJson(){
+    @GetMapping (value = "/load-scenario-resource-json")
+    public ResponseEntity<?> loadResourceJson(){
         try {
             Scenario_ResourceJson scenario_resourceJson = scenarioBusiness.loadResourceJson();
             System.out.println("场景资源loading成功！");

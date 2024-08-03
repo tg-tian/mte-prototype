@@ -51,8 +51,8 @@
               <el-option v-for="service in domainDevice.find(v=>v.code===deviceForm.deviceType.code)?.services ?? []" :key="service.code" :label="service.name" :value="service.code" />
             </el-select>
           </el-form-item>
-          <el-form-item label="协议" prop="contract">
-            <el-select v-model="deviceForm.contract" placeholder="请选择协议">
+          <el-form-item label="协议" prop="protocol">
+            <el-select v-model="deviceForm.protocol" placeholder="请选择协议">
               <el-option label="HTTP" value="HTTP" />
               <el-option label="TCP/IP" value="TCP/IP" />
             </el-select>
@@ -80,6 +80,7 @@ import Table from "@/view/main/common/Table.vue";
 import Card from "@/view/main/common/Card.vue";
 import {Search} from "@element-plus/icons-vue";
 import {FormInstance, FormRules} from "element-plus";
+import {getScenarioResource} from "@/api/scenarioApi";
 
 const props = defineProps({
   scenarioId: String,
@@ -117,7 +118,7 @@ const state = reactive<State>({
       type: "String"
     },
     {
-      code: "contract",
+      code: "protocol",
       name: "协议",//TCP/IP,HTTP
       type: "String"
     },
@@ -145,7 +146,7 @@ interface RuleForm {
   deviceName: String;
   deviceType: any;
   deviceService: any;
-  contract: String;
+  protocol: String;
   host: String;
   port: number|string;
 }
@@ -155,7 +156,7 @@ const deviceForm = reactive<RuleForm>({
   deviceName: '',
   deviceType: '',
   deviceService: '',
-  contract: '',
+  protocol: '',
   host: '',
   port: ''
 })
@@ -172,7 +173,7 @@ const rules = reactive<FormRules<RuleForm>>({
   "deviceService.code": [
     { required: true, message: '请选择设备品牌/厂商', trigger: 'blur' },
   ],
-  contract: [
+  protocol: [
     { required: true, message: '请选择协议', trigger: 'blur' },
   ],
   host: [
@@ -184,26 +185,31 @@ const rules = reactive<FormRules<RuleForm>>({
 })
 
 onMounted(()=>{
-  data.value = [{
-    deviceId: "deviceId",
-    deviceName: "咖啡机器人A",
-    deviceType: "咖啡机器人",
-    deviceService: "A品牌",
-    contract: "HTTP",
-    host: "http://aservice.coffee",
-    port: 8080
-  },
-    {
-    deviceId: "deviceId2",
-    deviceName: "咖啡机器人B",
-    deviceType: "咖啡机器人",
-    deviceService: "B品牌",
-    contract: "HTTP",
-    host: "http://bservice.coffee",
-    port: 8080
-  }]
+  if (import.meta.env.VITE_MODE === "mock"){
+    data.value = [{
+      deviceId: "deviceId",
+      deviceName: "咖啡机器人A",
+      deviceType: "咖啡机器人",
+      deviceService: "A品牌",
+      protocol: "HTTP",
+      host: "http://aservice.coffee",
+      port: 8080
+    },
+      {
+        deviceId: "deviceId2",
+        deviceName: "咖啡机器人B",
+        deviceType: "咖啡机器人",
+        deviceService: "B品牌",
+        protocol: "HTTP",
+        host: "http://bservice.coffee",
+        port: 8080
+      }]
+  }else {
+    getScenarioDevice()
+  }
 
-  domainDevice.value = [{
+  domainDevice.value = [
+      {
     code: "CoffeeMaker",
     name: "咖啡机器人",
     services: [
@@ -225,6 +231,24 @@ onMounted(()=>{
       imageUrl: new URL('@/assets/logo.png', import.meta.url).href
     }]
 })
+
+const getScenarioDevice = ()=>{
+  getScenarioResource().then((res:any) =>{
+    if (res.status === 200){
+      console.log(res.data)
+      data.value = res.data.devicesList.map(v=>{
+        const service = res.data.devices_service[v.deviceId]
+        return {
+          ...v,
+          deviceService: service.name,
+          protocol: service.protocol,
+          host: service.uri,
+          port: service.port
+        }
+      })
+    }
+  })
+}
 
 const handleDomainDeviceClick = (device)=>{
   selectedDevice.value = device

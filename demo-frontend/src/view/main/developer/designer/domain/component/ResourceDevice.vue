@@ -39,6 +39,7 @@
 import Table from "@/view/main/common/Table.vue";
 import {Search} from "@element-plus/icons-vue";
 import Card from '@/view/main/common/Card.vue'
+import {getDomainComponent} from "@/api/DomainApi";
 
 const props = defineProps({
   domainId: String,
@@ -80,14 +81,18 @@ const {header, data, dialogVisible, searchInput, domainDevice, selectedDeviceLis
 
 //赋值
 onMounted(()=> {
-  data.value = [
+  if (import.meta.env.VITE_MODE === "mock") {
+    data.value = [
       {
-    ID: "CoffeeMaker",
-    name: "咖啡机"
-  },{
-    ID: "AirConditioner",
-    name: "空调"
-  }]
+        ID: "CoffeeMaker",
+        name: "咖啡机"
+      },{
+        ID: "AirConditioner",
+        name: "空调"
+      }]
+  }else {
+    getDomainData()
+  }
   domainDevice.value = [
     {
       code: "CoffeeMaker",
@@ -119,6 +124,20 @@ const clearDevice = ()=>{
     device.isSelected=false
   })
   selectedDeviceList.value = []
+}
+
+const getDomainData = () =>{
+  getDomainComponent("Device").then((res:any) =>{
+    if (res.status === 200){
+      console.log(res.data)
+      data.value = res.data.componentAbout.map(v=>{
+        return {
+          ID: v.componentId,
+          name: v.componentName
+        }
+      })
+    }
+  })
 }
 
 </script>

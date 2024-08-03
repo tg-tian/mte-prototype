@@ -39,6 +39,7 @@
 import Table from "@/view/main/common/Table.vue";
 import Card from '@/view/main/common/Card.vue'
 import {Search} from "@element-plus/icons-vue";
+import {getDomainComponent} from "@/api/DomainApi";
 
 const props = defineProps({
   domainId: String,
@@ -82,15 +83,21 @@ const {header, data, dialogVisible, searchInput, domainUI, selectedUIList} = toR
 
 //赋值
 onMounted(()=> {
-  data.value = [{
-    code: "001",
-    name: "场景化导航",
-    imgUrl: new URL('@/assets/images/guide.svg', import.meta.url).href
-  },{
-    code: "002",
-    name: "柱状图",
-    imgUrl: new URL('@/assets/images/bar.svg', import.meta.url).href
-  }]
+  if (import.meta.env.VITE_MODE === "mock") {
+    data.value = [
+      {
+        code: "001",
+        name: "场景化导航",
+        imgUrl: new URL('@/assets/images/guide.svg', import.meta.url).href
+      },{
+        code: "002",
+        name: "柱状图",
+        imgUrl: new URL('@/assets/images/bar.svg', import.meta.url).href
+      }]
+  }else {
+    getDomainData()
+  }
+
   domainUI.value = [{
     code: "001",
     name: "场景化导航",
@@ -105,6 +112,23 @@ onMounted(()=> {
     }
   ]
 })
+
+const getDomainData = () =>{
+  getDomainComponent("UI").then((res:any) =>{
+    if (res.status === 200){
+      console.log(res.data)
+      data.value = res.data.componentAbout.map(v=>{
+        const imgPath = "../../../../../../assets/icon/"+v.imgPath
+        return {
+          code: v.componentId,
+          name: v.componentName,
+          imgUrl: new URL(imgPath, import.meta.url).href,
+          isSelected: false
+        }
+      })
+    }
+  })
+}
 
 const updateIsSelected = (index, value) => {
   domainUI.value[index].isSelected = value;
