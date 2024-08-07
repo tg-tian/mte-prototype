@@ -5,3 +5,4 @@ export const getMockDeviceInformation = () =>
     url: '/mock-device-information',
     method: 'get'
   })
+    
