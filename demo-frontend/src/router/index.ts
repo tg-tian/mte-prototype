@@ -10,6 +10,7 @@ import MainLayout from '../view/main/common/MainLayout/index.vue'
 import HomeView from '../view/main/common/HomeView/index.vue'
 import WorkspaceView from '../view/main/developer/Workspace/index.vue'
 import RecommendationView from '../view/main/user/Recommendation/index.vue'
+import AddDeviceComponent from '../view/main/developer/designer/component/AddDeviceType.vue'
 import ScenarioDetail from '../view/main/developer/designer/scenario/ScenarioDetail.vue'
 import DomainDetail from "@/view/main/developer/designer/domain/DomainDetail.vue"
 import ApplicationDetail from '../view/main/developer/designer/application/ApplicationDetail.vue'
@@ -82,6 +83,11 @@ const router = createRouter({
               path: 'workspace',
               name: '我的空间',
               component: WorkspaceView
+            },
+            {
+              path: 'device-component/add',
+              name: '新增设备模板',
+              component: AddDeviceComponent
             },
             {
               path: 'scenario/detail',

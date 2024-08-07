@@ -45,5 +45,10 @@
 * process需要添加控制节点
 
 * 流程运行过程中需要有原子性（makeCoffee和check应该是同一个coffeeMaker）；做两杯咖啡？（一个coffeeMaker/两个同时做）
+
+planA:每个节点指定设备实例（设备实例与具体设备是0..1的关系，用来表明哪些操作是同一个设备进行），设备实例列表在该流程的公共上下文中，设备实例在流程运行时会找符合其所在节点条件的具体设备（如找makeCoffee和check都能够操作的coffeeMaker）
+
+planB:同一个流程中相同类型的设备默认为同一个设备，可通过布尔属性“sameDevice”进行修改是否需要同一个设备
+
 * 浪潮device-component代码，考虑迁移的可能性
 * json定义优化

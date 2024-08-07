@@ -9,7 +9,7 @@
 <!--   应用开发者（选定场景开发应用，应用增删改）   -->
       <el-tab-pane label="我的应用" name="application"><MyApplication /></el-tab-pane>
     </el-tabs>
-    <div class="add-button">
+    <div class="add-button" v-if="activeName !== 'component'">
       <el-dropdown>
         <el-button type="primary">
           <el-icon size="18" color="white"><Plus /></el-icon>
@@ -32,7 +32,7 @@ import MyComponent from "./component/MyComponent.vue";
 import MyScenario from "./component/MyScenario.vue";
 import MyApplication from "./component/MyApplication.vue";
 
-const activeName = ref('domain')
+const activeName = ref('component')
 
 const router = useRouter()
 watchEffect(() => {
