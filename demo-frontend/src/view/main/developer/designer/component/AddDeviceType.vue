@@ -12,10 +12,10 @@
 
   <div style="margin-top: 30px">
     <template v-if ="active === 0">
-      <Device_Information />
+      <Device_Information  @update-info="updateDeviceInfo" :info="device_name"/>
     </template>
     <template v-if ="active === 1">
-      <Function_Set />
+      <Function_Set :name="device_name"/>
     </template>
     <template v-if ="active === 2">
       <Icon_Upload />
@@ -43,12 +43,16 @@ const router = useRouter()
 
 interface State {
   active: number;
+
+  //保存DeviceJson所需的所有参数
+  device_name:String;
 }
 
 const state = reactive<State>({
   active: 0,
+  device_name: "",
 })
-const {active} = toRefs(state)
+const {active,device_name} = toRefs(state)
 
 const prev = ()=>{
   active.value--
@@ -57,4 +61,10 @@ const prev = ()=>{
 const next = ()=>{
   if (active.value++ > 2) active.value = 0
 }
+
+const updateDeviceInfo = (new_device_name: String) => {
+  state.device_name = new_device_name;
+  console.log(state.device_name);
+}
+
 </script>

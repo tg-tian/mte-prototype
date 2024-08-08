@@ -15,9 +15,7 @@
         <el-form-item label="设备名称" prop="deviceName">
           <el-input v-model="deviceForm.deviceName" placeholder="请输入"/>
         </el-form-item>
-        <el-form-item label="设备类型" prop="deviceType">
-          <el-input v-model="deviceForm.deviceType" placeholder="请输入"/>
-        </el-form-item>
+
           <div class="domain-subtitle" style="display: flex;justify-content: space-between">
             <el-button type="primary" @click="submitForm(fieldFormRef)" style="margin-left: auto;">
               确认
@@ -46,8 +44,10 @@ import {FormInstance, FormRules} from "element-plus";
 interface RuleForm{
   deviceID: string;
   deviceName: string;
-  deviceType:string;
+  //deviceType:string;
 }
+
+const emit = defineEmits(['update-info'])
 
 const fieldFormRef = ref<FormInstance>()
 //验证规则,form-item中使用prop数据属性绑定此处的验证规则
@@ -58,15 +58,13 @@ const rules = reactive<FormRules<RuleForm>>({
   deviceName:[
     {required: true, message:'请输入设备名', trigger:'blur'},
   ],
-  deviceType:[
-    {required: true, message:'请输入设备类型', trigger:'blur'},
-  ]
+
 })
 
 const deviceForm = reactive<RuleForm>({
   deviceID:"",
   deviceName:"",
-  deviceType:""
+  //deviceType:""
 })
 const resetForm = () => {
   if(fieldFormRef){
@@ -79,6 +77,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
+      emit('update-info',deviceForm.deviceName)
       console.log('submit!', deviceForm)
     } else {
       console.log('error submit!', fields)

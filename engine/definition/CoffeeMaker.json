@@ -1,64 +1,64 @@
 {
-  "type": "CoffeeMaker",
+  "code": "CoffeeMaker",
+  "name": "咖啡机器人",
+  "type": "Device",
+  "refs": [
+    {
+      "refID": "events",
+      "refPath": "CoffeeMakerEvent.json"
+    },
+    {
+      "refID": "services",
+      "refPath": [
+        {
+          "name": "AService",
+          "path": "services/AService.json"
+        },
+        {
+          "name": "BService",
+          "path": "services/BService.json"
+        }
+      ]
+    }
+  ],
   "commands": [
     {
-    "name": "start",
-    "inputParam": [],
-    "outputParam": "void"
-  },
+      "code": "start",
+      "name": "启动",
+      "inputParam": [],
+      "outputParam": "void",
+      "events": [],
+      "services": ["AService"]
+    },
     {
-      "name": "makeCoffee",
+      "code": "makeCoffee",
+      "name": "做咖啡",
       "inputParam": [{
         "code": "coffeeType",
         "name": "咖啡类型",
         "type": "Enum",
-        "optional": []
+        "options": ["摩卡", "美式"]
       }],
-      "outputParam": "void"
-    },
-    {
-      "name": "check",
-      "inputParam": [],
-      "outputParam": "void"
-    }],
-  "events": {
-    "eventPath": "MakeCoffeeController.java",
-    "eventMap": [
-      {
-        "name": "onMakeCoffeeStart",
-        "value": "prepare"
-      },
-      {
-        "name": "onMakeCoffeeComplete",
-        "value": "sendMessage"
-      },
-      {
-        "name": "onCheckError",
-        "value": "errorAlert"
-      }
-    ]
-  },
-  "services": [
-    {
-      "name": "AService",
-      "operations": {
-        "start": "on",
-        "makeCoffee": "makeCoffee"
-      },
-      "properties": [
-        {
-          "name": "coffeeTypes",
-          "description": "可支持咖啡类型"
-        }
+      "outputParam": "void",
+      "events": [
+        "onMakeCoffeeStart",
+        "onMakeCoffeeComplete",
+        "onMakeCoffeeError"
+      ],
+      "services": [
+        "AService",
+        "BService"
       ]
     },
     {
-      "name": "BService",
-      "operations": {
-        "start": "start",
-        "makeCoffee": "makeCoffee",
-        "check": "check"
-      }
-    }
-  ]
+      "code": "check",
+      "name": "检查",
+      "inputParam": [],
+      "outputParam": "void",
+      "events": [],
+      "services": [
+        "AService",
+        "BService"
+      ]
+    }]
 }

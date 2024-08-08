@@ -1,10 +1,13 @@
 <template>
   <div>
 
-    <div class="domain-content">
+    <div style="display: flex;justify-content: space-between;">
       <div id="功能列表" style="margin-bottom: 20px;">功能列表</div>
-      <Table :header="header" :data="data" :canChoose="false" @handleEdit="onEdit"/>
+      <div>——{{props.name}} </div>
+      <el-button @click="" type="primary" style="margin-left: auto;">新增操作</el-button>
+
     </div>
+    <Table :header="header" :data="data" :canChoose="false" @handleEdit="onEdit"/>
   </div>
 
   <el-dialog v-model="dialogVisible" width="50%">
@@ -12,13 +15,57 @@
     <span slot="title" style="font-size: large;">操作名称：{{dia_title}}</span>
     <div style="padding:  20px;">
 
+      <!--事件表单-->
       <div style="display: flex;justify-content: space-between;">
         <div id="公共事件" style="margin-top: 10px;">公共事件</div>
-        <el-button  type="primary" style="margin-left: auto; margin-bottom:20px;" plain>新增事件</el-button>
+        <el-button  @click="eventsVisible=true" type="primary" style="margin-left: auto; margin-bottom:20px;" plain>新增事件</el-button>
       </div>
       <Table :header="event_header" :data="event_data"/>
 
+      <el-dialog
+          v-model="eventsVisible"
+          width="40%"
+          append-to-body
+      >
+        <div style="display: flex;justify-content: space-between;">
+          <div id="功能列表" style="margin-bottom: 20px;">新增事件</div>
+        </div>
+        <el-form
+            :rules="rules"
+            :model="EventForm"
+            ref = "fieldFormRef"
+            label-width="auto"
+            label-position="left"
+            style="max-width: 800px;margin: auto;"
+        >
+          <el-form-item label="事件名称" prop="event_Name">
+            <el-input v-model="EventForm.event_Name" placeholder="请输入"/>
+          </el-form-item>
+          <el-form-item label="事件描述" prop="event_Description">
+            <el-input v-model="EventForm.event_Description" placeholder="请输入"/>
+          </el-form-item>
+          <el-form-item label="事件类型" prop="event_Type">
+            <el-select v-model="EventForm.event_Type" placeholder="请选择你的事件类型">
+              <el-option label="Zone one" value="shanghai" v-if = "false" />
+              <el-option label="Zone two" value="beijing" />
+            </el-select>
+          </el-form-item>
 
+          <div class="domain-subtitle" style="display: flex;justify-content: space-between">
+            <el-button type="primary" @click="" style="margin-left: auto;">
+              确认
+            </el-button>
+            <el-button @click="" style="margin-right: auto;">重置</el-button>
+          </div>
+        </el-form>
+      </el-dialog>
+
+
+
+
+
+
+      <!--服务表单-->
       <div style="display: flex;justify-content: space-between;margin-top: 20px;">
         <div id="支持服务" style="margin-top: 10px;">支持服务</div>
         <el-button  type="primary" style="margin-left: auto; margin-bottom:20px;" plain>新增服务</el-button>
@@ -35,6 +82,7 @@
 <script setup lang="ts">
 import Table from "@/view/main/common/Table.vue";
 import {getDomainJson} from "../../../../../../api/DomainApi";
+import {FormInstance, FormRules} from "element-plus";
 
 /**
  * interface State 的作用是定义 TypeScript 接口，以便为 state 对象提供类型约束。这样可以在开发过程中利用 TypeScript 的类型检查功能，提高代码的可靠性和可维护性。
@@ -49,9 +97,45 @@ interface State{
   event_header:any[];
   event_data:any[];
   dialogVisible: boolean;
+  eventsVisible:boolean;
   dia_title:String;
 }
 
+interface RuleForm{
+  event_Name:String;
+  event_Description:String;
+  event_Type:String;
+  signature:String;
+  event_Args:String;
+}
+
+const fieldFormRef = ref<FormInstance>()
+
+const rules = reactive<FormRules<RuleForm>>({
+  event_Name:[
+    {required: true, message:'请输入事件名称', trigger:'blur'},
+  ],
+  event_Description:[
+    {required: true, message:'请输入事件描述', trigger:'blur'},
+  ],
+  event_Type:[
+    {required: true, message:'请选择事件类型', trigger:'blur'},
+  ],
+  signature:[
+    {required: true, message:'请输入函数名', trigger:'blur'},
+  ],
+  event_Args:[
+    {required: true, message:'请选择所需参数声明', trigger:'blur'},
+  ]
+})
+
+const EventForm = reactive<RuleForm> ({
+  event_Name:"",
+  event_Description:"",
+  event_Type:"",
+  signature:"",
+  event_Args:"",
+})
 //定义响应式对象
 const  state = reactive<State>({
 
@@ -74,15 +158,11 @@ const  state = reactive<State>({
     {
       factory_id:"fac_A001",
       factory_name:"A公司",
-      factory_file:"Service_fac_A.json"
+      factory_file:"AService.json"
     }
   ],
   event_header:[
     {
-      code:"event_id",
-      name:"事件号",
-      type:"String"
-    },{
       code:"event_name",
       name:"事件名称",
       type:"String"
@@ -98,10 +178,9 @@ const  state = reactive<State>({
   ],
   event_data:[
     {
-      event_id:"001",
       event_name:"onMakeCoffeeStart",
       event_description:"prepare",
-      event_file:"prepare.json"
+      event_file:"prepare.json(文件生成后自动展示)"
     }
   ],
 
@@ -133,6 +212,7 @@ const  state = reactive<State>({
     }
   ],
   dialogVisible:false,
+  eventsVisible:false,
   dia_title:"编辑操作",
 })
 
@@ -148,7 +228,7 @@ const  state = reactive<State>({
  * */
 //toRefs(state) 会返回一个包含 state 各个属性的 ref 对象的对象
 //在这里，header、data 和 dialogVisible 都是 ref 对象，它们分别引用 state 对象中的对应属性。
-const  {service_header,service_data,event_header,event_data,header ,data,dialogVisible,dia_title} = toRefs(state)
+const  {service_header,service_data,event_header,event_data,header ,data,dialogVisible,eventsVisible,dia_title} = toRefs(state)
 
 
 const onEdit = (row) =>{
@@ -158,6 +238,18 @@ const onEdit = (row) =>{
   dia_title.value = row.name;
   console.log(row.name);
 };
+// 监控props的改变并且更新当前的字
+const props = defineProps({
+  name: String,
+});
+watchEffect(() => {
+  if (props.name) {
+    console.log("Device_name:", props.name);
+  }
+  else {
+    console.log("Can't receive device_name");
+  }
+});
 
 </script>
 
