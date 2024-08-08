@@ -1,0 +1,26 @@
+{
+  "eventPath": "MakeCoffeeController.java",
+  "eventList": [
+    {
+      "name": "onMakeCoffeeStart",
+      "description": "准备咖啡",
+      "type": "onStart",
+      "command": "makeCoffee",
+      "signature": "prepare()"
+    },
+    {
+      "name": "onMakeCoffeeComplete",
+      "description": "咖啡完成提醒",
+      "type": "onComplete",
+      "command": "makeCoffee",
+      "signature": "sendMessage(Event event)"
+    },
+    {
+      "name": "onMakeCoffeeError",
+      "description": "错误警告",
+      "type": "onError",
+      "command": "makeCoffee",
+      "signature": "errorAlert(Event event)"
+    }
+  ]
+}

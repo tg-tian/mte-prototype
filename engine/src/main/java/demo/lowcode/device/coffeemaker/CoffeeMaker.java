@@ -37,7 +37,7 @@ public class CoffeeMaker extends Device {
             Properties properties = new Properties();
             properties.load(input);
             definitionPath = properties.getProperty("definitionPath");
-            File file = new File(definitionPath+"CoffeeMaker.json");
+            File file = new File(definitionPath+"CoffeeMaker/CoffeeMaker.json");
             JsonNode rootNode = objectMapper.readTree(file);
 
             // 读取commands数组

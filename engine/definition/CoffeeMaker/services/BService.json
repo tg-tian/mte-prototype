@@ -1,0 +1,18 @@
+{
+  "code": "BService",
+  "name": "B品牌",
+  "commands": [
+    {
+      "signature": "start()",
+      "content": "System.out.println(\"Starting Coffee Maker BService ...\");\n        try {\n            // 让当前线程休眠8秒\n            Thread.sleep(3000);\n        } catch (InterruptedException e) {\n            // 捕获并处理中断异常\n            e.printStackTrace();\n        }\n        System.out.println(\"Started (B).\");"
+    },
+    {
+      "signature": "makeCoffee(String coffeeType)",
+      "content": "System.out.println(\"Starting making coffee (Accessing URI: \" + uri + \" (B)\");\n        try {\n            // 让当前线程休眠8秒\n            Thread.sleep(8000);\n        } catch (InterruptedException e) {\n            // 捕获并处理中断异常\n            e.printStackTrace();\n        }\n        System.out.println(\"Done making coffee.\");"
+    },
+    {
+      "signature": "check()",
+      "content": "System.out.println(\"Finishing (B)\");\n        try {\n            // 让当前线程休眠8秒\n            Thread.sleep(2000);\n        } catch (InterruptedException e) {\n            // 捕获并处理中断异常\n            e.printStackTrace();\n        }\n        System.out.println(\"Check finished\");"
+    }
+  ]
+}
