@@ -1,0 +1,14 @@
+{
+  "code": "AService",
+  "name": "A品牌",
+  "commands": [
+    {
+      "signature": "start()",
+      "content": "System.out.println(\"Accessing URI: \" + uri + \"on\");"
+    },
+    {
+      "signature": "makeCoffee(String coffeeType)",
+      "content": "System.out.println(\"Accessing URI: \" + uri + \"makeCoffee\");\n        System.out.println(executeArgs);"
+    }
+  ]
+}

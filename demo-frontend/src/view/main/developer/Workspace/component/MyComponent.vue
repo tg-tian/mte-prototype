@@ -3,7 +3,10 @@
     <div class="component-subtitle" style="display: flex;justify-content: space-between">
       <div @click="deviceVisible = !deviceVisible" style="cursor: pointer">
         设备模板({{deviceData.length}})
-        <el-icon><CaretBottom/></el-icon>
+        <el-icon>
+          <CaretBottom v-if="deviceVisible"/>
+          <CaretTop v-if="!deviceVisible"/>
+        </el-icon>
       </div>
       <el-button type="primary" @click="router.push({path: '/developer/device-component/add'})">新增设备模板</el-button>
     </div>
@@ -23,7 +26,10 @@
     <div class="component-subtitle" style="display: flex;justify-content: space-between">
       <div @click="businessVisible = !businessVisible" style="cursor: pointer">
         业务组件模板({{businessData.length}})
-        <el-icon><CaretBottom/></el-icon>
+        <el-icon>
+          <CaretBottom v-if="businessVisible"/>
+          <CaretTop v-if="!businessVisible"/>
+        </el-icon>
       </div>
       <el-button type="primary">新增业务组件模板</el-button>
     </div>
@@ -43,7 +49,7 @@
 
 <script setup lang="ts">
 import Card from "@/view/main/common/Card.vue";
-import {CaretBottom} from "@element-plus/icons-vue";
+import {CaretBottom, CaretTop} from "@element-plus/icons-vue";
 
 interface State{
   deviceData: any[];
@@ -98,7 +104,7 @@ const updateDeviceIsSelected = (index, value) => {
   deviceData.value[index].isSelected = value;
 };
 const handleDeviceClick = (device)=>{
-  console.log(device)
+  router.push({path: "/developer/device-component/detail", query: {deviceCode: device.code, deviceName: device.name}})
 }
 
 const updateBusinessIsSelected = (index, value) => {

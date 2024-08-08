@@ -12,12 +12,12 @@ public class MakeCoffeeController {
         System.out.println("Before making coffee...");
     }
 
-    public void sendMessage(CoffeeMakerEvent event) {
+    public void sendMessage(Event event) {
         System.out.println("Coffee is ready. Sending message...");
-        System.out.println("Your coffee is ready. coffee information: "+Arrays.toString(event.getInformation()));
+        System.out.println("Your coffee is ready. coffee information: "+Arrays.toString((CoffeeMakerEvent)event.getInformation()));
     }
 
-    public void errorAlert(CoffeeMakerEvent event) {
-        System.out.println("Error:  " + event.getMessage());
+    public void errorAlert(Event event) {
+        System.out.println("Error:  " + (CoffeeMakerEvent)event.getMessage());
     }
 }

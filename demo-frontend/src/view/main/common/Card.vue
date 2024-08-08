@@ -53,6 +53,7 @@ const state = reactive<State>({
 const {isHovered} = toRefs(state)
 
 const handleItemClick = () => {
+  isHovered.value = false
   emit('itemClick')
 }
 
