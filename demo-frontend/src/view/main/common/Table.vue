@@ -10,18 +10,20 @@
             style="width:50px;height: 50px;cursor: pointer"
             @click="handleImageClick(scope.row[col.code])"
         />
+        <el-button link @click="handleLinkClick(scope.row[col.code])" style="color: #50a5fb" v-if="col.type === 'Link'">{{scope.row[col.code]}}</el-button>
         <span v-else>{{ scope.row[col.code] }}</span>
       </template>
     </el-table-column>
-    <el-table-column label="操作">
+    <el-table-column label="操作" v-if="canDelete || canEdit">
       <template #default="scope">
-        <el-button size="small" @click="handleEdit(scope.$index, scope.row)">
+        <el-button size="small" @click="handleEdit(scope.$index, scope.row)" v-if="canEdit">
           编辑
         </el-button>
         <el-button
             size="small"
             type="danger"
             @click="handleDelete(scope.$index, scope.row)"
+            v-if="canDelete"
         >
           删除
         </el-button>
@@ -50,6 +52,14 @@ const props = defineProps({
   canChoose:{
     type: Boolean,
     default: false
+  },
+  canEdit:{
+    type: Boolean,
+    default: true
+  },
+  canDelete:{
+    type: Boolean,
+    default: true
   }
 });
 //设置表格组件
@@ -78,7 +88,7 @@ const clearSelection=() =>{
   tableRef.value.clearSelection();
 }
 
-const emit = defineEmits(['handleEdit', 'handleDelete']);
+const emit = defineEmits(['handleEdit', 'handleDelete', 'handleLinkClick']);
 
 const handleEdit = (index, row) => {
   emit('handleEdit', row);
@@ -91,6 +101,9 @@ const handleDelete = (index, row) => {
 const handleImageClick = (imageUrl)=>{
   selectedImage.value = imageUrl;
   imgVisible.value = true;
+}
+const handleLinkClick = (link)=>{
+  emit('handleLinkClick', link)
 }
 const handleDialogClose = ()=>{
   selectedImage.value=''
