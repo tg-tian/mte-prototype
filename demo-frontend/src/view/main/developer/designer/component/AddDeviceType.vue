@@ -1,12 +1,12 @@
 <template>
   <div style="font-size: 16px">
     <el-button link @click="router.go(-1)" style="margin-right: 10px"><el-icon><ArrowLeft /></el-icon></el-button>
-    <span>新增设备模板</span>
+    <span>新增设备类型</span>
   </div>
   <el-steps style="margin: 30px" :active="active">
-    <el-step title="Step 1" description="信息录入" :icon="Edit"/>
+    <el-step title="Step 1" description="信息录入" :icon="Picture"/>
     <el-step title="Step 2" description="功能设置" :icon="Setting"/>
-    <el-step title="Step 3" description="图标上传" :icon="Picture"/>
+    <el-step title="Step 3" description="品牌设置" :icon="Edit"/>
   </el-steps>
 
 
@@ -36,10 +36,6 @@ import Icon_Upload from "./device_component/Icon_Upload.vue";
 import {ArrowLeft, Edit, Picture, Setting} from "@element-plus/icons-vue";
 
 const router = useRouter()
-
-
-
-
 
 interface State {
   active: number;
