@@ -13,12 +13,13 @@
   <div style="margin-top: 30px">
     <template v-if ="active === 0">
       <Device_Information  @update-info="updateDeviceInfo" :info="device_name"/>
+
     </template>
     <template v-if ="active === 1">
       <Function_Set :name="device_name"/>
     </template>
     <template v-if ="active === 2">
-      <Icon_Upload />
+      <Service_Set />
     </template>
   </div>
 
@@ -32,7 +33,7 @@
 
 import Device_Information from "./device_component/Device_Information.vue";
 import Function_Set from "./device_component/Function_Set.vue";
-import Icon_Upload from "./device_component/Icon_Upload.vue";
+import Service_Set from "./device_component/Service_Set.vue";
 import {ArrowLeft, Edit, Picture, Setting} from "@element-plus/icons-vue";
 
 const router = useRouter()

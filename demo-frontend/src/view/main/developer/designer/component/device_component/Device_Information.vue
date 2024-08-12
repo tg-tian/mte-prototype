@@ -4,7 +4,7 @@
       <el-form
           :rules="rules"
           :model="deviceForm"
-          ref = "fieldFormRef"
+          ref = "deviceFormRef"
           label-width="auto"
           label-position="left"
           style="max-width: 800px;margin: auto;"
@@ -12,24 +12,43 @@
         <el-form-item label="设备ID" prop="deviceID">
           <el-input v-model="deviceForm.deviceID" placeholder="请输入"/>
         </el-form-item>
-        <el-form-item label="设备名称" prop="deviceName">
+        <el-form-item label="设备类型" prop="deviceName">
           <el-input v-model="deviceForm.deviceName" placeholder="请输入"/>
+        </el-form-item>
+        <el-form-item label="图标上传" prop="icon_upload">
+          <el-upload
+              drag
+              class="avatar-uploader"
+              :show-file-list="false"
+              :before-upload="beforeAvatarUpload"
+          >
+            <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+            <el-icon v-else class="avatar-uploader-icon"><UploadFilled /></el-icon>
+            <div class="el-upload__text">
+              将文件拖入框中或者 <em>点击上传</em>
+            </div>
+            <div class="el-upload__tip">
+              jpg/png 文件大小应小于2MB
+            </div>
+          </el-upload>
         </el-form-item>
 
           <div class="domain-subtitle" style="display: flex;justify-content: space-between">
-            <el-button type="primary" @click="submitForm(fieldFormRef)" style="margin-left: auto;">
+            <el-button type="primary" @click="submitForm(deviceFormRef)" style="margin-left: auto;" >
               确认
             </el-button>
             <el-button @click="resetForm" style="margin-right: auto;">重置</el-button>
           </div>
       </el-form>
     </div>
+
   </div>
 </template>
 
 <script setup lang= "ts">
 
-import {FormInstance, FormRules} from "element-plus";
+import {ElMessage, FormInstance, FormRules, UploadProps} from "element-plus";
+import { UploadFilled } from '@element-plus/icons-vue'
 
 
 //数据基本信息暂存数据结构
@@ -44,12 +63,13 @@ import {FormInstance, FormRules} from "element-plus";
 interface RuleForm{
   deviceID: string;
   deviceName: string;
+  icon_upload:any;
   //deviceType:string;
 }
 
 const emit = defineEmits(['update-info'])
 
-const fieldFormRef = ref<FormInstance>()
+const deviceFormRef = ref<FormInstance>()
 //验证规则,form-item中使用prop数据属性绑定此处的验证规则
 const rules = reactive<FormRules<RuleForm>>({
   deviceID:[
@@ -58,7 +78,9 @@ const rules = reactive<FormRules<RuleForm>>({
   deviceName:[
     {required: true, message:'请输入设备名', trigger:'blur'},
   ],
-
+  icon_upload:[
+    {required: true, message:'请输入上传图标', trigger:'blur'},
+  ]
 })
 
 const deviceForm = reactive<RuleForm>({
@@ -67,8 +89,8 @@ const deviceForm = reactive<RuleForm>({
   //deviceType:""
 })
 const resetForm = () => {
-  if(fieldFormRef){
-    fieldFormRef.value.resetFields()
+  if(deviceFormRef){
+    deviceFormRef.value.resetFields()
   }
   return
 }
@@ -80,14 +102,50 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       emit('update-info',deviceForm.deviceName)
       console.log('submit!', deviceForm)
     } else {
+      emit('update-info',deviceForm.deviceName) //暂时添加，用于实现数据的传递，之后会删除
       console.log('error submit!', fields)
     }
   })
 }
+const imageUrl = ref('')
+//控制所上传图像的大小
+const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
+  if (rawFile.type !== 'image/jpeg') {
+    ElMessage.error('Picture must be JPG format!')
+    return false
+  } else if (rawFile.size / 1024 / 1024 > 2) {
+    ElMessage.error('Picture size can not exceed 2MB!')
+    return false
+  }
+  return true
+}
+
+
 </script>
 
 <style >
+.avatar-uploader .avatar {
+  width: 178px;
+  height: 178px;
+  display: block;
+}
+</style>
+<style>
+ .avatar-uploader .el-upload {
+   border: 1px dashed var(--el-border-color);
+   border-radius: 6px;
+   cursor: pointer;
+   width: 450px;
+   position: relative;
+   overflow: hidden;
+   margin-left: 100px;
+   margin-top:  20px;
+   transition: var(--el-transition-duration-fast);
+ }
 
+.avatar-uploader .el-upload:hover {
+  border-color: var(--el-color-primary);
+}
 
 
 </style>

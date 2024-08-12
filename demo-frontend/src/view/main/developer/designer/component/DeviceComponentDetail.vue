@@ -206,6 +206,9 @@ const serviceHeader = [
   }
 ]
 
+/**
+ * 在 Vue 中，$event 是一个特殊的占位符，用于在事件处理程序中传递事件对象或自定义参数。当你在模板中使用 $event 时，它通常代表事件处理函数的默认参数，即触发事件时生成的事件对象或在自定义事件中传递的参数
+ * */
 const editServiceFile = (fileName)=>{
   console.log(fileName)
 }

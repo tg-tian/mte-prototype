@@ -1,11 +1,9 @@
 <template>
   <div>
-
     <div style="display: flex;justify-content: space-between;">
-      <div id="功能列表" style="margin-bottom: 20px;">功能列表</div>
+      <div id="功能列表" style="margin-bottom: 20px;">操作列表</div>
       <div>——{{props.name}} </div>
-      <el-button @click="" type="primary" style="margin-left: auto;">新增操作</el-button>
-
+      <el-button @click="operationVisible = true" type="primary" style="margin-left: auto;">新增操作</el-button>
     </div>
     <Table :header="header" :data="data" :canChoose="false" @handleEdit="onEdit"/>
   </div>
@@ -15,25 +13,47 @@
     <span slot="title" style="font-size: large;">操作名称：{{dia_title}}</span>
     <div style="padding:  20px;">
 
+      <!--操作信息编辑-->
+      <div>
+        <div id="操作信息编辑" style="margin-top: 10px; margin-bottom: 20px; ">操作信息编辑</div>
+        <el-form
+            :rules="operation_change_rules"
+            :model="OperationForm"
+            ref = "operationFormRef"
+            label-width="auto"
+            label-position="left"
+            style="max-width: 800px;margin: auto;"
+        >
+          <el-form-item label="操作码" prop="operation_Code">
+            <el-input v-model="OperationForm.operation_Code" :placeholder="selectedService?.code||'请输入操作码'"/>
+          </el-form-item>
+          <el-form-item label="操作名称" prop="operation_Name">
+            <el-input v-model="OperationForm.operation_Name" :placeholder="selectedService?.name||'请输入操作名称'"/>
+          </el-form-item>
+        </el-form>
+      </div>
+
+
       <!--事件表单-->
       <div style="display: flex;justify-content: space-between;">
         <div id="公共事件" style="margin-top: 10px;">公共事件</div>
         <el-button  @click="eventsVisible=true" type="primary" style="margin-left: auto; margin-bottom:20px;" plain>新增事件</el-button>
       </div>
-      <Table :header="event_header" :data="event_data"/>
+      <Table :header="event_header" :data="event_data"  @handleLinkClick="editEventFile($event)"  />
 
+      <!--新增事件-->
       <el-dialog
           v-model="eventsVisible"
           width="40%"
           append-to-body
       >
         <div style="display: flex;justify-content: space-between;">
-          <div id="功能列表" style="margin-bottom: 20px;">新增事件</div>
+          <div id="功能列表" style="margin-bottom: 20px; font-size: large;">新增事件</div>
         </div>
         <el-form
-            :rules="rules"
+            :rules="event_rules"
             :model="EventForm"
-            ref = "fieldFormRef"
+            ref = "eventFormRef"
             label-width="auto"
             label-position="left"
             style="max-width: 800px;margin: auto;"
@@ -46,36 +66,71 @@
           </el-form-item>
           <el-form-item label="事件类型" prop="event_Type">
             <el-select v-model="EventForm.event_Type" placeholder="请选择你的事件类型">
-              <el-option label="Zone one" value="shanghai" v-if = "false" />
-              <el-option label="Zone two" value="beijing" />
+              <!--此处应该为通用事件的选择，而不应该是只针对咖啡事件的选择？-->
+              <el-option label="操作开始事件" value="onMakeCoffeeStart" :disabled = "!EventForm.eventType_Is_Chosen.onMakeCoffeeStart" />
+              <el-option label="操作完成事件" value="onMakeCoffeeComplete" :disabled = "!EventForm.eventType_Is_Chosen.onMakeCoffeeComplete"/>
+              <el-option label="操作错误事件" value="onMakeCoffeeError" :disabled = "!EventForm.eventType_Is_Chosen. onMakeCoffeeError"/>
             </el-select>
           </el-form-item>
-
+          <el-form-item label="函数名称" prop="signature">
+            <el-input v-model="EventForm.signature" placeholder="请输入"/>
+          </el-form-item>
+          <!--输入函数参数，目前为默认参数
+          <el-form-item label="函数参数" prop="event_Args">
+            <el-select v-model="EventForm.event_Args" placeholder="请选择你的函数参数">
+              <el-option label="(空)" value=""/>
+              <el-option label="(Event)" value="Event event"/>
+            </el-select>
+          </el-form-item>
+          -->
           <div class="domain-subtitle" style="display: flex;justify-content: space-between">
-            <el-button type="primary" @click="" style="margin-left: auto;">
+            <el-button type="primary" @click="submitForm(eventFormRef)" style="margin-left: auto;">
               确认
             </el-button>
-            <el-button @click="" style="margin-right: auto;">重置</el-button>
+            <el-button @click="resetForm" style="margin-right: auto;">重置</el-button>
           </div>
         </el-form>
       </el-dialog>
-
-
-
-
-
-
-      <!--服务表单-->
-      <div style="display: flex;justify-content: space-between;margin-top: 20px;">
-        <div id="支持服务" style="margin-top: 10px;">支持服务</div>
-        <el-button  type="primary" style="margin-left: auto; margin-bottom:20px;" plain>新增服务</el-button>
-      </div>
-      <Table :header="service_header" :data="service_data"/>
     </div>
+    <div class="domain-subtitle" style="display: flex;justify-content: space-between">
+      <el-button type="primary"  style="margin-left: auto;" @click="Commit">确定</el-button>
+      <el-button type="primary"  style="margin-right: auto;" @click="dialogVisible = false" plain>返回</el-button>
+    </div>
+  </el-dialog>
+  <el-dialog v-model="operationVisible" width=" 50%">
+    <div id="新增操作" style="margin-top: 10px; margin-bottom: 20px; font-size: large">新增操作</div>
+    <el-form
+        :rules="operation_add_rules"
+        :model="OperationForm"
+        ref = "operationFormRef"
+        label-width="auto"
+        label-position="left"
+        style="max-width: 800px;margin: auto;"
+    >
+      <el-form-item label="操作码" prop="operation_Code">
+        <el-input v-model="OperationForm.operation_Code" placeholder="请输入操作码"/>
+      </el-form-item>
+      <el-form-item label="操作名称" prop="operation_Name">
+        <el-input v-model="OperationForm.operation_Name" placeholder="请输入操作名称"/>
+      </el-form-item>
+      <el-form-item label="输入参数设定" prop="operation_InputParam">
+        <div style="display: flex;justify-content: space-between; width: 600px">
+          <el-button @click="" type="primary" style="margin-left: auto; margin-bottom: 20px;" plain>新增输入参数</el-button>
+        </div>
+        <Table :header="OperationForm.Param_header" :data="OperationForm.operation_InputParam"/>
+      </el-form-item>
+      <el-form-item label="输出参数设定" prop="operation_OutputParam">
+        <div style="display: flex;justify-content: space-between; width: 600px">
+          <el-button @click="" type="primary" style="margin-left: auto; margin-bottom: 20px;" plain>新增输出参数</el-button>
+        </div>
+        <Table :header="OperationForm.Param_header" :data="OperationForm.operation_OutputParam"/>
+      </el-form-item>
       <div class="domain-subtitle" style="display: flex;justify-content: space-between">
         <el-button type="primary"  style="margin-left: auto;" @click="Commit">确定</el-button>
-        <el-button type="primary"  style="margin-right: auto;" @click="dialogVisible = false" plain>返回</el-button>
+        <el-button type="primary"  style="margin-right: auto;" @click="operationVisible = false" plain>返回</el-button>
       </div>
+
+    </el-form>
   </el-dialog>
 </template>
 
@@ -98,20 +153,35 @@ interface State{
   event_data:any[];
   dialogVisible: boolean;
   eventsVisible:boolean;
+  operationVisible:boolean;
   dia_title:String;
+  selectedService: any;  // 添加一个 selectedService 用于保存选中的行数据
 }
-
-interface RuleForm{
+//基础事件是否已经被选择
+interface EventType_Is_Chosen {
+  onMakeCoffeeStart:boolean;
+  onMakeCoffeeComplete:boolean;
+  onMakeCoffeeError:boolean;
+}
+interface Operation_RuleForm{
+  operation_Code:String;
+  operation_Name:String;
+  Param_header:any[]; //参数头
+  operation_InputParam:any[];  //输入参数,用于公共操作函数
+  operation_OutputParam:any[]; //输出参数，用于公共操作函数
+}
+interface Event_RuleForm{
+  eventType_is_chosen: EventType_Is_Chosen;
   event_Name:String;
   event_Description:String;
   event_Type:String;
+  // Type_chosen:
   signature:String;
   event_Args:String;
 }
-
-const fieldFormRef = ref<FormInstance>()
-
-const rules = reactive<FormRules<RuleForm>>({
+const eventFormRef = ref<FormInstance>()
+const operationFormRef = ref<FormInstance>()
+const event_rules = reactive<FormRules<Event_RuleForm>>({
   event_Name:[
     {required: true, message:'请输入事件名称', trigger:'blur'},
   ],
@@ -128,8 +198,68 @@ const rules = reactive<FormRules<RuleForm>>({
     {required: true, message:'请选择所需参数声明', trigger:'blur'},
   ]
 })
-
-const EventForm = reactive<RuleForm> ({
+const  OperationForm = reactive<Operation_RuleForm>({
+  operation_Code:"",
+  operation_Name : "",
+  Param_header: [
+    {
+      code:"variable_name",
+      name:"变量名",
+      type:"String",
+    },{
+      code:"variable_type",
+      name:"变量数据类型",
+      type:"String",
+    },{
+      code:"variable_value",
+      name:"变量数值",
+      type:"any",
+    }
+  ],
+  operation_InputParam:[
+    {
+      variable_name:"code",
+      variable_type:"String",
+      variable_value:"coffeeType",
+    },{
+      variable_name:"name",
+      variable_type:"String",
+      variable_value:"做咖啡",
+    },{
+      variable_name:"name",
+      variable_type:"String",
+      variable_value:"Enum",
+    },{
+      variable_name:"options",
+      variable_type:"List",
+      variable_value:"['摩卡','美式']",
+    }
+  ],
+  operation_OutputParam:[
+  ]
+})
+const operation_add_rules = reactive<FormRules<Operation_RuleForm>> ({
+  operation_Code:[
+    {required: true, message:"请输入操作码", trigger:'blur'},
+  ],
+  operation_Name:[
+    {required: true, message:"请输入操作名称", trigger:'blur'},
+  ]
+})
+const operation_change_rules = reactive<FormRules<Operation_RuleForm>> ({
+  operation_Code:[
+    {required: false, message:"请输入操作码", trigger:'blur'},
+  ],
+  operation_Name:[
+    {required: false, message:"请输入操作名称", trigger:'blur'},
+  ]
+})
+const EventForm = reactive<Event_RuleForm> ({
+  eventType_Is_Chosen:{
+    onMakeCoffeeStart:true,
+    onMakeCoffeeComplete:true,
+    onMakeCoffeeError:true,
+  },
   event_Name:"",
   event_Description:"",
   event_Type:"",
@@ -138,29 +268,6 @@ const EventForm = reactive<RuleForm> ({
 })
 //定义响应式对象
 const  state = reactive<State>({
-
-  service_header:[
-    {
-      code:"factory_id",
-      name:"厂商号",
-      type:"String"
-    },{
-      code:"factory_name",
-      name:"厂商名称",
-      type:"String"
-    },{
-      code:"factory_file",
-      name:"服务定义文件",
-      type:"String"
-    },
-  ],
-  service_data:[
-    {
-      factory_id:"fac_A001",
-      factory_name:"A公司",
-      factory_file:"AService.json"
-    }
-  ],
   event_header:[
     {
       code:"event_name",
@@ -173,21 +280,20 @@ const  state = reactive<State>({
     },{
       code:"event_file",
       name:"事件文件",
-      type:"String"
+      type:"Link"
     }
   ],
   event_data:[
     {
       event_name:"onMakeCoffeeStart",
-      event_description:"prepare",
-      event_file:"prepare.json(文件生成后自动展示)"
+      event_description:"prepare the coffee",
+      event_file:"onMakeCoffeeStart.json"
     }
   ],
-
   header:[
     {
-      code:"id",
-      name:"操作号",
+      code:"code",
+      name:"操作码",
       type:"String"
     },{
       code:"name",
@@ -197,24 +303,22 @@ const  state = reactive<State>({
       code:"events_count",
       name:"已绑定事件",
       type:"Int"
-    },{
-      code:"services_count",
-      name:"支持服务",
-      type:"Int"
     }
   ],
   data:[
     {
-      id:"00011",
-      name:"MakeCoffee",
-      events_count:3,
-      services_count:2
+      code:"MakeCoffee",
+      name:"做咖啡",
+      events_count:"1/3",
     }
   ],
   dialogVisible:false,
   eventsVisible:false,
+  operationVisible:false,
+  selectedService:null,
   dia_title:"编辑操作",
 })
+
 
 /**
  * 在 Vue 3 中，toRefs 函数用于将 reactive 对象的属性转换为 ref 对象。这样可以使这些属性在模板中直接使用，并且可以更方便地进行解构和传递。
@@ -226,31 +330,71 @@ const  state = reactive<State>({
  *  可以方便地将 reactive 对象中的属性解构出来，并直接在模板或其他函数中使用。
  *  使得代码更加简洁和易读。
  * */
+
 //toRefs(state) 会返回一个包含 state 各个属性的 ref 对象的对象
 //在这里，header、data 和 dialogVisible 都是 ref 对象，它们分别引用 state 对象中的对应属性。
-const  {service_header,service_data,event_header,event_data,header ,data,dialogVisible,eventsVisible,dia_title} = toRefs(state)
-
+const  {event_header,event_data,header ,data,dialogVisible,eventsVisible,operationVisible,dia_title,selectedService} = toRefs(state)
 
 const onEdit = (row) =>{
   //要修改 dialogVisible 的值，应该修改 dialogVisible.value 而不是 dialogVisible，因为 dialogVisible 是一个 ref 对象，实际的值存储在 value 属性中。
   //这种情况下，dialogVisible 被重新赋值成一个布尔值 true，而不是修改原来的 ref 对象。
   dialogVisible.value = true;
   dia_title.value = row.name;
+  selectedService.value = row;
   console.log(row.name);
 };
+
+const submitForm = async (formEl: FormInstance | undefined) => {
+  if (!formEl) return
+  await formEl.validate((valid, fields) => {
+    if (eventFormRef) {
+      console.log('submit!', EventForm);
+      state.eventsVisible = false;
+      eventFormRef.value.resetFields()
+    } else {
+      console.log('error submit!', fields);
+    }
+  })
+}
+const resetForm = () => {
+  if(eventFormRef){
+    eventFormRef.value.resetFields()
+  }
+  return
+}
+
 // 监控props的改变并且更新当前的字
 const props = defineProps({
   name: String,
 });
+
 watchEffect(() => {
+  //动态修改操作名称的值
+  if(state.data.name){
+    OperationForm.operation_Name = state.data.name;
+  }
+
+  //保证操作名称的传递
   if (props.name) {
     console.log("Device_name:", props.name);
   }
   else {
     console.log("Can't receive device_name");
   }
+  //防止重复添加
+  if(EventForm.event_Type == "onMakeCoffeeStart"){
+    EventForm.eventType_Is_Chosen.onMakeCoffeeStart = false;
+  }else if(EventForm.event_Type == "onMakeCoffeeComplete"){
+    EventForm.eventType_Is_Chosen.onMakeCoffeeComplete = false;
+  }else if(EventForm.event_Type == "onMakeCoffeeError"){
+    EventForm.eventType_Is_Chosen.onMakeCoffeeError = false;
+  }
+
 });
 
+const editEventFile = (fileName)=>{
+  console.log(fileName)
+}
 </script>
 
 <style scoped>

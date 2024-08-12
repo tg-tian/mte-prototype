@@ -31,7 +31,7 @@
       "services": ["AService"]
     },
     {
-      "code": "makeCoffee",
+      "code": "MakeCoffee",
       "name": "做咖啡",
       "inputParam": [{
         "code": "coffeeType",

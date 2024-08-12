@@ -1,5 +1,5 @@
 <template>
-  <el-table ref="tableRef" :data="data" border stripe style="width: 100%">
+  <el-table ref="tableRef" :data="data" height="auto" border stripe style="width: 100%">
     <el-table-column type="selection" width="55"  v-if="canChoose"/>
     <el-table-column  v-for="col in header" :key="col.code" :prop="col.code" :label="col.name">
       <template v-slot="scope">

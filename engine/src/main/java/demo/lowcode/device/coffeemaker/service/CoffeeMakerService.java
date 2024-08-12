@@ -7,6 +7,8 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+
+// 主要是调用事件和参数
 public class CoffeeMakerService extends DeviceService {
     @Override
     public Map<String, Object> getProperty() {
