@@ -23,20 +23,12 @@ import java.util.*;
 
 @Component
 public class CoffeeMaker extends Device {
-
-    /**
-     * @Component: 表明这个类是一个 Spring 组件，Spring 框架会自动扫描并将其实例化为一个 bean。
-     * @Value("${definitionPath}"): 从配置文件中读取 definitionPath 的值，这个值用于加载咖啡机的 JSON 配置文件。
-     * @Resource 和 @Autowired: 这两者用于自动注入其他 Spring bean。在这个代码中，它们用来注入设备服务 (DeviceService)。
-     * */
     //用于存储不同的事件监听器
     private Map<String, List<EventListener>> beforeEventListeners = new HashMap<>();
     private Map<String, List<EventListener>> afterEventListeners = new HashMap<>();
     private Map<String, List<EventListener>> errorEventListeners = new HashMap<>();
-
     @Value("${definitionPath}")
     private String definitionPath;
-
     //构造函数，用于读取相应的json文件
     public CoffeeMaker() {
         ObjectMapper objectMapper = new ObjectMapper();
@@ -71,7 +63,6 @@ public class CoffeeMaker extends Device {
             e.printStackTrace();
         }
     }
-
     private void onStart(String operationType, CoffeeMakerEvent event) {
         List<EventListener> listeners = beforeEventListeners.get(operationType);
         if (listeners != null) {
@@ -84,7 +75,6 @@ public class CoffeeMaker extends Device {
             }
         }
     }
-
     private void onComplete(String operationType, CoffeeMakerEvent event) {
         List<EventListener> listeners = afterEventListeners.get(operationType);
         if (listeners != null) {
@@ -97,7 +87,6 @@ public class CoffeeMaker extends Device {
             }
         }
     }
-
     private void onError(String operationType, CoffeeMakerEvent event) {
         List<EventListener> listeners = errorEventListeners.get(operationType);
         if (listeners != null) {
@@ -110,8 +99,6 @@ public class CoffeeMaker extends Device {
             }
         }
     }
-
-
     //事件监听器的注册
     @Override
     public void addEventListener(String eventName, EventListener eventHandler) {
@@ -129,11 +116,7 @@ public class CoffeeMaker extends Device {
             beforeEventListeners.computeIfAbsent(operation, k -> new ArrayList<>()).add(eventHandler);
         }
     }
-
     //操作执行流程
-    /**
-     * invokeOperation 方法通过反射机制调用 CoffeeMakerService 中对应的方法，并在调用前后触发相应的事件（开始、完成、出错）。
-     * */
     @Override
     public int invokeOperation(String operation, Object... args) {
         try {
@@ -174,7 +157,6 @@ public class CoffeeMaker extends Device {
             return 1;
         }
     }
-
     //设备操作执行
     @Override
     public ActionExecResult execute(Object... args) {// 第一个是调用的方法名；第二个参数是父节点的输出，类型为int/Map；第三个参数是用户输入的参数值Map
@@ -190,3 +172,12 @@ public class CoffeeMaker extends Device {
         return actionExecResult;
     }
 }
+
+/**
+ * @Component: 表明这个类是一个 Spring 组件，Spring 框架会自动扫描并将其实例化为一个 bean。
+ * @Value("${definitionPath}"): 从配置文件中读取 definitionPath 的值，这个值用于加载咖啡机的 JSON 配置文件。
+ * @Resource 和 @Autowired: 这两者用于自动注入其他 Spring bean。在这个代码中，它们用来注入设备服务 (DeviceService)。
+ * */
+/**
+ * invokeOperation 方法通过反射机制调用 CoffeeMakerService 中对应的方法，并在调用前后触发相应的事件（开始、完成、出错）。
+ * */

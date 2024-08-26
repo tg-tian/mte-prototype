@@ -2,6 +2,7 @@
   "code": "CoffeeMaker",
   "name": "咖啡机器人",
   "type": "Device",
+  "img_link": "./CoffeeMaker.png",
   "refs": [
     {
       "refID": "events",
@@ -23,7 +24,7 @@
   ],
   "commands": [
     {
-      "code": "start",
+      "code": "Start",
       "name": "启动",
       "inputParam": [],
       "outputParam": "void",
@@ -44,6 +45,7 @@
         "onMakeCoffeeStart",
         "onMakeCoffeeComplete",
         "onMakeCoffeeError"
+
       ],
       "services": [
         "AService",
@@ -51,7 +53,7 @@
       ]
     },
     {
-      "code": "check",
+      "code": "Check",
       "name": "检查",
       "inputParam": [],
       "outputParam": "void",

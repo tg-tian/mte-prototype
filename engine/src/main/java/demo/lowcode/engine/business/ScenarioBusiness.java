@@ -124,7 +124,7 @@ public class ScenarioBusiness {
         List<DeviceMeta> deviceMetaList = getDeviceMetaList("");
         for (DeviceMeta deviceMeta: deviceMetaList) {
             DeviceConnectService deviceConnectService = deviceMeta.getMainObject().getService();
-            String deviceType = deviceMeta.getMainObject().getDeviceType();
+            String deviceType = "";//deviceMeta.getMainObject().getDeviceType();
             String packageName = "demo.lowcode.device."+ deviceType.toLowerCase()+".service.type";
             try {
                 JavaDynamicCompiler.generateDeviceServiceFile(packageName, deviceType, deviceConnectService.getName(), deviceConnectService.getOperations());
@@ -151,7 +151,7 @@ public class ScenarioBusiness {
 
     public List<DeviceMeta> getDeviceMetaList(String scenarioId) {
         scenarioId = "BuildingA";
-        String deviceType = "CoffeeMaker";
+        //String deviceType = "CoffeeMaker";
         String controllerJavaFile = eventFilePath+"MakeCoffeeController.java";
         Map<String, String> eventMap = new HashMap<>(){{
             put("onMakeCoffeeStart", "prepare");
@@ -165,7 +165,7 @@ public class ScenarioBusiness {
            put("makeCoffee", "makeCoffee");
         }};
         DeviceConnectService service = new DeviceConnectService("AService", "http://aservice.coffee?action=", operationMap);
-        DeviceInformation deviceInformation = new DeviceInformation("deviceId", null, service, deviceType, eventMap, controllerJavaFile);
+        DeviceInformation deviceInformation = new DeviceInformation();//"deviceId", null, service, eventMap, controllerJavaFile);
         DeviceMeta deviceMeta = new DeviceMeta("deviceId", "咖啡机器人A", scenarioId, deviceInformation);
 
         // 咖啡机器人B
@@ -175,7 +175,7 @@ public class ScenarioBusiness {
             put("check", "check");
         }};
         DeviceConnectService service2 = new DeviceConnectService("BService", "http://bservice.coffee?action=", operationMap2);
-        DeviceInformation deviceInformation2 = new DeviceInformation("deviceId", null, service2, deviceType, eventMap, controllerJavaFile);
+        DeviceInformation deviceInformation2 = new DeviceInformation();//"deviceId", null, service2, eventMap, controllerJavaFile);
         DeviceMeta deviceMeta2 = new DeviceMeta("deviceId2", "咖啡机器人B", scenarioId, deviceInformation2);
 
         return new ArrayList<>(Arrays.asList(deviceMeta, deviceMeta2));

@@ -37,7 +37,7 @@
       <!--事件表单-->
       <div style="display: flex;justify-content: space-between;">
         <div id="公共事件" style="margin-top: 10px;">公共事件</div>
-        <el-button  @click="eventsVisible=true" type="primary" style="margin-left: auto; margin-bottom:20px;" plain>新增事件</el-button>
+        <el-button  @click="eventsVisible=true" type="primary" style="margin-left: auto; margin-bottom:20px;" plain>绑定事件</el-button>
       </div>
       <Table :header="event_header" :data="event_data"  @handleLinkClick="editEventFile($event)"  />
 
@@ -48,7 +48,7 @@
           append-to-body
       >
         <div style="display: flex;justify-content: space-between;">
-          <div id="功能列表" style="margin-bottom: 20px; font-size: large;">新增事件</div>
+          <div id="已绑定事件" style="margin-bottom: 20px; font-size: large;">绑定事件</div>
         </div>
         <el-form
             :rules="event_rules"
@@ -72,9 +72,10 @@
               <el-option label="操作错误事件" value="onMakeCoffeeError" :disabled = "!EventForm.eventType_Is_Chosen. onMakeCoffeeError"/>
             </el-select>
           </el-form-item>
+          <!--
           <el-form-item label="函数名称" prop="signature">
             <el-input v-model="EventForm.signature" placeholder="请输入"/>
-          </el-form-item>
+          </el-form-item>-->
           <!--输入函数参数，目前为默认参数
           <el-form-item label="函数参数" prop="event_Args">
             <el-select v-model="EventForm.event_Args" placeholder="请选择你的函数参数">
@@ -107,8 +108,8 @@
         label-position="left"
         style="max-width: 800px;margin: auto;"
     >
-      <el-form-item label="操作码" prop="operation_Code">
-        <el-input v-model="OperationForm.operation_Code" placeholder="请输入操作码"/>
+      <el-form-item label="操作代码" prop="operation_Code">
+        <el-input v-model="OperationForm.operation_Code" placeholder="请输入操作代码"/>
       </el-form-item>
       <el-form-item label="操作名称" prop="operation_Name">
         <el-input v-model="OperationForm.operation_Name" placeholder="请输入操作名称"/>
@@ -240,7 +241,7 @@ const  OperationForm = reactive<Operation_RuleForm>({
 })
 const operation_add_rules = reactive<FormRules<Operation_RuleForm>> ({
   operation_Code:[
-    {required: true, message:"请输入操作码", trigger:'blur'},
+    {required: true, message:"请输入操作代码", trigger:'blur'},
   ],
   operation_Name:[
     {required: true, message:"请输入操作名称", trigger:'blur'},
@@ -248,7 +249,7 @@ const operation_add_rules = reactive<FormRules<Operation_RuleForm>> ({
 })
 const operation_change_rules = reactive<FormRules<Operation_RuleForm>> ({
   operation_Code:[
-    {required: false, message:"请输入操作码", trigger:'blur'},
+    {required: false, message:"请输入操作代码", trigger:'blur'},
   ],
   operation_Name:[
     {required: false, message:"请输入操作名称", trigger:'blur'},
@@ -277,17 +278,12 @@ const  state = reactive<State>({
       code:"event_description",
       name:"事件描述",
       type:"String"
-    },{
-      code:"event_file",
-      name:"事件文件",
-      type:"Link"
     }
   ],
   event_data:[
     {
       event_name:"onMakeCoffeeStart",
       event_description:"prepare the coffee",
-      event_file:"onMakeCoffeeStart.json"
     }
   ],
   header:[

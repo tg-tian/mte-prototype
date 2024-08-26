@@ -144,7 +144,7 @@ const  state = reactive<State>({
     {
       factory_Name:"A公司",
       factory_Description:"A公司咖啡机可以做（摩卡，美式）咖啡，支持（加糖，加奶）操作。",
-      factory_file:"AService.json（文件生成后自动展示）"
+      factory_file:"AService.json"
     }
   ],
   serviceVisible:false,

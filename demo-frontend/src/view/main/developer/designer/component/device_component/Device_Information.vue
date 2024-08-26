@@ -9,10 +9,10 @@
           label-position="left"
           style="max-width: 800px;margin: auto;"
       >
-        <el-form-item label="设备ID" prop="deviceID">
+        <el-form-item label="设备码" prop="deviceID">
           <el-input v-model="deviceForm.deviceID" placeholder="请输入"/>
         </el-form-item>
-        <el-form-item label="设备类型" prop="deviceName">
+        <el-form-item label="设备名称" prop="deviceName">
           <el-input v-model="deviceForm.deviceName" placeholder="请输入"/>
         </el-form-item>
         <el-form-item label="图标上传" prop="icon_upload">
@@ -73,10 +73,10 @@ const deviceFormRef = ref<FormInstance>()
 //验证规则,form-item中使用prop数据属性绑定此处的验证规则
 const rules = reactive<FormRules<RuleForm>>({
   deviceID:[
-    {required: true, message:'请输入设备ID', trigger:'blur'},
+    {required: true, message:'请输入设备码', trigger:'blur'},
   ],
   deviceName:[
-    {required: true, message:'请输入设备名', trigger:'blur'},
+    {required: true, message:'请输入设备名称', trigger:'blur'},
   ],
   icon_upload:[
     {required: true, message:'请输入上传图标', trigger:'blur'},
