@@ -2,14 +2,18 @@
   "code": "AService",
   "name": "A品牌",
   "device": "coffeemaker",
-  "parameters": {
-    "coffeeType": ["摩卡","美式"],
-    "sugar": [ 0.3 , 0.5 , 0.8 , 1.0],
-    "uri": "./services/AService",
-    "protocol": "HTTP",
-    "address": "http://aservice.coffee",
-    "port": "8080"
+  "parameters": [
+    {
+      "code": "coffeeType",
+      "type": "String",
+      "description": ""
     },
+    {
+      "code": "sugar",
+      "type": "String",
+      "description": ""
+    }
+    ],
   "commands": [
     {
       "signature": "getProperty()",
