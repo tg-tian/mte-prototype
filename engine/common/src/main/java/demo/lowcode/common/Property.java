@@ -1,4 +1,4 @@
-package demo.lowcode.engine.entity;
+package demo.lowcode.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

@@ -1,4 +1,4 @@
-package demo.lowcode.engine.entity;
+package demo.lowcode.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,7 +13,7 @@ public class Param {
     private String code;
     private String name;
     private String type;
-    private List<String> optional;
+    private List<Object> optional;
 
     public Param(String code, String name, String type) {
         this.code = code;

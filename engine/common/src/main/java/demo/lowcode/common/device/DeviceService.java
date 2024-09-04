@@ -1,7 +1,5 @@
-package demo.lowcode.common.extend.device;
+package demo.lowcode.common.device;
 
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Map;
 
 public abstract class DeviceService {

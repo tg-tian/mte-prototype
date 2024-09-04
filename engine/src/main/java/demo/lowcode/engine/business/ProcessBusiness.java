@@ -4,10 +4,9 @@ import com.yomahub.liteflow.core.FlowExecutor;
 import com.yomahub.liteflow.flow.LiteflowResponse;
 import demo.lowcode.common.Action;
 import demo.lowcode.common.ActionExecResult;
-import demo.lowcode.common.extend.device.Device;
-import demo.lowcode.common.extend.device.DeviceService;
-import demo.lowcode.engine.dto.ExecuteActionArgs;
-import demo.lowcode.engine.entity.Param;
+import demo.lowcode.common.device.Device;
+import demo.lowcode.common.device.DeviceService;
+import demo.lowcode.common.Param;
 import demo.lowcode.engine.liteflow.CustomContext;
 import demo.lowcode.engine.model.ActionMeta;
 import demo.lowcode.engine.model.RTProcess;
@@ -199,7 +198,7 @@ public class ProcessBusiness {
 
                         // 若param类型为enum，则读取serviceProperty
                         if (Objects.equals(param.getType(), "Enum")) {
-                            param.setOptional((List<String>) serviceProperty.get(param.getCode()));
+                            param.setOptional((List<Object>) serviceProperty.get(param.getCode()));
                         }
                         params.add(param);
                     }

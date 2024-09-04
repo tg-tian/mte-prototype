@@ -2,9 +2,8 @@ package demo.lowcode.engine.business;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import demo.lowcode.common.extend.device.Device;
-import demo.lowcode.engine.entity.Command;
-import demo.lowcode.engine.entity.Param;
+import demo.lowcode.common.Command;
+import demo.lowcode.common.Param;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -88,7 +87,7 @@ public class DeviceComponentBusiness {
         File serviceJavaFile = new File(baseDir + "/service", serviceClassName + ".java");
         try (FileWriter writer = new FileWriter(serviceJavaFile)) {
             writer.write("package demo.lowcode.device." + deviceType.toLowerCase() + ".service;\n\n");
-            writer.write("import demo.lowcode.common.extend.device.DeviceService;\n");
+            writer.write("import demo.lowcode.common.device.DeviceService;\n");
             writer.write("public class " + serviceClassName + " extends DeviceService {\n");
             for (Command command: commands) {
                 List<Param> inputParams = command.getInputParam();
@@ -129,8 +128,8 @@ public class DeviceComponentBusiness {
 
         List<String> imports = Arrays.asList(
                 "import demo.lowcode.common.ActionExecResult;",
-                "import demo.lowcode.common.extend.device.Device;",
-                "import demo.lowcode.common.extend.device.DeviceService;",
+                "import demo.lowcode.common.device.Device;",
+                "import demo.lowcode.common.device.DeviceService;",
                 "import demo.lowcode.common.EventListener;",
                 "import demo.lowcode.device."+deviceType.toLowerCase()+".event."+deviceType+"Event;",
                 "import demo.lowcode.device."+deviceType.toLowerCase()+".service."+deviceType+"Service;",

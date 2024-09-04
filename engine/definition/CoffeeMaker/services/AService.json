@@ -1,35 +1,42 @@
 {
   "code": "AService",
   "name": "A品牌",
-  "device": "coffeemaker",
+  "device": "CoffeeMaker",
   "parameters": [
     {
-      "code": "coffeeType",
+      "code": "uri",
       "type": "String",
-      "description": ""
+      "default": "",
+      "canInitial": true
+    },
+    {
+      "code": "coffeeType",
+      "type": "List<String>",
+      "default": ["摩卡","美式"],
+      "canInitial": false
     },
     {
       "code": "sugar",
-      "type": "String",
-      "description": ""
+      "type": "List<Double>",
+      "default": [0.3 , 0.5 , 0.8 , 1.0],
+      "canInitial": false
     }
-    ],
+  ],
   "commands": [
     {
       "signature": "getProperty()",
-      "body": "Map<String, Object> result = new HashMap<>();\n        result.put( {{ coffeeType[0,1] }} );\n        return result;"
+      "output": "Map<String, Object>",
+      "body": "Map<String, Object> result = new HashMap<>();\n        result.put(\"coffeeType\",coffeeType);\n        return result;"
     },
     {
       "signature": "start()",
-      "body": "System.out.println(\"Accessing URI: \" + {{uri}} + \"on\");"
+      "output": "void",
+      "body": "System.out.println(\"Accessing URI: \" + uri + \"on\");"
     },
     {
       "signature": "makeCoffee(LinkedHashMap executeArgs)",
-      "body": "System.out.println(\"Accessing URI: \" + {{uri}} + \"makeCoffee\");\n        System.out.println(executeArgs);"
+      "output": "void",
+      "body": "System.out.println(\"Accessing URI: \" + uri + \"makeCoffee\");\n        System.out.println(executeArgs);"
     }
   ]
 }
-
-
-
-

@@ -1,4 +1,4 @@
-package demo.lowcode.common.extend.device;
+package demo.lowcode.common.device;
 
 import demo.lowcode.common.Action;
 import demo.lowcode.common.EventListener;

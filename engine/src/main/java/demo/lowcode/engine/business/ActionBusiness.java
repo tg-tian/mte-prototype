@@ -2,9 +2,9 @@ package demo.lowcode.engine.business;
 
 import demo.lowcode.common.Action;
 import demo.lowcode.common.ActionExecResult;
-import demo.lowcode.common.extend.device.Device;
+import demo.lowcode.common.device.Device;
 import demo.lowcode.common.EventListener;
-import demo.lowcode.common.extend.device.DeviceService;
+import demo.lowcode.common.device.DeviceService;
 import demo.lowcode.engine.model.DeviceConnectService;
 import demo.lowcode.engine.model.DeviceMeta;
 import demo.lowcode.engine.util.JavaDynamicCompiler;
