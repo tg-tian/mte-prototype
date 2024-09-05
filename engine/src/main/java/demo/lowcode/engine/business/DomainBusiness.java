@@ -143,7 +143,6 @@ public class DomainBusiness {
         return  addDomainJson(domainId,domainName,domainFieldMap);
     }
 
-
     public void addComponentType(String componentName, String type, String domainId) {
         DomainMeta domainMeta = null;
         Map<String, List<String>> componentTypeList = domainMeta.getComponentType();

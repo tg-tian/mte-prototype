@@ -12,6 +12,7 @@ import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 
 import java.lang.reflect.Method;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -32,7 +33,7 @@ public class ActionBusiness {
 
             for (DeviceMeta deviceMeta: deviceMetaList){
                 try {
-                    String deviceType = deviceMeta.getMainObject().getDeviceType();
+                    String deviceType = "";//deviceMeta.getMainObject().getDeviceType();
                     DeviceConnectService service = deviceMeta.getMainObject().getService();
                     // 判断该设备所包含的功能服务是否能够执行execParam的操作，若能够执行则进行如下操作，否则看下一个设备是否满足
                     if (Objects.equals(deviceType, objectId)){
@@ -56,7 +57,7 @@ public class ActionBusiness {
                     // 注册事件
                     Class<?> eventClass = Class.forName("demo.lowcode.device."+deviceType.toLowerCase()+".event."+deviceType+"Event");
                     Class<?> controllerClass = JavaDynamicCompiler.compileAndLoadEventFile(deviceMeta.getMainObject().getEventPath());
-                    Map<String, String> eventMap = deviceMeta.getMainObject().getEventMap();
+                    Map<String, String> eventMap = new HashMap<>();//deviceMeta.getMainObject().getEventMap();
                     for (String key : eventMap.keySet()) {
                         Method method = null;
                         String methodName = eventMap.get(key);

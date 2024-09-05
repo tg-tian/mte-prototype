@@ -27,7 +27,7 @@
       "code": "Start",
       "name": "启动",
       "inputParam": [],
-      "outputParam": "void",
+      "outputParam": [],
       "events": [],
       "services": ["AService"]
     },
@@ -40,7 +40,7 @@
         "type": "Enum",
         "options": ["摩卡", "美式"]
       }],
-      "outputParam": "void",
+      "outputParam":  [],
       "events": [
         "onMakeCoffeeStart",
         "onMakeCoffeeComplete",
@@ -56,7 +56,7 @@
       "code": "Check",
       "name": "检查",
       "inputParam": [],
-      "outputParam": "void",
+      "outputParam": [],
       "events": [],
       "services": [
         "AService",
