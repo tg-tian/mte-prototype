@@ -22,6 +22,7 @@ public class DeviceGenerator {
     String version = "1.0.0";
 
     List<Command> commands = new ArrayList<>();
+    List<String> events = new ArrayList<>();
     List<String> services = new ArrayList<>();
 
     public DeviceGenerator(String deviceType, String definitionPath) {
@@ -46,15 +47,16 @@ public class DeviceGenerator {
         // 创建设备Service
         generateService();
 
-        // TODO:创建设备主类
+        // 创建设备主类
+        generateMain();
 
         // 读取具体事件json
         EventGenerator eventGenerator = new EventGenerator();
         for (Command command: commands){
             // 在工作区生成java文件
-            eventGenerator.generateEventFile(groupId, definitionPath, definitionPath+"definitions/events/"+FileUtil.capitalizeFirstLetter(command.getCommandName())+"Event.json");
+            eventGenerator.generateEventFile(groupId, definitionPath, definitionPath+"definitions/events/"+FileUtil.capitalizeFirstLetter(command.getCommandCode())+"Event.json");
             // 在设备项目下生成java文件(just测试java文件的准确性，实际使用中这里不需要而是直接copy工作区文件)
-            eventGenerator.generateEventFile(groupId, baseDir, definitionPath+"definitions/events/"+FileUtil.capitalizeFirstLetter(command.getCommandName())+"Event.json");
+            eventGenerator.generateEventFile(groupId, baseDir, definitionPath+"definitions/events/"+FileUtil.capitalizeFirstLetter(command.getCommandCode())+"Event.json");
         }
 
         // 读取服务json
@@ -100,15 +102,15 @@ public class DeviceGenerator {
 
     private void readDeviceInformation(){
         commands.clear();
+        events.clear();
         services.clear();
 
-        // 读取 JSON 文件内容
         String jsonContent = JsonUtil.readJson(definitionPath+"definitions/"+deviceType+".json");
 
-        // 将 JSON 内容解析为 JSONObject
         try {
             JSONObject jsonObject = new JSONObject(jsonContent);
 
+            // 获取services列表
             JSONArray refList = jsonObject.getJSONArray("refs");
             JSONArray serviceList = null;
             for (int i=0;i<refList.length();i++){
@@ -124,12 +126,14 @@ public class DeviceGenerator {
                 }
             }
 
+            // 获取commands列表
             JSONArray commandList = jsonObject.getJSONArray("commands");
             for (int i = 0; i < commandList.length(); i++) {
                 JSONObject commandObject = commandList.getJSONObject(i);
 
                 Command command = new Command();
-                command.setCommandName(commandObject.getString("code"));
+                command.setCommandCode(commandObject.getString("code"));
+                command.setCommandName(commandObject.getString("name"));
 
                 JSONArray inputParamList = commandObject.getJSONArray("inputParam");
                 List<Param> params = new ArrayList<>();
@@ -160,6 +164,12 @@ public class DeviceGenerator {
                 command.setOutputParam(commandObject.getString("outputParam"));
 
                 commands.add(command);
+
+                // 获取events列表
+                JSONArray eventList = commandObject.getJSONArray("events");
+                for (int j=0; j<eventList.length(); j++){
+                    events.add(eventList.getString(j));
+                }
             }
         } catch (JSONException e) {
             e.printStackTrace();
@@ -168,45 +178,205 @@ public class DeviceGenerator {
 
     public void generateService(){
         String className = deviceType+"Service";
-        StringBuilder eventContent = new StringBuilder();
+        StringBuilder serviceContent = new StringBuilder();
 
         // package
         String packageName = groupId+".service";
-        eventContent.append("package ").append(packageName).append(";\n\n");
+        serviceContent.append("package ").append(packageName).append(";\n\n");
 
         // import
-        eventContent.append("import demo.lowcode.common.*;\n");
-        eventContent.append("import demo.lowcode.common.device.DeviceService;\n");
-        eventContent.append("import java.util.*;\n");
+        serviceContent.append("import demo.lowcode.common.*;\n");
+        serviceContent.append("import demo.lowcode.common.device.DeviceService;\n");
+        serviceContent.append("import java.util.*;\n");
 
-        eventContent.append("\n");
+        serviceContent.append("\n");
 
         // class
-        eventContent.append("public class ").append(className).append(" extends DeviceService {\n");
-        eventContent.append("    @Override\n");
-        eventContent.append("    public Map<String, Object> getProperty() {\n")
+        serviceContent.append("public class ").append(className).append(" extends DeviceService {\n");
+        serviceContent.append("    @Override\n");
+        serviceContent.append("    public Map<String, Object> getProperty() {\n")
                 .append("        return new HashMap<>();\n")
                 .append("    }\n\n");
         for (Command command: commands){
-            eventContent.append("    public ").append(command.getOutputParam()).append(" ").append(FileUtil.lowercaseFirstLetter(command.getCommandName())).append("(");
+            serviceContent.append("    public ").append(command.getOutputParam()).append(" ").append(FileUtil.lowercaseFirstLetter(command.getCommandCode())).append("(");
             for (int i=0;i<command.getInputParam().size();i++){
                 Param param = command.getInputParam().get(i);
-                eventContent.append(param.getType()).append(" ").append(param.getCode());
+                serviceContent.append(param.getType()).append(" ").append(param.getCode());
 
                 if (i<command.getInputParam().size()-1){
-                    eventContent.append(", ");
+                    serviceContent.append(", ");
                 }
             }
-            eventContent.append(") {\n");
-            eventContent.append("        throw new RuntimeException(\"NoSupportedOperation\");\n");
-            eventContent.append("    }\n\n");
+            serviceContent.append(") {\n");
+            serviceContent.append("        throw new RuntimeException(\"NoSupportedOperation\");\n");
+            serviceContent.append("    }\n\n");
         }
-        eventContent.append("}");
+        serviceContent.append("}");
 
-        FileUtil.writeFile(baseDir+"/service/"+className+".java", String.valueOf(eventContent));
+        FileUtil.writeFile(baseDir+"/service/"+className+".java", String.valueOf(serviceContent));
     }
 
     public void generateMain() {
+        StringBuilder classContent = new StringBuilder();
 
+        // package
+        classContent.append("package ").append(groupId).append(";\n\n");
+
+        // import
+        classContent.append("import demo.lowcode.common.*;\n");
+        classContent.append("import demo.lowcode.common.EventListener;\n");
+        classContent.append("import demo.lowcode.common.device.*;\n");
+        classContent.append("import ").append(groupId).append(".event.*;").append("\n\n");
+        classContent.append("import ").append(groupId).append(".service.*;").append("\n\n");
+        classContent.append("import org.springframework.stereotype.Component;\n");
+        classContent.append("import java.util.*;\n");
+        classContent.append("import java.io.*;\n");
+        classContent.append("import java.lang.reflect.*;\n");
+
+        classContent.append("\n");
+
+        /* class */
+        classContent.append("@Component\n");
+        classContent.append("public class ").append(deviceType).append(" extends Device{\n");
+
+        // attribute
+        classContent.append("    private Map<String, List<EventListener>> beforeEventListeners = new HashMap<>();\n");
+        classContent.append("    private Map<String, List<EventListener>> afterEventListeners = new HashMap<>();\n");
+        classContent.append("    private Map<String, List<EventListener>> errorEventListeners = new HashMap<>();\n");
+        classContent.append("    private String definitionPath = \"").append(definitionPath).append("\";\n");
+
+        // constructor
+        classContent.append("    public ").append(deviceType).append("() {\n");
+        List<String> commandNameList = new ArrayList<>();
+        for (Command command: commands) {
+            commandNameList.add("\""+command.getCommandCode()+"\"");
+        }
+        List<String> eventNameList = new ArrayList<>();
+        for (String event: events) {
+            eventNameList.add("\""+event+"\"");
+        }
+        classContent.append("        setOperations(").append("Arrays.asList(").append(String.join(", ", commandNameList)).append("));\n");
+        classContent.append("        setEvents(").append("Arrays.asList(").append(String.join(", ", eventNameList)).append("));\n");
+        classContent.append("    }\n");
+
+        // eventMethod
+        classContent.append("    private void onStart(String operationType, ").append(deviceType).append("Event event) {\n")
+                .append("        List<EventListener> listeners = beforeEventListeners.get(operationType);\n")
+                .append("        if (listeners != null) {\n")
+                .append("            for (EventListener listener: listeners) {\n")
+                .append("                if (event != null){\n")
+                .append("                    listener.handleEvent(event);\n")
+                .append("                }else {\n")
+                .append("                    listener.handleEvent();\n")
+                .append("                }\n")
+                .append("            }\n")
+                .append("        }\n")
+                .append("    }\n\n");
+
+        classContent.append("    private void onComplete(String operationType, ").append(deviceType).append("Event event) {\n")
+                .append("        List<EventListener> listeners = afterEventListeners.get(operationType);\n")
+                .append("        if (listeners != null) {\n")
+                .append("            for (EventListener listener: listeners) {\n")
+                .append("                if (event != null){\n")
+                .append("                    listener.handleEvent(event);\n")
+                .append("                }else {\n")
+                .append("                    listener.handleEvent();\n")
+                .append("                }\n")
+                .append("            }\n")
+                .append("        }\n")
+                .append("    }\n\n");
+
+        classContent.append("    private void onError(String operationType, ").append(deviceType).append("Event event) {\n")
+                .append("        List<EventListener> listeners = errorEventListeners.get(operationType);\n")
+                .append("        if (listeners != null) {\n")
+                .append("            for (EventListener listener: listeners) {\n")
+                .append("                if (event != null){\n")
+                .append("                    listener.handleEvent(event);\n")
+                .append("                }else {\n")
+                .append("                    listener.handleEvent();\n")
+                .append("                }\n")
+                .append("            }\n")
+                .append("        }\n")
+                .append("    }\n\n");
+
+        classContent.append("""
+                    @Override
+                    public void addEventListener(String eventName, EventListener eventHandler) {
+                        if (eventName.startsWith("on") && eventName.endsWith("Error")) {
+                            String operation = eventName.substring(2, eventName.length() - 5);
+                            operation = Character.toLowerCase(operation.charAt(0)) + operation.substring(1);
+                            errorEventListeners.computeIfAbsent(operation, k -> new ArrayList<>()).add(eventHandler);
+                        }else if (eventName.startsWith("on") && eventName.endsWith("Complete")){
+                            String operation = eventName.substring(2, eventName.length() - 8);
+                            operation = Character.toLowerCase(operation.charAt(0)) + operation.substring(1);
+                            afterEventListeners.computeIfAbsent(operation, k -> new ArrayList<>()).add(eventHandler);
+                        }else if (eventName.startsWith("on") && eventName.endsWith("Start")){
+                            String operation = eventName.substring(2, eventName.length() - 5);
+                            operation = Character.toLowerCase(operation.charAt(0)) + operation.substring(1);
+                            beforeEventListeners.computeIfAbsent(operation, k -> new ArrayList<>()).add(eventHandler);
+                        }
+                    }
+
+                """);
+
+        // executeMethod
+        classContent.append("""
+                    @Override
+                    public int invokeOperation(String operation, Object... args) {
+                        try {
+                            onStart(operation, null);
+                            boolean flag = false;
+                            if (deviceService instanceof\s""").append(deviceType).append("Service) {\n")
+                .append("                try {\n")
+                .append("                    Method method;\n")
+                .append("                    if (args.length > 0) {\n")
+                .append("                        Class<?>[] parameterTypes = new Class<?>[args.length];\n")
+                .append("                        for (int i = 0; i < args.length; i++) {\n")
+                .append("                            parameterTypes[i] = args[i].getClass();\n")
+                .append("                        }\n")
+                .append("                        method = ").append(deviceType).append("Service.class.getDeclaredMethod(operation, parameterTypes);\n")
+                .append("                        method.invoke(deviceService, args);\n")
+                .append("                        onComplete(operation, new ").append(deviceType).append("Event(operation, 200, args));\n")
+                .append("                    } else {\n")
+                .append("                        method = ").append(deviceType).append("Service.class.getDeclaredMethod(operation);\n")
+                .append("                        method.invoke(deviceService);\n")
+                .append("                        onComplete(operation, null);\n")
+                .append("                    }\n")
+                .append("                    flag = true;\n")
+                .append("                } catch (InvocationTargetException e) {\n")
+                .append("                    // ignore\n")
+                .append("                }\n")
+                .append("            }\n")
+                .append("            if (!flag){\n")
+                .append("                throw new RuntimeException(\"There is no available service to handle operation \"+operation);\n")
+                .append("            }\n")
+                .append("            return 0;\n")
+                .append("        } catch (Exception e) {\n")
+                .append("            onError(operation, new ").append(deviceType).append("Event(e.getMessage(), 400));\n")
+                .append("            e.printStackTrace();\n")
+                .append("            return 1;\n")
+                .append("        }\n")
+                .append("    }\n\n");
+
+        classContent.append("""
+                    @Override
+                    public ActionExecResult execute(Object... args) {
+                        ActionExecResult actionExecResult = new ActionExecResult();
+                        if (args.length >= 1 && args[0] instanceof String) {
+                            String operationName = (String) args[0];
+                            Object[] operationArgs = Arrays.copyOfRange(args, 1, args.length);
+                            int code = invokeOperation(operationName, operationArgs);
+                            actionExecResult.setCode(code);
+                        } else {
+                            actionExecResult.setCode(2);
+                        }
+                        return actionExecResult;
+                    }
+
+                """);
+
+        classContent.append("}");
+
+        FileUtil.writeFile(baseDir+"/"+deviceType+".java", String.valueOf(classContent));
     }
 }
