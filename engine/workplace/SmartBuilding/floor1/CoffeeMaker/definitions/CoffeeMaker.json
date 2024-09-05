@@ -1,0 +1,69 @@
+{
+  "code": "CoffeeMaker",
+  "name": "咖啡机器人",
+  "type": "Device",
+  "img_link": "./CoffeeMaker.png",
+  "refs": [
+    {
+      "refID": "events",
+      "refPath": [
+        "events/CheckEvent.json",
+        "events/MakeCoffeeEvent.json",
+        "events/StartEvent.json"
+      ]
+    },
+    {
+      "refID": "services",
+      "refPath": [
+        {
+          "name": "AService",
+          "path": "services/AService.json"
+        },
+        {
+          "name": "BService",
+          "path": "services/BService.json"
+        }
+      ]
+    }
+  ],
+  "commands": [
+    {
+      "code": "Start",
+      "name": "启动",
+      "inputParam": [],
+      "outputParam": "void",
+      "events": [],
+      "services": ["AService"]
+    },
+    {
+      "code": "MakeCoffee",
+      "name": "做咖啡",
+      "inputParam": [{
+        "code": "coffeeType",
+        "name": "咖啡类型",
+        "type": "Enum",
+        "options": ["摩卡", "美式"]
+      }],
+      "outputParam": "void",
+      "events": [
+        "onMakeCoffeeStart",
+        "onMakeCoffeeComplete",
+        "onMakeCoffeeError"
+      ],
+      "services": [
+        "AService",
+        "BService"
+      ]
+    },
+    {
+      "code": "Check",
+      "name": "检查",
+      "inputParam": [],
+      "outputParam": "void",
+      "events": [],
+      "services": [
+        "AService",
+        "BService"
+      ]
+    }]
+}

@@ -3,14 +3,11 @@ package demo.lowcode.device.coffeemaker;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.lowcode.common.ActionExecResult;
-import demo.lowcode.common.extend.device.Device;
-import demo.lowcode.common.extend.device.DeviceService;
+import demo.lowcode.common.device.Device;
+import demo.lowcode.common.device.DeviceService;
 import demo.lowcode.common.EventListener;
 import demo.lowcode.device.coffeemaker.event.CoffeeMakerEvent;
 import demo.lowcode.device.coffeemaker.service.CoffeeMakerService;
-import demo.lowcode.engine.business.MockBusiness;
-import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -37,7 +34,7 @@ public class CoffeeMaker extends Device {
             Properties properties = new Properties();
             properties.load(input);
             definitionPath = properties.getProperty("definitionPath");
-            File file = new File(definitionPath+"CoffeeMaker/CoffeeMaker.json");
+            File file = new File(definitionPath+"CoffeeMaker\\definitions\\CoffeeMaker.json");
             JsonNode rootNode = objectMapper.readTree(file);
 
             // 读取commands数组

@@ -15,7 +15,7 @@
       "type": "onComplete",
       "command": "makeCoffee",
       "signature": "sendMessage(Event event)",
-      "body": "System.out.println(\"Coffee is ready. Sending message...\");\n *         System.out.println(\"Your coffee is ready. coffee information: \"+Arrays.toString((CoffeeMakerEvent)event.getInformation()));"
+      "body": "System.out.println(\"Coffee is ready. Sending message...\");\n        System.out.println(\"Your coffee is ready. coffee information: \"+Arrays.toString(((CoffeeMakerEvent)event).getInformation()));"
     },
     {
       "name": "onMakeCoffeeError",
@@ -23,7 +23,7 @@
       "type": "onError",
       "command": "makeCoffee",
       "signature": "errorAlert(Event event)",
-      "body": "System.out.println(\"Error:  \" + (CoffeeMakerEvent)event.getMessage());"
+      "body": "System.out.println(\"Error:  \" + event.getMessage());"
     }
   ]
 }

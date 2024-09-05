@@ -1,8 +1,7 @@
 package demo.lowcode.device.coffeemaker.service;
 
-import demo.lowcode.common.extend.device.DeviceService;
+import demo.lowcode.common.device.DeviceService;
 
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;

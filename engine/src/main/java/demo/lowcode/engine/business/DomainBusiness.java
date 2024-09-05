@@ -3,7 +3,7 @@ package demo.lowcode.engine.business;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.lowcode.engine.entity.ComponentAbout;
-import demo.lowcode.engine.entity.Property;
+import demo.lowcode.common.Property;
 import demo.lowcode.engine.model.DomainMeta;
 import demo.lowcode.engine.dto.DomainJson;
 import demo.lowcode.engine.dto.Domain_ComponentJson;

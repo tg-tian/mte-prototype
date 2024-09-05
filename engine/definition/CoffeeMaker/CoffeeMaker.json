@@ -6,7 +6,11 @@
   "refs": [
     {
       "refID": "events",
-      "refPath": "CoffeeMakerEvent.json"
+      "refPath": [
+        "events/CheckEvent.json",
+        "events/MakeCoffeeEvent.json",
+        "events/StartEvent.json"
+      ]
     },
     {
       "refID": "services",
@@ -45,7 +49,6 @@
         "onMakeCoffeeStart",
         "onMakeCoffeeComplete",
         "onMakeCoffeeError"
-
       ],
       "services": [
         "AService",

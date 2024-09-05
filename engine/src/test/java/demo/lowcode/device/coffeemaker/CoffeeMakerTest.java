@@ -1,7 +1,7 @@
 package demo.lowcode.device.coffeemaker;
 
-import demo.lowcode.common.extend.device.Device;
-import demo.lowcode.common.extend.device.DeviceService;
+import demo.lowcode.common.device.Device;
+import demo.lowcode.common.device.DeviceService;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
