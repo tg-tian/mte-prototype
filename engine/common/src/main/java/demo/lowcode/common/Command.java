@@ -1,6 +1,7 @@
-package demo.lowcode.engine.entity;
+package demo.lowcode.common;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+import demo.lowcode.common.Param;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -15,15 +16,17 @@ import java.util.List;
 @ApiModel(value = "操作列表类")
 public class Command {
     @ApiModelProperty("操作码")
-    private String code;
+    private String commandCode;
     @ApiModelProperty("操作名称")
-    private String name;
-    @ApiModelProperty("已绑定事件")
-    private List<Event> events;
-
-    public Command(String code, String name){
-        this.code = code;
-        this.name = name;
-        this.events = new ArrayList<>();
+    private String commandName;
+    @ApiModelProperty("输入参数")
+    private List<Param> inputParam;
+    @ApiModelProperty("输出参数")
+    private String outputParam;
+    
+    public Command(String commandCode,String commandName)
+    {
+        this.commandCode = commandCode;
+        this.commandName = commandName;
     }
 }

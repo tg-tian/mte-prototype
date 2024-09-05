@@ -3,12 +3,12 @@ package demo.lowcode.engine.business;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.lowcode.engine.entity.BrandService;
-import demo.lowcode.engine.entity.Command;
 import demo.lowcode.engine.entity.Event;
-import demo.lowcode.engine.entity.Param;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
+import demo.lowcode.common.Command;
+import demo.lowcode.common.Param;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties;
 import org.springframework.stereotype.Service;
@@ -93,7 +93,7 @@ public class DeviceComponentBusiness {
         File serviceJavaFile = new File(baseDir + "/service", serviceClassName + ".java");
         try (FileWriter writer = new FileWriter(serviceJavaFile)) {
             writer.write("package demo.lowcode.device." + deviceType.toLowerCase() + ".service;\n\n");
-            writer.write("import demo.lowcode.common.extend.device.DeviceService;\n");
+            writer.write("import demo.lowcode.common.device.DeviceService;\n");
             writer.write("public class " + serviceClassName + " extends DeviceService {\n");
             for (Command command : commands) {
                 List<Param> inputParams = new ArrayList<>();//command.getInputParam();
@@ -134,8 +134,8 @@ public class DeviceComponentBusiness {
 
         List<String> imports = Arrays.asList(
                 "import demo.lowcode.common.ActionExecResult;",
-                "import demo.lowcode.common.extend.device.Device;",
-                "import demo.lowcode.common.extend.device.DeviceService;",
+                "import demo.lowcode.common.device.Device;",
+                "import demo.lowcode.common.device.DeviceService;",
                 "import demo.lowcode.common.EventListener;",
                 "import demo.lowcode.device." + deviceType.toLowerCase() + ".event." + deviceType + "Event;",
                 "import demo.lowcode.device." + deviceType.toLowerCase() + ".service." + deviceType + "Service;",
@@ -277,8 +277,9 @@ public class DeviceComponentBusiness {
     @ApiOperation(value = "加载参数", notes = "直接载入 设备信息类 的 参数 属性")
     @ApiImplicitParams({
             @ApiImplicitParam(name="devicePath",value="设备名称json访问路径",required=true),
+            @ApiImplicitParam(name = "command_code", value = "设备支持的操作代码",required = true),
     })
-    private Param loadParam(String devicePath, String paramType, String command_code) throws IOException {
+    private Param loadInputParam(String devicePath,  String command_code) throws IOException {
         // paramType : ["inputParam","outputParam"]
         // command_code : ["Start","MakeCoffee",......]
         File file = new File(devicePath);
@@ -298,18 +299,19 @@ public class DeviceComponentBusiness {
         if (commands.isArray() && commands.path(command_code).isArray()) {
             //获得对应的操作的json目录
             JsonNode command = commands.path(command_code);
-            JsonNode Params = command.path(paramType).path(0); //获取inputParam的第一个节点
+            JsonNode Params = command.path("in").path(0); //获取inputParam的第一个节点
 
             if (Params.isArray()) {
                 String code = Params.path("code").asText();
                 String name = Params.path("name").asText();
                 String type = Params.path("type").asText();
+                /**
                 List<String> options = new ArrayList<>();
                 JsonNode option_s = Params.path("options");
                 for (JsonNode opt : option_s) {
                     options.add(opt.asText());
-                }
-                param.Change(code, name, type, options);
+                }*/
+                param.Change(code, name, type);
             }
         }
         return param;

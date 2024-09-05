@@ -1,4 +1,4 @@
-package demo.lowcode.engine.entity;
+package demo.lowcode.common;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -20,9 +20,14 @@ public class Param {
     @ApiModelProperty("参数类型")
     private String type;
     @ApiModelProperty("参数选择")
-    private List<String> optional;
+    private List<Object> optional;
 
     public Param(String code, String name, String type) {
+        this.code = code;
+        this.name = name;
+        this.type = type;
+    }
+    public void Change(String code, String name, String type) {
         this.code = code;
         this.name = name;
         this.type = type;
@@ -33,13 +38,6 @@ public class Param {
         this.name = "";
         this.type = "";
         this.optional =  new ArrayList<>();
-    }
-
-    public void Change(String code, String name, String type, List<String> optional){
-        this.code = code;
-        this.name = name;
-        this.type = type;
-        this.optional = optional;
     }
 
 }
