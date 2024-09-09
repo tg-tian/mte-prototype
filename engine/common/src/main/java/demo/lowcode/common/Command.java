@@ -5,7 +5,6 @@ import demo.lowcode.common.Param;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.apache.naming.StringManager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +22,7 @@ public class Command {
     private List<Param> inputParam;
     @ApiModelProperty("输出参数")
     private String outputParam;
-    
+
     public Command(String commandCode,String commandName)
     {
         this.commandCode = commandCode;
