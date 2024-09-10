@@ -7,11 +7,11 @@
         <artifactId>engine</artifactId>
         <version>0.0.1</version>
     </parent>
-    <groupId>demo.lowcode</groupId>
-    <artifactId>common</artifactId>
+    <groupId>lowcode.device</groupId>
+    <artifactId>component</artifactId>
     <version>0.0.1-SNAPSHOT</version>
-    <name>common</name>
-    <description>common</description>
+    <name>device-component</name>
+    <description>device-component</description>
     <url/>
     <licenses>
         <license/>
@@ -30,11 +30,16 @@
     </properties>
     <packaging>jar</packaging>
     <dependencies>
-
+        <dependency>
+            <groupId>demo.lowcode</groupId>
+            <artifactId>common</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
         <dependency>
             <groupId>io.swagger</groupId>
             <artifactId>swagger-annotations</artifactId>
             <version>1.5.13</version>
+            <scope>compile</scope>
         </dependency>
     </dependencies>
 
