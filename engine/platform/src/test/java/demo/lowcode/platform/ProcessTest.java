@@ -2,7 +2,8 @@ package demo.lowcode.platform;
 
 import demo.lowcode.platform.business.*;
 import demo.lowcode.platform.model.ActionMeta;
-import demo.lowcode.platform.model.DeviceMeta;
+import lowcode.device.component.business.DeviceComponentBusiness;
+import lowcode.device.component.model.DeviceMeta;
 import demo.lowcode.platform.model.DomainMeta;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;

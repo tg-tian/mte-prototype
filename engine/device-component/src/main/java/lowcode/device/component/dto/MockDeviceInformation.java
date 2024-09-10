@@ -1,4 +1,4 @@
-package demo.lowcode.platform.dto;
+package lowcode.device.component.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

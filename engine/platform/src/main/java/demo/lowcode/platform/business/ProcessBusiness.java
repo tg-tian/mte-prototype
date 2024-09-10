@@ -1,7 +1,5 @@
 package demo.lowcode.platform.business;
 
-import com.yomahub.liteflow.core.FlowExecutor;
-import com.yomahub.liteflow.flow.LiteflowResponse;
 import demo.lowcode.common.Action;
 import demo.lowcode.common.ActionExecResult;
 import demo.lowcode.common.Param;
@@ -11,12 +9,11 @@ import demo.lowcode.platform.liteflow.CustomContext;
 import demo.lowcode.platform.model.ActionMeta;
 import demo.lowcode.platform.model.RTProcess;
 import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
 
-import static demo.lowcode.platform.util.JsonUtils.evaluateCondition;
+import static demo.lowcode.common.util.JsonUtils.evaluateCondition;
 
 @Service
 public class ProcessBusiness {

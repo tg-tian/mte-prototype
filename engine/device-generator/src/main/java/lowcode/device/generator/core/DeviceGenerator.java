@@ -25,19 +25,28 @@ public class DeviceGenerator {
     List<String> events = new ArrayList<>();
     List<String> services = new ArrayList<>();
 
+    ProjectGenerator projectGenerator;
+    EventGenerator eventGenerator;
+    ServiceGenerator serviceGenerator;
+
     public DeviceGenerator(String deviceType, String definitionPath) {
         this.deviceType = deviceType;
         this.definitionPath = definitionPath;
-        groupId = groupId + "." + deviceType.toLowerCase();
-        baseDir = parentPath+deviceType+"/src/main/java/" + groupId.replace(".", "/");
-        File base = new File(baseDir);
-        if (!base.exists()){
-            ProjectGenerator projectGenerator = new ProjectGenerator(parentPath, groupId, deviceType.toLowerCase(), version);
-            projectGenerator.generate();
-        }
 
         // 读取操作
         readDeviceInformation();
+
+        projectGenerator = new ProjectGenerator(parentPath, groupId, deviceType.toLowerCase(), version);
+        eventGenerator = new EventGenerator();
+        serviceGenerator = new ServiceGenerator();
+
+        groupId = groupId + "." + deviceType.toLowerCase();
+        baseDir = parentPath+deviceType+"/src/main/java/" + groupId.replace(".", "/");
+
+        File base = new File(baseDir);
+        if (!base.exists()){
+            projectGenerator.generate();
+        }
     }
 
     public void generate(){
@@ -50,17 +59,24 @@ public class DeviceGenerator {
         // 创建设备主类
         generateMain();
 
+//        generateServiceJson();
+    }
+
+    public void buildAndPackage(){
+        projectGenerator.buildAndPackage(new File(parentPath+deviceType.toLowerCase()));
+    }
+
+    public void generateEventJson() {
         // 读取具体事件json
-        EventGenerator eventGenerator = new EventGenerator();
         for (Command command: commands){
             // 在工作区生成java文件
             eventGenerator.generateEventFile(groupId, definitionPath, definitionPath+"definitions/events/"+ FileUtil.capitalizeFirstLetter(command.getCommandCode())+"Event.json");
             // 在设备项目下生成java文件(just测试java文件的准确性，实际使用中这里不需要而是直接copy工作区文件)
             eventGenerator.generateEventFile(groupId, baseDir, definitionPath+"definitions/events/"+ FileUtil.capitalizeFirstLetter(command.getCommandCode())+"Event.json");
         }
+    }
 
-        // 读取服务json
-        ServiceGenerator serviceGenerator = new ServiceGenerator();
+    public void generateServiceJson(){
         for (String service: services) {
             // 在工作区生成java文件
             serviceGenerator.generateServiceFile(groupId, deviceType, definitionPath, definitionPath+"definitions/services/"+FileUtil.capitalizeFirstLetter(service)+".json");
@@ -69,7 +85,7 @@ public class DeviceGenerator {
         }
     }
 
-    public void generateEvent(){
+    private void generateEvent(){
         String className = deviceType+"Event";
 
         // package
@@ -176,7 +192,7 @@ public class DeviceGenerator {
         }
     }
 
-    public void generateService(){
+    private void generateService(){
         String className = deviceType+"Service";
         StringBuilder serviceContent = new StringBuilder();
 
@@ -216,7 +232,7 @@ public class DeviceGenerator {
         FileUtil.writeFile(baseDir+"/service/"+className+".java", String.valueOf(serviceContent));
     }
 
-    public void generateMain() {
+    private void generateMain() {
         StringBuilder classContent = new StringBuilder();
 
         // package

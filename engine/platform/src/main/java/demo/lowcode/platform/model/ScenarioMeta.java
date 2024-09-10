@@ -1,6 +1,7 @@
 package demo.lowcode.platform.model;
 
 import lombok.Data;
+import lowcode.device.component.model.DeviceMeta;
 import org.springframework.stereotype.Component;
 
 import java.util.List;

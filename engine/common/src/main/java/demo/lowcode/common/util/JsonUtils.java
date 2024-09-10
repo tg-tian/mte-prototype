@@ -1,4 +1,4 @@
-package demo.lowcode.platform.util;
+package demo.lowcode.common.util;
 
 public class JsonUtils {
     public static boolean evaluateCondition(String condition) {

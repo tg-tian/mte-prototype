@@ -1,11 +1,11 @@
-package demo.lowcode.platform.business;
+package lowcode.device.component.business;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.lowcode.common.Command;
 import demo.lowcode.common.Param;
-import demo.lowcode.platform.entity.BrandService;
-import demo.lowcode.platform.entity.Event;
+import lowcode.device.component.entity.BrandService;
+import lowcode.device.component.entity.Event;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;

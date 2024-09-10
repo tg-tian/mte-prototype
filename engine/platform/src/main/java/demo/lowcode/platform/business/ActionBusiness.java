@@ -5,9 +5,10 @@ import demo.lowcode.common.ActionExecResult;
 import demo.lowcode.common.EventListener;
 import demo.lowcode.common.device.Device;
 import demo.lowcode.common.device.DeviceService;
-import demo.lowcode.platform.model.DeviceConnectService;
-import demo.lowcode.platform.model.DeviceMeta;
-import demo.lowcode.platform.util.JavaDynamicCompiler;
+import lowcode.device.component.business.MockBusiness;
+import lowcode.device.component.model.DeviceConnectService;
+import lowcode.device.component.model.DeviceMeta;
+import demo.lowcode.common.util.JavaDynamicCompiler;
 import jakarta.annotation.Resource;
 import lombok.SneakyThrows;
 

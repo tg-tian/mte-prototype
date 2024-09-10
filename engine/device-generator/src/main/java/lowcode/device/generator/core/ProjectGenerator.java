@@ -78,28 +78,45 @@ public class ProjectGenerator {
                         "            <groupId>demo.lowcode</groupId>\n" +
                         "            <artifactId>common</artifactId>\n" +
                         "            <version>0.0.1-SNAPSHOT</version>\n" +
-                        "            <scope>compile</scope>\n" +
                         "        </dependency>\n" +
                         "    </dependencies>\n" +
                         "\n" +
                         "    <build>\n" +
                         "        <plugins>\n" +
-                        "            <plugin>\n" +
-                        "                <groupId>org.springframework.boot</groupId>\n" +
-                        "                <artifactId>spring-boot-maven-plugin</artifactId>\n" +
-                        "                <configuration>\n" +
-                        "                    <excludes>\n" +
-                        "                        <exclude>\n" +
-                        "                            <groupId>org.projectlombok</groupId>\n" +
-                        "                            <artifactId>lombok</artifactId>\n" +
-                        "                        </exclude>\n" +
-                        "                    </excludes>\n" +
-                        "                </configuration>\n" +
-                        "            </plugin>\n" +
+                        "           <plugin>\n" +
+                        "            <groupId>org.apache.maven.plugins</groupId>\n" +
+                        "            <artifactId>maven-jar-plugin</artifactId>\n" +
+                        "            <version>3.2.0</version>\n" +
+                        "            <configuration>\n" +
+                        "                <archive>\n" +
+                        "                    <manifest>\n" +
+                        "                        <addDefaultImplementationEntries>true</addDefaultImplementationEntries>\n" +
+                        "                    </manifest>\n" +
+                        "                </archive>\n" +
+                        "            </configuration>\n" +
+                        "           </plugin>\n" +
                         "        </plugins>\n" +
                         "    </build>\n" +
                         "</project>";
 
         FileUtil.writeFile(projectDir+"/pom.xml", pomContent);
+    }
+
+    public void buildAndPackage(File projectDir) {
+        try {
+            GeneratorConfig config = new GeneratorConfig();
+
+            // 执行 Maven 命令编译并打包项目
+            ProcessBuilder builder = new ProcessBuilder(
+                    config.getMavenPath(), "clean", "package"
+            );
+            builder.directory(projectDir); // 设置工作目录为项目根目录
+
+            builder.inheritIO(); // 继承 I/O，打印构建输出到控制台
+            Process process = builder.start();
+            process.waitFor();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

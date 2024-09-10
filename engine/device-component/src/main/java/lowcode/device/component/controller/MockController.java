@@ -1,7 +1,7 @@
-package demo.lowcode.platform.controller;
+package lowcode.device.component.controller;
 
-import demo.lowcode.platform.business.MockBusiness;
-import demo.lowcode.platform.dto.MockDeviceInformation;
+import lowcode.device.component.business.MockBusiness;
+import lowcode.device.component.dto.MockDeviceInformation;
 import jakarta.annotation.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;

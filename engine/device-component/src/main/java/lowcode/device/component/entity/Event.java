@@ -1,4 +1,4 @@
-package demo.lowcode.platform.entity;
+package lowcode.device.component.entity;
 
 
 import io.swagger.annotations.ApiModel;

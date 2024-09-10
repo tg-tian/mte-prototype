@@ -3,7 +3,8 @@ package demo.lowcode.platform.business;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.lowcode.platform.model.*;
-import demo.lowcode.platform.util.JavaDynamicCompiler;
+import lowcode.device.component.model.*;
+import demo.lowcode.common.util.JavaDynamicCompiler;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
@@ -114,23 +115,6 @@ public class ScenarioBusiness {
 
         // 加载该场景具体设备
         addDeviceMeta("", "CoffeeMaker", "AService", null);
-
-        // 添加具体设备后需要生成对应的功能Service
-        generateDeviceServiceFile();
-    }
-
-    public void generateDeviceServiceFile() {
-        List<DeviceMeta> deviceMetaList = getDeviceMetaList("");
-        for (DeviceMeta deviceMeta: deviceMetaList) {
-            DeviceConnectService deviceConnectService = deviceMeta.getMainObject().getService();
-            String deviceType = "";//deviceMeta.getMainObject().getDeviceType();
-            String packageName = "demo.lowcode.device."+ deviceType.toLowerCase()+".service.type";
-            try {
-                JavaDynamicCompiler.generateDeviceServiceFile(packageName, deviceType, deviceConnectService.getName(), deviceConnectService.getOperations());
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        }
     }
 
     public void addScenarioMap(Map<String, String> map, String scenarioId) {

@@ -30,6 +30,8 @@ public class GeneratorTest {
     @Test
     public void generateDevice(){
         DeviceGenerator generator = new DeviceGenerator("CoffeeMaker", "D:/projects/ubml/mte-prototype/engine/workplace/SmartBuilding/floor1/CoffeeMaker/");
-        generator.generate();
+//        generator.generate();
+        System.out.println("项目生成完成，准备打包...");
+        generator.buildAndPackage();
     }
 }

@@ -1,6 +1,6 @@
-package demo.lowcode.platform.business;
+package lowcode.device.component.business;
 
-import demo.lowcode.platform.dto.MockDeviceInformation;
+import lowcode.device.component.dto.MockDeviceInformation;
 import lombok.Data;
 import org.springframework.stereotype.Service;
 
