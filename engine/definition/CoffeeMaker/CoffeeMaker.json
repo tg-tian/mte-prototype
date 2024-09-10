@@ -41,7 +41,7 @@
       "inputParam": [{
         "code": "coffeeType",
         "name": "咖啡类型",
-        "type": "Enum",
+        "type": "String",
         "options": ["摩卡", "美式"]
       }],
       "outputParam":  [],

@@ -139,6 +139,8 @@
 import Table from "@/view/main/common/Table.vue";
 import {getDomainJson} from "../../../../../../api/DomainApi";
 import {FormInstance, FormRules} from "element-plus";
+import {getOperationParam} from "@/api/DeviceExpand";
+import {Connect} from "vite";
 
 /**
  * interface State 的作用是定义 TypeScript 接口，以便为 state 对象提供类型约束。这样可以在开发过程中利用 TypeScript 的类型检查功能，提高代码的可靠性和可维护性。
@@ -204,40 +206,38 @@ const  OperationForm = reactive<Operation_RuleForm>({
   operation_Name : "",
   Param_header: [
     {
-      code:"variable_name",
+      code:"code",
+      name:"变量码",
+      type:"String",
+    },{
+      code:"name",
       name:"变量名",
       type:"String",
     },{
-      code:"variable_type",
+      code:"type",
       name:"变量数据类型",
-      type:"String",
-    },{
-      code:"variable_value",
-      name:"变量数值",
       type:"any",
     }
   ],
   operation_InputParam:[
-    {
-      variable_name:"code",
-      variable_type:"String",
-      variable_value:"coffeeType",
-    },{
-      variable_name:"name",
-      variable_type:"String",
-      variable_value:"做咖啡",
-    },{
-      variable_name:"name",
-      variable_type:"String",
-      variable_value:"Enum",
-    },{
-      variable_name:"options",
-      variable_type:"List",
-      variable_value:"['摩卡','美式']",
-    }
   ],
   operation_OutputParam:[
   ]
+})
+
+const {Param_header,operation_InputParam,operation_OutputParam} = toRefs(OperationForm)
+
+onMounted(()=>{
+  if (import.meta.env.VITE_MODE === "mock"){
+    operation_InputParam.value = [
+      {
+        code:"coffeeType",
+        name:"咖啡类型",
+        type:"String",
+      }]
+  }else {
+    getInputParam()
+  }
 })
 const operation_add_rules = reactive<FormRules<Operation_RuleForm>> ({
   operation_Code:[
@@ -330,7 +330,6 @@ const  state = reactive<State>({
 //toRefs(state) 会返回一个包含 state 各个属性的 ref 对象的对象
 //在这里，header、data 和 dialogVisible 都是 ref 对象，它们分别引用 state 对象中的对应属性。
 const  {event_header,event_data,header ,data,dialogVisible,eventsVisible,operationVisible,dia_title,selectedService} = toRefs(state)
-
 const onEdit = (row) =>{
   //要修改 dialogVisible 的值，应该修改 dialogVisible.value 而不是 dialogVisible，因为 dialogVisible 是一个 ref 对象，实际的值存储在 value 属性中。
   //这种情况下，dialogVisible 被重新赋值成一个布尔值 true，而不是修改原来的 ref 对象。
@@ -339,7 +338,6 @@ const onEdit = (row) =>{
   selectedService.value = row;
   console.log(row.name);
 };
-
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
@@ -358,12 +356,10 @@ const resetForm = () => {
   }
   return
 }
-
 // 监控props的改变并且更新当前的字
 const props = defineProps({
   name: String,
 });
-
 watchEffect(() => {
   //动态修改操作名称的值
   if(state.data.name){
@@ -387,9 +383,19 @@ watchEffect(() => {
   }
 
 });
-
 const editEventFile = (fileName)=>{
   console.log(fileName)
+}
+
+const getInputParam = () =>{
+  console.log("Try to get param!")
+  getOperationParam(<String>props.name,"MakeCoffee").then((res:any) =>{
+    if (res.status === 200){
+      operation_InputParam.value = res.data
+      console.log(operation_InputParam.value)
+
+    }
+  })
 }
 </script>
 

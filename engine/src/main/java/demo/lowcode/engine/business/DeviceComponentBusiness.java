@@ -19,10 +19,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Properties;
+import java.util.*;
 
 @Service
 public class DeviceComponentBusiness {
@@ -276,13 +273,11 @@ public class DeviceComponentBusiness {
      */
     @ApiOperation(value = "加载参数", notes = "直接载入 设备信息类 的 参数 属性")
     @ApiImplicitParams({
-            @ApiImplicitParam(name="devicePath",value="设备名称json访问路径",required=true),
-            @ApiImplicitParam(name = "command_code", value = "设备支持的操作代码",required = true),
+            @ApiImplicitParam(name="deviceName",value="设备名称",required=true),
+            @ApiImplicitParam(name = "commandCode", value = "设备支持的操作代码",required = true),
     })
-    private Param loadInputParam(String devicePath,  String command_code) throws IOException {
-        // paramType : ["inputParam","outputParam"]
-        // command_code : ["Start","MakeCoffee",......]
-        File file = new File(devicePath);
+    public List<Param> loadInputParam(String deviceName,  String commandCode) throws IOException {
+        File file = new File("definition/"+deviceName+"/"+deviceName+".json");
         ObjectMapper objectMapper = new ObjectMapper();
         /**
          * ObjectMapper 是 Jackson 库中用于处理 JSON 数据的核心类。以下是 ObjectMapper 的常见功能：
@@ -294,34 +289,29 @@ public class DeviceComponentBusiness {
          * */
         JsonNode rootNode = objectMapper.readTree(file);
         JsonNode commands = rootNode.path("commands");
-        Param param = new Param();
-
-        if (commands.isArray() && commands.path(command_code).isArray()) {
-            //获得对应的操作的json目录
-            JsonNode command = commands.path(command_code);
-            JsonNode Params = command.path("in").path(0); //获取inputParam的第一个节点
-
-            if (Params.isArray()) {
-                String code = Params.path("code").asText();
-                String name = Params.path("name").asText();
-                String type = Params.path("type").asText();
-                /**
-                List<String> options = new ArrayList<>();
-                JsonNode option_s = Params.path("options");
-                for (JsonNode opt : option_s) {
-                    options.add(opt.asText());
-                }*/
-                param.Change(code, name, type);
+        List<Param> paramList = new ArrayList<>();
+        for(JsonNode command:commands) {
+            if(Objects.equals(command.path("code").asText(), commandCode)) {
+                JsonNode Params = command.path("inputParam"); //获取inputParam的第一个节点
+                for (JsonNode param : Params){
+                    Param param1 = new Param();
+                    String code = param.path("code").asText();
+                    String name = param.path("name").asText();
+                    String type = param.path("type").asText();
+                    param1.Change(code,name,type);
+                    paramList.add(param1);
+                }
             }
         }
-        return param;
+        System.out.println(paramList);
+        return paramList;
     }
 
     @ApiOperation(value = "加载事件", notes = "加载事件的具体关联信息,读取文件：“操作名称” + Event.json ")
     @ApiImplicitParams({
             @ApiImplicitParam(name="eventPath",value="事件json访问路径",required=true),
     })
-    private List<Event> loadEvent(String eventPath) throws IOException {
+    public List<Event> loadEvent(String eventPath) throws IOException {
         File file = new File(eventPath);
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
@@ -343,7 +333,7 @@ public class DeviceComponentBusiness {
     @ApiImplicitParams({
             @ApiImplicitParam(name="devicePath",value="设备名称json访问路径",required=true),
     })
-    private List<Command> loadCommand(String devicePath) throws  IOException{
+    public List<Command> loadCommand(String devicePath) throws  IOException{
         File file = new File(devicePath);
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
@@ -364,7 +354,7 @@ public class DeviceComponentBusiness {
     @ApiImplicitParams({
             @ApiImplicitParam(name="servicePath",value="服务名称json访问路径",required=true),
     })
-    private BrandService loadService(String servicePath) throws IOException{
+    public BrandService loadService(String servicePath) throws IOException{
         File file = new File(servicePath);
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
