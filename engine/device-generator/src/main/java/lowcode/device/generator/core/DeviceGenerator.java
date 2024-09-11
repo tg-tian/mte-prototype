@@ -2,8 +2,10 @@ package lowcode.device.generator.core;
 
 import demo.lowcode.common.Command;
 import demo.lowcode.common.Param;
-import lowcode.device.generator.util.FileUtil;
-import lowcode.device.generator.util.JsonUtil;
+import demo.lowcode.common.util.JsonUtils;
+import demo.lowcode.common.util.FileUtil;
+import demo.lowcode.common.util.StringUtil;
+import lowcode.device.generator.GeneratorConfig;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -17,7 +19,7 @@ public class DeviceGenerator {
     String deviceType;
     String definitionPath;
     String baseDir;
-    String parentPath = "D:/projects/ubml/mte-prototype/engine/";
+    String parentPath;
     String groupId = "lowcode.device";
     String version = "1.0.0";
 
@@ -32,6 +34,7 @@ public class DeviceGenerator {
     public DeviceGenerator(String deviceType, String definitionPath) {
         this.deviceType = deviceType;
         this.definitionPath = definitionPath;
+        this.parentPath = GeneratorConfig.getProjectPath();
 
         // 读取操作
         readDeviceInformation();
@@ -42,14 +45,24 @@ public class DeviceGenerator {
 
         groupId = groupId + "." + deviceType.toLowerCase();
         baseDir = parentPath+deviceType+"/src/main/java/" + groupId.replace(".", "/");
+    }
 
+    public void initial() {
         File base = new File(baseDir);
         if (!base.exists()){
             projectGenerator.generate();
         }
     }
 
+    public void clear() {
+        FileUtil.deleteDir(new File(parentPath+deviceType));
+    }
+
     public void generate(){
+        clear();
+
+        initial();
+
         // 创建事件Event
         generateEvent();
 
@@ -59,29 +72,40 @@ public class DeviceGenerator {
         // 创建设备主类
         generateMain();
 
-//        generateServiceJson();
+        generateServiceJson();
     }
 
     public void buildAndPackage(){
         projectGenerator.buildAndPackage(new File(parentPath+deviceType.toLowerCase()));
+
+        // 生成的jar包拷贝到工作目录
+        try {
+            File source = new File(parentPath+deviceType.toLowerCase()+"/target/"+deviceType.toLowerCase()+"-"+version+".jar");
+            File dest = new File(definitionPath + "generate");
+            FileUtil.copyFile(source, dest);
+        }catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
-    public void generateEventJson() {
+    public void generateEventJson(String jsonPath) {
+        FileUtil.deleteDir(new File(jsonPath+"java"));
+
         // 读取具体事件json
         for (Command command: commands){
-            // 在工作区生成java文件
-            eventGenerator.generateEventFile(groupId, definitionPath, definitionPath+"definitions/events/"+ FileUtil.capitalizeFirstLetter(command.getCommandCode())+"Event.json");
-            // 在设备项目下生成java文件(just测试java文件的准确性，实际使用中这里不需要而是直接copy工作区文件)
-            eventGenerator.generateEventFile(groupId, baseDir, definitionPath+"definitions/events/"+ FileUtil.capitalizeFirstLetter(command.getCommandCode())+"Event.json");
+            // 在开发环境生成事件对应的java文件
+            eventGenerator.generateEventFile(groupId, jsonPath, jsonPath+"json/"+ StringUtil.capitalizeFirstLetter(command.getCommandCode())+"Event.json");
         }
     }
 
     public void generateServiceJson(){
+        FileUtil.deleteDir(new File(definitionPath+"generate/service"));
+
         for (String service: services) {
             // 在工作区生成java文件
-            serviceGenerator.generateServiceFile(groupId, deviceType, definitionPath, definitionPath+"definitions/services/"+FileUtil.capitalizeFirstLetter(service)+".json");
-            // 在设备项目下生成java文件(just测试java文件的准确性，实际使用中这里不需要而是直接copy工作区文件)
-            serviceGenerator.generateServiceFile(groupId, deviceType, baseDir, definitionPath+"definitions/services/"+FileUtil.capitalizeFirstLetter(service)+".json");
+            // serviceGenerator.generateServiceFile(groupId, deviceType, definitionPath, definitionPath+"definitions/services/"+StringUtil.capitalizeFirstLetter(service)+".json");
+            // 在设备项目下生成java文件
+            serviceGenerator.generateServiceFile(groupId, deviceType, baseDir, definitionPath+"definitions/services/"+StringUtil.capitalizeFirstLetter(service)+".json");
         }
     }
 
@@ -121,7 +145,7 @@ public class DeviceGenerator {
         events.clear();
         services.clear();
 
-        String jsonContent = JsonUtil.readJson(definitionPath+"definitions/"+deviceType+".json");
+        String jsonContent = JsonUtils.readJson(definitionPath+"definitions/"+deviceType+".json");
 
         try {
             JSONObject jsonObject = new JSONObject(jsonContent);
@@ -214,7 +238,7 @@ public class DeviceGenerator {
                 .append("        return new HashMap<>();\n")
                 .append("    }\n\n");
         for (Command command: commands){
-            serviceContent.append("    public ").append(command.getOutputParam()).append(" ").append(FileUtil.lowercaseFirstLetter(command.getCommandCode())).append("(");
+            serviceContent.append("    public ").append(command.getOutputParam()).append(" ").append(StringUtil.lowercaseFirstLetter(command.getCommandCode())).append("(");
             for (int i=0;i<command.getInputParam().size();i++){
                 Param param = command.getInputParam().get(i);
                 serviceContent.append(param.getType()).append(" ").append(param.getCode());

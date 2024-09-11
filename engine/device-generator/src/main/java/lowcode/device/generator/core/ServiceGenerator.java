@@ -1,7 +1,7 @@
 package lowcode.device.generator.core;
 
-import lowcode.device.generator.util.FileUtil;
-import lowcode.device.generator.util.JsonUtil;
+import demo.lowcode.common.util.JsonUtils;
+import demo.lowcode.common.util.FileUtil;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -14,7 +14,7 @@ public class ServiceGenerator {
     public void generateServiceFile(String groupId, String deviceType, String devicePath, String jsonFilePath) {
         try {
             // 读取 JSON 文件内容
-            String jsonContent = JsonUtil.readJson(jsonFilePath);
+            String jsonContent = JsonUtils.readJson(jsonFilePath);
 
             // 将 JSON 内容解析为 JSONObject
             JSONObject jsonObject = new JSONObject(jsonContent);
