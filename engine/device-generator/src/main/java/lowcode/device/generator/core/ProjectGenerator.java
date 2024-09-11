@@ -1,8 +1,9 @@
 package lowcode.device.generator.core;
 
-import lowcode.device.generator.util.FileUtil;
+import demo.lowcode.common.util.FileUtil;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lowcode.device.generator.GeneratorConfig;
 
 import java.io.File;
 
@@ -104,11 +105,10 @@ public class ProjectGenerator {
 
     public void buildAndPackage(File projectDir) {
         try {
-            GeneratorConfig config = new GeneratorConfig();
 
             // 执行 Maven 命令编译并打包项目
             ProcessBuilder builder = new ProcessBuilder(
-                    config.getMavenPath(), "clean", "package"
+                    GeneratorConfig.getMavenPath(), "clean", "package"
             );
             builder.directory(projectDir); // 设置工作目录为项目根目录
 

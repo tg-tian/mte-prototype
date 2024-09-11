@@ -1,7 +1,7 @@
 package lowcode.device.generator.core;
 
-import lowcode.device.generator.util.FileUtil;
-import lowcode.device.generator.util.JsonUtil;
+import demo.lowcode.common.util.JsonUtils;
+import demo.lowcode.common.util.FileUtil;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
@@ -9,7 +9,7 @@ public class EventGenerator {
     public void generateEventFile(String groupId, String devicePath, String jsonFilePath) {
         try {
             // 读取 JSON 文件内容
-            String jsonContent = JsonUtil.readJson(jsonFilePath);
+            String jsonContent = JsonUtils.readJson(jsonFilePath);
 
             // 将 JSON 内容解析为 JSONObject
             JSONObject jsonObject = new JSONObject(jsonContent);
@@ -46,7 +46,7 @@ public class EventGenerator {
             classContent.append("}");
 
             // 将生成的内容写入 Java 文件
-            FileUtil.writeFile(devicePath+"\\generate\\event\\"+className + ".java", classContent.toString());
+            FileUtil.writeFile(devicePath+"java/"+className + ".java", classContent.toString());
         }catch (Exception e){
             e.printStackTrace();
             throw new RuntimeException("生成事件java文件失败，对应json文件："+jsonFilePath);

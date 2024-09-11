@@ -17,7 +17,6 @@ public class BService extends CoffeeMakerService {
     @Override
     public Map<String, Object> getProperty() {
         Map<String, Object> result = new HashMap<>();
-        result.put( {{ coffeeType[] }} );
         return result;
     }
 
@@ -25,19 +24,19 @@ public class BService extends CoffeeMakerService {
     public void start() {
         System.out.println("Starting Coffee Maker BService ...");
         try {Thread.sleep(3000);} catch (InterruptedException e) {e.printStackTrace();}
-        System.out.println( "start" + {{code}} ); 
+        System.out.println( "start" ); 
     }
 
     @Override
-    public void makeCoffee(String coffee_type) {
-        System.out.println("Starting making coffee (Accessing URI: " + uri + ")" );
+    public void makeCoffee(String coffeeType) {
+        System.out.println("Starting making coffee (Accessing URI: " + uri + "), coffeeType is" + coffeeType );
         try {Thread.sleep(8000);} catch (InterruptedException e) {e.printStackTrace();}
         System.out.println("Done making coffee.");
     }
 
     @Override
     public void check() {
-        System.out.println("Finishing" + code );
+        System.out.println("Finishing");
         try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
         System.out.println("Check finished");
     }
