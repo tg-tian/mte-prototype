@@ -19,7 +19,7 @@
       <Function_Set :name="device_name"/>
     </template>
     <template v-if ="active === 2">
-      <Service_Set />
+      <Service_Set :name="device_name"/>
     </template>
   </div>
 

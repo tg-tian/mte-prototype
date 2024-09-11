@@ -4,9 +4,13 @@ package lowcode.device.component.entity;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.AllArgsConstructor;
+import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
 
 @AllArgsConstructor
+@Data
+@Component
 @NoArgsConstructor
 @ApiModel(value = "事件信息实体类，用于存储事件的基本信息")
 public class Event {

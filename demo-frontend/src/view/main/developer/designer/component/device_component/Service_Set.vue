@@ -80,6 +80,7 @@
 
 import Table from "@/view/main/common/Table.vue";
 import {ElMessage, FormInstance, FormRules} from 'element-plus'
+import {getOperationEvent, getService} from "@/api/DeviceExpand";
 
 interface State{
   service_header:any[];
@@ -127,34 +128,26 @@ const service_rules = reactive<FormRules<Service_RuleForm>>({
 const  state = reactive<State>({
   service_header:[
     {
-      code:"factory_Name",
+      code:"name",
       name:"厂商名称",
       type:"String"
     },{
-      code:"factory_Description",
+      code:"description",
       name:"支持服务描述",
       type:"String"
     },{
-      code:"factory_file",
+      code:"filename",
       name:"服务定义文件",
       type:"Link"
     },
   ],
   service_data:[
-    {
-      factory_Name:"A公司",
-      factory_Description:"A公司咖啡机可以做（摩卡，美式）咖啡，支持（加糖，加奶）操作。",
-      factory_file:"AService.json"
-    }
   ],
   serviceVisible:false,
   dialogVisible:false,
   dia_title: "",
   selectedService: null,  // 初始化为空
 })
-
-
-
 const onEdit = (row) =>{
   //要修改 dialogVisible 的值，应该修改 dialogVisible.value 而不是 dialogVisible，因为 dialogVisible 是一个 ref 对象，实际的值存储在 value 属性中。
   //这种情况下，dialogVisible 被重新赋值成一个布尔值 true，而不是修改原来的 ref 对象。
@@ -163,9 +156,24 @@ const onEdit = (row) =>{
   dia_title.value = row.name;
   console.log(row.name);
 };
-
 const  {service_header,service_data,header ,data,serviceVisible,dialogVisible,dia_title,selectedService} = toRefs(state)
 
+onMounted(() => {
+  if(import.meta.env.VITE_MODE === "mock"){
+    service_data.value=[{
+      name:"A公司",
+      description:"A公司咖啡机可以做（摩卡，美式）咖啡，支持（加糖，加奶）操作。",
+      filename:"AService.json"
+    }]
+  }else{
+    getServiceData()
+  }
+})
+
+// 监控props的改变并且更新当前的字
+const props = defineProps({
+  name: String,
+});
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
@@ -187,6 +195,14 @@ if(serviceFormRef){
   return
 }
 
+const getServiceData =() =>{
+  console.log("Try to get service data!")
+  getService(<String>props.name,"AService").then((res:any) =>{
+    if(res.status === 200){
+      service_data.value = res.data
+    }
+  })
+}
 </script>
 
 <style >

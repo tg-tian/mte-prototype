@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 @RestController //?
@@ -29,7 +30,6 @@ public class DeviceComponentController {
     @GetMapping(value = "/load-operation-param")
     public ResponseEntity<?> loadOperationParam(String deviceName, String commandCode) {
         try {
-            System.out.println(deviceName+commandCode);
             List<Param> paramList = deviceComponentBusiness.loadInputParam(deviceName,commandCode);
             return new ResponseEntity<>(paramList, HttpStatus.OK);
         } catch (IOException e) {
@@ -41,11 +41,10 @@ public class DeviceComponentController {
 
     @ApiOperation(value = "操作事件读取接口")
     @GetMapping(value = "/load-operation-event")
-    public ResponseEntity<?> loadOperationEvent(String eventPath) {
+    public ResponseEntity<?> loadOperationEvent(String deviceName,String operationCode) {
         try {
-            System.out.println(eventPath);
-            List<Event> eventList= deviceComponentBusiness.loadEvent(eventPath);
-            return new ResponseEntity<>(eventList, HttpStatus.OK);
+            List<Event> eventList= deviceComponentBusiness.loadEvent(deviceName,operationCode);
+            return new ResponseEntity<List<Event>>(eventList, HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
             return new ResponseEntity<>("文件读取错误", HttpStatus.BAD_REQUEST);
@@ -67,11 +66,12 @@ public class DeviceComponentController {
 
     @ApiOperation(value = "服务读取接口")
     @GetMapping(value = "/load-service")
-    public ResponseEntity<?> loadService(String servicePath) {
+    public ResponseEntity<?> loadService(String deviceName,String serviceName) {
         try {
-            System.out.println(servicePath);
-            BrandService brandService= deviceComponentBusiness.loadService(servicePath);
-            return new ResponseEntity<>(brandService, HttpStatus.OK);
+            BrandService brandService= deviceComponentBusiness.loadService(deviceName,serviceName);
+            List<BrandService> brandServiceList = new ArrayList<>();
+            brandServiceList.add(brandService);
+            return new ResponseEntity<>(brandServiceList, HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
             return new ResponseEntity<>("文件读取错误", HttpStatus.BAD_REQUEST);

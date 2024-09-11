@@ -8,9 +8,9 @@ export const getOperationParam = (deviceName: String , commandCode: String) =>
         method: 'get',
     })
 
-export const getOperationEvent = (eventPath : String) =>
+export const getOperationEvent = (deviceName : String , operationCode : String) =>
     request({
-        url: `/load-operation-event?eventPath=${eventPath}`,
+        url: `/load-operation-event?deviceName=${deviceName}&operationCode=${operationCode}`,
         method: 'get',
     })
 
@@ -20,8 +20,8 @@ export  const getOperationCommand = (devicePath : String) =>
         methodL:'get',
     })
 
-export  const getService = (servicePath : String) =>
+export  const getService = (deviceName : String , serviceName : String) =>
     request({
-        url:`/load-service?servicePath=${servicePath}`,
+        url:`/load-service?deviceName=${deviceName}&serviceName=${serviceName}`,
         methodL:'get',
     })

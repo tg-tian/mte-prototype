@@ -98,13 +98,8 @@ const resetForm = () => {
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
-    if (valid) {
       emit('update-info',deviceForm.deviceName)
-      console.log('submit!', deviceForm)
-    } else {
-      emit('update-info',deviceForm.deviceName) //暂时添加，用于实现数据的传递，之后会删除
-      console.log('error submit!', fields)
-    }
+      console.log('submit!', fields)
   })
 }
 const imageUrl = ref('')

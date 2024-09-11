@@ -303,16 +303,16 @@ public class DeviceComponentBusiness {
                 }
             }
         }
-        System.out.println(paramList);
         return paramList;
     }
 
     @ApiOperation(value = "加载事件", notes = "加载事件的具体关联信息,读取文件：“操作名称” + Event.json ")
     @ApiImplicitParams({
-            @ApiImplicitParam(name="eventPath",value="事件json访问路径",required=true),
+            @ApiImplicitParam(name="deviceName",value="设备名称",required=true),
+            @ApiImplicitParam(name="operationCode",value="事件操作码",required=true),
     })
-    public List<Event> loadEvent(String eventPath) throws IOException {
-        File file = new File(eventPath);
+    public List<Event> loadEvent(String deviceName, String operationCode) throws IOException {
+        File file = new File("definition/"+deviceName+"/events/"+operationCode+"Event.json");
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
         JsonNode events = rootNode.path("eventList");
@@ -329,6 +329,7 @@ public class DeviceComponentBusiness {
         return eventList;
     }
 
+    //TODO 事件读取存在一些逻辑问题需要修改
     @ApiOperation(value = "加载操作", notes = "加载操作基本信息,读取文件：“设备名称”.json ")
     @ApiImplicitParams({
             @ApiImplicitParam(name="devicePath",value="设备名称json访问路径",required=true),
@@ -354,12 +355,12 @@ public class DeviceComponentBusiness {
     @ApiImplicitParams({
             @ApiImplicitParam(name="servicePath",value="服务名称json访问路径",required=true),
     })
-    public BrandService loadService(String servicePath) throws IOException{
-        File file = new File(servicePath);
+    public BrandService loadService(String deviceName , String serviceName) throws IOException{
+        File file = new File("definition/"+deviceName+"/services/"+serviceName+".json");
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
         String code = rootNode.path("code").asText();
         String description = rootNode.path("description").asText();
-        return new BrandService(code,description);
+        return new BrandService(code,description,serviceName+".json");
     }
 }
