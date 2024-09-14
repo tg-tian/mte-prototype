@@ -1,6 +1,5 @@
 import request from '../utils/request'
 
-
 //使用 ? 开始第一个参数，然后后续参数使用 & 连接,url使用反引号``
 export const getOperationParam = (deviceName: String , commandCode: String) =>
     request({
@@ -23,5 +22,11 @@ export  const getOperationCommand = (devicePath : String) =>
 export  const getService = (deviceName : String , serviceName : String) =>
     request({
         url:`/load-service?deviceName=${deviceName}&serviceName=${serviceName}`,
+        methodL:'get',
+    })
+
+export const publishDevice = (deviceType: String) =>
+    request({
+        url:`/device/publish?deviceType=${deviceType}`,
         methodL:'get',
     })

@@ -103,9 +103,7 @@ public class ProjectGenerator {
         FileUtil.writeFile(projectDir+"/pom.xml", pomContent);
     }
 
-    public void buildAndPackage(File projectDir) {
-        try {
-
+    public void buildAndPackage(File projectDir) throws Exception {
             // 执行 Maven 命令编译并打包项目
             ProcessBuilder builder = new ProcessBuilder(
                     GeneratorConfig.getMavenPath(), "clean", "package"
@@ -115,8 +113,5 @@ public class ProjectGenerator {
             builder.inheritIO(); // 继承 I/O，打印构建输出到控制台
             Process process = builder.start();
             process.waitFor();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

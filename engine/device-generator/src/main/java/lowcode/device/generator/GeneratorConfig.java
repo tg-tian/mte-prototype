@@ -6,6 +6,7 @@ import lombok.Data;
 public class GeneratorConfig {
     private static String mavenPath = "D:/apache-maven-3.6.3/bin/mvn.cmd";
     private static String projectPath = "D:/projects/ubml/mte-prototype/engine/";
+    private static String definitionPath = "D:/projects/ubml/mte-prototype/engine/workplace/deviceType/";
 
     public static void setMavenPath(String mavenPath) {
         GeneratorConfig.mavenPath = mavenPath;
@@ -21,5 +22,13 @@ public class GeneratorConfig {
 
     public static String getProjectPath() {
         return projectPath;
+    }
+
+    public static String getDefinitionPath() {
+        return definitionPath;
+    }
+
+    public static void setDefinitionPath(String definitionPath) {
+        GeneratorConfig.definitionPath = definitionPath;
     }
 }

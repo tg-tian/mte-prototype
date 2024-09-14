@@ -17,7 +17,7 @@ public class CoffeeMaker extends Device{
     private Map<String, List<EventListener>> beforeEventListeners = new HashMap<>();
     private Map<String, List<EventListener>> afterEventListeners = new HashMap<>();
     private Map<String, List<EventListener>> errorEventListeners = new HashMap<>();
-    private String definitionPath = "D:/projects/ubml/mte-prototype/engine/workplace/SmartBuilding/floor1/CoffeeMaker/";
+    private String definitionPath = "D:/projects/ubml/mte-prototype/engine/workplace/deviceType/CoffeeMaker/";
     public CoffeeMaker() {
         setOperations(Arrays.asList("Start", "MakeCoffee", "Check"));
         setEvents(Arrays.asList("onMakeCoffeeStart", "onMakeCoffeeComplete", "onMakeCoffeeError"));
