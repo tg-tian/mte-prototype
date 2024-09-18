@@ -5,13 +5,12 @@ import demo.lowcode.common.Param;
 import demo.lowcode.common.util.JsonUtils;
 import demo.lowcode.common.util.FileUtil;
 import demo.lowcode.common.util.StringUtil;
-import lowcode.device.generator.GeneratorConfig;
+import demo.lowcode.common.CommonConfig;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -35,7 +34,7 @@ public class DeviceGenerator {
     public DeviceGenerator(String deviceType, String definitionPath) {
         this.deviceType = deviceType;
         this.definitionPath = definitionPath;
-        this.parentPath = GeneratorConfig.getProjectPath();
+        this.parentPath = CommonConfig.getProjectPath();
 
         // 读取操作
         readDeviceInformation();

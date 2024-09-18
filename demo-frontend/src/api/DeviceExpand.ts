@@ -13,9 +13,9 @@ export const getOperationEvent = (deviceName : String , operationCode : String) 
         method: 'get',
     })
 
-export  const getOperationCommand = (devicePath : String) =>
+export  const getOperationCommand = (deviceType: String) =>
     request({
-        url:`/load-operation-command?devicePath=${devicePath}`,
+        url:`/load-operation-command?deviceType=${deviceType}`,
         methodL:'get',
     })
 

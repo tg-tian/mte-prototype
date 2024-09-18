@@ -1,15 +1,20 @@
-package lowcode.device.generator;
+package demo.lowcode.common;
 
 import lombok.Data;
 
 @Data
-public class GeneratorConfig {
+public class CommonConfig {
+    // maven目录
     private static String mavenPath = "D:/apache-maven-3.6.3/bin/mvn.cmd";
+    // 设备打包临时目录
     private static String projectPath = "D:/projects/ubml/mte-prototype/engine/";
+    // 工作区目录
+    private static String workspacePath = "D:/projects/ubml/mte-prototype/engine/workplace/";
+    // 设备定义工作目录
     private static String definitionPath = "D:/projects/ubml/mte-prototype/engine/workplace/deviceType/";
 
     public static void setMavenPath(String mavenPath) {
-        GeneratorConfig.mavenPath = mavenPath;
+        CommonConfig.mavenPath = mavenPath;
     }
 
     public static String getMavenPath() {
@@ -17,7 +22,7 @@ public class GeneratorConfig {
     }
 
     public static void setProjectPath(String projectPath) {
-        GeneratorConfig.projectPath = projectPath;
+        CommonConfig.projectPath = projectPath;
     }
 
     public static String getProjectPath() {
@@ -29,6 +34,14 @@ public class GeneratorConfig {
     }
 
     public static void setDefinitionPath(String definitionPath) {
-        GeneratorConfig.definitionPath = definitionPath;
+        CommonConfig.definitionPath = definitionPath;
+    }
+
+    public static void setWorkspacePath(String workspacePath) {
+        CommonConfig.workspacePath = workspacePath;
+    }
+
+    public static String getWorkspacePath() {
+        return workspacePath;
     }
 }

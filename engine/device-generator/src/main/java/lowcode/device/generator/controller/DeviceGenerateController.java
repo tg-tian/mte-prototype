@@ -2,13 +2,9 @@ package lowcode.device.generator.controller;
 
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
-import jakarta.annotation.Resource;
-import lowcode.device.generator.GeneratorConfig;
+import demo.lowcode.common.CommonConfig;
 import lowcode.device.generator.core.DeviceGenerator;
-import lowcode.device.generator.core.ServiceGenerator;
 import lowcode.device.generator.dto.ProgressData;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -26,7 +22,7 @@ public class DeviceGenerateController {
         // SseEmitter 是 Spring 提供的一个用于支持服务器推送事件（Server-Sent Events, SSE）的类。它允许服务器向客户端持续推送数据
         // SseEmitter 在服务器端打开一个长连接，客户端通过 EventSource 接受服务器推送的数据。服务器可以在一段时间内多次向客户端发送事件，而无需关闭连接
         SseEmitter emitter = new SseEmitter();
-        DeviceGenerator generator = new DeviceGenerator(deviceType, GeneratorConfig.getDefinitionPath() +deviceType+"/");
+        DeviceGenerator generator = new DeviceGenerator(deviceType, CommonConfig.getDefinitionPath() +deviceType+"/");
 
         new Thread(() -> {
             try {

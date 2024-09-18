@@ -7,8 +7,9 @@
     <el-button type="primary" @click="dialogVisible = true;startPublish()">发布</el-button>
   </div>
   <el-dialog v-model="dialogVisible" title="打包发布" width="500">
-    <div>{{progressMessage}}</div>
-    <el-progress :percentage="progress"></el-progress>
+    <el-image :src="progressImage" style="width: 90%;margin-left: 5%"></el-image>
+    <div style="font-size: 16px;margin-bottom: 15px">{{progressMessage}}</div>
+    <el-progress :percentage="progress" :color="customColorMethod"></el-progress>
   </el-dialog>
   <div style="margin: 20px">
       <el-descriptions
@@ -74,7 +75,7 @@
 <script setup lang="ts">
 import {ArrowLeft} from "@element-plus/icons-vue";
 import Table from "@/view/main/common/Table.vue";
-import {getOperationEvent, getService, publishDevice} from "@/api/DeviceExpand";
+import {getOperationCommand, getOperationEvent, getService, publishDevice} from "@/api/DeviceExpand";
 import {ElMessage} from "element-plus";
 interface State {
   deviceCode: String;
@@ -86,6 +87,7 @@ interface State {
   dialogVisible: boolean;
   progress: number;
   progressMessage: string;
+  progressImage: any
 }
 
 const state = reactive<State>({
@@ -97,9 +99,10 @@ const state = reactive<State>({
   serviceData: [],
   dialogVisible: false,
   progress: 0,
-  progressMessage: "开始打包发布"
+  progressMessage: "开始打包发布",
+  progressImage: ''
 })
-const {deviceCode, deviceName, deviceData, commandData, eventData, serviceData, dialogVisible, progress, progressMessage} = toRefs(state)
+const {deviceCode, deviceName, deviceData, commandData, eventData, serviceData, dialogVisible, progress, progressMessage, progressImage} = toRefs(state)
 
 const router = useRouter()
 watchEffect(() => {
@@ -120,7 +123,7 @@ onMounted(()=>{
     }
     commandData.value = [
       {
-        commandId: "MakeCoffee",
+        commandCode: "MakeCoffee",
         commandName: "做咖啡",
         eventNum: 3,
         serviceNum: 2
@@ -161,15 +164,7 @@ onMounted(()=>{
       imageUrl: new URL('@/assets/device/coffeeMaker.png', import.meta.url).href
     }
 
-    commandData.value = [
-      {
-        commandId: "MakeCoffee",
-        commandName: "做咖啡",
-        eventNum: "3/3",
-        serviceNum: 1
-      }
-    ]
-
+    getCommandData()
     getEventData()
     getServiceData()
   }
@@ -177,7 +172,7 @@ onMounted(()=>{
 
 const commandHeader = [
   {
-    code: "commandId",
+    code: "commandCode",
     name: "操作码",
     type: "String"
   },
@@ -239,6 +234,21 @@ const serviceHeader = [
   }
 ]
 
+const getCommandData = ()=>{
+  getOperationCommand(deviceData.value.code).then((res: any)=>{
+    if(res.status === 200){
+      commandData.value = res.data.map((v)=>{
+        return {
+          commandCode: v.commandCode,
+          commandName: v.commandName,
+          eventNum: (v.events?.length ?? 0) + "/3",
+          serviceNum: v.services?.length ?? 0
+        }
+      })
+    }
+  })
+}
+
 const getServiceData = ()=>{
   getService(deviceData.value.code,"AService").then((res:any) =>{
     if(res.status === 200){
@@ -260,16 +270,9 @@ const getEventData = ()=>{
   })
 }
 
-const publish = ()=>{
-  publishDevice(deviceData.value.code).then((res:any)=>{
-    if (res.status === 200){
-      ElMessage.success(res.data)
-    }
-  })
-}
-
 const startPublish = ()=>{
   progress.value = 0;
+  progressImage.value = new URL('@/assets/progress/generate.png', import.meta.url).href
   // EventSource 是 HTML5 提供的一个用于服务器发送事件（Server-Sent Events, SSE）的接口。
   // 它允许网页与服务器之间建立持久的连接，服务器可以通过该连接持续向客户端推送消息，而客户端可以实时接收这些消息。
   // 与 WebSocket 不同的是，EventSource 是单向的，只能由服务器向客户端发送数据，客户端不能向服务器发送消息。
@@ -279,11 +282,28 @@ const startPublish = ()=>{
     console.log(progressData);
     progressMessage.value = progressData.message
     progress.value = progressData.progress
+    if (progress.value < 50) {
+      progressImage.value = new URL('@/assets/progress/generate.png', import.meta.url).href
+    }else if (progress.value < 75) {
+      progressImage.value = new URL('@/assets/progress/package.png', import.meta.url).href
+    }else {
+      progressImage.value = new URL('@/assets/progress/copy.png', import.meta.url).href
+    }
   };
 
   eventSource.onerror = () => {
     eventSource.close();
   };
+}
+
+const customColorMethod = (percentage: number) => {
+  if (percentage < 30) {
+    return '#909399'
+  }
+  if (percentage < 70) {
+    return '#e6a23c'
+  }
+  return '#67c23a'
 }
 
 /**
