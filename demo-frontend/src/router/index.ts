@@ -20,6 +20,7 @@ import DesignProcess from '../view/main/developer/designer/application/detailCom
 import DesignPage from '../view/main/developer/designer/application/detailComponents/DesignPage.vue'
 import ProcessEdit from '../view/main/developer/designer/application/process/ProcessEdit.vue'
 import PageEdit from '../view/main/developer/designer/application/page/PageEdit.vue'
+import DeveloperConfig from '../view/main/developer/DeveloperConfig/index.vue'
 import { getToken } from '../utils/auth.ts'
 import { useUserStore } from "../store/modules/userStore";
 import {ElMessage} from "element-plus";
@@ -104,6 +105,11 @@ const router = createRouter({
               path:'domain/detail',
               name:'领域详情',
               component: DomainDetail
+            },
+            {
+              path: 'setting',
+              name: '开发者设置',
+              component: DeveloperConfig
             }
           ]
         },

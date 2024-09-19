@@ -5,7 +5,7 @@ import demo.lowcode.common.Param;
 import demo.lowcode.common.util.JsonUtils;
 import demo.lowcode.common.util.FileUtil;
 import demo.lowcode.common.util.StringUtil;
-import lowcode.device.generator.GeneratorConfig;
+import demo.lowcode.common.CommonConfig;
 import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
@@ -34,7 +34,7 @@ public class DeviceGenerator {
     public DeviceGenerator(String deviceType, String definitionPath) {
         this.deviceType = deviceType;
         this.definitionPath = definitionPath;
-        this.parentPath = GeneratorConfig.getProjectPath();
+        this.parentPath = CommonConfig.getProjectPath();
 
         // 读取操作
         readDeviceInformation();
@@ -75,17 +75,22 @@ public class DeviceGenerator {
         generateServiceJson();
     }
 
-    public void buildAndPackage(){
+    public void buildAndPackage() throws Exception {
         projectGenerator.buildAndPackage(new File(parentPath+deviceType.toLowerCase()));
+    }
 
+    public void copyJarFile() throws Exception{
         // 生成的jar包拷贝到工作目录
-        try {
-            File source = new File(parentPath+deviceType.toLowerCase()+"/target/"+deviceType.toLowerCase()+"-"+version+".jar");
-            File dest = new File(definitionPath + "generate");
-            FileUtil.copyFile(source, dest);
-        }catch (Exception e) {
-            e.printStackTrace();
+        File source = new File(parentPath+deviceType.toLowerCase()+"/target/"+deviceType.toLowerCase()+"-"+version+".jar");
+        if (!source.exists()){
+            throw new RuntimeException("拷贝失败，jar包不存在");
         }
+
+        File dest = new File(definitionPath + "generate");
+        if (!dest.exists()){
+            dest.mkdirs();
+        }
+        FileUtil.copyFile(source, dest);
     }
 
     public void generateEventJson(String jsonPath) {

@@ -9,13 +9,14 @@
 <!--        <el-icon style="margin-right: 2px; margin-top: 1px;" size="20" color="white"><DataBoard /></el-icon>-->
 <!--      </el-button>-->
       <div style="margin-right: 20px">
-        <el-dropdown>
+        <el-dropdown @command="handleDropdownItemClick">
           <el-button link style="display: flex;color: white">
             <el-icon style="margin-right: 2px; margin-top: 1px;" size="20" color="white"><Setting /></el-icon>
           </el-button>
           <template #dropdown>
             <el-dropdown-menu>
-              <el-dropdown-item>系统设置</el-dropdown-item>
+              <el-dropdown-item key="systemConfig" command="system">系统设置</el-dropdown-item>
+              <el-dropdown-item key="developerConfig" command="developer" v-if="roles.includes('developer') || roles.includes('admin')">开发者设置</el-dropdown-item>
             </el-dropdown-menu>
           </template>
         </el-dropdown>
@@ -63,6 +64,13 @@ watch([isAuthenticated, username, roles], () => {
   console.log('username:', username.value);
   console.log('roles', roles.value)
 });
+
+const handleDropdownItemClick = (item) => {
+  // 处理设置项点击事件逻辑
+  if (item === 'developer') {
+    router.push({path: '/developer/setting'})
+  }
+};
 </script>
 
 <style>

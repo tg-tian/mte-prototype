@@ -4,6 +4,7 @@ import demo.lowcode.common.Param;
 import lowcode.device.component.business.DeviceComponentBusiness;
 
 
+import lowcode.device.component.dto.CommandDto;
 import lowcode.device.component.entity.Event ;
 import demo.lowcode.common.Command;
 import org.springframework.http.HttpStatus;
@@ -53,10 +54,10 @@ public class DeviceComponentController {
 
     @ApiOperation(value = "操作信息读取接口")
     @GetMapping(value = "/load-operation-command")
-    public ResponseEntity<?> loadOperationCommand(String devicePath) {
+    public ResponseEntity<?> loadOperationCommand(String deviceType) {
         try {
-            System.out.println(devicePath);
-            List<Command> commandList= deviceComponentBusiness.loadCommand(devicePath);
+            System.out.println(deviceType);
+            List<CommandDto> commandList= deviceComponentBusiness.loadCommand(deviceType);
             return new ResponseEntity<>(commandList, HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();

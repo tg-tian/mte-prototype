@@ -1,8 +1,16 @@
 <template>
-  <div style="font-size: 18px;margin-bottom: 30px">
-    <el-button link @click="router.go(-1)" style="margin-right: 10px"><el-icon><ArrowLeft /></el-icon></el-button>
-    设备模板详情-{{deviceName}}
+  <div style="display: flex;justify-content: space-between">
+    <div style="font-size: 18px;margin-bottom: 30px">
+      <el-button link @click="router.go(-1)" style="margin-right: 10px"><el-icon><ArrowLeft /></el-icon></el-button>
+      设备模板详情-{{deviceName}}
+    </div>
+    <el-button type="primary" @click="dialogVisible = true;startPublish()">发布</el-button>
   </div>
+  <el-dialog v-model="dialogVisible" title="打包发布" width="500">
+    <el-image :src="progressImage" style="width: 90%;margin-left: 5%"></el-image>
+    <div style="font-size: 16px;margin-bottom: 15px">{{progressMessage}}</div>
+    <el-progress :percentage="progress" :color="customColorMethod"></el-progress>
+  </el-dialog>
   <div style="margin: 20px">
       <el-descriptions
           title="基本信息"
@@ -10,7 +18,7 @@
           border
       >
         <template #extra>
-          <el-button type="primary">编辑</el-button>
+          <el-button type="primary" plain>编辑</el-button>
         </template>
         <el-descriptions-item>
           <template #label>
@@ -44,22 +52,19 @@
     <el-tabs type="card">
       <el-tab-pane label="操作">
         <div style="margin-bottom: 10px;display: flex;justify-content: end">
-          <el-button type="primary">新增</el-button>
+          <el-button type="primary" plain>新增</el-button>
         </div>
         <Table :header="commandHeader" :data="commandData"/>
       </el-tab-pane>
       <el-tab-pane label="事件">
-        <div>事件文件：CoffeeMakerController.java
-          <el-button link style="margin-left: 10px;color: #50a5fb">编辑</el-button>
-        </div>
         <div style="margin-bottom: 10px;display: flex;justify-content: end">
-          <el-button type="primary">新增</el-button>
+          <el-button type="primary" plain>新增</el-button>
         </div>
         <Table :header="eventHeader" :data="eventData"/>
       </el-tab-pane>
-      <el-tab-pane label="服务">
+      <el-tab-pane label="品牌">
         <div style="margin-bottom: 10px;display: flex;justify-content: end">
-          <el-button type="primary">新增</el-button>
+          <el-button type="primary" plain>新增</el-button>
         </div>
         <Table :header="serviceHeader" :data="serviceData" @handleLinkClick="editServiceFile($event)"/>
       </el-tab-pane>
@@ -70,13 +75,19 @@
 <script setup lang="ts">
 import {ArrowLeft} from "@element-plus/icons-vue";
 import Table from "@/view/main/common/Table.vue";
+import {getOperationCommand, getOperationEvent, getService, publishDevice} from "@/api/DeviceExpand";
+import {ElMessage} from "element-plus";
 interface State {
   deviceCode: String;
   deviceName: String;
   deviceData: any;
   commandData: any[];
   eventData: any[];
-  serviceData: any[]
+  serviceData: any[];
+  dialogVisible: boolean;
+  progress: number;
+  progressMessage: string;
+  progressImage: any
 }
 
 const state = reactive<State>({
@@ -85,9 +96,13 @@ const state = reactive<State>({
   deviceData: {},
   commandData: [],
   eventData: [],
-  serviceData: []
+  serviceData: [],
+  dialogVisible: false,
+  progress: 0,
+  progressMessage: "开始打包发布",
+  progressImage: ''
 })
-const {deviceCode, deviceName, deviceData, commandData, eventData, serviceData} = toRefs(state)
+const {deviceCode, deviceName, deviceData, commandData, eventData, serviceData, dialogVisible, progress, progressMessage, progressImage} = toRefs(state)
 
 const router = useRouter()
 watchEffect(() => {
@@ -100,111 +115,196 @@ watchEffect(() => {
 })
 
 onMounted(()=>{
-  deviceData.value={
-    code: "CoffeeMaker",
-    name: "咖啡机器人",
-    imageUrl: new URL('@/assets/device/coffeeMaker.png', import.meta.url).href
+  if(import.meta.env.VITE_MODE === "mock"){
+    deviceData.value={
+      code: "CoffeeMaker",
+      name: "咖啡机器人",
+      imageUrl: new URL('@/assets/device/coffeeMaker.png', import.meta.url).href
+    }
+    commandData.value = [
+      {
+        commandCode: "MakeCoffee",
+        commandName: "做咖啡",
+        eventNum: 3,
+        serviceNum: 2
+      }
+    ]
+    eventData.value = [
+      {
+        name: "onMakeCoffeeStart",
+        description:"准备咖啡",
+        commandId: "MakeCoffee",
+        type: "onStart"
+      },
+      {
+        name: "onMakeCoffeeComplete",
+        description:"咖啡完成提醒",
+        commandId: "MakeCoffee",
+        type: "onComplete"
+      },
+      {
+        name: "onMakeCoffeeError",
+        description:"错误警告",
+        commandId: "MakeCoffee",
+        type: "onError"
+      },
+    ]
+    serviceData.value = [
+      {
+        code: "AService",
+        name: "A品牌",
+        description: "A公司咖啡机可以做（摩卡，美式）咖啡，支持（加糖，加奶）操作。",
+        filename: "AService.json"
+      }
+    ]
+  }else {
+    deviceData.value={
+      code: "CoffeeMaker",
+      name: "咖啡机器人",
+      imageUrl: new URL('@/assets/device/coffeeMaker.png', import.meta.url).href
+    }
+
+    getCommandData()
+    getEventData()
+    getServiceData()
   }
-  commandData.value = [
-    {
-      commandId: "MakeCoffee",
-      commandName: "做咖啡",
-      eventNum: 3,
-      serviceNum: 2
-    }
-  ]
-  eventData.value = [
-    {
-      eventId: "event1",
-      eventName: "onMakeCoffeeStart",
-      commandId: "MakeCoffee",
-      eventMethod: "prepare"
-    },
-    {
-      eventId: "event2",
-      eventName: "onMakeCoffeeComplete",
-      commandId: "MakeCoffee",
-      eventMethod: "sendMessage"
-    },
-    {
-      eventId: "event3",
-      eventName: "onMakeCoffeeError",
-      commandId: "MakeCoffee",
-      eventMethod: "handleError"
-    }
-  ]
-  serviceData.value = [
-    {
-      serviceId: "AService",
-      serviceName: "A品牌",
-      serviceFile: "AService.java"
-    }
-  ]
 })
 
 const commandHeader = [
   {
-    code: "commandId",
-    name: "操作号",
+    code: "commandCode",
+    name: "操作码",
     type: "String"
   },
   {
     code: "commandName",
-    name: "操作名",
+    name: "操作名称",
     type: "String"
   },
   {
     code: "eventNum",
     name: "已绑定事件",
-    type: "Number"
+    type: "String"
   },
   {
     code: "serviceNum",
-    name: "支持服务",
+    name: "支持品牌",
     type: "Number"
   }
 ]
 
 const eventHeader = [
   {
-    code: "eventId",
-    name: "事件号",
+    code: "name",
+    name: "事件名称",
     type: "String"
   },
   {
-    code: "eventName",
-    name: "事件名",
+    code: "description",
+    name: "事件描述",
     type: "String"
   },
   {
     code: "commandId",
-    name: "绑定操作号",
+    name: "绑定操作",
     type: "String"
   },
   {
-    code: "eventMethod",
-    name: "事件方法名",
+    code: "type",
+    name: "事件类型",
     type: "String"
   }
 ]
 
 const serviceHeader = [
   {
-    code: "serviceId",
-    name: "厂商号",
+    code: "name",
+    name: "厂商名称",
     type: "String"
   },
   {
-    code: "serviceName",
-    name: "厂商名",
+    code: "description",
+    name: "厂商描述",
     type: "String"
   },
   {
-    code: "serviceFile",
+    code: "filename",
     name: "厂商定义文件",
     type: "Link"
   }
 ]
+
+const getCommandData = ()=>{
+  getOperationCommand(deviceData.value.code).then((res: any)=>{
+    if(res.status === 200){
+      commandData.value = res.data.map((v)=>{
+        return {
+          commandCode: v.commandCode,
+          commandName: v.commandName,
+          eventNum: (v.events?.length ?? 0) + "/3",
+          serviceNum: v.services?.length ?? 0
+        }
+      })
+    }
+  })
+}
+
+const getServiceData = ()=>{
+  getService(deviceData.value.code,"AService").then((res:any) =>{
+    if(res.status === 200){
+      serviceData.value = res.data
+    }
+  })
+}
+
+const getEventData = ()=>{
+  getOperationEvent(deviceData.value.code, "MakeCoffee").then((res:any)=>{
+    if(res.status === 200){
+      eventData.value = res.data.map((v)=>{
+        return {
+          ...v,
+          commandId: "MakeCoffee"
+        }
+      })
+    }
+  })
+}
+
+const startPublish = ()=>{
+  progress.value = 0;
+  progressImage.value = new URL('@/assets/progress/generate.png', import.meta.url).href
+  // EventSource 是 HTML5 提供的一个用于服务器发送事件（Server-Sent Events, SSE）的接口。
+  // 它允许网页与服务器之间建立持久的连接，服务器可以通过该连接持续向客户端推送消息，而客户端可以实时接收这些消息。
+  // 与 WebSocket 不同的是，EventSource 是单向的，只能由服务器向客户端发送数据，客户端不能向服务器发送消息。
+  const eventSource = new EventSource(import.meta.env.VITE_BASE_PATH+`/device/publish?deviceType=${deviceData.value.code}`)
+  eventSource.onmessage = (event) => {
+    const progressData = JSON.parse(event.data);
+    console.log(progressData);
+    progressMessage.value = progressData.message
+    progress.value = progressData.progress
+    if (progress.value < 50) {
+      progressImage.value = new URL('@/assets/progress/generate.png', import.meta.url).href
+    }else if (progress.value < 75) {
+      progressImage.value = new URL('@/assets/progress/package.png', import.meta.url).href
+    }else {
+      progressImage.value = new URL('@/assets/progress/copy.png', import.meta.url).href
+    }
+  };
+
+  eventSource.onerror = () => {
+    eventSource.close();
+  };
+}
+
+const customColorMethod = (percentage: number) => {
+  if (percentage < 30) {
+    return '#909399'
+  }
+  if (percentage < 70) {
+    return '#e6a23c'
+  }
+  return '#67c23a'
+}
 
 /**
  * 在 Vue 中，$event 是一个特殊的占位符，用于在事件处理程序中传递事件对象或自定义参数。当你在模板中使用 $event 时，它通常代表事件处理函数的默认参数，即触发事件时生成的事件对象或在自定义事件中传递的参数

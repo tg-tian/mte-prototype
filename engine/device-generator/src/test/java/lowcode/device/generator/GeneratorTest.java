@@ -6,6 +6,8 @@ import lowcode.device.generator.core.ProjectGenerator;
 import lowcode.device.generator.core.ServiceGenerator;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
+
 public class GeneratorTest {
     @Test
     public void generateEventFile(){
@@ -27,10 +29,12 @@ public class GeneratorTest {
     }
 
     @Test
-    public void generateDevice(){
+    public void generateDevice() throws Exception {
         DeviceGenerator generator = new DeviceGenerator("CoffeeMaker", "D:/projects/ubml/mte-prototype/engine/workplace/deviceType/CoffeeMaker/");
         generator.generate();
         System.out.println("项目生成完成，准备打包...");
         generator.buildAndPackage();
+
+        generator.copyJarFile();
     }
 }
