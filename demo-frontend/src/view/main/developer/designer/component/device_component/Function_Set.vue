@@ -115,16 +115,24 @@
         <el-input v-model="OperationForm.operation_Name" placeholder="请输入操作名称"/>
       </el-form-item>
       <el-form-item label="输入参数设定" prop="operation_InputParam">
-        <div style="display: flex;justify-content: space-between; width: 600px">
+        <div style="display: flex;justify-content: space-between; width: 700px">
           <el-button @click="" type="primary" style="margin-left: auto; margin-bottom: 20px;" plain>新增输入参数</el-button>
         </div>
         <Table :header="OperationForm.Param_header" :data="OperationForm.operation_InputParam"/>
       </el-form-item>
       <el-form-item label="输出参数设定" prop="operation_OutputParam">
-        <div style="display: flex;justify-content: space-between; width: 600px">
-          <el-button @click="" type="primary" style="margin-left: auto; margin-bottom: 20px;" plain>新增输出参数</el-button>
-        </div>
-        <Table :header="OperationForm.Param_header" :data="OperationForm.operation_OutputParam"/>
+        <el-select
+            v-model="value"
+            placeholder="请选择输出参数"
+            style="width: 350px"
+        >
+          <el-option
+              v-for="item in operation_OutputParam"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+          />
+        </el-select>
       </el-form-item>
       <div class="domain-subtitle" style="display: flex;justify-content: space-between">
         <el-button type="primary"  style="margin-left: auto;" @click="Commit">确定</el-button>
@@ -294,7 +302,16 @@ const  OperationForm = reactive<Operation_RuleForm>({
     }
   ],
   operation_InputParam:[],
-  operation_OutputParam:[]
+  operation_OutputParam:[
+    {
+      value: 'void',
+      label: 'void',
+    },
+    {
+      value: 'Object',
+      label: 'Object',
+    },
+  ]
 })
 /**
  * 在 Vue 3 中，toRefs 函数用于将 reactive 对象的属性转换为 ref 对象。这样可以使这些属性在模板中直接使用，并且可以更方便地进行解构和传递。
@@ -310,7 +327,7 @@ const  OperationForm = reactive<Operation_RuleForm>({
 //在这里，header、data 和 dialogVisible 都是 ref 对象，它们分别引用 state 对象中的对应属性。
 const  {event_header,event_data,header ,data,dialogVisible,eventsVisible,operationVisible,dia_title,selectedService} = toRefs(state)
 const {Param_header,operation_InputParam,operation_OutputParam} = toRefs(OperationForm)
-
+const value = ref('')
 onMounted(()=>{
   if (import.meta.env.VITE_MODE === "mock"){
     operation_InputParam.value = [{
