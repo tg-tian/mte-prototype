@@ -8,7 +8,8 @@
     <Table :header="header" :data="data" :canChoose="false" @handleEdit="onEdit"/>
   </div>
 
-  <el-dialog v-model="dialogVisible" width="50%">
+<!--  操作编辑表单-->
+  <el-dialog v-model="dialogVisible" width="50%" @close="beforeOperationEditClose">
     <!--通过slot插槽来实现title的动态改变-->
     <span slot="title" style="font-size: large;">操作名称：{{dia_title}}</span>
     <div style="padding:  20px;">
@@ -30,6 +31,27 @@
           <el-form-item label="操作名称" prop="operation_Name">
             <el-input v-model="OperationForm.operation_Name" :placeholder="selectedService?.name||'请输入操作名称'"/>
           </el-form-item>
+
+          <el-form-item label="输入参数设定" prop="operation_InputParam">
+            <div style="display: flex;justify-content: space-between; width: 600px">
+              <el-button @click="" type="primary" style="margin-left: auto; margin-bottom: 20px;" plain>新增输入参数</el-button>
+            </div>
+            <Table :header="OperationForm.Param_header" :data="OperationForm.operation_InputParam"/>
+          </el-form-item>
+          <el-form-item label="输出参数设定" prop="operation_OutputParam">
+            <el-select
+                v-model="value"
+                placeholder="请选择输出参数"
+                style="width: 350px"
+            >
+              <el-option
+                  v-for="item in operation_OutputParam"
+                  :key="item.value"
+                  :label="item.label"
+                  :value="item.value"
+              />
+            </el-select>
+          </el-form-item>
         </el-form>
       </div>
 
@@ -37,7 +59,7 @@
       <!--事件表单-->
       <div style="display: flex;justify-content: space-between;">
         <div id="公共事件" style="margin-top: 10px;">公共事件</div>
-        <el-button  @click="eventsVisible=true" type="primary" style="margin-left: auto; margin-bottom:20px;" plain>绑定事件</el-button>
+        <el-button  @click="event_data.length===3 ? $message.warning('当前已无可绑定事件') : eventsVisible=true" type="primary" style="margin-left: auto; margin-bottom:20px;" plain>绑定事件</el-button>
       </div>
       <Table :header="event_header" :data="event_data"  @handleLinkClick="editEventFile($event)"  />
 
@@ -66,10 +88,9 @@
           </el-form-item>
           <el-form-item label="事件类型" prop="event_Type">
             <el-select v-model="EventForm.event_Type" placeholder="请选择你的事件类型">
-              <!--此处应该为通用事件的选择，而不应该是只针对咖啡事件的选择？-->
-              <el-option label="操作开始事件" value="onMakeCoffeeStart" :disabled = "!EventForm.eventType_Is_Chosen.onMakeCoffeeStart" />
-              <el-option label="操作完成事件" value="onMakeCoffeeComplete" :disabled = "!EventForm.eventType_Is_Chosen.onMakeCoffeeComplete"/>
-              <el-option label="操作错误事件" value="onMakeCoffeeError" :disabled = "!EventForm.eventType_Is_Chosen. onMakeCoffeeError"/>
+              <el-option label="操作开始事件" value="onStart" :disabled = "!EventForm.eventType_Is_Chosen.onStart" />
+              <el-option label="操作完成事件" value="onComplete" :disabled = "!EventForm.eventType_Is_Chosen.onComplete"/>
+              <el-option label="操作错误事件" value="onError" :disabled = "!EventForm.eventType_Is_Chosen.onError"/>
             </el-select>
           </el-form-item>
           <!--
@@ -98,6 +119,7 @@
       <el-button type="primary"  style="margin-right: auto;" @click="dialogVisible = false" plain>返回</el-button>
     </div>
   </el-dialog>
+<!--  新增操作表单-->
   <el-dialog v-model="operationVisible" width=" 50%">
     <div id="新增操作" style="margin-top: 10px; margin-bottom: 20px; font-size: large">新增操作</div>
     <el-form
@@ -136,7 +158,7 @@
       </el-form-item>
       <div class="domain-subtitle" style="display: flex;justify-content: space-between">
         <el-button type="primary"  style="margin-left: auto;" @click="Commit">确定</el-button>
-        <el-button type="primary"  style="margin-right: auto;" @click="operationVisible = false" plain>返回</el-button>
+        <el-button  style="margin-right: auto;" @click="operationVisible = false">返回</el-button>
       </div>
 
     </el-form>
@@ -145,10 +167,8 @@
 
 <script setup lang="ts">
 import Table from "@/view/main/common/Table.vue";
-import {getDomainJson} from "../../../../../../api/DomainApi";
 import {FormInstance, FormRules} from "element-plus";
 import {getOperationEvent, getOperationParam} from "@/api/DeviceExpand";
-import {Connect} from "vite";
 
 /**
  * interface State 的作用是定义 TypeScript 接口，以便为 state 对象提供类型约束。这样可以在开发过程中利用 TypeScript 的类型检查功能，提高代码的可靠性和可维护性。
@@ -170,9 +190,9 @@ interface State{
 }
 //基础事件是否已经被选择
 interface EventType_Is_Chosen {
-  onMakeCoffeeStart:boolean;
-  onMakeCoffeeComplete:boolean;
-  onMakeCoffeeError:boolean;
+  onStart:boolean;
+  onComplete:boolean;
+  onError:boolean;
 }
 interface Operation_RuleForm{
   operation_Code:String;
@@ -190,8 +210,11 @@ interface Event_RuleForm{
   signature:String;
   event_Args:String;
 }
+
 const eventFormRef = ref<FormInstance>()
 const operationFormRef = ref<FormInstance>()
+
+// rules
 const event_rules = reactive<FormRules<Event_RuleForm>>({
   event_Name:[
     {required: true, message:'请输入事件名称', trigger:'blur'},
@@ -225,11 +248,14 @@ const operation_change_rules = reactive<FormRules<Operation_RuleForm>> ({
     {required: false, message:"请输入操作名称", trigger:'blur'},
   ]
 })
+
+// form
+// 添加事件
 const EventForm = reactive<Event_RuleForm> ({
   eventType_Is_Chosen:{
-    onMakeCoffeeStart:true,
-    onMakeCoffeeComplete:true,
-    onMakeCoffeeError:true,
+    onStart:true,
+    onComplete:true,
+    onError:true,
   },
   event_Name:"",
   event_Description:"",
@@ -237,7 +263,7 @@ const EventForm = reactive<Event_RuleForm> ({
   signature:"",
   event_Args:"",
 })
-//定义响应式对象
+//列表展示及visible变量
 const  state = reactive<State>({
   event_header:[
     {
@@ -283,6 +309,7 @@ const  state = reactive<State>({
   selectedService:null,
   dia_title:"编辑操作",
 })
+// 编辑&新增操作表单
 const  OperationForm = reactive<Operation_RuleForm>({
   operation_Code:"",
   operation_Name : "",
@@ -339,19 +366,49 @@ onMounted(()=>{
         event_name:"onMakeCoffeeStart",
         event_description:"prepare the coffee",
     }]
-  }else {
-    getInputParam()
-    getEventData()
   }
 })
 
+// 监控props的改变并且更新当前的字
+const props = defineProps({
+  name: String,
+});
+watchEffect(() => {
+  //动态修改操作名称的值
+  if(state.data.name){
+    OperationForm.operation_Name = state.data.name;
+  }
+
+  //保证操作名称的传递
+  if (props.name) {
+    console.log("Device_name:", props.name);
+  }
+  else {
+    console.log("Can't receive device_name",props);
+  }
+  //防止重复添加
+  if(EventForm.event_Type.includes("Start")){
+    EventForm.eventType_Is_Chosen.onStart = false;
+  }else if(EventForm.event_Type.includes("Complete")){
+    EventForm.eventType_Is_Chosen.onComplete = false;
+  }else if(EventForm.event_Type.includes("Error")){
+    EventForm.eventType_Is_Chosen.onError = false;
+  }
+
+});
+
+// 编辑操作
 const onEdit = (row) =>{
   //要修改 dialogVisible 的值，应该修改 dialogVisible.value 而不是 dialogVisible，因为 dialogVisible 是一个 ref 对象，实际的值存储在 value 属性中。
   //这种情况下，dialogVisible 被重新赋值成一个布尔值 true，而不是修改原来的 ref 对象。
   dialogVisible.value = true;
   dia_title.value = row.name;
   selectedService.value = row;
-  console.log(row.name);
+  console.log(row);
+  OperationForm.operation_Code = row.code
+  OperationForm.operation_Name = row.name
+  getEventData()
+  getInputParam()
 };
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
@@ -369,57 +426,42 @@ const resetForm = () => {
   if(eventFormRef){
     eventFormRef.value.resetFields()
   }
-  return
 }
-// 监控props的改变并且更新当前的字
-const props = defineProps({
-  name: String,
-});
-watchEffect(() => {
-  //动态修改操作名称的值
-  if(state.data.name){
-    OperationForm.operation_Name = state.data.name;
-  }
+const beforeOperationEditClose = ()=>{
+  OperationForm.operation_Code = ""
+  OperationForm.operation_Name = ""
+  OperationForm.operation_InputParam = []
+  OperationForm.operation_OutputParam = []
+  event_data.value = []
+}
 
-  //保证操作名称的传递
-  if (props.name) {
-    console.log("Device_name:", props.name);
-  }
-  else {
-    console.log("Can't receive device_name");
-  }
-  //防止重复添加
-  if(EventForm.event_Type == "onMakeCoffeeStart"){
-    EventForm.eventType_Is_Chosen.onMakeCoffeeStart = false;
-  }else if(EventForm.event_Type == "onMakeCoffeeComplete"){
-    EventForm.eventType_Is_Chosen.onMakeCoffeeComplete = false;
-  }else if(EventForm.event_Type == "onMakeCoffeeError"){
-    EventForm.eventType_Is_Chosen.onMakeCoffeeError = false;
-  }
-
-});
 const editEventFile = (fileName)=>{
   console.log(fileName)
 }
 
 const getInputParam = () =>{
-  console.log("Try to get param!")
-  getOperationParam(<String>props.name,"MakeCoffee").then((res:any) =>{
+  getOperationParam(props.name,selectedService.value.code).then((res:any) =>{
     if (res.status === 200){
       operation_InputParam.value = res.data
-      console.log(operation_InputParam.value)
+
     }
   })
 }
 
 const getEventData =() =>{
-  console.log("Try to get event data!")
-  getOperationEvent(<String>props.name,"MakeCoffee").then((res:any) =>{
+  getOperationEvent(props.name,selectedService.value.code).then((res:any) =>{
     if(res.status === 200){
       event_data.value = res.data
-      console.log(res)
+      res.data.forEach((v)=>{
+        EventForm.eventType_Is_Chosen[v.type] = false
+      })
     }
   })
+}
+
+// 新增操作
+const Commit = ()=>{
+  console.log('commit')
 }
 </script>
 

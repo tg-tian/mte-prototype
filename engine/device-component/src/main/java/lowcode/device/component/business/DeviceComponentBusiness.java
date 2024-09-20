@@ -80,7 +80,7 @@ public class DeviceComponentBusiness {
             @ApiImplicitParam(name = "commandCode", value = "设备支持的操作代码",required = true),
     })
     public List<Param> loadInputParam(String deviceName,  String commandCode) throws IOException {
-        File file = new File("definition/"+deviceName+"/"+deviceName+".json");
+        File file = new File(CommonConfig.getDefinitionPath()+deviceName+"/definitions/"+deviceName+".json");
         ObjectMapper objectMapper = new ObjectMapper();
         /**
          * ObjectMapper 是 Jackson 库中用于处理 JSON 数据的核心类。以下是 ObjectMapper 的常见功能：
@@ -115,7 +115,7 @@ public class DeviceComponentBusiness {
             @ApiImplicitParam(name="operationCode",value="事件操作码",required=true),
     })
     public List<Event> loadEvent(String deviceName, String operationCode) throws IOException {
-        File file = new File("definition/"+deviceName+"/events/"+operationCode+"Event.json");
+        File file = new File(CommonConfig.getDefinitionPath()+deviceName+"/definitions/events/"+operationCode+"Event.json");
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
         JsonNode events = rootNode.path("eventList");
@@ -180,7 +180,7 @@ public class DeviceComponentBusiness {
             @ApiImplicitParam(name="servicePath",value="服务名称json访问路径",required=true),
     })
     public BrandService loadService(String deviceName , String serviceName) throws IOException{
-        File file = new File("definition/"+deviceName+"/services/"+serviceName+".json");
+        File file = new File(CommonConfig.getDefinitionPath()+deviceName+"/definitions/services/"+serviceName+".json");
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
         String code = rootNode.path("code").asText();

@@ -60,7 +60,7 @@ const next = ()=>{
 }
 
 const updateDeviceInfo = (new_device_name: String) => {
-  state.device_name = new_device_name;
+  device_name.value = new_device_name;
   console.log(state.device_name);
 }
 
