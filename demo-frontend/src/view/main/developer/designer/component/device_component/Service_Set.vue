@@ -23,6 +23,9 @@
         label-position="left"
         style="max-width: 800px;margin: auto;"
     >
+      <el-form-item label="厂家代码" prop="factory_Code">
+        <el-input v-model="ServiceForm.factory_Code" :placeholder="selectedService?.factory_Code || '请输入厂家代码'"/>
+      </el-form-item>
       <el-form-item label="厂家名称" prop="factory_Name">
         <el-input v-model="ServiceForm.factory_Name" placeholder="请输入"/>
       </el-form-item>
@@ -91,16 +94,17 @@ interface State{
   selectedService: any;  // 添加一个 selectedService 用于保存选中的行数据
 }
 interface Service_RuleForm{
+  factory_Code: String;
   factory_Name:String;
   factory_Description:String;
   //signature:String;
   //event_Args:
 }
 
-
 const serviceFormRef = ref<FormInstance>()
 
 const ServiceForm = reactive<Service_RuleForm>({
+  factory_Code: "",
   factory_Name:"",
   factory_Description:"",
 })
@@ -116,6 +120,9 @@ const edit_rules = reactive<FormRules<Service_RuleForm>>({
 })
 
 const service_rules = reactive<FormRules<Service_RuleForm>>({
+  factory_Code:[
+    {required: true, message:'请输入厂家代码', trigger:'blur'},
+  ],
   factory_Name:[
     {required: true, message:'请输入厂家名称', trigger:'blur'},
   ],
@@ -154,7 +161,9 @@ const onEdit = (row) =>{
   dialogVisible.value = true;
   state.selectedService = row;  // 保存选中的行数据
   dia_title.value = row.name;
-  console.log(row.name);
+  console.log(row);
+  ServiceForm.factory_Code = row.code
+  ServiceForm.factory_Name = row.name
 };
 const  {service_header,service_data,header ,data,serviceVisible,dialogVisible,dia_title,selectedService} = toRefs(state)
 

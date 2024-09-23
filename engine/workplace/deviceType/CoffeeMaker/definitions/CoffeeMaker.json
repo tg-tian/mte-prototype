@@ -16,11 +16,11 @@
       "refID": "services",
       "refPath": [
         {
-          "name": "AService",
+          "code": "AService",
           "path": "services/AService.json"
         },
         {
-          "name": "BService",
+          "code": "BService",
           "path": "services/BService.json"
         }
       ]

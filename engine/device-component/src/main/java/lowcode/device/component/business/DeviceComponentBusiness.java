@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.lowcode.common.CommonConfig;
 import lowcode.device.component.dto.CommandDto;
+import lowcode.device.component.dto.ParamDto;
 import lowcode.device.component.entity.BrandService;
 import lowcode.device.component.entity.Event;
 import io.swagger.annotations.ApiImplicitParam;
@@ -68,6 +69,24 @@ public class DeviceComponentBusiness {
         System.out.println("读取json文件成功");
     }
 
+    public ParamDto loadOperationParam(String deviceName, String commandCode) throws IOException {
+        ParamDto paramDto = new ParamDto();
+        paramDto.setInputParams(loadInputParam(deviceName, commandCode));
+
+        File file = new File(CommonConfig.getDefinitionPath()+deviceName+"/definitions/"+deviceName+".json");
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(file);
+        JsonNode commands = rootNode.path("commands");
+        for(JsonNode command:commands) {
+            if(Objects.equals(command.path("code").asText(), commandCode)) {
+                String output = command.path("outputParam").asText();
+                paramDto.setOutputParam(output);
+                break;
+            }
+        }
+
+        return paramDto;
+    }
 
     /**
      * 设备拓展功能实现
@@ -184,7 +203,34 @@ public class DeviceComponentBusiness {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
         String code = rootNode.path("code").asText();
+        String name = rootNode.path("name").asText();
         String description = rootNode.path("description").asText();
-        return new BrandService(code,description,serviceName+".json");
+        return new BrandService(code,name, description,serviceName+".json");
+    }
+
+    public List<BrandService> loadServiceList(String deviceName) throws IOException {
+        List<BrandService> brandServiceList = new ArrayList<>();
+
+        File file = new File(CommonConfig.getDefinitionPath()+deviceName+"/definitions/"+deviceName+".json");
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(file);
+        JsonNode refNodeList = rootNode.path("refs");
+        if (refNodeList.isArray()){
+            for (JsonNode refNode : refNodeList) {
+                if (Objects.equals(refNode.path("refID").asText(), "services")){
+                    JsonNode serviceNodeList = refNode.path("refPath");
+                    if (serviceNodeList.isArray()){
+                        for (JsonNode serviceNode: serviceNodeList){
+                          String serviceName = serviceNode.path("code").asText();
+                          BrandService brandService = loadService(deviceName, serviceName);
+                          brandServiceList.add(brandService);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        return brandServiceList;
     }
 }

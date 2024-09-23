@@ -22,6 +22,7 @@ public class DeviceGenerator {
     String parentPath;
     String groupId = "lowcode.device";
     String version = "1.0.0";
+    String resourceDir;
 
     List<Command> commands = new ArrayList<>();
     List<String> events = new ArrayList<>();
@@ -45,20 +46,18 @@ public class DeviceGenerator {
 
         groupId = groupId + "." + deviceType.toLowerCase();
         baseDir = parentPath+deviceType+"/src/main/java/" + groupId.replace(".", "/");
+        resourceDir = parentPath+deviceType+"/src/main/resources/";
     }
 
     public void initial() {
-        File base = new File(baseDir);
-        if (!base.exists()){
-            projectGenerator.generate();
-        }
+        projectGenerator.generate();
     }
 
     public void clear() {
         FileUtil.deleteDir(new File(parentPath+deviceType));
     }
 
-    public void generate(){
+    public void generate() throws Exception {
         clear();
 
         initial();
@@ -73,6 +72,8 @@ public class DeviceGenerator {
         generateMain();
 
         generateServiceJson();
+
+        generateEventJson();
     }
 
     public void buildAndPackage() throws Exception {
@@ -93,18 +94,25 @@ public class DeviceGenerator {
         FileUtil.copyFile(source, dest);
     }
 
-    public void generateEventJson(String jsonPath) {
-        FileUtil.deleteDir(new File(jsonPath+"java"));
+    public void generateEventJson() throws Exception{
+        FileUtil.deleteDirFiles(new File(resourceDir+"events"));
 
         // 读取具体事件json
         for (Command command: commands){
-            // 在开发环境生成事件对应的java文件
-            eventGenerator.generateEventFile(groupId, jsonPath, jsonPath+"json/"+ StringUtil.capitalizeFirstLetter(command.getCommandCode())+"Event.json");
+            File source = new File(definitionPath+"definitions/events/"+StringUtil.capitalizeFirstLetter(command.getCommandCode())+"Event.json");
+            File dest = new File(resourceDir+"events");
+            if (!source.exists()){
+                throw new RuntimeException("事件"+command.getCommandCode()+"定义打包失败，文件不存在");
+            }
+            if (!dest.exists()){
+                dest.mkdirs();
+            }
+            FileUtil.copyFile(source, dest);
         }
     }
 
     public void generateServiceJson(){
-        FileUtil.deleteDir(new File(definitionPath+"generate/service"));
+//        FileUtil.deleteDir(new File(definitionPath+"generate/service"));
 
         for (String service: services) {
             // 在工作区生成java文件

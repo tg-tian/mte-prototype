@@ -34,6 +34,7 @@ public class ProjectGenerator {
     private void createDirectories(File projectDir) {
         String baseDir = projectDir.getPath() + "/src/main/java/" + groupId.replace(".", "/");
         new File(baseDir).mkdirs();
+        new File(projectDir.getPath()+"/src/main/resources/events/").mkdirs();
         new File(projectDir.getPath() + "/src/test/java/" + groupId.replace(".", "/")).mkdirs();
     }
 

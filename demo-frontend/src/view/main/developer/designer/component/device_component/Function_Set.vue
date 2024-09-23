@@ -40,12 +40,12 @@
           </el-form-item>
           <el-form-item label="输出参数设定" prop="operation_OutputParam">
             <el-select
-                v-model="value"
+                v-model="operation_OutputParam"
                 placeholder="请选择输出参数"
                 style="width: 350px"
             >
               <el-option
-                  v-for="item in operation_OutputParam"
+                  v-for="item in outputParams"
                   :key="item.value"
                   :label="item.label"
                   :value="item.value"
@@ -144,12 +144,12 @@
       </el-form-item>
       <el-form-item label="输出参数设定" prop="operation_OutputParam">
         <el-select
-            v-model="value"
+            v-model="operation_OutputParam"
             placeholder="请选择输出参数"
             style="width: 350px"
         >
           <el-option
-              v-for="item in operation_OutputParam"
+              v-for="item in outputParams"
               :key="item.value"
               :label="item.label"
               :value="item.value"
@@ -168,7 +168,7 @@
 <script setup lang="ts">
 import Table from "@/view/main/common/Table.vue";
 import {FormInstance, FormRules} from "element-plus";
-import {getOperationEvent, getOperationParam} from "@/api/DeviceExpand";
+import {getOperationCommand, getOperationEvent, getOperationParam} from "@/api/DeviceExpand";
 
 /**
  * interface State 的作用是定义 TypeScript 接口，以便为 state 对象提供类型约束。这样可以在开发过程中利用 TypeScript 的类型检查功能，提高代码的可靠性和可维护性。
@@ -296,13 +296,7 @@ const  state = reactive<State>({
       type:"Int"
     }
   ],
-  data:[
-    {
-      code:"MakeCoffee",
-      name:"做咖啡",
-      events_count:"3/3"
-    }
-  ],
+  data:[],
   dialogVisible:false,
   eventsVisible:false,
   operationVisible:false,
@@ -310,6 +304,16 @@ const  state = reactive<State>({
   dia_title:"编辑操作",
 })
 // 编辑&新增操作表单
+const outputParams = [
+  {
+    value: 'void',
+    label: 'void',
+  },
+  {
+    value: 'Object',
+    label: 'Object',
+  },
+]
 const  OperationForm = reactive<Operation_RuleForm>({
   operation_Code:"",
   operation_Name : "",
@@ -329,16 +333,7 @@ const  OperationForm = reactive<Operation_RuleForm>({
     }
   ],
   operation_InputParam:[],
-  operation_OutputParam:[
-    {
-      value: 'void',
-      label: 'void',
-    },
-    {
-      value: 'Object',
-      label: 'Object',
-    },
-  ]
+  operation_OutputParam:''
 })
 /**
  * 在 Vue 3 中，toRefs 函数用于将 reactive 对象的属性转换为 ref 对象。这样可以使这些属性在模板中直接使用，并且可以更方便地进行解构和传递。
@@ -354,7 +349,6 @@ const  OperationForm = reactive<Operation_RuleForm>({
 //在这里，header、data 和 dialogVisible 都是 ref 对象，它们分别引用 state 对象中的对应属性。
 const  {event_header,event_data,header ,data,dialogVisible,eventsVisible,operationVisible,dia_title,selectedService} = toRefs(state)
 const {Param_header,operation_InputParam,operation_OutputParam} = toRefs(OperationForm)
-const value = ref('')
 onMounted(()=>{
   if (import.meta.env.VITE_MODE === "mock"){
     operation_InputParam.value = [{
@@ -367,6 +361,7 @@ onMounted(()=>{
         event_description:"prepare the coffee",
     }]
   }
+  getCommandData()
 })
 
 // 监控props的改变并且更新当前的字
@@ -374,11 +369,6 @@ const props = defineProps({
   name: String,
 });
 watchEffect(() => {
-  //动态修改操作名称的值
-  if(state.data.name){
-    OperationForm.operation_Name = state.data.name;
-  }
-
   //保证操作名称的传递
   if (props.name) {
     console.log("Device_name:", props.name);
@@ -387,13 +377,13 @@ watchEffect(() => {
     console.log("Can't receive device_name",props);
   }
   //防止重复添加
-  if(EventForm.event_Type.includes("Start")){
-    EventForm.eventType_Is_Chosen.onStart = false;
-  }else if(EventForm.event_Type.includes("Complete")){
-    EventForm.eventType_Is_Chosen.onComplete = false;
-  }else if(EventForm.event_Type.includes("Error")){
-    EventForm.eventType_Is_Chosen.onError = false;
-  }
+  // if(EventForm.event_Type.includes("Start")){
+  //   EventForm.eventType_Is_Chosen.onStart = false;
+  // }else if(EventForm.event_Type.includes("Complete")){
+  //   EventForm.eventType_Is_Chosen.onComplete = false;
+  // }else if(EventForm.event_Type.includes("Error")){
+  //   EventForm.eventType_Is_Chosen.onError = false;
+  // }
 
 });
 
@@ -408,7 +398,7 @@ const onEdit = (row) =>{
   OperationForm.operation_Code = row.code
   OperationForm.operation_Name = row.name
   getEventData()
-  getInputParam()
+  getParams()
 };
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
@@ -431,7 +421,7 @@ const beforeOperationEditClose = ()=>{
   OperationForm.operation_Code = ""
   OperationForm.operation_Name = ""
   OperationForm.operation_InputParam = []
-  OperationForm.operation_OutputParam = []
+  OperationForm.operation_OutputParam = ""
   event_data.value = []
 }
 
@@ -439,11 +429,25 @@ const editEventFile = (fileName)=>{
   console.log(fileName)
 }
 
-const getInputParam = () =>{
+const getCommandData = ()=>{
+  getOperationCommand(props.name).then((res:any)=>{
+    if (res.status === 200){
+      state.data = res.data.map((v)=>{
+        return {
+          code: v.commandCode,
+          name: v.commandName,
+          events_count: v.events.length + "/3"
+        }
+      })
+    }
+  })
+}
+
+const getParams = () =>{
   getOperationParam(props.name,selectedService.value.code).then((res:any) =>{
     if (res.status === 200){
-      operation_InputParam.value = res.data
-
+      operation_InputParam.value = res.data.inputParams
+      operation_OutputParam.value = res.data.outputParam
     }
   })
 }

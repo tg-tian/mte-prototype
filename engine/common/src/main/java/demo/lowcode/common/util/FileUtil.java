@@ -47,6 +47,20 @@ public class FileUtil {
         dir.delete();
     }
 
+    public static void deleteDirFiles(File dir){
+        // 检查是否是目录
+        if (dir.isDirectory()) {
+            // 获取目录下的所有文件和子目录
+            File[] files = dir.listFiles();
+            if (files != null) { // 防止空指针异常
+                for (File file : files) {
+                    // 递归删除每个文件或子目录
+                    deleteDirFiles(file);
+                }
+            }
+        }
+    }
+
     // 拷贝文件
     public static void copyFile(File source, File destination) throws IOException {
         if (destination.isDirectory()) {

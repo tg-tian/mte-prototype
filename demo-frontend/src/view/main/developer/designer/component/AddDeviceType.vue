@@ -12,7 +12,7 @@
 
   <div style="margin-top: 30px">
     <template v-if ="active === 0">
-      <Device_Information  @update-info="updateDeviceInfo" :info="device_name"/>
+      <Device_Information  @update-info="updateDeviceInfo" :info="deviceInfo"/>
 
     </template>
     <template v-if ="active === 1">
@@ -25,7 +25,7 @@
 
   <div style="margin-top: 20px;display: flex;justify-content: end">
     <el-button style="margin-left: 12px" @click="prev" v-if="active!==0">上一步</el-button>
-    <el-button style="margin-left: 12px" @click="next" v-if="active!==2">下一步</el-button>
+    <el-button style="margin-left: 12px" @click="next" v-if="active!==2 && active !== 0">下一步</el-button>
     <el-button type="primary" style="margin-left: 12px" v-if="active===2">完成</el-button>
   </div>
 </template>
@@ -43,13 +43,16 @@ interface State {
 
   //保存DeviceJson所需的所有参数
   device_name:String;
+
+  deviceInfo: any
 }
 
 const state = reactive<State>({
   active: 0,
   device_name: "",
+  deviceInfo: {}
 })
-const {active,device_name} = toRefs(state)
+const {active,device_name, deviceInfo} = toRefs(state)
 
 const prev = ()=>{
   active.value--
@@ -59,9 +62,11 @@ const next = ()=>{
   if (active.value++ > 2) active.value = 0
 }
 
-const updateDeviceInfo = (new_device_name: String) => {
-  device_name.value = new_device_name;
-  console.log(state.device_name);
+const updateDeviceInfo = (new_device: any) => {
+
+  device_name.value = new_device.deviceCode;
+  deviceInfo.value = new_device
+  next()
 }
 
 </script>
