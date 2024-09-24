@@ -175,7 +175,7 @@ public class DeviceGenerator {
 
             if (serviceList!=null){
                 for (int i=0;i<serviceList.length();i++){
-                    services.add(serviceList.getJSONObject(i).getString("name"));
+                    services.add(serviceList.getJSONObject(i).getString("code"));
                 }
             }
 

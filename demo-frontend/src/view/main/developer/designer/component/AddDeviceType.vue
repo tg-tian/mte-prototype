@@ -25,7 +25,7 @@
 
   <div style="margin-top: 20px;display: flex;justify-content: end">
     <el-button style="margin-left: 12px" @click="prev" v-if="active!==0">上一步</el-button>
-    <el-button style="margin-left: 12px" @click="next" v-if="active!==2 && active !== 0">下一步</el-button>
+    <el-button type="primary" style="margin-left: 12px" @click="next" v-if="active!==2 && active !== 0">下一步</el-button>
     <el-button type="primary" style="margin-left: 12px" v-if="active===2">完成</el-button>
   </div>
 </template>

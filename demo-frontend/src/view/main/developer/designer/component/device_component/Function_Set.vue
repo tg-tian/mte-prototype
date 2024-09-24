@@ -453,6 +453,10 @@ const getParams = () =>{
 }
 
 const getEventData =() =>{
+  EventForm.eventType_Is_Chosen.onStart = true
+  EventForm.eventType_Is_Chosen.onComplete = true
+  EventForm.eventType_Is_Chosen.onError = true
+
   getOperationEvent(props.name,selectedService.value.code).then((res:any) =>{
     if(res.status === 200){
       event_data.value = res.data
