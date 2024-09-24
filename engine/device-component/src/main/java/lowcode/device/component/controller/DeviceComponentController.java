@@ -5,6 +5,7 @@ import lowcode.device.component.business.DeviceComponentBusiness;
 
 
 import lowcode.device.component.dto.CommandDto;
+import lowcode.device.component.dto.ParamDto;
 import lowcode.device.component.entity.Event ;
 import demo.lowcode.common.Command;
 import org.springframework.http.HttpStatus;
@@ -31,8 +32,8 @@ public class DeviceComponentController {
     @GetMapping(value = "/load-operation-param")
     public ResponseEntity<?> loadOperationParam(String deviceName, String commandCode) {
         try {
-            List<Param> paramList = deviceComponentBusiness.loadInputParam(deviceName,commandCode);
-            return new ResponseEntity<>(paramList, HttpStatus.OK);
+            ParamDto paramDto = deviceComponentBusiness.loadOperationParam(deviceName,commandCode);
+            return new ResponseEntity<>(paramDto, HttpStatus.OK);
         } catch (IOException e) {
             System.out.println("参数信息加载错误");
             e.printStackTrace();
@@ -67,11 +68,9 @@ public class DeviceComponentController {
 
     @ApiOperation(value = "服务读取接口")
     @GetMapping(value = "/load-service")
-    public ResponseEntity<?> loadService(String deviceName,String serviceName) {
+    public ResponseEntity<?> loadService(String deviceName) {
         try {
-            BrandService brandService= deviceComponentBusiness.loadService(deviceName,serviceName);
-            List<BrandService> brandServiceList = new ArrayList<>();
-            brandServiceList.add(brandService);
+            List<BrandService> brandServiceList= deviceComponentBusiness.loadServiceList(deviceName);
             return new ResponseEntity<>(brandServiceList, HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();

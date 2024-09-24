@@ -2,6 +2,7 @@
   "code": "AService",
   "name": "A品牌",
   "device": "CoffeeMaker",
+  "description": "A公司咖啡机可以做（摩卡，美式）咖啡，支持（加糖，加奶）操作。",
   "parameters": [
     {
       "code": "uri",

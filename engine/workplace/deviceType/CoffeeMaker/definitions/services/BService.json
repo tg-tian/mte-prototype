@@ -2,6 +2,7 @@
   "code": "BService",
   "name": "B品牌",
   "device": "CoffeeMaker",
+  "description": "B公司咖啡机",
   "parameters": [
     {
       "code": "uri",

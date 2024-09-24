@@ -9,8 +9,8 @@
           label-position="left"
           style="max-width: 800px;margin: auto;"
       >
-        <el-form-item label="设备码" prop="deviceID">
-          <el-input v-model="deviceForm.deviceID" placeholder="请输入"/>
+        <el-form-item label="设备码" prop="deviceCode">
+          <el-input v-model="deviceForm.deviceCode" placeholder="请输入"/>
         </el-form-item>
         <el-form-item label="设备名称" prop="deviceName">
           <el-input v-model="deviceForm.deviceName" placeholder="请输入"/>
@@ -35,7 +35,7 @@
 
           <div class="domain-subtitle" style="display: flex;justify-content: space-between">
             <el-button type="primary" @click="submitForm(deviceFormRef)" style="margin-left: auto;" >
-              确认
+              下一步
             </el-button>
             <el-button @click="resetForm" style="margin-right: auto;">重置</el-button>
           </div>
@@ -61,7 +61,7 @@ import { UploadFilled } from '@element-plus/icons-vue'
  * 当验证失败时，el-form-item 会显示相应的错误提示信息。通过 prop 属性，el-form-item 知道需要显示哪个属性的错误信息。
  * */
 interface RuleForm{
-  deviceID: string;
+  deviceCode: string;
   deviceName: string;
   icon_upload:any;
   //deviceType:string;
@@ -69,24 +69,35 @@ interface RuleForm{
 
 const emit = defineEmits(['update-info'])
 
+const props = defineProps({
+  info: Object,
+});
+
 const deviceFormRef = ref<FormInstance>()
 //验证规则,form-item中使用prop数据属性绑定此处的验证规则
 const rules = reactive<FormRules<RuleForm>>({
-  deviceID:[
+  deviceCode:[
     {required: true, message:'请输入设备码', trigger:'blur'},
   ],
   deviceName:[
     {required: true, message:'请输入设备名称', trigger:'blur'},
   ],
-  icon_upload:[
-    {required: true, message:'请输入上传图标', trigger:'blur'},
-  ]
+  // icon_upload:[
+  //   {required: true, message:'请输入上传图标', trigger:'blur'},
+  // ]
 })
 
 const deviceForm = reactive<RuleForm>({
-  deviceID:"",
+  deviceCode:"",
   deviceName:"",
   //deviceType:""
+})
+watchEffect(() => {
+  console.log('info:',props.info)
+  if (props.info) {
+    deviceForm.deviceCode = props.info.deviceCode
+    deviceForm.deviceName = props.info.deviceName
+  }
 })
 const resetForm = () => {
   if(deviceFormRef){
@@ -98,14 +109,17 @@ const resetForm = () => {
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
-      emit('update-info',deviceForm.deviceName)
-      console.log('submit!', fields)
+      if (valid) {
+        emit('update-info',deviceForm)
+        console.log('submit!', fields, deviceForm)
+      }
   })
 }
 const imageUrl = ref('')
 //控制所上传图像的大小
 const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
-  if (rawFile.type !== 'image/jpeg') {
+  console.log(rawFile.type)
+  if (rawFile.type !== 'image/jpeg' && rawFile.type !== 'image/jpg' && rawFile.type !== 'image/png') {
     ElMessage.error('Picture must be JPG format!')
     return false
   } else if (rawFile.size / 1024 / 1024 > 2) {

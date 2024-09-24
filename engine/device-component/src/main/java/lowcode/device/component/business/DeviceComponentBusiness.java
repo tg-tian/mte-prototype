@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.lowcode.common.CommonConfig;
 import lowcode.device.component.dto.CommandDto;
+import lowcode.device.component.dto.ParamDto;
 import lowcode.device.component.entity.BrandService;
 import lowcode.device.component.entity.Event;
 import io.swagger.annotations.ApiImplicitParam;
@@ -68,6 +69,24 @@ public class DeviceComponentBusiness {
         System.out.println("读取json文件成功");
     }
 
+    public ParamDto loadOperationParam(String deviceName, String commandCode) throws IOException {
+        ParamDto paramDto = new ParamDto();
+        paramDto.setInputParams(loadInputParam(deviceName, commandCode));
+
+        File file = new File(CommonConfig.getDefinitionPath()+deviceName+"/definitions/"+deviceName+".json");
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(file);
+        JsonNode commands = rootNode.path("commands");
+        for(JsonNode command:commands) {
+            if(Objects.equals(command.path("code").asText(), commandCode)) {
+                String output = command.path("outputParam").asText();
+                paramDto.setOutputParam(output);
+                break;
+            }
+        }
+
+        return paramDto;
+    }
 
     /**
      * 设备拓展功能实现
@@ -80,7 +99,7 @@ public class DeviceComponentBusiness {
             @ApiImplicitParam(name = "commandCode", value = "设备支持的操作代码",required = true),
     })
     public List<Param> loadInputParam(String deviceName,  String commandCode) throws IOException {
-        File file = new File("definition/"+deviceName+"/"+deviceName+".json");
+        File file = new File(CommonConfig.getDefinitionPath()+deviceName+"/definitions/"+deviceName+".json");
         ObjectMapper objectMapper = new ObjectMapper();
         /**
          * ObjectMapper 是 Jackson 库中用于处理 JSON 数据的核心类。以下是 ObjectMapper 的常见功能：
@@ -115,7 +134,7 @@ public class DeviceComponentBusiness {
             @ApiImplicitParam(name="operationCode",value="事件操作码",required=true),
     })
     public List<Event> loadEvent(String deviceName, String operationCode) throws IOException {
-        File file = new File("definition/"+deviceName+"/events/"+operationCode+"Event.json");
+        File file = new File(CommonConfig.getDefinitionPath()+deviceName+"/definitions/events/"+operationCode+"Event.json");
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
         JsonNode events = rootNode.path("eventList");
@@ -180,11 +199,38 @@ public class DeviceComponentBusiness {
             @ApiImplicitParam(name="servicePath",value="服务名称json访问路径",required=true),
     })
     public BrandService loadService(String deviceName , String serviceName) throws IOException{
-        File file = new File("definition/"+deviceName+"/services/"+serviceName+".json");
+        File file = new File(CommonConfig.getDefinitionPath()+deviceName+"/definitions/services/"+serviceName+".json");
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
         String code = rootNode.path("code").asText();
+        String name = rootNode.path("name").asText();
         String description = rootNode.path("description").asText();
-        return new BrandService(code,description,serviceName+".json");
+        return new BrandService(code,name, description,serviceName+".json");
+    }
+
+    public List<BrandService> loadServiceList(String deviceName) throws IOException {
+        List<BrandService> brandServiceList = new ArrayList<>();
+
+        File file = new File(CommonConfig.getDefinitionPath()+deviceName+"/definitions/"+deviceName+".json");
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(file);
+        JsonNode refNodeList = rootNode.path("refs");
+        if (refNodeList.isArray()){
+            for (JsonNode refNode : refNodeList) {
+                if (Objects.equals(refNode.path("refID").asText(), "services")){
+                    JsonNode serviceNodeList = refNode.path("refPath");
+                    if (serviceNodeList.isArray()){
+                        for (JsonNode serviceNode: serviceNodeList){
+                          String serviceName = serviceNode.path("code").asText();
+                          BrandService brandService = loadService(deviceName, serviceName);
+                          brandServiceList.add(brandService);
+                        }
+                    }
+                    break;
+                }
+            }
+        }
+
+        return brandServiceList;
     }
 }

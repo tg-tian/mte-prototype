@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
+
 @RestController
 @CrossOrigin
 @ApiModel(value = "设备代码生成与打包")
@@ -21,12 +23,11 @@ public class DeviceGenerateController {
     public SseEmitter publishDevice(@RequestParam String deviceType) {
         // SseEmitter 是 Spring 提供的一个用于支持服务器推送事件（Server-Sent Events, SSE）的类。它允许服务器向客户端持续推送数据
         // SseEmitter 在服务器端打开一个长连接，客户端通过 EventSource 接受服务器推送的数据。服务器可以在一段时间内多次向客户端发送事件，而无需关闭连接
-        SseEmitter emitter = new SseEmitter();
+        SseEmitter emitter = new SseEmitter(24 * 60 * 60 * 1000L);// 设置超时时间防止超时
         DeviceGenerator generator = new DeviceGenerator(deviceType, CommonConfig.getDefinitionPath() +deviceType+"/");
 
         new Thread(() -> {
             try {
-                // 模拟设备生成过程
                 emitter.send(new ProgressData("开始生成代码...", 25));
                 generator.generate();
                 Thread.sleep(1000);  // 模拟一些延时操作
@@ -40,14 +41,16 @@ public class DeviceGenerateController {
                 Thread.sleep(1000);
 
                 emitter.send(new ProgressData("发布成功", 100));
+                Thread.sleep(1000);
                 emitter.complete();  // 完成后关闭连接
             } catch (Exception e) {
                 try {
-                    emitter.send("打包失败: " + e.getMessage());
-                } catch (Exception ioException) {
+                    emitter.send(new ProgressData("打包失败: " + e.getMessage(), 0));
+                } catch (IOException ioException) {
                     ioException.printStackTrace();
+                } finally {
+                    emitter.completeWithError(e);  // 确保只在异常路径下调用一次 completeWithError
                 }
-                emitter.completeWithError(e);
             }
         }).start();
 
