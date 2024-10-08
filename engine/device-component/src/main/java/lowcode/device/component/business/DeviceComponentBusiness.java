@@ -6,22 +6,17 @@ import demo.lowcode.common.CommonConfig;
 import lowcode.device.component.dto.CommandDto;
 import lowcode.device.component.dto.ParamDto;
 import lowcode.device.component.entity.BrandService;
-import lowcode.device.component.entity.Event;
+import lowcode.device.component.entity.DeviceEvent;
 import io.swagger.annotations.ApiImplicitParam;
 import io.swagger.annotations.ApiImplicitParams;
 import io.swagger.annotations.ApiOperation;
 import demo.lowcode.common.Command;
 import demo.lowcode.common.Param;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.couchbase.CouchbaseProperties;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.util.*;
 
 @Service
@@ -133,22 +128,22 @@ public class DeviceComponentBusiness {
             @ApiImplicitParam(name="deviceName",value="设备名称",required=true),
             @ApiImplicitParam(name="operationCode",value="事件操作码",required=true),
     })
-    public List<Event> loadEvent(String deviceName, String operationCode) throws IOException {
+    public List<DeviceEvent> loadEvent(String deviceName, String operationCode) throws IOException {
         File file = new File(CommonConfig.getDefinitionPath()+deviceName+"/definitions/events/"+operationCode+"Event.json");
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
         JsonNode events = rootNode.path("eventList");
-        List<Event> eventList = new ArrayList<>();
+        List<DeviceEvent> deviceEventList = new ArrayList<>();
         if (events.isArray()) {
             for (JsonNode event : events) {
                 String name = event.path("name").asText();
                 String description = event.path("description").asText();
                 String type = event.path("type").asText();
-                Event new_event = new Event(name,description,type);
-                eventList.add(new_event);
+                DeviceEvent new_Device_event = new DeviceEvent(name,description,type);
+                deviceEventList.add(new_Device_event);
             }
         }
-        return eventList;
+        return deviceEventList;
     }
 
     //TODO 事件读取存在一些逻辑问题需要修改

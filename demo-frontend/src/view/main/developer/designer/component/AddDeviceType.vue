@@ -63,9 +63,11 @@ const next = ()=>{
 }
 
 const updateDeviceInfo = (new_device: any) => {
-
   device_name.value = new_device.deviceCode;
   deviceInfo.value = new_device
+
+  console.log(new_device)
+
   next()
 }
 

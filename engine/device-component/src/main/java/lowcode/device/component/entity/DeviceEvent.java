@@ -13,7 +13,7 @@ import org.springframework.stereotype.Component;
 @Component
 @NoArgsConstructor
 @ApiModel(value = "事件信息实体类，用于存储事件的基本信息")
-public class Event {
+public class DeviceEvent {
     @ApiModelProperty("事件名称")
     private String name;
     @ApiModelProperty("事件描述")
