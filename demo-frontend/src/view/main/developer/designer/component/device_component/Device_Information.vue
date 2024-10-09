@@ -22,14 +22,10 @@
               :show-file-list="true"
               action="http://localhost:8080/upload"
               :before-upload="beforeAvatarUpload"
-<<<<<<< HEAD
-              :on-success="handleSuccess"
               multiple
-=======
               :on-success="handleAvatarUpload"
               :action="uploadUrl"
               :auto-upload="false"
->>>>>>> 58fb19bc3b4ea5803784c57c7a1d6647635f6da3
           >
             <el-image v-if="deviceForm.imageUrl" :src="deviceForm.imageUrl" class="avatar" />
             <el-icon v-else class="avatar-uploader-icon"><UploadFilled /></el-icon>
@@ -74,13 +70,9 @@ const uploadUrl=import.meta.env.VITE_BASE_PATH+"/upload/file"
 interface RuleForm{
   deviceCode: string;
   deviceName: string;
-<<<<<<< HEAD
-  fileName: string;
   icon_upload:any;
   //deviceType:string;
-=======
   imageUrl:string;
->>>>>>> 58fb19bc3b4ea5803784c57c7a1d6647635f6da3
 }
 
 const emit = defineEmits(['update-info'])
@@ -106,11 +98,7 @@ const rules = reactive<FormRules<RuleForm>>({
 const deviceForm = reactive<RuleForm>({
   deviceCode:"",
   deviceName:"",
-<<<<<<< HEAD
-  fileName:"",
-=======
-  imageUrl: ""
->>>>>>> 58fb19bc3b4ea5803784c57c7a1d6647635f6da3
+  imageUrl: "",
 })
 watchEffect(() => {
   if (props.info) {
@@ -148,14 +136,8 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
   }
   return true
 }
-<<<<<<< HEAD
-const handleSuccess = (response) =>{
-  deviceForm.fileName = response;
-=======
-
 const handleAvatarUpload: UploadProps['onSuccess'] = (res)=>{
-
->>>>>>> 58fb19bc3b4ea5803784c57c7a1d6647635f6da3
+  deviceForm.imgUrl = res;
 }
 
 </script>
