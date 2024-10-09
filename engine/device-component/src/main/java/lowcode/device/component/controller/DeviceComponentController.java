@@ -1,13 +1,11 @@
 package lowcode.device.component.controller;
 
-import demo.lowcode.common.Param;
 import lowcode.device.component.business.DeviceComponentBusiness;
 
 
 import lowcode.device.component.dto.CommandDto;
 import lowcode.device.component.dto.ParamDto;
-import lowcode.device.component.entity.Event ;
-import demo.lowcode.common.Command;
+import lowcode.device.component.entity.DeviceEvent;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import lowcode.device.component.entity.BrandService ;
@@ -19,7 +17,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController //?
@@ -45,8 +42,8 @@ public class DeviceComponentController {
     @GetMapping(value = "/load-operation-event")
     public ResponseEntity<?> loadOperationEvent(String deviceName,String operationCode) {
         try {
-            List<Event> eventList= deviceComponentBusiness.loadEvent(deviceName,operationCode);
-            return new ResponseEntity<List<Event>>(eventList, HttpStatus.OK);
+            List<DeviceEvent> deviceEventList = deviceComponentBusiness.loadEvent(deviceName,operationCode);
+            return new ResponseEntity<List<DeviceEvent>>(deviceEventList, HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
             return new ResponseEntity<>("文件读取错误", HttpStatus.BAD_REQUEST);

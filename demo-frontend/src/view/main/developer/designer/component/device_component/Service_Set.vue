@@ -24,7 +24,7 @@
         style="max-width: 800px;margin: auto;"
     >
       <el-form-item label="厂家代码" prop="factory_Code">
-        <el-input v-model="ServiceForm.factory_Code" :placeholder="selectedService?.factory_Code || '请输入厂家代码'"/>
+        <el-input v-model="ServiceForm.factory_Code"  :placeholder="selectedService?.factory_Code || '请输入厂家代码'"/>
       </el-form-item>
       <el-form-item label="厂家名称" prop="factory_Name">
         <el-input v-model="ServiceForm.factory_Name" placeholder="请输入"/>
@@ -70,7 +70,7 @@
         </div>
       </el-form-item>
       <div class="domain-subtitle" style="display: flex;justify-content: space-between">
-        <el-button type="primary" @click="submitForm(serviceFormRef)" style="margin-left: auto;">
+        <el-button type="primary" @click="changeForm()" style="margin-left: auto;">
           确认
         </el-button>
         <el-button @click="resetForm" style="margin-right: auto;">重置</el-button>
@@ -101,8 +101,8 @@ interface Service_RuleForm{
   //event_Args:
 }
 
+const emit = defineEmits(['service-info'])
 const serviceFormRef = ref<FormInstance>()
-
 const ServiceForm = reactive<Service_RuleForm>({
   factory_Code: "",
   factory_Name:"",
@@ -161,7 +161,6 @@ const onEdit = (row) =>{
   dialogVisible.value = true;
   state.selectedService = row;  // 保存选中的行数据
   dia_title.value = row.name;
-  console.log(row);
   ServiceForm.factory_Code = row.code
   ServiceForm.factory_Name = row.name
 };
@@ -182,14 +181,16 @@ onMounted(() => {
 // 监控props的改变并且更新当前的字
 const props = defineProps({
   name: String,
+  info: Object,
 });
+
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
-    if (serviceFormRef) {
-      console.log('submit!service', ServiceForm);
+    if (valid) {
+      emit("service-info",ServiceForm);
       state.serviceVisible = false;
-      serviceFormRef.value.resetFields()
+      serviceFormRef.value.resetFields();
     } else {
       console.log('error submit!', fields);
     }
@@ -205,12 +206,16 @@ if(serviceFormRef){
 }
 
 const getServiceData =() =>{
-  console.log("Try to get service data!")
+  console.log("Try to get service data!",props.info)
   getService(<String>props.name,"AService").then((res:any) =>{
     if(res.status === 200){
       service_data.value = res.data
     }
   })
+}
+
+const changeForm = () => {
+  console.log("change the form");
 }
 </script>
 

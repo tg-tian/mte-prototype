@@ -19,8 +19,11 @@
           <el-upload
               drag
               class="avatar-uploader"
-              :show-file-list="false"
+              :show-file-list="true"
+              action="http://localhost:8080/upload"
               :before-upload="beforeAvatarUpload"
+              :on-success="handleSuccess"
+              multiple
           >
             <img v-if="imageUrl" :src="imageUrl" class="avatar" />
             <el-icon v-else class="avatar-uploader-icon"><UploadFilled /></el-icon>
@@ -63,6 +66,7 @@ import { UploadFilled } from '@element-plus/icons-vue'
 interface RuleForm{
   deviceCode: string;
   deviceName: string;
+  fileName: string;
   icon_upload:any;
   //deviceType:string;
 }
@@ -90,7 +94,7 @@ const rules = reactive<FormRules<RuleForm>>({
 const deviceForm = reactive<RuleForm>({
   deviceCode:"",
   deviceName:"",
-  //deviceType:""
+  fileName:"",
 })
 watchEffect(() => {
   console.log('info:',props.info)
@@ -128,7 +132,9 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
   }
   return true
 }
-
+const handleSuccess = (response) =>{
+  deviceForm.fileName = response;
+}
 
 </script>
 

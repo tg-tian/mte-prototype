@@ -20,7 +20,9 @@ public class Param {
     @ApiModelProperty("参数类型")
     private String type;
     @ApiModelProperty("参数选择")
-    private List<Object> optional;
+    private List<String> options;
+    @ApiModelProperty("默认值")
+    private String defaultValue;
 
     public Param(String code, String name, String type) {
         this.code = code;
@@ -37,7 +39,7 @@ public class Param {
         this.code = "";
         this.name = "";
         this.type = "";
-        this.optional =  new ArrayList<>();
+        this.options =  new ArrayList<>();
     }
 
 }

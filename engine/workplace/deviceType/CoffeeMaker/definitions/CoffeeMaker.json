@@ -7,9 +7,18 @@
     {
       "refID": "events",
       "refPath": [
-        "events/CheckEvent.json",
-        "events/MakeCoffeeEvent.json",
-        "events/StartEvent.json"
+        {
+          "code": "CheckEvent",
+          "path": "events/CheckEvent.json"
+        },
+        {
+          "code": "MakeCoffeeEvent",
+          "path": "events/MakeCoffeeEvent.json"
+        },
+        {
+          "code": "StartEvent",
+          "path": "events/StartEvent.json"
+        }
       ]
     },
     {
@@ -41,8 +50,9 @@
       "inputParam": [{
         "code": "coffeeType",
         "name": "咖啡类型",
-        "type": "Enum",
-        "options": ["摩卡", "美式"]
+        "type": "String",
+        "options": ["摩卡", "美式"],
+        "default": ""
       }],
       "outputParam": "void",
       "events": [

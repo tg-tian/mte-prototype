@@ -196,7 +196,7 @@ public class ProcessBusiness {
 
                         // 若param类型为enum，则读取serviceProperty
                         if (Objects.equals(param.getType(), "Enum")) {
-                            param.setOptional((List<Object>) serviceProperty.get(param.getCode()));
+                            param.setOptions((List<String>) serviceProperty.get(param.getCode()));
                         }
                         params.add(param);
                     }

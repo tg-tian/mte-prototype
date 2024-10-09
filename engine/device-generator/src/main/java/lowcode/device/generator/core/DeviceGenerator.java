@@ -197,17 +197,16 @@ public class DeviceGenerator {
                     param.setCode(inputObject.getString("code"));
                     param.setName(inputObject.getString("name"));
                     String type = inputObject.getString("type");
-                    if (Objects.equals(type, "Enum")){
-                        param.setType("String");
-                        List<Object> options = new ArrayList<>();
-                        JSONArray optionList = inputObject.getJSONArray("options");
+                    param.setType(type);
+
+                    List<String> options = new ArrayList<>();
+                    JSONArray optionList = inputObject.getJSONArray("options");
+                    if (optionList.length() > 0){
                         for (int k=0;k<optionList.length();k++){
-                            Object item = optionList.get(k);
+                            String item = optionList.getString(k);
                             options.add(item);
                         }
-                        param.setOptional(options);
-                    }else {
-                        param.setType(type);
+                        param.setOptions(options);
                     }
 
                     params.add(param);

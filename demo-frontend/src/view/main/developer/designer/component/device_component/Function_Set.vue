@@ -157,7 +157,7 @@
         </el-select>
       </el-form-item>
       <div class="domain-subtitle" style="display: flex;justify-content: space-between">
-        <el-button type="primary"  style="margin-left: auto;" @click="Commit">确定</el-button>
+        <el-button type="primary"  style="margin-left: auto;" @click="CommitOperation(operationFormRef)">确定</el-button>
         <el-button  style="margin-right: auto;" @click="operationVisible = false">返回</el-button>
       </div>
 
@@ -364,6 +364,8 @@ onMounted(()=>{
   getCommandData()
 })
 
+
+const emit = defineEmits(['operation-info'])
 // 监控props的改变并且更新当前的字
 const props = defineProps({
   name: String,
@@ -404,12 +406,12 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (eventFormRef) {
-      console.log('submit!', EventForm);
       state.eventsVisible = false;
       eventFormRef.value.resetFields()
     } else {
       console.log('error submit!', fields);
     }
+
   })
 }
 const resetForm = () => {
@@ -430,7 +432,7 @@ const editEventFile = (fileName)=>{
 }
 
 const getCommandData = ()=>{
-  getOperationCommand(props.name).then((res:any)=>{
+  getOperationCommand(<String>props.name).then((res:any)=>{
     if (res.status === 200){
       state.data = res.data.map((v)=>{
         return {
@@ -444,7 +446,7 @@ const getCommandData = ()=>{
 }
 
 const getParams = () =>{
-  getOperationParam(props.name,selectedService.value.code).then((res:any) =>{
+  getOperationParam(<String>props.name,selectedService.value.code).then((res:any) =>{
     if (res.status === 200){
       operation_InputParam.value = res.data.inputParams
       operation_OutputParam.value = res.data.outputParam
@@ -457,7 +459,7 @@ const getEventData =() =>{
   EventForm.eventType_Is_Chosen.onComplete = true
   EventForm.eventType_Is_Chosen.onError = true
 
-  getOperationEvent(props.name,selectedService.value.code).then((res:any) =>{
+  getOperationEvent(<String>props.name,selectedService.value.code).then((res:any) =>{
     if(res.status === 200){
       event_data.value = res.data
       res.data.forEach((v)=>{
@@ -468,8 +470,21 @@ const getEventData =() =>{
 }
 
 // 新增操作
-const Commit = ()=>{
-  console.log('commit')
+const CommitOperation =  async (formEl: FormInstance | undefined)=>{
+  operationVisible.value = false;
+  if (!formEl) return
+  await formEl.validate((valid, fields) => {
+    if (operationFormRef) {
+      console.log('submit! operation', OperationForm);
+      emit('operation-info',OperationForm)
+    } else {
+      console.log('error submit!', fields);
+    }
+  })
+}
+
+const Commit =()=>{
+  console.log("commit");
 }
 </script>
 

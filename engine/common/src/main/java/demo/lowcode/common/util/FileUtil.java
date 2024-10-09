@@ -8,6 +8,25 @@ import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 
 public class FileUtil {
+    // 创建文件
+    public static void createFile(String filePath) {
+        File file = new File(filePath);
+
+        if (!file.exists()){
+            // 获取父目录，并确保目录存在
+            File parentDir = file.getParentFile();
+            if (parentDir != null && !parentDir.exists()) {
+                parentDir.mkdirs();  // 创建所有必要的目录
+            }
+
+            try {
+                file.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+    }
+
     // 向文件中写
     public static void writeFile(String filePath, String content) {
         try {
