@@ -34,7 +34,7 @@ import Device_Information from "./device_component/Device_Information.vue";
 import Function_Set from "./device_component/Function_Set.vue";
 import Service_Set from "./device_component/Service_Set.vue";
 import {ArrowLeft, Edit, Picture, Setting} from "@element-plus/icons-vue";
-import axios from 'axios';
+import {initDeviceType, uploadDeviceType} from "@/api/DeviceExpand";
 
 const router = useRouter()
 
@@ -71,9 +71,14 @@ const next = ()=>{
 
 const updateDeviceInfo = (new_device: any) => {
   deviceName.value = new_device.deviceCode;
-  deviceInfo.value = new_device
-  console.log(new_device)
-  next()
+  deviceInfo.value = new_device;
+
+  initDeviceType(new_device.deviceCode, new_device.deviceName, new_device.imageUrl??"").then((res)=>{
+    if (res.status === 200){
+      next()
+    }
+  })
+  // next()
 }
 
 const updateOperation = (new_operation: any) =>{
@@ -89,12 +94,11 @@ const updateService = (new_service: any)=>{
 }
 
 const UploadDeviceInfo = () =>{
-  axios.post('http://localhost:8080/device-type/upload',{
+  uploadDeviceType({
     deviceInfo:deviceInfo,
     operationInfo:operationInfo,
     factoryInfo:factoryInfo
-  })
-      .then(response => {
+  }).then(response => {
         console.log('DeviceInfo posted successfully', response.data);
       })
       .catch(error => {

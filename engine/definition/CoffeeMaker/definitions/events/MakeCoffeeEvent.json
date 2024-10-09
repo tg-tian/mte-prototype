@@ -1,0 +1,29 @@
+{
+  "eventPath": "MakeCoffeeController.java",
+  "eventList": [
+    {
+      "name": "onMakeCoffeeStart",
+      "description": "准备咖啡",
+      "type": "onStart",
+      "command": "makeCoffee",
+      "signature": "prepare()",
+      "body": "System.out.println(\"Start the CoffeeMaker.Sending message...\");"
+    },
+    {
+      "name": "onMakeCoffeeComplete",
+      "description": "咖啡完成提醒",
+      "type": "onComplete",
+      "command": "makeCoffee",
+      "signature": "sendMessage(Event event)",
+      "body": "System.out.println(\"Coffee is ready. Sending message...\");\n        System.out.println(\"Your coffee is ready. coffee information: \"+Arrays.toString(((CoffeeMakerEvent)event).getInformation()));"
+    },
+    {
+      "name": "onMakeCoffeeError",
+      "description": "错误警告",
+      "type": "onError",
+      "command": "makeCoffee",
+      "signature": "errorAlert(Event event)",
+      "body": "System.out.println(\"Error:  \" + event.getMessage());"
+    }
+  ]
+}

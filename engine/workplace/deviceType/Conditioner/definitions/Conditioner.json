@@ -15,25 +15,23 @@
         },
         {
             "refID": "services",
-            "refPath": []
+            "refPath": [
+                {
+                    "code": "AService",
+                    "path": "services\/AService.json"
+                }
+            ]
         }
     ],
     "commands": [
         {
             "code": "start",
             "name": "启动",
-            "inputParams": [
-                {
-                    "code": "time",
-                    "name": "启动时间",
-                    "type": "String",
-                    "options": [],
-                    "default": ""
-                }
-            ],
+            "inputParams": [],
             "outputParam": "void",
             "events": [
-                "onStartError"
+                "onStartError",
+                "onStartComplete"
             ],
             "services": []
         }

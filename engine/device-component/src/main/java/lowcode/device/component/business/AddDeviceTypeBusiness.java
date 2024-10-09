@@ -17,6 +17,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.IntStream;
 
 /* 新增时写入json */
 @Service
@@ -26,40 +27,38 @@ public class AddDeviceTypeBusiness {
     public void initDeviceType(String deviceCode, String deviceName, String imageUrl){
         // TODO: 判断是否已存在（查数据库）
         String baseDir = CommonConfig.getDefinitionPath()+deviceCode;
-        if (new File(baseDir).exists()){
-            throw new RuntimeException("该设备类型已存在");
-        }
+        if (!new File(baseDir).exists()){
+            // 1、新建文件夹及文件
+//        FileUtil.deleteDir(new File(baseDir));
+            new File(baseDir+"/definitions").mkdirs();
+            new File(baseDir+"/definitions/events").mkdirs();
+            new File(baseDir+"/definitions/services").mkdirs();
 
-        // 1、新建文件夹及文件
-        FileUtil.deleteDir(new File(baseDir));
-        new File(baseDir+"/definitions").mkdirs();
-        new File(baseDir+"/definitions/events").mkdirs();
-        new File(baseDir+"/definitions/services").mkdirs();
+            // 2、写入json内容
+            try {
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("code", deviceCode);
+                jsonObject.put("name", deviceName);
+                jsonObject.put("type", "Device");
+                jsonObject.put("img_link", imageUrl);
 
-        // 2、写入json内容
-        try {
-            JSONObject jsonObject = new JSONObject();
-            jsonObject.put("code", deviceCode);
-            jsonObject.put("name", deviceName);
-            jsonObject.put("type", "Device");
-            jsonObject.put("img_link", imageUrl);
+                JSONArray refs = new JSONArray();
+                JSONObject eventRef = new JSONObject();
+                eventRef.put("refID", "events");
+                eventRef.put("refPath", new JSONArray());
+                refs.put(eventRef);
+                JSONObject serviceRef = new JSONObject();
+                serviceRef.put("refID", "services");
+                serviceRef.put("refPath", new JSONArray());
+                refs.put(serviceRef);
+                jsonObject.put("refs", refs);
 
-            JSONArray refs = new JSONArray();
-            JSONObject eventRef = new JSONObject();
-            eventRef.put("refID", "events");
-            eventRef.put("refPath", new JSONArray());
-            refs.put(eventRef);
-            JSONObject serviceRef = new JSONObject();
-            serviceRef.put("refID", "services");
-            serviceRef.put("refPath", new JSONArray());
-            refs.put(serviceRef);
-            jsonObject.put("refs", refs);
-
-            JSONArray commands = new JSONArray();
-            jsonObject.put("commands", commands);
-            FileUtil.writeFile(baseDir+"/definitions/"+deviceCode+".json", jsonObject.toString(4));
-        }catch (JSONException e){
-            throw new RuntimeException(e.getMessage());
+                JSONArray commands = new JSONArray();
+                jsonObject.put("commands", commands);
+                FileUtil.writeFile(baseDir+"/definitions/"+deviceCode+".json", jsonObject.toString(4));
+            }catch (JSONException e){
+                throw new RuntimeException(e.getMessage());
+            }
         }
     }
 
@@ -80,14 +79,16 @@ public class AddDeviceTypeBusiness {
             commandObject.put("code", command.getCommandCode());
             commandObject.put("name", command.getCommandName());
             JSONArray input = new JSONArray();
-            for (Param param: command.getInputParam()){
-                JSONObject paramObject = new JSONObject();
-                paramObject.put("code", param.getCode());
-                paramObject.put("name", param.getName());
-                paramObject.put("type", param.getType());
-                paramObject.put("options", new JSONArray(param.getOptions()));
-                paramObject.put("default", param.getDefaultValue()!=null ? param.getDefaultValue():"");
-                input.put(paramObject);
+            if (command.getInputParam() != null){
+                for (Param param: command.getInputParam()){
+                    JSONObject paramObject = new JSONObject();
+                    paramObject.put("code", param.getCode());
+                    paramObject.put("name", param.getName());
+                    paramObject.put("type", param.getType());
+                    paramObject.put("options", new JSONArray(param.getOptions()));
+                    paramObject.put("default", param.getDefaultValue()!=null ? param.getDefaultValue():"");
+                    input.put(paramObject);
+                }
             }
             commandObject.put("inputParams", input);
             commandObject.put("outputParam", command.getOutputParam());
@@ -165,7 +166,7 @@ public class AddDeviceTypeBusiness {
 
     // 初始化厂商json
     public void initService(String deviceType, BrandService service){
-        String baseDir = CommonConfig.getDefinitionPath()+deviceType+"/definitions/services/";
+        String baseDir = CommonConfig.getDefinitionPath()+deviceType+"/definitions/";
         try{
             JSONObject jsonObject = new JSONObject();
             jsonObject.put("code", service.getCode());
@@ -174,8 +175,22 @@ public class AddDeviceTypeBusiness {
             jsonObject.put("description", service.getDescription());
             jsonObject.put("parameters", new JSONArray());
             jsonObject.put("commands", new JSONArray());
-            FileUtil.writeFile(baseDir+service.getFilename(), jsonObject.toString(4));
+            FileUtil.writeFile(baseDir+"services/"+service.getFilename(), jsonObject.toString(4));
         }catch (JSONException e){
+            e.printStackTrace();
+        }
+
+        // 读取主文件，添加对应ref
+        String jsonContent = JsonUtils.readJson(baseDir+deviceType+".json");
+        try {
+            JSONObject jsonObject = new JSONObject(jsonContent);
+            JSONArray jsonArray = jsonObject.getJSONArray("refs");
+            JSONObject serviceRef = new JSONObject();
+            serviceRef.put("code", service.getCode());
+            serviceRef.put("path", "services/"+service.getFilename());
+            jsonArray.getJSONObject(1).getJSONArray("refPath").put(serviceRef);
+            FileUtil.writeFile(baseDir+deviceType+".json", jsonObject.toString(4));
+        } catch (JSONException e) {
             e.printStackTrace();
         }
     }
@@ -206,8 +221,22 @@ public class AddDeviceTypeBusiness {
             for (int i=0;i< jsonArray.length();i++){
                 JSONObject c = jsonArray.getJSONObject(i);
                 if (commandList.contains(c.getString("code"))){
-                    // TODO: 判断数组中不存在该service再添加
-                    c.getJSONArray("services").put(serviceName);
+                    JSONArray services = c.getJSONArray("services");
+
+                    boolean serviceExists = IntStream.range(0, services.length())
+                            .mapToObj(index -> {
+                                try {
+                                    return services.getString(index);
+                                } catch (JSONException e) {
+                                    throw new RuntimeException("Error while processing JSON", e);
+                                }
+                            })
+                            .anyMatch(serviceName::equals);
+
+                    // 如果 serviceName 不在服务列表中，则添加
+                    if (!serviceExists) {
+                        services.put(serviceName);
+                    }
                 }
             }
             FileUtil.writeFile(baseDir+deviceType+".json", jsonObject.toString(4));
