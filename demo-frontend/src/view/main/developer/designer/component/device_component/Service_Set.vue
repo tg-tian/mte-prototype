@@ -66,7 +66,7 @@
       </el-form-item>
       <el-form-item>
         <div>
-          点击<a href="https://www.gitlink.org.cn" target="_blank">此处</a>编辑文件
+          点击<el-button link style="color: #50a5fb" @click="goToFile(ServiceForm.fileName)">此处</el-button>编辑文件
         </div>
       </el-form-item>
       <div class="domain-subtitle" style="display: flex;justify-content: space-between">
@@ -83,7 +83,8 @@
 
 import Table from "@/view/main/common/Table.vue";
 import {ElMessage, FormInstance, FormRules} from 'element-plus'
-import {getOperationEvent, getService} from "@/api/DeviceExpand";
+import {addDeviceTypeService, getOperationEvent, getService} from "@/api/DeviceExpand";
+import router from "@/router";
 
 interface State{
   service_header:any[];
@@ -107,6 +108,7 @@ const ServiceForm = reactive<Service_RuleForm>({
   factory_Code: "",
   factory_Name:"",
   factory_Description:"",
+  fileName: ""
 })
 
 const edit_rules = reactive<FormRules<Service_RuleForm>>({
@@ -163,6 +165,8 @@ const onEdit = (row) =>{
   dia_title.value = row.name;
   ServiceForm.factory_Code = row.code
   ServiceForm.factory_Name = row.name
+  ServiceForm.factory_Description = row.description
+  ServiceForm.fileName = row.filename
 };
 const  {service_header,service_data,header ,data,serviceVisible,dialogVisible,dia_title,selectedService} = toRefs(state)
 
@@ -189,8 +193,22 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   await formEl.validate((valid, fields) => {
     if (valid) {
       emit("service-info",ServiceForm);
-      state.serviceVisible = false;
-      serviceFormRef.value.resetFields();
+
+      const service = {
+        code: ServiceForm.factory_Code,
+        name: ServiceForm.factory_Name,
+        description: ServiceForm.factory_Description,
+        filename: ServiceForm.factory_Code+".json"
+      }
+      console.log(service)
+      addDeviceTypeService(<String>props.name, service).then((res)=>{
+        if (res.status === 200){
+          ElMessage.success("新增品牌成功")
+          state.serviceVisible = false;
+          serviceFormRef.value.resetFields();
+          getServiceData()
+        }
+      })
     } else {
       console.log('error submit!', fields);
     }
@@ -216,6 +234,11 @@ const getServiceData =() =>{
 
 const changeForm = () => {
   console.log("change the form");
+}
+
+const goToFile = (filename) => {
+  const routeUrl = router.resolve({ path: 'developer/workspace' });
+  window.open(routeUrl.href, '_blank');
 }
 </script>
 

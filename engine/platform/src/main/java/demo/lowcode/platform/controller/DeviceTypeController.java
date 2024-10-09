@@ -1,6 +1,6 @@
 package demo.lowcode.platform.controller;
 
-import demo.lowcode.platform.business.UploadBusiness;
+import demo.lowcode.platform.business.DeviceTypeBusiness;
 import demo.lowcode.platform.entity.DeviceType;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -20,17 +20,17 @@ import org.springframework.web.bind.annotation.*;
  * */
 public class DeviceTypeController {
 
-    private final UploadBusiness uploadBusiness;
+    private final DeviceTypeBusiness deviceTypeBusiness;
     @Autowired
-    public DeviceTypeController(UploadBusiness uploadBusiness){
-        this.uploadBusiness = uploadBusiness;
+    public DeviceTypeController(DeviceTypeBusiness deviceTypeBusiness){
+        this.deviceTypeBusiness = deviceTypeBusiness;
     }
 
     @PostMapping("/upload")
     @ApiOperation(value = "设备类型数据上传", notes = "上传数据类型到数据库")
     public ResponseEntity<?> deviceInfoUpload(@RequestBody DeviceType deviceType){
         System.out.println(deviceType);
-        uploadBusiness.deviceTypeUpload(deviceType);
+        deviceTypeBusiness.deviceTypeUpload(deviceType);
         return new ResponseEntity<>("上传成功", HttpStatus.OK);
     }
 

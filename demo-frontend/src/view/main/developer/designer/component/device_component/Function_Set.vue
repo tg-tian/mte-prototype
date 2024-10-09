@@ -167,8 +167,14 @@
 
 <script setup lang="ts">
 import Table from "@/view/main/common/Table.vue";
-import {FormInstance, FormRules} from "element-plus";
-import {getOperationCommand, getOperationEvent, getOperationParam} from "@/api/DeviceExpand";
+import {ElMessage, FormInstance, FormRules} from "element-plus";
+import {
+  addDeviceTypeEvent,
+  addDeviceTypeOperation,
+  getOperationCommand,
+  getOperationEvent,
+  getOperationParam
+} from "@/api/DeviceExpand";
 
 /**
  * interface State 的作用是定义 TypeScript 接口，以便为 state 对象提供类型约束。这样可以在开发过程中利用 TypeScript 的类型检查功能，提高代码的可靠性和可维护性。
@@ -396,8 +402,20 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (eventFormRef) {
-      state.eventsVisible = false;
-      eventFormRef.value.resetFields()
+      const event = {
+        name: EventForm.event_Name,
+        type: EventForm.event_Type,
+        description: EventForm.event_Description
+      }
+      console.log(event)
+      addDeviceTypeEvent(<String>props.name, OperationForm.operation_Code, event).then((res)=>{
+        if (res.status === 200){
+          ElMessage.success('新增事件成功')
+          state.eventsVisible = false;
+          eventFormRef.value.resetFields()
+          getEventData()
+        }
+      })
     } else {
       console.log('error submit!', fields);
     }
@@ -467,6 +485,18 @@ const CommitOperation =  async (formEl: FormInstance | undefined)=>{
     if (operationFormRef) {
       console.log('submit! operation', OperationForm);
       emit('operation-info',OperationForm)
+
+      const operation = {
+        commandCode: OperationForm.operation_Code,
+        commandName: OperationForm.operation_Name,
+        inputParam: OperationForm.operation_InputParam,
+        outputParam: OperationForm.operation_OutputParam
+      }
+      addDeviceTypeOperation(<String>props.name, operation).then((res)=>{
+        if (res.status === 200){
+          getCommandData()
+        }
+      })
     } else {
       console.log('error submit!', fields);
     }

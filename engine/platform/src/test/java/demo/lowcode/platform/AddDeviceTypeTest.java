@@ -3,6 +3,7 @@ package demo.lowcode.platform;
 import demo.lowcode.common.Command;
 import demo.lowcode.common.Param;
 import lowcode.device.component.business.AddDeviceTypeBusiness;
+import lowcode.device.component.entity.BrandService;
 import lowcode.device.component.entity.DeviceEvent;
 import org.junit.Assert;
 import org.junit.jupiter.api.Assertions;
@@ -52,5 +53,12 @@ public class AddDeviceTypeTest {
     public void addEventSuccess(){
         DeviceEvent event = new DeviceEvent("onStartError", "启动失败", "onError");
         addDeviceTypeBusiness.addEvent("Conditioner", "start", event);
+    }
+
+    @Test
+    public void addServiceSuccess(){
+        BrandService service = new BrandService("AService", "A品牌", "...", "AService.json");
+//        addDeviceTypeBusiness.initService("Conditioner", service);
+        addDeviceTypeBusiness.editService("Conditioner", "AService");
     }
 }

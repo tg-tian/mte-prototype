@@ -7,20 +7,29 @@
     {
       "refID": "events",
       "refPath": [
-        "events/CheckEvent.json",
-        "events/MakeCoffeeEvent.json",
-        "events/StartEvent.json"
+        {
+          "code": "CheckEvent",
+          "path": "events/CheckEvent.json"
+        },
+        {
+          "code": "MakeCoffeeEvent",
+          "path": "events/MakeCoffeeEvent.json"
+        },
+        {
+          "code": "StartEvent",
+          "path": "events/StartEvent.json"
+        }
       ]
     },
     {
       "refID": "services",
       "refPath": [
         {
-          "name": "AService",
+          "code": "AService",
           "path": "services/AService.json"
         },
         {
-          "name": "BService",
+          "code": "BService",
           "path": "services/BService.json"
         }
       ]
@@ -31,7 +40,7 @@
       "code": "Start",
       "name": "启动",
       "inputParam": [],
-      "outputParam": [],
+      "outputParam": "void",
       "events": [],
       "services": ["AService"]
     },
@@ -42,9 +51,10 @@
         "code": "coffeeType",
         "name": "咖啡类型",
         "type": "String",
-        "options": ["摩卡", "美式"]
+        "options": ["摩卡", "美式"],
+        "default": ""
       }],
-      "outputParam":  [],
+      "outputParam": "void",
       "events": [
         "onMakeCoffeeStart",
         "onMakeCoffeeComplete",
@@ -59,7 +69,7 @@
       "code": "Check",
       "name": "检查",
       "inputParam": [],
-      "outputParam": [],
+      "outputParam": "void",
       "events": [],
       "services": [
         "AService",

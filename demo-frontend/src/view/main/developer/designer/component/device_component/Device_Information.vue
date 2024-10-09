@@ -18,15 +18,16 @@
         <el-form-item label="图标上传" prop="imageUrl">
           <el-upload
               drag
+              multiple
+              ref="uploadRef"
               class="avatar-uploader"
               :show-file-list="true"
-              action="http://localhost:8080/upload"
               :before-upload="beforeAvatarUpload"
-              multiple
               :on-success="handleAvatarUpload"
-              :action="uploadUrl"
+              :action = "uploadUrl"
               :auto-upload="false"
           >
+            <!--:action="uploadUrl"-->
             <el-image v-if="deviceForm.imageUrl" :src="deviceForm.imageUrl" class="avatar" />
             <el-icon v-else class="avatar-uploader-icon"><UploadFilled /></el-icon>
             <div class="el-upload__text">
@@ -53,10 +54,11 @@
 
 <script setup lang= "ts">
 
-import {ElMessage, FormInstance, FormRules, UploadProps} from "element-plus";
+import {ElMessage, FormInstance, FormRules, UploadProps,UploadInstance} from "element-plus";
 import { UploadFilled } from '@element-plus/icons-vue'
 
-const uploadUrl=import.meta.env.VITE_BASE_PATH+"/upload/file"
+const uploadRef = ref<UploadInstance>()
+const uploadUrl=import.meta.env.VITE_BASE_PATH+"/file/upload"
 
 //数据基本信息暂存数据结构
 /**
@@ -118,6 +120,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
       if (valid) {
+        uploadRef.value!.submit()
         emit('update-info',deviceForm)
         console.log('submit!', fields, deviceForm)
       }
@@ -138,7 +141,7 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
 }
 const handleAvatarUpload: UploadProps['onSuccess'] = (res)=>{
   deviceForm.imgUrl = res;
-  console.log("ssssssssssssssssssssssss",deviceForm.imgUrl);
+  console.log(deviceForm.imgUrl);
 }
 
 </script>
