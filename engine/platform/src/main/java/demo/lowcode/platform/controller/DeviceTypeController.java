@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/device-type")
+@CrossOrigin(origins = "http://localhost:2400")
 @Api(value = "设备类型接口",tags={"设备类型管理"})
 /**
  * 这个注解表示该类是一个 Spring MVC 的控制器，能够处理 HTTP 请求并返回结果。使用 @RestController 表示该控制器的方法默认会返回数据（通常是 JSON 或纯文本），

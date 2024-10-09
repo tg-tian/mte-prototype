@@ -138,6 +138,7 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
 }
 const handleAvatarUpload: UploadProps['onSuccess'] = (res)=>{
   deviceForm.imgUrl = res;
+  console.log("ssssssssssssssssssssssss",deviceForm.imgUrl);
 }
 
 </script>

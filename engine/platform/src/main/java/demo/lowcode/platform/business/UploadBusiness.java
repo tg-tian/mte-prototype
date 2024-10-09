@@ -28,6 +28,7 @@ public class UploadBusiness {
      * @param deviceType
      */
     public void deviceTypeUpload(DeviceType deviceType){
-        deviceTypeMapper.insert(deviceType);
+        //deviceTypeMapper.insert(deviceType);
+        deviceTypeMapper.insertDeviceType(deviceType.getDeviceTypeCode(),deviceType.getDeviceTypeName(),deviceType.getImgPath());
     }
 }

@@ -90,15 +90,28 @@ const updateService = (new_service: any)=>{
 
 const UploadDeviceInfo = () =>{
   axios.post('http://localhost:8080/device-type/upload',{
-    deviceInfo:deviceInfo,
-    operationInfo:operationInfo,
-    factoryInfo:factoryInfo
-  })
+    deviceTypeCode : deviceInfo.value.deviceCode,
+    deviceTypeName : deviceInfo.value.deviceName,
+    imgPath : deviceInfo.value.imgUrl
+  },{
+    headers: {
+      'Content-Type': 'application/json'  // 确保发送JSON格式的数据
+    }
+})
       .then(response => {
         console.log('DeviceInfo posted successfully', response.data);
       })
       .catch(error => {
-        console.log("Error posting data",error);
-      })
+        if (error.response) {
+          // 请求已发出，服务器以状态码返回
+          console.log("Error response", error.response.data);
+        } else if (error.request) {
+          // 请求已发出但没有收到回复
+          console.log("No response received", error.request);
+        } else {
+          // 其他错误
+          console.log("Error", error.message)
+      }
+})
 }
 </script>
