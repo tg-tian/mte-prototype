@@ -335,16 +335,6 @@ const  OperationForm = reactive<Operation_RuleForm>({
   operation_InputParam:[],
   operation_OutputParam:''
 })
-/**
- * 在 Vue 3 中，toRefs 函数用于将 reactive 对象的属性转换为 ref 对象。这样可以使这些属性在模板中直接使用，并且可以更方便地进行解构和传递。
- * 使用 toRefs 的意义
- * 1.保持响应式：
- *  将 reactive 对象中的属性转换为 ref 对象，确保它们在解构时保持响应式。
- *  避免失去响应式状态，这是因为在直接解构 reactive 对象时，得到的属性是普通的 JavaScript 值，而不是响应式的。
- * 2.便于解构和传递：
- *  可以方便地将 reactive 对象中的属性解构出来，并直接在模板或其他函数中使用。
- *  使得代码更加简洁和易读。
- * */
 //toRefs(state) 会返回一个包含 state 各个属性的 ref 对象的对象
 //在这里，header、data 和 dialogVisible 都是 ref 对象，它们分别引用 state 对象中的对应属性。
 const  {event_header,event_data,header ,data,dialogVisible,eventsVisible,operationVisible,dia_title,selectedService} = toRefs(state)

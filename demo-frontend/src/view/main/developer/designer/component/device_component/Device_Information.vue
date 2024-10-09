@@ -15,17 +15,23 @@
         <el-form-item label="设备名称" prop="deviceName">
           <el-input v-model="deviceForm.deviceName" placeholder="请输入"/>
         </el-form-item>
-        <el-form-item label="图标上传" prop="icon_upload">
+        <el-form-item label="图标上传" prop="imageUrl">
           <el-upload
               drag
               class="avatar-uploader"
               :show-file-list="true"
               action="http://localhost:8080/upload"
               :before-upload="beforeAvatarUpload"
+<<<<<<< HEAD
               :on-success="handleSuccess"
               multiple
+=======
+              :on-success="handleAvatarUpload"
+              :action="uploadUrl"
+              :auto-upload="false"
+>>>>>>> 58fb19bc3b4ea5803784c57c7a1d6647635f6da3
           >
-            <img v-if="imageUrl" :src="imageUrl" class="avatar" />
+            <el-image v-if="deviceForm.imageUrl" :src="deviceForm.imageUrl" class="avatar" />
             <el-icon v-else class="avatar-uploader-icon"><UploadFilled /></el-icon>
             <div class="el-upload__text">
               将文件拖入框中或者 <em>点击上传</em>
@@ -33,6 +39,7 @@
             <div class="el-upload__tip">
               jpg/png 文件大小应小于2MB
             </div>
+
           </el-upload>
         </el-form-item>
 
@@ -53,6 +60,7 @@
 import {ElMessage, FormInstance, FormRules, UploadProps} from "element-plus";
 import { UploadFilled } from '@element-plus/icons-vue'
 
+const uploadUrl=import.meta.env.VITE_BASE_PATH+"/upload/file"
 
 //数据基本信息暂存数据结构
 /**
@@ -66,9 +74,13 @@ import { UploadFilled } from '@element-plus/icons-vue'
 interface RuleForm{
   deviceCode: string;
   deviceName: string;
+<<<<<<< HEAD
   fileName: string;
   icon_upload:any;
   //deviceType:string;
+=======
+  imageUrl:string;
+>>>>>>> 58fb19bc3b4ea5803784c57c7a1d6647635f6da3
 }
 
 const emit = defineEmits(['update-info'])
@@ -86,7 +98,7 @@ const rules = reactive<FormRules<RuleForm>>({
   deviceName:[
     {required: true, message:'请输入设备名称', trigger:'blur'},
   ],
-  // icon_upload:[
+  // imageUrl:[
   //   {required: true, message:'请输入上传图标', trigger:'blur'},
   // ]
 })
@@ -94,13 +106,17 @@ const rules = reactive<FormRules<RuleForm>>({
 const deviceForm = reactive<RuleForm>({
   deviceCode:"",
   deviceName:"",
+<<<<<<< HEAD
   fileName:"",
+=======
+  imageUrl: ""
+>>>>>>> 58fb19bc3b4ea5803784c57c7a1d6647635f6da3
 })
 watchEffect(() => {
-  console.log('info:',props.info)
   if (props.info) {
     deviceForm.deviceCode = props.info.deviceCode
     deviceForm.deviceName = props.info.deviceName
+    deviceForm.imageUrl = props.info.imageUrl
   }
 })
 const resetForm = () => {
@@ -119,7 +135,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       }
   })
 }
-const imageUrl = ref('')
+
 //控制所上传图像的大小
 const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
   console.log(rawFile.type)
@@ -132,8 +148,14 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
   }
   return true
 }
+<<<<<<< HEAD
 const handleSuccess = (response) =>{
   deviceForm.fileName = response;
+=======
+
+const handleAvatarUpload: UploadProps['onSuccess'] = (res)=>{
+
+>>>>>>> 58fb19bc3b4ea5803784c57c7a1d6647635f6da3
 }
 
 </script>
