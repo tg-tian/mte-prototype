@@ -3,16 +3,8 @@
     "eventList": [
         {
             "name": "onStartError",
-            "description": "ddd",
+            "description": "test",
             "type": "onError",
-            "command": "start",
-            "signature": "",
-            "body": ""
-        },
-        {
-            "name": "onStartComplete",
-            "description": "fff",
-            "type": "onComplete",
             "command": "start",
             "signature": "",
             "body": ""

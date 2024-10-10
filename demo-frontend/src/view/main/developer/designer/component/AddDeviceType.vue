@@ -35,6 +35,7 @@ import Function_Set from "./device_component/Function_Set.vue";
 import Service_Set from "./device_component/Service_Set.vue";
 import {ArrowLeft, Edit, Picture, Setting} from "@element-plus/icons-vue";
 import {initDeviceType, uploadDeviceType} from "@/api/DeviceExpand";
+import {ElMessage} from "element-plus";
 
 const router = useRouter()
 
@@ -100,6 +101,8 @@ const UploadDeviceInfo = () =>{
     imgPath : deviceInfo.value.imgUrl
   }).then(response => {
         console.log('DeviceInfo posted successfully', response.data);
+        ElMessage.success('上传设备类型成功')
+        router.push('/developer/workspace')
       })
       .catch(error => {
         if (error.response) {

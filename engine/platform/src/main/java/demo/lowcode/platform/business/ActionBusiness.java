@@ -47,16 +47,16 @@ public class ActionBusiness {
                     }
 
                     // 绑定具体设备
-                    Class<?> deviceClass = Class.forName("demo.lowcode.device."+deviceType.toLowerCase()+"."+deviceType);
+                    Class<?> deviceClass = Class.forName("lowcode.device."+deviceType.toLowerCase()+"."+deviceType);
                     Device device = (Device) deviceClass.getConstructor().newInstance();
 
-                    String packageName = "demo.lowcode.device."+deviceType.toLowerCase()+".service.type";
+                    String packageName = "lowcode.device."+deviceType.toLowerCase()+"generate.service";
                     Class<?> serviceClass = JavaDynamicCompiler.compileJavaSourceFile(packageName, service.getName());
                     DeviceService deviceService = (DeviceService) serviceClass.getConstructor(String.class).newInstance(service.getUri());
                     device.bindService(deviceService);
 
                     // 注册事件
-                    Class<?> eventClass = Class.forName("demo.lowcode.device."+deviceType.toLowerCase()+".event."+deviceType+"Event");
+                    Class<?> eventClass = Class.forName("lowcode.device."+deviceType.toLowerCase()+".event."+deviceType+"Event");
                     Class<?> controllerClass = JavaDynamicCompiler.compileAndLoadEventFile(deviceMeta.getMainObject().getEventPath());
                     Map<String, String> eventMap = new HashMap<>();//deviceMeta.getMainObject().getEventMap();
                     for (String key : eventMap.keySet()) {

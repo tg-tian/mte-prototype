@@ -30,8 +30,7 @@
             "inputParams": [],
             "outputParam": "void",
             "events": [
-                "onStartError",
-                "onStartComplete"
+                "onStartError"
             ],
             "services": []
         }
