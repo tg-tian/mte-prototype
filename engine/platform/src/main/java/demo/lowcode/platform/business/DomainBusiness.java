@@ -5,8 +5,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.lowcode.common.Property;
 import demo.lowcode.platform.dto.DomainJson;
 import demo.lowcode.platform.dto.Domain_ComponentJson;
+import demo.lowcode.platform.entity.Binding;
 import demo.lowcode.platform.entity.ComponentAbout;
+import demo.lowcode.platform.mapper.BindingMapper;
+import demo.lowcode.platform.mapper.DomainMapper;
 import demo.lowcode.platform.model.DomainMeta;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -15,6 +19,22 @@ import java.util.*;
 
 @Service
 public class DomainBusiness {
+
+    private final DomainMapper domainMapper;
+
+    @Autowired
+    public  DomainBusiness(DomainMapper domainMapper) { this.domainMapper = domainMapper;}
+
+    /**
+     * 基于领域名称获取领域号
+     * @param domainName
+     * @return
+     */
+    public long getDomainId (String domainName){
+        long domainId = domainMapper.getDomainId(domainName);
+        return  domainId;
+    }
+
     // domain增删改查
     public DomainMeta addDomain(String domainId, String domainName, Map<String, List<String>> componentMap) {
         DomainMeta domainMeta = new DomainMeta();

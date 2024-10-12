@@ -1,0 +1,17 @@
+{
+    "code": "Car",
+    "name": "111",
+    "type": "Device",
+    "img_link": "",
+    "refs": [
+        {
+            "refID": "events",
+            "refPath": []
+        },
+        {
+            "refID": "services",
+            "refPath": []
+        }
+    ],
+    "commands": []
+}

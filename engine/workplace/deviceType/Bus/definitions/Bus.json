@@ -1,0 +1,17 @@
+{
+    "code": "Bus",
+    "name": "11",
+    "type": "Device",
+    "img_link": "",
+    "refs": [
+        {
+            "refID": "events",
+            "refPath": []
+        },
+        {
+            "refID": "services",
+            "refPath": []
+        }
+    ],
+    "commands": []
+}

@@ -16,7 +16,7 @@ import java.util.Map;
 public class FileController {
 
     // 设置文件存储的本地目录
-    private static String UPLOADED_FOLDER = "D:\\projects\\ubml\\uploads\\";
+    private static String UPLOADED_FOLDER = "platform/src/main/resources/static/uploads/";
 
 
     @GetMapping("/data")
@@ -40,6 +40,7 @@ public class FileController {
             byte[] bytes = file.getBytes();
             // 确保目标文件夹存在
             Path path = Paths.get(UPLOADED_FOLDER + file.getOriginalFilename());
+            System.out.println(path.toString());
             Files.createDirectories(path.getParent());
             // 将文件写入指定位置
             Files.write(path, bytes);

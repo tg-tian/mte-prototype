@@ -37,7 +37,6 @@ export const addDeviceTypeService = (deviceType: String, brandService: any) => r
         brandService
     }
 })
-
 export const uploadDeviceType = (data: any) => request({
     url: `/device-type/upload`,
     method: 'post',

@@ -5,6 +5,8 @@ import demo.lowcode.platform.mapper.DeviceTypeMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 /**
  * 上传服务类，执行数据上传数据库业务
  */
@@ -27,6 +29,25 @@ public class DeviceTypeBusiness {
      */
     public void deviceTypeUpload(DeviceType deviceType){
         //deviceTypeMapper.insert(deviceType);
-        deviceTypeMapper.insertDeviceType(deviceType.getDeviceTypeCode(),deviceType.getDeviceTypeName(),deviceType.getImgPath());
+        int count = deviceTypeMapper.countByDeviceTypeCode(deviceType.getDeviceTypeCode());
+        if(count == 0){
+            deviceTypeMapper.insertDeviceType(deviceType.getDeviceTypeCode(),deviceType.getDeviceTypeName(),deviceType.getImgPath());
+        }else{
+            throw new RuntimeException("deviceTypeCode 已存在，不能插入重复的记录");
+        }
+    }
+
+    /**
+     * 查询设备表的所有记录
+     * @return
+     */
+    public List<DeviceType> getDeviceTypeData(){
+        List<DeviceType> result = deviceTypeMapper.selectList(null);
+        return  result;
+    }
+
+    public long getDeiceTypeId(String deviceTypeCode){
+        long deviceTypeId = deviceTypeMapper.getDeviceId(deviceTypeCode);
+        return  deviceTypeId;
     }
 }

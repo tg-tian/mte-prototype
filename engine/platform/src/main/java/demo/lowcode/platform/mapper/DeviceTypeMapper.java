@@ -11,5 +11,6 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface DeviceTypeMapper extends BaseMapper<DeviceType> {
      void insertDeviceType(@Param("deviceTypeCode") String deviceTypeCode, @Param("deviceTypeName") String deviceTypeName, @Param("imgPath") String imgPath);
-
+     int countByDeviceTypeCode(@Param("deviceTypeCode") String deviceTypeCode);
+     long getDeviceId(@Param("deviceTypeCode") String deviceTypeCode);
 }

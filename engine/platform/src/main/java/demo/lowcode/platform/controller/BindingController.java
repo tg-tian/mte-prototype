@@ -1,0 +1,58 @@
+package demo.lowcode.platform.controller;
+
+import demo.lowcode.platform.business.BindingBusiness;
+import demo.lowcode.platform.business.DeviceTypeBusiness;
+import demo.lowcode.platform.business.DomainBusiness;
+import demo.lowcode.platform.entity.Binding;
+import io.swagger.annotations.Api;
+import jakarta.annotation.Resource;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
+
+@RestController
+@CrossOrigin(origins = "http://localhost:2400")
+@Api(value = "领域绑定接口",tags={"领域绑定管理"})
+public class BindingController {
+
+    @Resource
+    BindingBusiness bindingBusiness;
+    @Resource
+    DeviceTypeBusiness deviceTypeBusiness;
+    @Resource
+    DomainBusiness domainBusiness;
+
+    /**
+     * 上传被领域绑定的数据到绑定数据库
+     * @param requestBody
+     * @return
+     */
+
+    @PostMapping(value = "/upload-domain-component-binding")
+    public ResponseEntity<?> uploadDomainComponentBinding(@RequestBody Map<String, Object> requestBody, String componentType, String domainName) throws IOException {
+        List<String> selectedCodes = (List<String>) requestBody.get("selectedCodes");
+        //遍历每个被选择的设备类型
+        if(Objects.equals(componentType, "Device"))
+        {
+            for(String selectCode : selectedCodes){
+                //查询devicetype表，找到对应的deviceTypeId
+                long deviceTypeId = deviceTypeBusiness.getDeiceTypeId(selectCode);
+                //查询domain表，找到对应的domainId
+                long domainId = domainBusiness.getDomainId(domainName);
+                //将deviceTypeId和domainName 写入binding表
+                Binding binding = new Binding(deviceTypeId,domainId);
+                bindingBusiness.uploadBindingData(binding);
+            }
+            return  new ResponseEntity<>(selectedCodes, HttpStatus.OK);
+        }
+        return  new ResponseEntity<>("组件绑定失败", HttpStatus.BAD_REQUEST);
+    }
+}

@@ -5,10 +5,19 @@
 
 <mapper namespace="demo.lowcode.platform.mapper.DeviceTypeMapper">
 
+    <!--设备计数-->
+    <select id="countByDeviceTypeCode" resultType="int">
+        SELECT COUNT(1) FROM devicetype WHERE deviceTypeCode = #{deviceTypeCode}
+    </select>
+
     <!-- 插入操作 -->
     <insert id="insertDeviceType"  keyProperty="deviceTypeId">
-        INSERT INTO devicetype (deviceTypeCode, deviceTypeName, imgPath)
+        INSERT IGNORE INTO devicetype (deviceTypeCode, deviceTypeName, imgPath)
         VALUES (#{deviceTypeCode}, #{deviceTypeName}, #{imgPath})
     </insert>
+
+    <select id="getDeviceId" resultType="java.lang.Long">
+        SELECT deviceTypeId FROM devicetype WHERE deviceTypeCode = #{deviceTypeCode}
+    </select>
 
 </mapper>
