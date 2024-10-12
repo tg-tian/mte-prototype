@@ -414,6 +414,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           state.eventsVisible = false;
           eventFormRef.value.resetFields()
           getEventData()
+          getCommandData()
         }
       })
     } else {

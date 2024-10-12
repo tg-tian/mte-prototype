@@ -5,7 +5,13 @@ import { defineStore } from 'pinia'
 //参数2 ： 选项对象
 export const useUserStore = defineStore('user', {
 
-/**组件的data， 用于存储全局状态, 并实现初始化
+  // pinia数据持久化，解决刷新后数据丢失问题
+  persist: {
+    enabled: true
+  },
+
+
+  /**组件的data， 用于存储全局状态, 并实现初始化
  * 1.必须是函数，这样是为了在服务端渲染的时候避免交叉请求导致的数据状态污染
  * 2.必须是箭头函数，这是为了更好的TS类型推到
  * 返回值：一个函数，调用得到容器
