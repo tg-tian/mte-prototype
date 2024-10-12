@@ -23,7 +23,7 @@ class ProcessTest {
     @Autowired
     ScenarioBusiness scenarioBusiness;
     @Autowired
-    ProcessBusiness processBusiness;
+    ProcessBusinessBefore processBusiness;
     @Autowired
     ApplicationBusiness applicationBusiness;
     @Autowired

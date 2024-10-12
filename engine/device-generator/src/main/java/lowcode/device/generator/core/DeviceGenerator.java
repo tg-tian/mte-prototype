@@ -353,18 +353,12 @@ public class DeviceGenerator {
 
         classContent.append("""
                     @Override
-                    public void addEventListener(String eventName, EventListener eventHandler) {
-                        if (eventName.startsWith("on") && eventName.endsWith("Error")) {
-                            String operation = eventName.substring(2, eventName.length() - 5);
-                            operation = Character.toLowerCase(operation.charAt(0)) + operation.substring(1);
+                    public void addEventListener(String operation, String eventType, EventListener eventHandler) {
+                        if (eventType.equals("onError")) {
                             errorEventListeners.computeIfAbsent(operation, k -> new ArrayList<>()).add(eventHandler);
-                        }else if (eventName.startsWith("on") && eventName.endsWith("Complete")){
-                            String operation = eventName.substring(2, eventName.length() - 8);
-                            operation = Character.toLowerCase(operation.charAt(0)) + operation.substring(1);
+                        }else if (eventType.equals("onComplete")){
                             afterEventListeners.computeIfAbsent(operation, k -> new ArrayList<>()).add(eventHandler);
-                        }else if (eventName.startsWith("on") && eventName.endsWith("Start")){
-                            String operation = eventName.substring(2, eventName.length() - 5);
-                            operation = Character.toLowerCase(operation.charAt(0)) + operation.substring(1);
+                        }else if (eventType.equals("onStart")){
                             beforeEventListeners.computeIfAbsent(operation, k -> new ArrayList<>()).add(eventHandler);
                         }
                     }
@@ -388,11 +382,9 @@ public class DeviceGenerator {
                 .append("                        }\n")
                 .append("                        method = ").append(deviceType).append("Service.class.getDeclaredMethod(operation, parameterTypes);\n")
                 .append("                        method.invoke(deviceService, args);\n")
-                .append("                        onComplete(operation, new ").append(deviceType).append("Event(operation, 200, args));\n")
                 .append("                    } else {\n")
                 .append("                        method = ").append(deviceType).append("Service.class.getDeclaredMethod(operation);\n")
                 .append("                        method.invoke(deviceService);\n")
-                .append("                        onComplete(operation, null);\n")
                 .append("                    }\n")
                 .append("                    flag = true;\n")
                 .append("                } catch (InvocationTargetException e) {\n")
@@ -402,9 +394,14 @@ public class DeviceGenerator {
                 .append("            if (!flag){\n")
                 .append("                throw new RuntimeException(\"There is no available service to handle operation \"+operation);\n")
                 .append("            }\n")
+                .append("            if (args.length > 0){\n")
+                .append("               onComplete(operation, new ").append(deviceType).append("Event(operation, 200, args));\n")
+                .append("            }else {\n")
+                .append("               onComplete(operation, null);\n")
+                .append("            }\n")
                 .append("            return 0;\n")
                 .append("        } catch (Exception e) {\n")
-                .append("            onError(operation, new ").append(deviceType).append("Event(e.getMessage(), 400));\n")
+                .append("            onError(operation, new ").append(deviceType).append("Event(\"方法或事件执行失败：\"+e.getMessage(), 400));\n")
                 .append("            e.printStackTrace();\n")
                 .append("            return 1;\n")
                 .append("        }\n")
@@ -416,8 +413,13 @@ public class DeviceGenerator {
                         ActionExecResult actionExecResult = new ActionExecResult();
                         if (args.length >= 1 && args[0] instanceof String) {
                             String operationName = (String) args[0];
-                            Object[] operationArgs = Arrays.copyOfRange(args, 1, args.length);
-                            int code = invokeOperation(operationName, operationArgs);
+                            int code = 0;
+                            if (args.length > 1){
+                                Object[] operationArgs = (Object[]) args[1];
+                                code = invokeOperation(operationName, operationArgs);
+                            }else {
+                                code = invokeOperation(operationName);
+                            }
                             actionExecResult.setCode(code);
                         } else {
                             actionExecResult.setCode(2);

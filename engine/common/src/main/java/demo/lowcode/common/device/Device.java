@@ -31,5 +31,5 @@ public abstract class Device implements Action {
     }
 
     public abstract int invokeOperation(String operation, Object... args);
-    public abstract void addEventListener(String eventName, EventListener eventListener);
+    public abstract void addEventListener(String operation, String eventType, EventListener eventListener);
 }

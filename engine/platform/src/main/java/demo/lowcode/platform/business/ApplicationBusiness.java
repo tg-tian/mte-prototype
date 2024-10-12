@@ -1,5 +1,6 @@
 package demo.lowcode.platform.business;
 
+import demo.lowcode.common.CommonConfig;
 import demo.lowcode.platform.model.ActionMeta;
 import demo.lowcode.platform.model.ProcessMeta;
 import jakarta.annotation.Resource;
@@ -36,7 +37,7 @@ public class ApplicationBusiness {
 
     public List<ProcessMeta> getProcesses(String applicationId) {
         ProcessMeta processMeta = new ProcessMeta("EventRegistration", "活动申报", "GuestReception", "",  null);
-        ProcessMeta processMeta2 = new ProcessMeta("ConferenceService","会议服务", "GuestReception", "EventRegistration",  processBusiness.getActionMetaList("ConferenceService"));
+        ProcessMeta processMeta2 = new ProcessMeta("ConferenceService","会议服务", "GuestReception", "EventRegistration",  processBusiness.getActionMetaList("ConferenceService", CommonConfig.getWorkspacePath()+"SmartBuilding/BuildingA/application/GuestReception/process/"));
 
         // TODO：初始化RTProcess
 

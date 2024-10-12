@@ -19,7 +19,7 @@ public class CoffeeMaker extends Device{
     private Map<String, List<EventListener>> errorEventListeners = new HashMap<>();
     private String definitionPath = "D:/projects/ubml/mte-prototype/engine/workplace/deviceType/CoffeeMaker/";
     public CoffeeMaker() {
-        setOperations(Arrays.asList("Start", "MakeCoffee", "Check"));
+        setOperations(Arrays.asList("start", "makeCoffee", "check"));
         setEvents(Arrays.asList("onMakeCoffeeStart", "onMakeCoffeeComplete", "onMakeCoffeeError"));
     }
     private void onStart(String operationType, CoffeeMakerEvent event) {
@@ -62,18 +62,12 @@ public class CoffeeMaker extends Device{
     }
 
     @Override
-    public void addEventListener(String eventName, EventListener eventHandler) {
-        if (eventName.startsWith("on") && eventName.endsWith("Error")) {
-            String operation = eventName.substring(2, eventName.length() - 5);
-            operation = Character.toLowerCase(operation.charAt(0)) + operation.substring(1);
+    public void addEventListener(String operation, String eventType, EventListener eventHandler) {
+        if (eventType.equals("onError")) {
             errorEventListeners.computeIfAbsent(operation, k -> new ArrayList<>()).add(eventHandler);
-        }else if (eventName.startsWith("on") && eventName.endsWith("Complete")){
-            String operation = eventName.substring(2, eventName.length() - 8);
-            operation = Character.toLowerCase(operation.charAt(0)) + operation.substring(1);
+        }else if (eventType.equals("onComplete")){
             afterEventListeners.computeIfAbsent(operation, k -> new ArrayList<>()).add(eventHandler);
-        }else if (eventName.startsWith("on") && eventName.endsWith("Start")){
-            String operation = eventName.substring(2, eventName.length() - 5);
-            operation = Character.toLowerCase(operation.charAt(0)) + operation.substring(1);
+        }else if (eventType.equals("onStart")){
             beforeEventListeners.computeIfAbsent(operation, k -> new ArrayList<>()).add(eventHandler);
         }
     }
@@ -93,23 +87,27 @@ public int invokeOperation(String operation, Object... args) {
                         }
                         method = CoffeeMakerService.class.getDeclaredMethod(operation, parameterTypes);
                         method.invoke(deviceService, args);
-                        onComplete(operation, new CoffeeMakerEvent(operation, 200, args));
                     } else {
                         method = CoffeeMakerService.class.getDeclaredMethod(operation);
                         method.invoke(deviceService);
-                        onComplete(operation, null);
                     }
                     flag = true;
                 } catch (InvocationTargetException e) {
-                    // ignore
+                    e.printStackTrace();
                 }
             }
             if (!flag){
                 throw new RuntimeException("There is no available service to handle operation "+operation);
             }
+
+            if (args.length > 0) {
+                onComplete(operation, new CoffeeMakerEvent(operation, 200, args));
+            }else {
+                onComplete(operation, null);
+            }
             return 0;
         } catch (Exception e) {
-            onError(operation, new CoffeeMakerEvent(e.getMessage(), 400));
+            onError(operation, new CoffeeMakerEvent("方法或事件执行失败："+e.getMessage(), 400));
             e.printStackTrace();
             return 1;
         }
@@ -120,8 +118,13 @@ public int invokeOperation(String operation, Object... args) {
         ActionExecResult actionExecResult = new ActionExecResult();
         if (args.length >= 1 && args[0] instanceof String) {
             String operationName = (String) args[0];
-            Object[] operationArgs = Arrays.copyOfRange(args, 1, args.length);
-            int code = invokeOperation(operationName, operationArgs);
+            int code = 0;
+            if (args.length > 1){
+                Object[] operationArgs = (Object[]) args[1];
+                code = invokeOperation(operationName, operationArgs);
+            }else {
+                code = invokeOperation(operationName);
+            }
             actionExecResult.setCode(code);
         } else {
             actionExecResult.setCode(2);
