@@ -1,11 +1,15 @@
 package demo.lowcode.common.util;
 
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
+
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.util.jar.JarEntry;
+import java.util.jar.JarFile;
 
 public class FileUtil {
     // 创建文件
@@ -91,5 +95,44 @@ public class FileUtil {
         } else {
             throw new IllegalArgumentException("Destination is not a directory");
         }
+    }
+
+    // 读取jar包中的json文件（resource目录下）
+    public static JSONObject readJarJson(String jarFilePath, String jsonFile) {
+        JSONObject result = null;
+        try {
+            // 打开 JAR 文件
+            JarFile jarFile = new JarFile(jarFilePath);
+
+            // 获取 JAR 包内的 JSON 文件条目
+            JarEntry jarEntry = jarFile.getJarEntry(jsonFile);
+
+            if (jarEntry != null) {
+                // 打开文件输入流
+                InputStream inputStream = jarFile.getInputStream(jarEntry);
+                InputStreamReader inputStreamReader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+                BufferedReader reader = new BufferedReader(inputStreamReader);
+
+                // 逐行读取文件内容
+                String line;
+                StringBuilder jsonContent = new StringBuilder();
+                while ((line = reader.readLine()) != null) {
+                    jsonContent.append(line).append("\n");
+                }
+                reader.close();
+
+                result = new JSONObject(String.valueOf(jsonContent));
+            } else {
+                throw new RuntimeException("jar包中不存在该json文件");
+            }
+
+            // 关闭 JAR 文件
+            jarFile.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("读取json内容失败："+e.getMessage());
+        }
+
+        return result;
     }
 }

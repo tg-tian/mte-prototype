@@ -11,7 +11,6 @@ import org.springframework.stereotype.Component;
 @Component
 @AllArgsConstructor
 @NoArgsConstructor
-
 @ApiModel(value = "设备元数据类")
 public class DeviceMeta {
     private String deviceId;

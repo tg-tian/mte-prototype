@@ -2,18 +2,24 @@ package demo.lowcode.platform.business;
 
 import demo.lowcode.common.Action;
 import demo.lowcode.common.ActionExecResult;
+import demo.lowcode.common.CommonConfig;
 import demo.lowcode.common.EventListener;
 import demo.lowcode.common.device.Device;
 import demo.lowcode.common.device.DeviceService;
+import demo.lowcode.common.util.FileUtil;
+import demo.lowcode.common.util.JavaDynamicCompiler;
+import demo.lowcode.common.util.StringUtil;
+import demo.lowcode.platform.model.ActionMeta;
+import jakarta.annotation.Resource;
+import lombok.SneakyThrows;
 import lowcode.device.component.business.MockBusiness;
 import lowcode.device.component.model.DeviceConnectService;
 import lowcode.device.component.model.DeviceMeta;
-import demo.lowcode.common.util.JavaDynamicCompiler;
-import jakarta.annotation.Resource;
-import lombok.SneakyThrows;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.lang.reflect.Method;
-import java.util.HashMap;
+import java.net.URLClassLoader;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -26,48 +32,78 @@ public class ActionBusiness {
     @Resource
     MockBusiness mockBusiness;
 
-    public Action getAction(String type, String objectId, String execParam) throws Exception {
-        if (Objects.equals(type, "Device")) {
-            System.out.println("获取能够执行"+execParam+"的设备"+objectId);
-            // 获取mock数据，这里应该是根据objectId也就是设备类型来找到对应的List
-            List<DeviceMeta> deviceMetaList = scenarioBusiness.getDeviceMetaList("");
+    public Action getAction(String scenarioId, String scePath, ActionMeta actionMeta) throws Exception {
+        if (Objects.equals(actionMeta.getType(), "Device")){
+            String deviceType = actionMeta.getObjectId();
+            // 根据设备类型（objectId）获取该场景中对应的设备实例
+            List<DeviceMeta> deviceMetaList = scenarioBusiness.getDeviceMetaList(scenarioId);
 
             for (DeviceMeta deviceMeta: deviceMetaList){
-                try {
-                    String deviceType = "";//deviceMeta.getMainObject().getDeviceType();
-                    DeviceConnectService service = deviceMeta.getMainObject().getService();
-                    // 判断该设备所包含的功能服务是否能够执行execParam的操作，若能够执行则进行如下操作，否则看下一个设备是否满足
-                    if (Objects.equals(deviceType, objectId)){
-                        Map<String, String> operationMap = service.getOperations();
-                        if (!operationMap.containsKey(execParam)){
-                            continue;
+                DeviceConnectService service = deviceMeta.getMainObject().getService();
+
+                // 判断该设备所包含的功能服务是否能够执行execParam的操作，若能够执行则进行如下操作，否则看下一个设备是否满足
+                if (Objects.equals(deviceMeta.getMainObject().getType(), deviceType)){
+                    List<String> operations = service.getOperations();
+                    boolean canExec = false;
+                    for (String operation: operations){
+                        if (operation.contains(actionMeta.getExecParam())) {
+                            canExec = true;
+                            break;
                         }
-                    }else {
+                    }
+                    if (!canExec){
                         continue;
                     }
+                }else {
+                    continue;
+                }
 
-                    // 绑定具体设备
-                    Class<?> deviceClass = Class.forName("lowcode.device."+deviceType.toLowerCase()+"."+deviceType);
-                    Device device = (Device) deviceClass.getConstructor().newInstance();
+                // 绑定具体设备
+                String jarPath = scePath+"device/"+deviceType+"/"+deviceType.toLowerCase()+"-1.0.0.jar";
+                URLClassLoader classLoader = JavaDynamicCompiler.loadJar(jarPath);
+                Class<?> deviceClass = classLoader.loadClass("lowcode.device."+deviceType.toLowerCase()+"."+deviceType);
+                Device device = (Device) deviceClass.getConstructor().newInstance();
 
-                    String packageName = "lowcode.device."+deviceType.toLowerCase()+"generate.service";
-                    Class<?> serviceClass = JavaDynamicCompiler.compileJavaSourceFile(packageName, service.getName());
-                    DeviceService deviceService = (DeviceService) serviceClass.getConstructor(String.class).newInstance(service.getUri());
-                    device.bindService(deviceService);
+                // 设备绑定对应服务
+                String packageName = "lowcode.device."+deviceType.toLowerCase()+".generate.service."+service.getName();
+                Class<?> serviceClass = classLoader.loadClass(packageName);
+                DeviceService deviceService = (DeviceService) serviceClass.getConstructor(String.class).newInstance(service.getUri());
+                device.bindService(deviceService);
 
-                    // 注册事件
-                    Class<?> eventClass = Class.forName("lowcode.device."+deviceType.toLowerCase()+".event."+deviceType+"Event");
-                    Class<?> controllerClass = JavaDynamicCompiler.compileAndLoadEventFile(deviceMeta.getMainObject().getEventPath());
-                    Map<String, String> eventMap = new HashMap<>();//deviceMeta.getMainObject().getEventMap();
-                    for (String key : eventMap.keySet()) {
+                // 设备注册事件
+                Class<?> eventClass = Class.forName("demo.lowcode.common.Event");
+//                Class<?> eventClass = classLoader.loadClass("lowcode.device."+deviceType.toLowerCase()+".event."+deviceType+"Event");
+                // 对不同的操作获取对应的事件
+                List<String> operations = device.getOperations();
+                for (String operation: operations){
+                    // 获取操作对应的事件controller文件
+                    String jsonFile = "events/"+StringUtil.capitalizeFirstLetter(operation)+"Event.json";
+                    JSONObject jsonObject = FileUtil.readJarJson(jarPath, jsonFile);
+                    String eventFile = jsonObject.getString("eventPath");
+
+                    String eventFilePath = scePath+"device/"+deviceType+"/event/java/"+eventFile;
+                    String outputDir = scePath+"device/"+deviceType+"/event/class/";
+                    URLClassLoader controllerClassLoader = JavaDynamicCompiler.compileAndLoadEventFile(jarPath, eventFilePath, outputDir, classLoader);
+
+                    String controllerPackageName = "lowcode.device.coffeemaker.generate.event."+StringUtil.capitalizeFirstLetter(operation)+"Controller";
+                    Class<?> controllerClass = controllerClassLoader.loadClass(controllerPackageName);
+
+                    // 对其中每一个事件方法添加eventListener
+                    JSONArray eventArray = jsonObject.getJSONArray("eventList");
+                    for (int i = 0; i<eventArray.length(); i++){
+                        JSONObject eventObject = eventArray.getJSONObject(i);
+                        String eventType = eventObject.getString("type");
+
                         Method method = null;
-                        String methodName = eventMap.get(key);
-                        try {
-                            // 尝试获取带参数的方法
-                            method = controllerClass.getDeclaredMethod(methodName, eventClass);
-                        } catch (NoSuchMethodException e) {
+                        String methodSignature = eventObject.getString("signature");
+                        String methodName = methodSignature.substring(0, methodSignature.indexOf('('));
+                        String methodParam = methodSignature.substring(methodSignature.indexOf('(')+1, methodSignature.indexOf(')'));
+                        if (methodParam.equals("")){
                             // 尝试获取无参数的方法
                             method = controllerClass.getDeclaredMethod(methodName);
+                        }else {
+                            // 尝试获取带参数的方法
+                            method = controllerClass.getDeclaredMethod(methodName, eventClass);
                         }
                         Method finalMethod = method;
                         EventListener eventListener = new EventListener() {
@@ -81,21 +117,13 @@ public class ActionBusiness {
                                 }
                             }
                         };
-                        device.addEventListener(key, eventListener);
+                        device.addEventListener(operation, eventType, eventListener);
                     }
-
-                    return device;
-                }catch (Exception e){
-                    e.printStackTrace();
                 }
+                return device;
             }
-        }else if (Objects.equals(type, "Default")){
-            return new Action() {
-                @Override
-                public ActionExecResult execute(Object... args) {
-                    return null;
-                }
-            };
+        }else {
+            return null;
         }
         return null;
     }

@@ -22,7 +22,7 @@
         {
           "code": "coffeeType",
           "name": "咖啡类型",
-          "type": "String"
+          "type": "Enum"
         }
       ]
     },

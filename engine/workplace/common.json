@@ -1,0 +1,23 @@
+{
+  "code": "commonConfig",
+  "name": "公共设置",
+  "content": [
+    {
+      "type": "Device",
+      "events": [
+        {
+          "code": "onStart",
+          "name": "操作前事件"
+        },
+        {
+          "code": "onComplete",
+          "name": "操作后事件"
+        },
+        {
+          "code": "onError",
+          "name": "操作错误事件"
+        }
+      ]
+    }
+  ]
+}

@@ -2,72 +2,41 @@ package demo.lowcode.platform.business;
 
 import demo.lowcode.common.Action;
 import demo.lowcode.common.ActionExecResult;
+import demo.lowcode.common.CommonConfig;
 import demo.lowcode.common.Param;
-import demo.lowcode.common.device.Device;
-import demo.lowcode.common.device.DeviceService;
-import demo.lowcode.platform.liteflow.CustomContext;
+import demo.lowcode.common.util.JavaDynamicCompiler;
+import demo.lowcode.common.util.JsonUtils;
 import demo.lowcode.platform.model.ActionMeta;
 import demo.lowcode.platform.model.RTProcess;
 import jakarta.annotation.Resource;
+import org.springframework.boot.configurationprocessor.json.JSONException;
+import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Method;
+import java.net.URLClassLoader;
 import java.util.*;
-
-import static demo.lowcode.common.util.JsonUtils.evaluateCondition;
 
 @Service
 public class ProcessBusiness {
     @Resource
     ActionBusiness actionBusiness;
-//    @Autowired
-//    private FlowExecutor flowExecutor;
 
-    public Map<String, Action> getProcessActions(String processId) {
-        List<ActionMeta> actionMetaList = getActionMetaList(processId);
-        Map<String, Action> actions = new HashMap<>();
+    public void executeProcess(String processId, Map<String, Map<String, Object>> executeActionArgs){
+        String domainId = "SmartBuilding";
+        String scenarioId = "BuildingA";
+        String applicationId = "GuestReception";
+        String scePath = CommonConfig.getWorkspacePath()+domainId+"/"+scenarioId+"/";
+        String procPath = scePath+"application/"+applicationId+"/process/";
 
-        actionMetaList.forEach(actionMeta -> {
-            try {
-                Action action = actionBusiness.getAction(actionMeta.getType(), actionMeta.getObjectId(), actionMeta.getExecParam());
-                actions.put(actionMeta.getActionId(), action);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
-        return actions;
-    }
+        // 获取process对应json文件中的action节点信息
+        List<ActionMeta> actionMetaList = getActionMetaList(processId, procPath);
 
-    public void executeLiteFlow(String processId, Map<String, Map<String, Object>> executeActionArgs) {
-        List<ActionMeta> actionMetaList = getActionMetaList(processId);
-        Map<String, Action> actions = getProcessActions(processId);
-        Map<String, Integer> executionStatus = new HashMap<>(); // 用于跟踪每个节点的执行状态
-        // 初始化每个节点的执行状态
-        Map<String, ActionMeta> actionMetaMap = new HashMap<>();
-        actionMetaList.forEach(actionMeta -> {
-            executionStatus.put(actionMeta.getActionId(), 1);
-            actionMetaMap.put(actionMeta.getActionId(), actionMeta);
-        });
-        Map<String, ActionExecResult> actionResults = new HashMap<>();
+        // 根据节点信息获取对应的action节点
+        Map<String, Action> actionMap = getProcessActions(scenarioId, scePath, actionMetaList);
 
-        CustomContext customContext = new CustomContext();
-        customContext.setActionMap(actions);
-        customContext.setActionMetaMap(actionMetaMap);
-        customContext.setExecutionStatus(executionStatus);
-        customContext.setActionResults(actionResults);
-//        LiteflowResponse response = flowExecutor.execute2Resp("ConferenceService", new HashMap<>(){{
-//            put("makeCoffee", new HashMap<>() {{
-//                put("coffeeType", "美式");
-//            }});
-//        }}, customContext);
-    }
-
-    // 运行时
-    // TODO: 当有多个应用时，不同应用的功能执行应该可以并发/并行。executeProcess是否应该是 线程级 的？
-    public void executeProcess(String processId, Map<String, Map<String, Object>> executeActionArgs) {
-        System.out.println(executeActionArgs.toString());
-        List<ActionMeta> actionMetaList = getActionMetaList(processId);
-        Map<String, Action> actions = getProcessActions(processId);
-        Map<String, Integer> executionStatus = new HashMap<>(); // 用于跟踪每个节点的执行状态
+        Map<String, Integer> executionStatus = new HashMap<>(); // 跟踪每个Action的执行状态
+        Map<String, ActionExecResult> actionResults = new HashMap<>(); // 记录每个Action的执行结果
         // 初始化每个节点的执行状态
         actionMetaList.forEach(actionMeta -> executionStatus.put(actionMeta.getActionId(), 1));
 
@@ -76,9 +45,7 @@ public class ProcessBusiness {
         rtProcess.setProcessStatus(2);
         rtProcess.setStartTime(new Date());
 
-        Map<String, ActionExecResult> actionResults = new HashMap<>();
-
-//        每个Action执行execute
+        // TODO:每个Action执行execute,目前是依次执行
         actionMetaList.forEach(actionMeta -> {
             if (executionStatus.get(actionMeta.getActionId()) == 4) {
                 System.out.println("父节点中止，无需继续执行节点"+actionMeta.getActionId());
@@ -91,121 +58,83 @@ public class ProcessBusiness {
             System.out.println("执行"+actionMeta.getActionId()+"...");
             executionStatus.put(actionMeta.getActionId(), 2);
 
-            // 检查条件
-            String condition = actionMeta.getCondition();
-            boolean shouldExecute = true;
-            if (condition.contains("${parent.code}")) {
-                String parentActionId = actionMeta.getParentActionId();
-                ActionExecResult parentOutput = actionResults.get(parentActionId);
-                condition = condition.replace("${parent.code}", parentOutput != null ? parentOutput.getCode()+"" : "");
-                shouldExecute = evaluateCondition(condition);
-            }
+            // 获取Action执行节点
+            Action action = actionMap.get(actionMeta.getActionId());
+            if (action != null){
+                // 执行
+                ActionExecResult output = null;
+                if (executeArgs == null || executeArgs.isEmpty()){
+                    output = actionBusiness.executeAction(action, actionMeta.getExecParam());
+                } else {
+                    try {
+                        String jarPath = scePath+"device/"+actionMeta.getObjectId()+"/"+actionMeta.getObjectId().toLowerCase()+"-1.0.0.jar";
+                        URLClassLoader classLoader = JavaDynamicCompiler.loadJar(jarPath);
+                        Class<?> serviceClass = classLoader.loadClass("lowcode.device."+actionMeta.getObjectId().toLowerCase()+".service."+actionMeta.getObjectId()+"Service");
+                        // 获取所有方法找到要调用的具体方法从而得到参数
+                        Method[] methods = serviceClass.getMethods();
+                        for (Method method : methods) {
+                            if (method.getName().equals(actionMeta.getExecParam())){
+                                Class<?>[] parameterTypes = method.getParameterTypes();
+                                Object[] params = new Object[parameterTypes.length];
 
-            if (shouldExecute) {
-                try {
-                    Action action = actions.get(actionMeta.getActionId());
+                                int index = 0;
+                                for (Class<?> paramType : parameterTypes) {
+                                    String paramName = method.getParameters()[index].getName();
 
-                    if (action != null) {
-                        // 执行
-                        ActionExecResult output;
-                        String inputParam = actionMeta.getInputParam();
-                        if (inputParam == null || inputParam.equals("")){
-                            if (executeArgs == null || executeArgs.isEmpty()){
-                                output = actionBusiness.executeAction(action, actionMeta.getExecParam());
-                            } else {
-                                output = actionBusiness.executeAction(action, actionMeta.getExecParam(), executeArgs);
-                            }
-                        }else {
-                            // 获取父节点的输出并作为当前节点的输入参数
-                            String parentActionId = actionMeta.getParentActionId();
-                            ActionExecResult parentOutput = actionResults.get(parentActionId);
-                            if (inputParam.contains("${parent.code}")) {
-                                inputParam = inputParam.replace( "${parent.code}", parentOutput != null ? parentOutput.getCode()+"" : "");
-//                                System.out.println("父节点"+parentActionId+"的输出"+inputParam);
-                                output = actionBusiness.executeAction(action, actionMeta.getExecParam(), Integer.parseInt(inputParam));
-                            } else if (inputParam.contains("${parent.outputParam}")) {
-                                inputParam = inputParam.replace( "${parent.outputParam}", parentOutput != null ? parentOutput.getOutputParams().toString() : "");
-//                                System.out.println("父节点"+parentActionId+"的输出"+inputParam);
-                                assert parentOutput != null;
-                                output = actionBusiness.executeAction(action, actionMeta.getExecParam(), parentOutput.getOutputParams());
-                            } else {
-                                throw new RuntimeException("Invalid InputParams");
+                                    if (executeArgs.containsKey(paramName)) {
+                                        // 将 Map 中的值转换为对应类型
+                                        params[index] = paramType.cast(executeArgs.get(paramName));
+                                    } else {
+                                        throw new IllegalArgumentException("参数 " + paramName + " 缺失");
+                                    }
+                                    index++;
+                                }
+                                output = actionBusiness.executeAction(action, actionMeta.getExecParam(), params);
                             }
                         }
-                        actionResults.put(actionMeta.getActionId(), output);
-                        executionStatus.put(actionMeta.getActionId(), 3);
-                    }else {
-                        throw new RuntimeException("无法获取action"+actionMeta.getActionName()+"对应的组件/构件"+actionMeta.getObjectId());
+                    }catch (Exception e){
+                        e.printStackTrace();
+                        throw new RuntimeException(e.getMessage());
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
                 }
-            } else {
-                System.out.println("不满足条件:"+actionMeta.getCondition()+", 中止");
-                setChildActionsStatus(actionMeta, actionMetaList, executionStatus, 4);
+                actionResults.put(actionMeta.getActionId(), output);
+                executionStatus.put(actionMeta.getActionId(), 3);
+            }else {
+                throw new RuntimeException("无法获取action"+actionMeta.getActionName()+"对应的组件/构件"+actionMeta.getObjectId());
             }
         });
     }
 
-    private void setChildActionsStatus(ActionMeta parentActionMeta, List<ActionMeta> actionMetaList,Map<String, Integer> executionStatus, int status){
-        actionMetaList.stream()
-                .filter(actionMeta -> parentActionMeta.getActionId().equals(actionMeta.getParentActionId()))
-                .forEach(actionMeta -> {
-                    executionStatus.put(actionMeta.getActionId(), status);
-                    setChildActionsStatus(actionMeta, actionMetaList, executionStatus, status); // 递归设置子节点状态
-                });
-    }
-
-    public void addActionMeta(String processId, String actionId, String type, String objectId){
-
-    }
-
-    // TODO: read from CurrentApp
-    public List<ActionMeta> getActionMetaList(String processId) {
-        if (Objects.equals(processId, "ConferenceService")){
-            ActionMeta actionMeta = new ActionMeta("start", "开始", "Default", "", "", "", null, "");
-            ActionMeta actionMeta1 = new ActionMeta("makeCoffee", "制作咖啡", "Device", "start", "CoffeeMaker", "makeCoffee", null, "");
-            ActionMeta actionMeta2 = new ActionMeta("check", "检查", "Device", "makeCoffee", "CoffeeMaker", "check", null, "${parent.code} == 0");
-            return new ArrayList<>(Arrays.asList(actionMeta, actionMeta1, actionMeta2));
+    public List<ActionMeta> getActionMetaList(String processId, String procPath) {
+        List<ActionMeta> result = new ArrayList<>();
+        String filePath = procPath+processId+".proc";
+        String jsonContent = JsonUtils.readJson(filePath);
+        try {
+            JSONObject jsonObject = new JSONObject(jsonContent);
+            // TODO: 读取json并赋值
+            Param param = new Param("coffeeType", "咖啡类型", "String");
+            ActionMeta actionMeta = new ActionMeta("makeCoffee", "制作咖啡", "Device", "", "CoffeeMaker", "makeCoffee", new ArrayList<>(List.of(param)));
+            ActionMeta checkMeta = new ActionMeta("check", "检查", "Device", "makeCoffee", "CoffeeMaker", "check", null);
+            result.add(actionMeta);
+            result.add(checkMeta);
+        }catch (JSONException e){
+            throw new RuntimeException("读取process信息失败："+e.getMessage());
         }
-        return new ArrayList<>();
+        return result;
     }
 
-    public Map<String, List<Param>> getProcessConfig(String processId) {
-        List<ActionMeta> actionMetaList = getActionMetaList(processId);
-        Map<String, Action> actionMap = getProcessActions(processId);
-
-        Map<String, List<Param>> result = new HashMap<>();
-
-        for (Map.Entry<String, Action> entry : actionMap.entrySet()) {
-            Optional<ActionMeta> actionMetaFind = actionMetaList.stream().filter(meta -> meta.getActionId().equals(entry.getKey())).findFirst();
-            actionMetaFind.ifPresent(actionMeta -> {
-                if (entry.getValue() instanceof Device) {
-                    Device device = (Device) entry.getValue();
-                    DeviceService service = device.getDeviceService();
-                    Map<String, Object> serviceProperty = service.getProperty();
-                    List<Param> params = new ArrayList<>();
-
-                    // 读取当前节点操作
-                    String operation = actionMeta.getExecParam();
-
-                    // 读取该操作需要的inputParam
-                    if (Objects.equals(operation, "makeCoffee")) {
-                        // mock
-                        Param param = new Param("coffeeType", "咖啡类型", "Enum");
-
-                        // 若param类型为enum，则读取serviceProperty
-                        if (Objects.equals(param.getType(), "Enum")) {
-                            param.setOptions((List<String>) serviceProperty.get(param.getCode()));
-                        }
-                        params.add(param);
-                    }
-
-                    result.put(entry.getKey(), params);
-                }
-            });
-        }
-
+    private Map<String, Action> getProcessActions(String scenarioId, String scePath, List<ActionMeta> actionMetaList) {
+        Map<String, Action> result = new HashMap<>();
+        actionMetaList.forEach((actionMeta -> {
+            Action action = null;
+            try {
+                action = actionBusiness.getAction(scenarioId, scePath, actionMeta);
+            } catch (Exception e) {
+                e.printStackTrace();
+                throw new RuntimeException(e.getMessage());
+            }
+            result.put(actionMeta.getActionId(), action);
+        }));
         return result;
     }
 }

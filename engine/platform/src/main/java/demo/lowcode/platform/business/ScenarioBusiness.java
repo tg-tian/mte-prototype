@@ -4,7 +4,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.lowcode.platform.model.*;
 import lowcode.device.component.model.*;
-import demo.lowcode.common.util.JavaDynamicCompiler;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
@@ -128,37 +127,27 @@ public class ScenarioBusiness {
         }};
     }
 
-    public void addDeviceMeta(String scenarioId, String deviceType, String serviceType, DeviceInformation deviceInformation) {
+    public void addDeviceMeta(String scenarioId, String deviceType, String serviceType, DeviceTypeInformation deviceInformation) {
 
     }
 
     public List<DeviceMeta> getDeviceMetaList(String scenarioId) {
+        // TODO: 获取具体设备实例（包括服务，不包括事件，事件在应用编辑时定义）
+
         scenarioId = "BuildingA";
-        //String deviceType = "CoffeeMaker";
-        String controllerJavaFile = eventFilePath+"MakeCoffeeController.java";
-        Map<String, String> eventMap = new HashMap<>(){{
-            put("onMakeCoffeeStart", "prepare");
-            put("onMakeCoffeeComplete", "sendMessage");
-            put("onCheckError", "errorAlert");
-        }};
+        String deviceType = "CoffeeMaker";
 
         // 咖啡机器人A
-        Map<String, String> operationMap = new HashMap<>(){{
-           put("start", "on");
-           put("makeCoffee", "makeCoffee");
-        }};
-        DeviceConnectService service = new DeviceConnectService("AService", "http://aservice.coffee?action=", operationMap);
-        DeviceInformation deviceInformation = new DeviceInformation();//"deviceId", null, service, eventMap, controllerJavaFile);
+        // TODO: 读数据库或读json文件获取品牌支持的操作
+        List<String> operationsA = new ArrayList<>(Arrays.asList("getProperty()", "start()", "makeCoffee(String coffeeType)"));
+        DeviceConnectService serviceA = new DeviceConnectService("AService", "http://aservice.coffee", operationsA);
+        DeviceInformation deviceInformation = new DeviceInformation("deviceId", "咖啡机器人A", deviceType, serviceA);
         DeviceMeta deviceMeta = new DeviceMeta("deviceId", "咖啡机器人A", scenarioId, deviceInformation);
 
         // 咖啡机器人B
-        Map<String, String> operationMap2 = new HashMap<>(){{
-            put("start", "start");
-            put("makeCoffee", "makeCoffee");
-            put("check", "check");
-        }};
-        DeviceConnectService service2 = new DeviceConnectService("BService", "http://bservice.coffee?action=", operationMap2);
-        DeviceInformation deviceInformation2 = new DeviceInformation();//"deviceId", null, service2, eventMap, controllerJavaFile);
+        List<String> operationsB = new ArrayList<>(Arrays.asList("getProperty()", "start()", "makeCoffee(String coffeeType)", "check()"));
+        DeviceConnectService serviceB = new DeviceConnectService("BService", "http://bservice.coffee", operationsB);
+        DeviceInformation deviceInformation2 = new DeviceInformation("deviceId2", "咖啡机器人B", deviceType, serviceB);
         DeviceMeta deviceMeta2 = new DeviceMeta("deviceId2", "咖啡机器人B", scenarioId, deviceInformation2);
 
         return new ArrayList<>(Arrays.asList(deviceMeta, deviceMeta2));
