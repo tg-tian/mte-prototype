@@ -3,6 +3,8 @@ package demo.lowcode.platform.business;
 import demo.lowcode.platform.entity.DeviceType;
 import demo.lowcode.platform.mapper.DeviceTypeMapper;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,9 +47,16 @@ public class DeviceTypeBusiness {
         List<DeviceType> result = deviceTypeMapper.selectList(null);
         return  result;
     }
-
-    public long getDeiceTypeId(String deviceTypeCode){
-        long deviceTypeId = deviceTypeMapper.getDeviceId(deviceTypeCode);
-        return  deviceTypeId;
+    /**
+     * 根据设备名称查询设备id
+     * @param deviceTypeCode
+     * @return
+     */
+    public long loadDeiceTypeId(String deviceTypeCode){
+        return deviceTypeMapper.loadDeviceId(deviceTypeCode);
     }
+    public  List<DeviceType> loadDeviceData(List<Long> deviceTypeIdList){
+        return  deviceTypeMapper.selectBatchIds(deviceTypeIdList);
+    }
+
 }

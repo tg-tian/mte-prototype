@@ -15,12 +15,12 @@ import org.springframework.stereotype.Component;
 
 @Entity
 @Data
-@TableName("binding")
+@TableName("deviceBinding")
 @Component
 @AllArgsConstructor
 @NoArgsConstructor
 @ApiModel(value = "设备组件绑定信息对象", description = "设备组件绑定详细信息")
-public class Binding {
+public class DeviceBinding {
     @Id
     @Column(name = "deviceTypeId", nullable = false)
     @ApiModelProperty(value = "设备类型编号", example = "001")
@@ -35,7 +35,7 @@ public class Binding {
     @ApiModelProperty(value = "领域编号", example = "001")
     private long domainId;
 
-    public Binding(long deviceTypeId, long domainId) {
+    public DeviceBinding(long deviceTypeId, long domainId) {
         this.deviceTypeId = deviceTypeId;
         this.domainId = domainId;
     }

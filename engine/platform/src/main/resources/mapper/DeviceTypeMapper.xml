@@ -16,8 +16,16 @@
         VALUES (#{deviceTypeCode}, #{deviceTypeName}, #{imgPath})
     </insert>
 
-    <select id="getDeviceId" resultType="java.lang.Long">
+    <!-- 查询单个设备ID -->
+    <select id="loadDeviceId" resultType="java.lang.Long">
         SELECT deviceTypeId FROM devicetype WHERE deviceTypeCode = #{deviceTypeCode}
     </select>
 
+    <!-- 自定义 selectBatchIds -->
+    <select id="selectBatchIds" resultType="demo.lowcode.platform.entity.DeviceType">
+        SELECT * FROM devicetype WHERE deviceTypeId IN
+        <foreach collection="deviceTypeIdList" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
 </mapper>

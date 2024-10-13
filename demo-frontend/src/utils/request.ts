@@ -38,7 +38,7 @@ service.interceptors.response.use(
       console.log(error.response)
       return error.response
     }
-    ElMessage.warning('接口访问异常')
+    ElMessage.warning(error.response.data)
     console.log(error.response)
     return error.response
   }

@@ -39,7 +39,7 @@
 import Table from "@/view/main/common/Table.vue";
 import {Search} from "@element-plus/icons-vue";
 import Card from '@/view/main/common/Card.vue'
-import {getDomainComponent,getDoaminComponentData,uploadDomainBindingData} from "@/api/DomainApi";
+import {loadDomainBindingData,getDoaminComponentData,uploadDomainBindingData} from "@/api/DomainApi";
 import {ElMessage} from "element-plus";
 
 const props = defineProps({
@@ -114,8 +114,6 @@ onMounted(()=> {
   }else {
     getDomainData()
   }
-
-
 })
 
 const openDialog = () => {
@@ -140,9 +138,11 @@ const SubmitDevice = () => {
   //提取被选择的设备code
   const deviceCodes = selectedDevices.map(device => device.code);
   console.log(selectedDevices);
-  uploadDomainBindingData({selectedCodes: deviceCodes},"Device","SmartBuilding").then((res:any) => {
-    if(res.status === 200){
-
+  uploadDomainBindingData({selectedCodes: deviceCodes},"Device","SmartBuilding").then(async (res: any) => {
+    if (res.status === 200) {
+      console.log('Binding successful', res.data);
+      ElMessage.success('组件绑定成功')
+      await getDomainData();
     }
   });
   dialogVisible.value = false;
@@ -156,13 +156,12 @@ const clearDevice = ()=>{
 }
 
 const getDomainData = () =>{
-  getDomainComponent("Device").then((res:any) =>{
+  loadDomainBindingData("Device","SmartBuilding").then((res:any) =>{
     if (res.status === 200){
-      console.log(res.data)
-      data.value = res.data.componentAbout.map(v=>{
+      data.value = res.data.map( v=>{
         return {
-          ID: v.componentId,
-          name: v.componentName
+          ID: v.deviceTypeCode,
+          name: v.deviceTypeName
         }
       })
     }
@@ -171,13 +170,18 @@ const getDomainData = () =>{
     if(res.status === 200){
       const dataArray = res.data;
       dataArray.forEach((device : any) => {
-        const newDevice = {
-          code: device.deviceTypeCode,
-          name: device.deviceTypeName,
-          isSelected: false,
-          imageUrl: new URL('@/assets/logo.png', import.meta.url).href
+        // 检查 deviceTypeCode 是否不在 data.ID 数组中
+        const isDeviceInData = data.value.some((item: any) => item.ID === device.deviceTypeCode);
+        if(!isDeviceInData)
+        {
+          const newDevice = {
+            code: device.deviceTypeCode,
+            name: device.deviceTypeName,
+            isSelected: false,
+            imageUrl: new URL('@/assets/logo.png', import.meta.url).href
+          }
+          domainDevice.value.push(newDevice);  // 将对象加入到 domainDevice 中
         };
-        domainDevice.value.push(newDevice);  // 将对象加入到 domainDevice 中
       })
     }
   })

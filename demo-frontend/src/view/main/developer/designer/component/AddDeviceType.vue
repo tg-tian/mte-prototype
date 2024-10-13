@@ -99,22 +99,12 @@ const UploadDeviceInfo = () =>{
     deviceTypeCode : deviceInfo.value.deviceCode,
     deviceTypeName : deviceInfo.value.deviceName,
     imgPath : deviceInfo.value.imgUrl
-  }).then(response => {
-        console.log('DeviceInfo posted successfully', response.data);
-        ElMessage.success('上传设备类型成功')
-        router.push('/developer/workspace')
-      })
-      .catch(error => {
-        if (error.response) {
-          // 请求已发出，服务器以状态码返回
-          console.log("Error response", error.response.data);
-        } else if (error.request) {
-          // 请求已发出但没有收到回复
-          console.log("No response received", error.request);
-        } else {
-          // 其他错误
-          console.log("Error", error.message)
-      }
-})
+  }).then((res:any) => {
+        if(res.status === 200){
+          console.log('DeviceInfo posted successfully', res.data);
+          ElMessage.success('上传设备类型成功')
+          router.push('/developer/workspace')
+        }
+  })
 }
 </script>
