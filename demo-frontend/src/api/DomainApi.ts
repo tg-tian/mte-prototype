@@ -16,7 +16,7 @@ export const getDomainComponent = (componentType: String) =>
  * 从数据库获取领域组件完整数据
  * @param componentType
  */
-export const getDoaminComponentData = (componentType: String) =>
+export const loadDoaminComponentData = (componentType: String) =>
     request({
         url:`/load-domain-component-data?componentType=${componentType}`,
         method:'get',

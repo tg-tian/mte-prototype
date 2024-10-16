@@ -16,23 +16,20 @@ public class DeviceBindingBusiness {
     public DeviceBindingBusiness(DeviceBindingMapper deviceBindingMapper) {this.deviceBindingMapper = deviceBindingMapper;}
 
 
-    public void uploadBindingData(DeviceBinding deviceBinding) throws IOException{
-        int count = deviceBindingMapper.countByDeviceTypeId(deviceBinding.getDeviceTypeId());
+    public void uploadBindingData(DeviceBinding deviceBinding) {
+        int count = deviceBindingMapper.countBinding(deviceBinding.getDeviceTypeId(),deviceBinding.getDomainId());
         if(count == 0){
             deviceBindingMapper.insert(deviceBinding);
         }else{
-            throw new RuntimeException("deviceTypeId已存在，不能插入重复的记录");
+            throw new RuntimeException("记录已存在，不能插入重复的记录");
         }
     }
 
     /**
      * 根据domainId查找对应的DeviceBindingId
-     * @param domainId
      * @return
-     * @throws IOException
      */
-    public List<Long> loadDeviceBindingId(long domainId) throws IOException{
-        List<Long> deviceBindingId = deviceBindingMapper.loadDeviceBindingId(domainId);
-        return deviceBindingId;
+    public List<Long> loadDeviceBindingId(long domainId) {
+        return deviceBindingMapper.loadDeviceBindingId(domainId);
     }
 }

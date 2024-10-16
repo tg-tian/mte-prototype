@@ -51,4 +51,5 @@ public class ScenarioController {
             return new ResponseEntity<>("场景资源读取错误",HttpStatus.BAD_REQUEST);
         }
     }
+
 }

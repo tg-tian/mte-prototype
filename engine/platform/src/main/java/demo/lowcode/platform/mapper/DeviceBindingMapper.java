@@ -9,7 +9,7 @@ import java.util.List;
 
 @Mapper
 public interface DeviceBindingMapper extends BaseMapper<DeviceBinding> {
-    int countByDeviceTypeId(@Param("deviceTypeId") long deviceTypeId);
+    int countBinding(@Param("deviceTypeId") long deviceTypeId , @Param("domainId") long domainId);
 
     List<Long> loadDeviceBindingId(@Param("domainId") long domainId);
 }

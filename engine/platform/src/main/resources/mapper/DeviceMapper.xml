@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="demo.lowcode.platform.mapper.DeviceMapper">
+
+    <!--上传设备信息-->
+    <insert id="insertDevice" keyProperty="deviceId">
+        INSERT IGNORE INTO device(deviceCode,deviceName,deviceTypeId,versionNumber,manufacturer)
+            VALUES (#{deviceCode},#{deviceName},#{deviceTypeId},#{versionNumber},#{manufacturer})
+    </insert>
+
+    <select id="countByDeviceCode" resultType="int">
+        SELECT COUNT(1) FROM device WHERE deviceCode = #{deviceCode}
+    </select>
+
+    <!--根据code获取id-->
+    <select id="getDeviceId" resultType="java.lang.Long">
+        SELECT deviceId FROM device WHERE deviceCode = #{deviceCode}
+    </select>
+
+</mapper>

@@ -35,8 +35,8 @@
             label-width="auto"
             label-position="left"
             style="max-width: 500px">
-          <el-form-item label="设备ID" prop="deviceId">
-            <el-input v-model="deviceForm.deviceId" placeholder="请输入"/>
+          <el-form-item label="设备码" prop="deviceCode">
+            <el-input v-model="deviceForm.deviceCode" placeholder="请输入"/>
           </el-form-item>
           <el-form-item label="设备名" prop="deviceName">
             <el-input v-model="deviceForm.deviceName" placeholder="请输入"/>
@@ -80,7 +80,7 @@ import Table from "@/view/main/common/Table.vue";
 import Card from "@/view/main/common/Card.vue";
 import {Search} from "@element-plus/icons-vue";
 import {FormInstance, FormRules} from "element-plus";
-import {getScenarioResource} from "@/api/scenarioApi";
+import {getScenarioResource,loadScenarioBindingData,uploadDeviceData,uploadDeviceRegisterData} from "@/api/scenarioApi";
 
 const props = defineProps({
   scenarioId: String,
@@ -98,8 +98,8 @@ interface State{
 const state = reactive<State>({
   header: [
     {
-      code: "deviceId",
-      name: "设备id",
+      code: "deviceCode",
+      name: "设备码",
       type: "String"
     },
     {
@@ -142,7 +142,7 @@ const state = reactive<State>({
 const {header, data, domainDevice, dialogVisible, selectedDevice, searchInput} = toRefs(state)
 
 interface RuleForm {
-  deviceId: String;
+  deviceCode: String;
   deviceName: String;
   deviceType: any;
   deviceService: any;
@@ -152,7 +152,7 @@ interface RuleForm {
 }
 const deviceFormRef = ref<FormInstance>()
 const deviceForm = reactive<RuleForm>({
-  deviceId: '',
+  deviceCode: '',
   deviceName: '',
   deviceType: '',
   deviceService: '',
@@ -161,8 +161,8 @@ const deviceForm = reactive<RuleForm>({
   port: ''
 })
 const rules = reactive<FormRules<RuleForm>>({
-  deviceId: [
-    { required: true, message: '请填写设备ID', trigger: 'blur' },
+  deviceCode: [
+    { required: true, message: '请填写设备码', trigger: 'blur' },
   ],
   deviceName: [
     { required: true, message: '请填写设备名', trigger: 'blur' },
@@ -171,7 +171,7 @@ const rules = reactive<FormRules<RuleForm>>({
     { required: true, message: '请选择设备类型', trigger: 'blur' },
   ],
   "deviceService.code": [
-    { required: true, message: '请选择设备品牌/厂商', trigger: 'blur' },
+    { required: false, message: '请选择设备品牌/厂商', trigger: 'blur' },
   ],
   protocol: [
     { required: true, message: '请选择协议', trigger: 'blur' },
@@ -187,7 +187,7 @@ const rules = reactive<FormRules<RuleForm>>({
 onMounted(()=>{
   if (import.meta.env.VITE_MODE === "mock"){
     data.value = [{
-      deviceId: "deviceId",
+      deviceCode: "deviceId",
       deviceName: "咖啡机器人A",
       deviceType: "咖啡机器人",
       deviceService: "A品牌",
@@ -196,7 +196,7 @@ onMounted(()=>{
       port: 8080
     },
       {
-        deviceId: "deviceId2",
+        deviceCode: "deviceId2",
         deviceName: "咖啡机器人B",
         deviceType: "咖啡机器人",
         deviceService: "B品牌",
@@ -204,32 +204,35 @@ onMounted(()=>{
         host: "http://bservice.coffee",
         port: 8080
       }]
+
+    domainDevice.value = [
+      {
+        code: "CoffeeMaker",
+        name: "咖啡机器人",
+        services: [
+          {
+            code: "AService",
+            name: "A品牌"
+          },
+          {
+            code: "BService",
+            name: "B品牌"
+          }
+        ],
+        imageUrl: new URL('@/assets/logo.png', import.meta.url).href
+      },
+      {
+        code: "AirConditioner",
+        name: "空调",
+        services: [],
+        imageUrl: new URL('@/assets/logo.png', import.meta.url).href
+      }]
+
   }else {
     getScenarioDevice()
   }
 
-  domainDevice.value = [
-      {
-    code: "CoffeeMaker",
-    name: "咖啡机器人",
-    services: [
-      {
-        code: "AService",
-        name: "A品牌"
-      },
-      {
-        code: "BService",
-        name: "B品牌"
-      }
-    ],
-    imageUrl: new URL('@/assets/logo.png', import.meta.url).href
-  },
-    {
-      code: "AirConditioner",
-      name: "空调",
-      services: [],
-      imageUrl: new URL('@/assets/logo.png', import.meta.url).href
-    }]
+
 })
 
 const getScenarioDevice = ()=>{
@@ -244,6 +247,17 @@ const getScenarioDevice = ()=>{
           protocol: service.protocol,
           host: service.uri,
           port: service.port
+        }
+      })
+    }
+  })
+  loadScenarioBindingData("Device","SmartBuilding").then((res:any)=>{
+    if(res.status === 200){
+      domainDevice.value = res.data.map( v => {
+        return {
+          code: v.deviceTypeCode,
+          name:v.deviceTypeName,
+          imageUrl: new URL('@/assets/logo.png', import.meta.url).href
         }
       })
     }
@@ -266,6 +280,17 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
   await formEl.validate((valid, fields) => {
     if (valid) {
+
+      uploadDeviceData({deviceForm:deviceForm}).then((res:any) => {
+        if(res.status === 200){
+          ElMessage.success("设备实例上传成功")
+          uploadDeviceRegisterData({deviceForm:deviceForm},"第二学科交叉楼",deviceForm.deviceName).then((res:any)=>{
+            if(res.status === 200){
+              ElMessage.success("设备实例注册成功")
+            }
+          })
+        }
+      })
       console.log('submit!', deviceForm)
     } else {
       console.log('error submit!', fields)

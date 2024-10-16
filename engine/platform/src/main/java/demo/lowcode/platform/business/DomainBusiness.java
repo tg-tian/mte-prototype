@@ -29,8 +29,7 @@ public class DomainBusiness {
      * @return
      */
     public long getDomainId (String domainName){
-        long domainId = domainMapper.getDomainId(domainName);
-        return  domainId;
+        return domainMapper.getDomainId(domainName);
     }
 
     // domain增删改查

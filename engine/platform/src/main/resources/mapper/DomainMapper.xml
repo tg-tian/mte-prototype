@@ -5,7 +5,7 @@
 
 <mapper namespace="demo.lowcode.platform.mapper.DomainMapper">
 
-    <!--设备计数-->
+    <!--获取领域id-->
     <select id="getDomainId" resultType="java.lang.Long">
         SELECT domainId FROM domain WHERE domainName = #{domainName}
     </select>

@@ -2,8 +2,10 @@ package demo.lowcode.platform.business;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import demo.lowcode.platform.mapper.SceneMapper;
 import demo.lowcode.platform.model.*;
 import lowcode.device.component.model.*;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.io.File;
@@ -12,9 +14,13 @@ import java.util.*;
 
 @org.springframework.stereotype.Service
 public class ScenarioBusiness {
+
+    private final SceneMapper sceneMapper;
+    @Autowired
+    public ScenarioBusiness(SceneMapper sceneMapper) {this.sceneMapper = sceneMapper;}
+
     @Value("${eventPath}")
     private String eventFilePath;
-
 
     public ScenarioJson addScearioJson(String scenarioId, String scenarioName, String domainId, String mapPath, List<Map<String,String>> mapList)
     {
@@ -153,5 +159,7 @@ public class ScenarioBusiness {
         return new ArrayList<>(Arrays.asList(deviceMeta, deviceMeta2));
     }
 
-
+    public Long getSceneId(String sceneName){
+        return  sceneMapper.getSceneId(sceneName);
+    }
 }

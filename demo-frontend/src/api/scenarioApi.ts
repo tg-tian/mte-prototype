@@ -11,3 +11,36 @@ export const getScenarioResource = () =>
         url: `/load-scenario-resource-json`,
         method: 'get',
     })
+
+/**
+ * 从数据库获取领域组件绑定数据
+ * @param componentType
+ * @param domainName
+ */
+export const loadScenarioBindingData = (componentType: String ,domainName : String) =>
+    request({
+        url:`/load-domain-component-binding?componentType=${componentType}&domainName=${domainName}`,
+        method:"get",
+    })
+
+/**
+ * 上传具体设备信息到数据库
+ * @param data
+ */
+export const uploadDeviceData = (data : any) =>
+    request({
+        url:`/device/data`,
+        method:"post",
+        data:data,
+    })
+/**
+ * 上传设备注册信息到数据库
+ * @param data
+ * @param scenarioName
+ */
+export  const uploadDeviceRegisterData = (data : any , scenarioName : String ,deviceName: String) =>
+    request({
+        url:`/register/device?scenarioName=${scenarioName}&deviceName=${deviceName}`,
+        method:"post",
+        data:data,
+    })

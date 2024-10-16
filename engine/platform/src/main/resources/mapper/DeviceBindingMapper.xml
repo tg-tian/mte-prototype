@@ -6,8 +6,8 @@
 <mapper namespace="demo.lowcode.platform.mapper.DeviceBindingMapper">
 
     <!--设备计数-->
-    <select id="countByDeviceTypeId" resultType="int">
-        SELECT COUNT(1) FROM deviceBinding WHERE deviceTypeId = #{deviceTypeId}
+    <select id="countBinding" resultType="int">
+        SELECT COUNT(1) FROM deviceBinding WHERE deviceTypeId = #{deviceTypeId} AND domainId = #{domainId}
     </select>
 
     <!--获取绑定设备Id-->

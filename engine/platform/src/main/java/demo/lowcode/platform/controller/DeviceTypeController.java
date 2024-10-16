@@ -4,6 +4,7 @@ import demo.lowcode.platform.business.DeviceTypeBusiness;
 import demo.lowcode.platform.entity.DeviceType;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
+import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -21,11 +22,8 @@ import org.springframework.web.bind.annotation.*;
  * */
 public class DeviceTypeController {
 
-    private final DeviceTypeBusiness deviceTypeBusiness;
-    @Autowired
-    public DeviceTypeController(DeviceTypeBusiness deviceTypeBusiness){
-        this.deviceTypeBusiness = deviceTypeBusiness;
-    }
+    @Resource
+    DeviceTypeBusiness deviceTypeBusiness;
 
     @PostMapping("/upload")
     @ApiOperation(value = "设备类型数据上传", notes = "上传数据类型到数据库")

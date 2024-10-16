@@ -39,7 +39,7 @@
 import Table from "@/view/main/common/Table.vue";
 import {Search} from "@element-plus/icons-vue";
 import Card from '@/view/main/common/Card.vue'
-import {loadDomainBindingData,getDoaminComponentData,uploadDomainBindingData} from "@/api/DomainApi";
+import {loadDomainBindingData,loadDoaminComponentData,uploadDomainBindingData} from "@/api/DomainApi";
 import {ElMessage} from "element-plus";
 
 const props = defineProps({
@@ -166,7 +166,7 @@ const getDomainData = () =>{
       })
     }
   })
-  getDoaminComponentData("Device").then((res:any) =>{
+  loadDoaminComponentData("Device").then((res:any) =>{
     if(res.status === 200){
       const dataArray = res.data;
       dataArray.forEach((device : any) => {

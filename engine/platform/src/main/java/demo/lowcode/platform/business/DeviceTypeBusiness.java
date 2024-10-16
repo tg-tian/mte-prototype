@@ -47,6 +47,7 @@ public class DeviceTypeBusiness {
         List<DeviceType> result = deviceTypeMapper.selectList(null);
         return  result;
     }
+
     /**
      * 根据设备名称查询设备id
      * @param deviceTypeCode

@@ -35,6 +35,10 @@ public class DeviceBinding {
     @ApiModelProperty(value = "领域编号", example = "001")
     private long domainId;
 
+    @ManyToOne  // 多个 Binding 可以对应一个 Domain
+    @JoinColumn(name = "domainId", referencedColumnName = "domainId", insertable = false, updatable = false)
+    private Domain domain;
+
     public DeviceBinding(long deviceTypeId, long domainId) {
         this.deviceTypeId = deviceTypeId;
         this.domainId = domainId;
