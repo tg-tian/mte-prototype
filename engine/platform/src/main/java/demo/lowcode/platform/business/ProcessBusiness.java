@@ -9,6 +9,7 @@ import demo.lowcode.common.util.JsonUtils;
 import demo.lowcode.platform.model.ActionMeta;
 import demo.lowcode.platform.model.RTProcess;
 import jakarta.annotation.Resource;
+import org.springframework.boot.configurationprocessor.json.JSONArray;
 import org.springframework.boot.configurationprocessor.json.JSONException;
 import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
@@ -111,12 +112,35 @@ public class ProcessBusiness {
         String jsonContent = JsonUtils.readJson(filePath);
         try {
             JSONObject jsonObject = new JSONObject(jsonContent);
-            // TODO: 读取json并赋值
-            Param param = new Param("coffeeType", "咖啡类型", "String");
-            ActionMeta actionMeta = new ActionMeta("makeCoffee", "制作咖啡", "Device", "", "CoffeeMaker", "makeCoffee", new ArrayList<>(List.of(param)));
-            ActionMeta checkMeta = new ActionMeta("check", "检查", "Device", "makeCoffee", "CoffeeMaker", "check", null);
-            result.add(actionMeta);
-            result.add(checkMeta);
+            JSONArray actionArray = jsonObject.getJSONArray("actionList");
+            for (int i=0;i<actionArray.length();i++){
+                JSONObject actionObject = actionArray.getJSONObject(i);
+                String actionId = actionObject.getString("actionId");
+                String actionName = actionObject.getString("actionName");
+                String type = actionObject.getString("type");
+                String parentActionId = actionObject.getString("parentActionId");
+                String objectId = actionObject.getString("objectId");
+                String execParam = actionObject.getString("execParam");
+
+                JSONArray paramArray = actionObject.getJSONArray("executeArgs");
+                List<Param> params = new ArrayList<>();
+                for (int j=0;j<paramArray.length();j++){
+                    JSONObject paramObject = paramArray.getJSONObject(j);
+                    String paramCode = paramObject.getString("code");
+                    String paramName = paramObject.getString("name");
+                    String paramType = paramObject.getString("type");
+                    Param param = new Param(paramCode, paramName, paramType);
+                    params.add(param);
+                }
+
+                ActionMeta actionMeta = new ActionMeta(actionId, actionName, type, parentActionId, objectId, execParam, params);
+                result.add(actionMeta);
+            }
+//            Param param = new Param("coffeeType", "咖啡类型", "String");
+//            ActionMeta actionMeta = new ActionMeta("makeCoffee", "制作咖啡", "Device", "", "CoffeeMaker", "makeCoffee", new ArrayList<>(List.of(param)));
+//            ActionMeta checkMeta = new ActionMeta("check", "检查", "Device", "makeCoffee", "CoffeeMaker", "check", null);
+//            result.add(actionMeta);
+//            result.add(checkMeta);
         }catch (JSONException e){
             throw new RuntimeException("读取process信息失败："+e.getMessage());
         }

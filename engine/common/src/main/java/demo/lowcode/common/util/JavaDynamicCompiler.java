@@ -62,11 +62,7 @@ public class JavaDynamicCompiler {
         urls.add(jarFile.toURI().toURL());      // 添加 jar 包路径
 
         // 创建一个新的 URLClassLoader，包含编译输出目录和依赖的 jar 包;使用jar类加载器作为父类加载器，避免重复加载
-        URLClassLoader classLoader = new URLClassLoader(urls.toArray(new URL[0]), jarClassLoader);
-
-//        URLClassLoader classLoader = URLClassLoader.newInstance(new URL[]{outputDirectory.toUri().toURL()});
-        return classLoader;
-//        return Class.forName("demo.lowcode.device.eventhandler."+ deviceType.toLowerCase()+ "." + className, true, classLoader);
+        return new URLClassLoader(urls.toArray(new URL[0]), jarClassLoader);
     }
 
     public static Class<?> compileJavaSourceFile(String packageName, String className) throws Exception{

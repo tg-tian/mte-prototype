@@ -17,12 +17,13 @@
       "type": "Device",
       "parentActionId": "start",
       "objectId": "CoffeeMaker",
+      "bindDevices": [],
       "execParam": "makeCoffee",
       "executeArgs": [
         {
           "code": "coffeeType",
           "name": "咖啡类型",
-          "type": "Enum"
+          "type": "String"
         }
       ]
     },
@@ -33,7 +34,7 @@
       "parentActionId": "makeCoffee",
       "objectId": "CoffeeMaker",
       "execParam": "check",
-      "executeArgs": ""
+      "executeArgs": []
     }
   ]
 }

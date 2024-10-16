@@ -9,8 +9,8 @@ import lowcode.device.coffeemaker.event.*;
 public class MakeCoffeeController {
 
     public void prepare() {
-//        System.out.println("Start the CoffeeMaker.Sending message...");
-        System.out.println("Before making coffee, preparing...");
+        System.out.println("Start the CoffeeMaker.Sending message...");
+//        System.out.println("Before making coffee, preparing...");
     }
 
     public void sendMessage(Event event) {

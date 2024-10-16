@@ -85,7 +85,7 @@ public class ActionBusiness {
                     String outputDir = scePath+"device/"+deviceType+"/event/class/";
                     URLClassLoader controllerClassLoader = JavaDynamicCompiler.compileAndLoadEventFile(jarPath, eventFilePath, outputDir, classLoader);
 
-                    String controllerPackageName = "lowcode.device.coffeemaker.generate.event."+StringUtil.capitalizeFirstLetter(operation)+"Controller";
+                    String controllerPackageName = "lowcode.device."+deviceType.toLowerCase()+".generate.event."+StringUtil.capitalizeFirstLetter(operation)+"Controller";
                     Class<?> controllerClass = controllerClassLoader.loadClass(controllerPackageName);
 
                     // 对其中每一个事件方法添加eventListener
@@ -122,8 +122,13 @@ public class ActionBusiness {
                 }
                 return device;
             }
-        }else {
-            return null;
+        }else if(Objects.equals(actionMeta.getType(), "Default")) {
+            return new Action() {
+                @Override
+                public ActionExecResult execute(Object... args) {
+                    return null;
+                }
+            };
         }
         return null;
     }
