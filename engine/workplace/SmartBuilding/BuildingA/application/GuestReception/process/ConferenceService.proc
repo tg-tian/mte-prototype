@@ -1,10 +1,10 @@
 {
   "processId": "ConferenceService",
-  "processName": "会议服务",
+  "processName": "咖啡服务",
   "actionList": [
     {
       "actionId": "start",
-      "actionName": "开始",
+      "actionName": "开始节点",
       "type": "Default",
       "parentActionId": "",
       "objectId": "",
@@ -31,9 +31,19 @@
       "actionId": "check",
       "actionName": "检查",
       "type": "Device",
+      "bindDevices": [],
       "parentActionId": "makeCoffee",
       "objectId": "CoffeeMaker",
       "execParam": "check",
+      "executeArgs": []
+    },
+    {
+      "actionId": "end",
+      "actionName": "结束节点",
+      "type": "Default",
+      "parentActionId": "",
+      "objectId": "",
+      "execParam": "",
       "executeArgs": []
     }
   ]

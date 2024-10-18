@@ -79,25 +79,5 @@
         "icon": "deviceType.png"
       }
     ]
-  },
-  {
-    "type": "scenarioDevice",
-    "name": "场景设备控件",
-    "items": [
-      {
-        "id": "CoffeeMakerA",
-        "type": "device",
-        "name": "咖啡机器人A",
-        "category": "command",
-        "icon": "device.png"
-      },
-      {
-        "id": "CoffeeMakerB",
-        "type": "device",
-        "name": "咖啡机器人B",
-        "category": "command",
-        "icon": "device.png"
-      }
-    ]
   }
 ]

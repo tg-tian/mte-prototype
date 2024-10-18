@@ -1,7 +1,9 @@
 package lowcode.device.coffeemaker.generate.service;
 
 import demo.lowcode.common.*;
+import demo.lowcode.common.connect.*;
 import lowcode.device.coffeemaker.service.*;
+import java.io.*;
 import java.util.*;
 
 public class BService extends CoffeeMakerService {
@@ -22,23 +24,34 @@ public class BService extends CoffeeMakerService {
 
     @Override
     public void start() {
-        System.out.println("Starting Coffee Maker BService ...");
-        try {Thread.sleep(3000);} catch (InterruptedException e) {e.printStackTrace();}
-        System.out.println( "start" ); 
+        HTTPService service = new HTTPService();
+        try {
+            String response = service.sendPostRequest(uri + "?operation=start", "");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void makeCoffee(String coffeeType) {
-        System.out.println("Starting making coffee (Accessing URI: " + uri + "), coffeeType is" + coffeeType );
-        try {Thread.sleep(8000);} catch (InterruptedException e) {e.printStackTrace();}
-        System.out.println("Done making coffee.");
+        System.out.println("Accessing URI: " + uri + "?operation=makeCoffee");
+        System.out.println(coffeeType);
+        HTTPService service = new HTTPService();
+        try {
+            String response = service.sendPostRequest(uri + "?operation=makeCoffee", "{\"coffeeType\":\""+coffeeType+"\"}");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void check() {
-        System.out.println("Finishing");
-        try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}
-        System.out.println("Check finished");
+        HTTPService service = new HTTPService();
+        try {
+            String response = service.sendPostRequest(uri + "?operation=check", "");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

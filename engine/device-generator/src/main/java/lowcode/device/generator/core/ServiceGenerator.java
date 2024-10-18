@@ -28,7 +28,9 @@ public class ServiceGenerator {
             classContent.append("package ").append(packageName).append(";\n\n");
 
             classContent.append("import demo.lowcode.common.*;").append("\n");
+            classContent.append("import demo.lowcode.common.connect.*;").append("\n");
             classContent.append("import ").append(groupId).append(".service.*;").append("\n");
+            classContent.append("import java.io.*;").append("\n");
             classContent.append("import java.util.*;").append("\n\n");
 
             classContent.append("public class ").append(className).append(" extends ").append(deviceType).append("Service").append(" {\n\n");

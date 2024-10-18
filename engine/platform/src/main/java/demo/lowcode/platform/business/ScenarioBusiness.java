@@ -146,13 +146,13 @@ public class ScenarioBusiness {
         // 咖啡机器人A
         // TODO: 读数据库或读json文件获取品牌支持的操作
         List<String> operationsA = new ArrayList<>(Arrays.asList("getProperty()", "start()", "makeCoffee(String coffeeType)"));
-        DeviceConnectService serviceA = new DeviceConnectService("AService", "http://aservice.coffee", operationsA);
+        DeviceConnectService serviceA = new DeviceConnectService("AService", "http://localhost:8090/coffeemaker/aservice", operationsA);
         DeviceInformation deviceInformation = new DeviceInformation("deviceId", "咖啡机器人A", deviceType, serviceA);
         DeviceMeta deviceMeta = new DeviceMeta("deviceId", "咖啡机器人A", scenarioId, deviceInformation);
 
         // 咖啡机器人B
         List<String> operationsB = new ArrayList<>(Arrays.asList("getProperty()", "start()", "makeCoffee(String coffeeType)", "check()"));
-        DeviceConnectService serviceB = new DeviceConnectService("BService", "http://bservice.coffee", operationsB);
+        DeviceConnectService serviceB = new DeviceConnectService("BService", "http://localhost:8090/coffeemaker/bservice", operationsB);
         DeviceInformation deviceInformation2 = new DeviceInformation("deviceId2", "咖啡机器人B", deviceType, serviceB);
         DeviceMeta deviceMeta2 = new DeviceMeta("deviceId2", "咖啡机器人B", scenarioId, deviceInformation2);
 

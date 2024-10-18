@@ -23,7 +23,7 @@ class ProcessTest {
     @Autowired
     ScenarioBusiness scenarioBusiness;
     @Autowired
-    ProcessBusinessBefore processBusiness;
+    ProcessBusiness processBusiness;
     @Autowired
     ApplicationBusiness applicationBusiness;
     @Autowired
@@ -51,15 +51,15 @@ class ProcessTest {
         applicationBusiness.loadApplication(System.getProperty("user.dir")+"\\definition\\GuestReception.app");
         System.out.println("来访接待应用的流程列表："+applicationBusiness.getProcesses("GuestReception"));
 
-        List<ActionMeta> actionMetaList = processBusiness.getActionMetaList("ConferenceService");
-        System.out.println("会议服务流程的action元数据列表："+actionMetaList.toString());
+//        List<ActionMeta> actionMetaList = processBusiness.getActionMetaList("ConferenceService");
+//        System.out.println("会议服务流程的action元数据列表："+actionMetaList.toString());
     }
 
     @Test
     public void executeLiteFlowProcess() {
         // 执行（根据DeviceMeta进行实际的绑定具体设备、注册事件）
         try {
-            processBusiness.executeLiteFlow("ConferenceService", new HashMap<>(){{put("makeCoffee", new HashMap<>(){{put("coffeeType", "美式");}});}});
+//            processBusiness.executeLiteFlow("ConferenceService", new HashMap<>(){{put("makeCoffee", new HashMap<>(){{put("coffeeType", "美式");}});}});
         } catch (Exception e) {
             e.printStackTrace();
         }

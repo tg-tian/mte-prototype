@@ -32,17 +32,17 @@
     {
       "signature": "start()",
       "output": "void",
-      "body": "System.out.println(\"Starting Coffee Maker BService ...\");\n        try {Thread.sleep(3000);} catch (InterruptedException e) {e.printStackTrace();}\n        System.out.println( \"start\" ); "
+      "body": "HTTPService service = new HTTPService();\n        try {\n            String response = service.sendPostRequest(uri + \"?operation=start\", \"\");\n        } catch (IOException e) {\n            e.printStackTrace();\n        }"
     },
     {
       "signature": "makeCoffee(String coffeeType)",
       "output": "void",
-      "body": "System.out.println(\"Starting making coffee (Accessing URI: \" + uri + \"), coffeeType is\" + coffeeType );\n        try {Thread.sleep(8000);} catch (InterruptedException e) {e.printStackTrace();}\n        System.out.println(\"Done making coffee.\");"
+      "body": "System.out.println(\"Accessing URI: \" + uri + \"?operation=makeCoffee\");\n        System.out.println(coffeeType);\n        HTTPService service = new HTTPService();\n        try {\n            String response = service.sendPostRequest(uri + \"?operation=makeCoffee\", \"{\\\"coffeeType\\\":\\\"\"+coffeeType+\"\\\"}\");\n        } catch (IOException e) {\n            e.printStackTrace();\n        }"
     },
     {
       "signature": "check()",
       "output": "void",
-      "body": "System.out.println(\"Finishing\");\n        try {Thread.sleep(2000);} catch (InterruptedException e) {e.printStackTrace();}\n        System.out.println(\"Check finished\");"
+      "body": "HTTPService service = new HTTPService();\n        try {\n            String response = service.sendPostRequest(uri + \"?operation=check\", \"\");\n        } catch (IOException e) {\n            e.printStackTrace();\n        }"
     }
   ]
 }

@@ -32,12 +32,12 @@
     {
       "signature": "start()",
       "output": "void",
-      "body": "System.out.println(\"Accessing URI: \" + uri + \"on\");"
+      "body": "HTTPService service = new HTTPService();\n        try {\n            String response = service.sendPostRequest(uri + \"?operation=start\", \"\");\n        } catch (IOException e) {\n            e.printStackTrace();\n        }"
     },
     {
       "signature": "makeCoffee(String coffeeType)",
       "output": "void",
-      "body": "System.out.println(\"Accessing URI: \" + uri + \"makeCoffee\");\n        System.out.println(coffeeType);"
+      "body": "System.out.println(\"Accessing URI: \" + uri + \"?operation=makeCoffee\");\n        System.out.println(coffeeType);\n        HTTPService service = new HTTPService();\n        try {\n            String response = service.sendPostRequest(uri + \"?operation=makeCoffee\", \"{\\\"coffeeType\\\":\\\"\"+coffeeType+\"\\\"}\");\n        } catch (IOException e) {\n            e.printStackTrace();\n        }"
     }
   ]
 }
