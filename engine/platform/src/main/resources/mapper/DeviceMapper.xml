@@ -20,4 +20,7 @@
         SELECT deviceId FROM device WHERE deviceCode = #{deviceCode}
     </select>
 
+    <select id="selectById" resultType="demo.lowcode.platform.entity.Device">
+        SELECT * FROM device WHERE deviceId = #{deviceId}
+    </select>
 </mapper>

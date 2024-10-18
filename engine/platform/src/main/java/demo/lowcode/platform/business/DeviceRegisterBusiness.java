@@ -5,6 +5,8 @@ import demo.lowcode.platform.mapper.DeviceRegisterMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class DeviceRegisterBusiness {
     private final DeviceRegisterMapper deviceRegisterMapper;
@@ -20,5 +22,8 @@ public class DeviceRegisterBusiness {
             throw new RuntimeException("记录已存在，不能插入重复的记录");
         }
     }
-    
+
+    public List<DeviceRegister> getRegisterInfo(long sceneId){
+        return deviceRegisterMapper.selectBysceneId(sceneId);
+    }
 }

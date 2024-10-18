@@ -80,7 +80,13 @@ import Table from "@/view/main/common/Table.vue";
 import Card from "@/view/main/common/Card.vue";
 import {Search} from "@element-plus/icons-vue";
 import {FormInstance, FormRules} from "element-plus";
-import {getScenarioResource,loadScenarioBindingData,uploadDeviceData,uploadDeviceRegisterData} from "@/api/scenarioApi";
+import {
+  getScenarioResource,
+  loadScenarioBindingData,
+  loadScenarioData,
+  uploadDeviceData,
+  uploadDeviceRegisterData
+} from "@/api/scenarioApi";
 
 const props = defineProps({
   scenarioId: String,
@@ -236,18 +242,21 @@ onMounted(()=>{
 })
 
 const getScenarioDevice = ()=>{
-  getScenarioResource().then((res:any) =>{
+  data.value = [];
+  loadScenarioData("The second interdisciplinary building").then((res:any) =>{
     if (res.status === 200){
-      console.log(res.data)
-      data.value = res.data.devicesList.map(v=>{
-        const service = res.data.devices_service[v.deviceId]
-        return {
-          ...v,
-          deviceService: service.name,
-          protocol: service.protocol,
-          host: service.uri,
-          port: service.port
+      const devices = res.data;
+      devices.forEach((device: any) => {
+        const newDevice = {
+          deviceCode: device.deviceCode,
+          deviceName: device.deviceName,
+          deviceType:device.deviceType,
+          deviceService: device.deviceService,
+          protocol:device.protocol,
+          host:device.host,
+          port:device.port,
         }
+        data.value.push(newDevice);
       })
     }
   })
@@ -284,9 +293,11 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       uploadDeviceData({deviceForm:deviceForm}).then((res:any) => {
         if(res.status === 200){
           ElMessage.success("设备实例上传成功")
-          uploadDeviceRegisterData({deviceForm:deviceForm},"第二学科交叉楼",deviceForm.deviceName).then((res:any)=>{
+          uploadDeviceRegisterData({deviceForm:deviceForm},"The second interdisciplinary building",deviceForm.deviceName).then(async (res:any)=>{
             if(res.status === 200){
               ElMessage.success("设备实例注册成功")
+              await getScenarioDevice();
+              selectedDevice.value='';
             }
           })
         }

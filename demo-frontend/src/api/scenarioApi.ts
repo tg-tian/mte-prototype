@@ -36,11 +36,18 @@ export const uploadDeviceData = (data : any) =>
 /**
  * 上传设备注册信息到数据库
  * @param data
- * @param scenarioName
+ * @param scenarioCode
+ * @param deviceName
  */
-export  const uploadDeviceRegisterData = (data : any , scenarioName : String ,deviceName: String) =>
+export  const uploadDeviceRegisterData = (data : any , scenarioCode : String ,deviceName: String) =>
     request({
-        url:`/register/device?scenarioName=${scenarioName}&deviceName=${deviceName}`,
+        url:`/register/device?scenarioCode=${scenarioCode}&deviceName=${deviceName}`,
         method:"post",
         data:data,
+    })
+
+export const loadScenarioData = (scenarioCode : String) =>
+    request({
+        url:`/register/device?scenarioCode=${scenarioCode}`,
+        method:"get",
     })

@@ -7,7 +7,7 @@
 
     <!--获取场景id-->
     <select id="getSceneId" resultType="java.lang.Long">
-        SELECT sceneId FROM scene WHERE sceneName = #{sceneName}
+        SELECT sceneId FROM scene WHERE sceneCode = #{sceneCode}
     </select>
 
 </mapper>

@@ -60,4 +60,7 @@ public class DeviceTypeBusiness {
         return  deviceTypeMapper.selectBatchIds(deviceTypeIdList);
     }
 
+    public String loadDeviceType(long deviceTypeId){
+        return deviceTypeMapper.getDeviceTypeCode(deviceTypeId);
+    }
 }

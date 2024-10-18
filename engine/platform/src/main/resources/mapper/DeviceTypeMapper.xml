@@ -28,4 +28,9 @@
             #{id}
         </foreach>
     </select>
+
+    <!--查询设备类型码-->
+    <select id="getDeviceTypeCode" resultType="String">
+        SELECT deviceTypeCode FROM devicetype WHERE deviceTypeId = #{deviceTypeId}
+    </select>
 </mapper>

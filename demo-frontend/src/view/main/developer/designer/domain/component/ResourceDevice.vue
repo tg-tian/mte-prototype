@@ -118,7 +118,6 @@ onMounted(()=> {
 
 const openDialog = () => {
   dialogVisible.value = true;
-  domainDevice.value=[];
   getDomainData();
 }
 
@@ -166,6 +165,7 @@ const getDomainData = () =>{
       })
     }
   })
+  domainDevice.value=[];
   loadDoaminComponentData("Device").then((res:any) =>{
     if(res.status === 200){
       const dataArray = res.data;

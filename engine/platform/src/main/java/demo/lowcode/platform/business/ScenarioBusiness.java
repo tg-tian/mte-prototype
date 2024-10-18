@@ -159,7 +159,7 @@ public class ScenarioBusiness {
         return new ArrayList<>(Arrays.asList(deviceMeta, deviceMeta2));
     }
 
-    public Long getSceneId(String sceneName){
-        return  sceneMapper.getSceneId(sceneName);
+    public Long loadSceneId(String sceneCode){
+        return  sceneMapper.getSceneId(sceneCode);
     }
 }

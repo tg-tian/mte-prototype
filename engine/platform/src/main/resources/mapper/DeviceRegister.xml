@@ -10,5 +10,8 @@
         SELECT COUNT(1) FROM register WHERE deviceId = #{deviceId} AND sceneId = #{sceneId}
     </select>
 
-
+    <!--查询某个场景注册的所有设备-->
+    <select id="selectBysceneId" resultType="demo.lowcode.platform.entity.DeviceRegister">
+        SELECT * FROM  register WHERE sceneId = #{sceneId}
+    </select>
 </mapper>
