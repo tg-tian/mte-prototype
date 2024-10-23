@@ -1,0 +1,17 @@
+{
+    "code": "xioami",
+    "name": "可爱小咪",
+    "type": "Device",
+    "img_link": "",
+    "refs": [
+        {
+            "refID": "events",
+            "refPath": []
+        },
+        {
+            "refID": "services",
+            "refPath": []
+        }
+    ],
+    "commands": []
+}

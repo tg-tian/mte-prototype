@@ -2,7 +2,7 @@
   <div style="position: relative">
     <el-tabs v-model="activeName" class="workspace-tabs" @tab-click="handleClick">
 <!--   领域定义员（设置领域——增删改,设定领域组件/模板——UI/流程/设备）   -->
-      <el-tab-pane label="我的组件" name="component" class="tab-pane"><MyComponent /></el-tab-pane>
+      <el-tab-pane label="我的组件" name="component" class="tab-pane"><MyComponent ref="myComponent"/></el-tab-pane>
       <el-tab-pane label="我的领域" name="domain" class="tab-pane"><MyDomain /></el-tab-pane>
 <!--   场景设置员（设置场景，设定场景资源——设备/外部应用）   -->
       <el-tab-pane label="我的场景" name="scenario" class="tab-pane"><MyScenario /></el-tab-pane>
@@ -25,6 +25,7 @@
   </div>
 </template>
 <script lang="ts" setup>
+import { ref } from 'vue';
 import type { TabsPaneContext } from 'element-plus'
 import {Plus} from "@element-plus/icons-vue";
 import MyDomain from "./component/MyDomain.vue";
@@ -33,11 +34,18 @@ import MyScenario from "./component/MyScenario.vue";
 import MyApplication from "./component/MyApplication.vue";
 
 const activeName = ref('component')
-
 const router = useRouter()
+const myComponent = ref<InstanceType<typeof MyComponent> | null>(null); // 引用 MyComponent
+
 watchEffect(() => {
   if (typeof router.currentRoute.value.query.active === 'string') {
     activeName.value = router.currentRoute.value.query.active || 'component'
+  }
+  if (activeName.value === 'component') {
+    console.log(myComponent)
+    if (myComponent.value) {
+      myComponent.value.getComponentData(); // 调用 MyComponent 的方法
+    }
   }
 })
 

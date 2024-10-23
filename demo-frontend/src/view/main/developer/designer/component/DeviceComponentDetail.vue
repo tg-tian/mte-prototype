@@ -163,7 +163,7 @@ onMounted(()=>{
       name: "咖啡机器人",
       imageUrl: new URL('@/assets/device/coffeeMaker.png', import.meta.url).href
     }
-
+    getDeviceData()
     getCommandData()
     getEventData()
     getServiceData()
@@ -192,7 +192,6 @@ const commandHeader = [
     type: "Number"
   }
 ]
-
 const eventHeader = [
   {
     code: "name",
@@ -215,7 +214,6 @@ const eventHeader = [
     type: "String"
   }
 ]
-
 const serviceHeader = [
   {
     code: "name",
@@ -233,6 +231,10 @@ const serviceHeader = [
     type: "Link"
   }
 ]
+
+const getDeviceData = () =>{
+
+}
 
 const getCommandData = ()=>{
   getOperationCommand(deviceData.value.code).then((res: any)=>{

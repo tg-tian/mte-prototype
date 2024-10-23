@@ -99,11 +99,11 @@ const UploadDeviceInfo = () =>{
     deviceTypeCode : deviceInfo.value.deviceCode,
     deviceTypeName : deviceInfo.value.deviceName,
     imgPath : deviceInfo.value.imgUrl
-  }).then((res:any) => {
+  }).then(async (res:any) => {
         if(res.status === 200){
           console.log('DeviceInfo posted successfully', res.data);
           ElMessage.success('上传设备类型成功')
-          router.push('/developer/workspace')
+          await router.push('/developer/workspace')
         }
   })
 }

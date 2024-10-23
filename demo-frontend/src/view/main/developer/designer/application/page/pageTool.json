@@ -20,46 +20,6 @@
     ]
   },
   {
-    "type": "domainDevice",
-    "name": "领域设备类型",
-    "items": [
-      {
-        "id": "CoffeeMaker",
-        "type": "deviceType",
-        "name": "咖啡机器人",
-        "category": "command",
-        "icon": "deviceType.png"
-      },
-      {
-        "id": "AirConditioner",
-        "type": "deviceType",
-        "name": "空调",
-        "category": "command",
-        "icon": "deviceType.png"
-      }
-    ]
-  },
-  {
-    "type": "scenarioDevice",
-    "name": "场景设备",
-    "items": [
-      {
-        "id": "CoffeeMakerA",
-        "type": "device",
-        "name": "咖啡机器人A",
-        "category": "command",
-        "icon": "device.png"
-      },
-      {
-        "id": "CoffeeMakerB",
-        "type": "device",
-        "name": "咖啡机器人B",
-        "category": "command",
-        "icon": "device.png"
-      }
-    ]
-  },
-  {
     "type": "input",
     "name": "输入类控件",
     "items": [

@@ -24,11 +24,7 @@
       "componentAbout":[
         {
           "componentID": "CoffeeMaker",
-          "componentName": "咖啡机"
-
-        },{
-          "componentID":"AirConditioner",
-          "componentName": "空调"
+          "componentName": "咖啡机器人"
         }
       ]
     },
