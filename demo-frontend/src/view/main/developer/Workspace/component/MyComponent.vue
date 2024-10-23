@@ -138,7 +138,6 @@ const getImage = async (deviceTypeCode) => {
 }
 
 const getComponentData = async ()=>{
-  console.log("///////////////////////////");
   await loadDoaminComponentData("Device").then( (res:any) =>{
     deviceData.value =[]
     if(res.status === 200){

@@ -73,3 +73,9 @@ export const publishDevice = (deviceType: String) =>
         url:`/device/publish?deviceType=${deviceType}`,
         methodL:'get',
     })
+
+export const loadDeviceInfo = (deviceTypeCode: String) =>
+    request({
+        url:`/device-type/info?deviceTypeCode=${deviceTypeCode}`,
+        method:'get',
+    })

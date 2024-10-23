@@ -63,4 +63,5 @@ public class DeviceTypeBusiness {
     public String loadDeviceType(long deviceTypeId){
         return deviceTypeMapper.getDeviceTypeCode(deviceTypeId);
     }
+    public DeviceType loadDeviceTypeInfo(String deviceTypeCode) {return deviceTypeMapper.selectByCode(deviceTypeCode);}
 }

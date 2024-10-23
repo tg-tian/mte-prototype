@@ -33,4 +33,9 @@
     <select id="getDeviceTypeCode" resultType="String">
         SELECT deviceTypeCode FROM devicetype WHERE deviceTypeId = #{deviceTypeId}
     </select>
+
+    <!--查询设备类型数据-->
+    <select id="selectByCode" resultType="demo.lowcode.platform.entity.DeviceType">
+        SELECT * FROM devicetype WHERE deviceTypeCode = #{deviceTypeCode}
+    </select>
 </mapper>

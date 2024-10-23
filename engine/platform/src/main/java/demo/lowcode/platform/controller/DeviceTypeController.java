@@ -25,7 +25,12 @@ public class DeviceTypeController {
     @Resource
     DeviceTypeBusiness deviceTypeBusiness;
 
-    @PostMapping("/upload")
+    /**
+     * 上传设备类型
+     * @param deviceType
+     * @return
+     */
+    @PostMapping("/upload")  //应该改成/info
     @ApiOperation(value = "设备类型数据上传", notes = "上传数据类型到数据库")
     public ResponseEntity<?> deviceInfoUpload(@RequestBody DeviceType deviceType){
         System.out.println(deviceType);
@@ -39,4 +44,20 @@ public class DeviceTypeController {
         }
     }
 
+    /**
+     * 读取设备类型数据
+     * @param deviceTypeCode
+     * @return
+     */
+    @GetMapping("/info")
+    @ApiOperation(value = "读取设备类型数据", notes = "根据设备类型code读取设备数据")
+    public ResponseEntity<?> deviceInfoLoad(String deviceTypeCode){
+        try {
+            DeviceType deviceType = deviceTypeBusiness.loadDeviceTypeInfo(deviceTypeCode);
+            return new ResponseEntity<>(deviceType,HttpStatus.OK);
+        }catch (RuntimeException e){
+            System.err.println("设备类型读取失败: " + e.getMessage());
+            return new ResponseEntity<>("未查询到该设备记录",HttpStatus.CONFLICT);
+        }
+    }
 }

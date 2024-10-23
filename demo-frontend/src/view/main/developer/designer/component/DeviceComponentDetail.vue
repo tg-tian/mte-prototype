@@ -75,8 +75,8 @@
 <script setup lang="ts">
 import {ArrowLeft} from "@element-plus/icons-vue";
 import Table from "@/view/main/common/Table.vue";
-import {getOperationCommand, getOperationEvent, getService, publishDevice} from "@/api/DeviceExpand";
-import {ElMessage} from "element-plus";
+import {getOperationCommand, getOperationEvent, getService, loadDeviceInfo} from "@/api/DeviceExpand";
+import { watch } from 'vue';
 interface State {
   deviceCode: String;
   deviceName: String;
@@ -89,7 +89,6 @@ interface State {
   progressMessage: string;
   progressImage: any
 }
-
 const state = reactive<State>({
   deviceCode: '',
   deviceName: '',
@@ -105,6 +104,7 @@ const state = reactive<State>({
 const {deviceCode, deviceName, deviceData, commandData, eventData, serviceData, dialogVisible, progress, progressMessage, progressImage} = toRefs(state)
 
 const router = useRouter()
+const route = useRoute();
 watchEffect(() => {
   if (typeof router.currentRoute.value.query.deviceCode === 'string') {
     deviceCode.value = router.currentRoute.value.query.deviceCode || ''
@@ -158,18 +158,23 @@ onMounted(()=>{
       }
     ]
   }else {
-    deviceData.value={
-      code: "CoffeeMaker",
-      name: "咖啡机器人",
-      imageUrl: new URL('@/assets/device/coffeeMaker.png', import.meta.url).href
-    }
-    getDeviceData()
-    getCommandData()
-    getEventData()
-    getServiceData()
+    loadDeviceData()
   }
 })
 
+/**
+ *确认你是在使用 相同组件 且路由确实在变化。例如，如果你点击的按钮只是改变了 URL 的查询参数（而不是路径），并且没有改变整个路由的路径，可能不会触发路由更新。因此需要确保确实触发了 beforeRouteUpdate。
+ * 如果你只是更新了查询参数（query）而没有更新路径（path），可以使用 watch 来监控 query 的变化。
+ * */
+watch(route, (newRoute, oldRoute) => {
+  loadDeviceData();
+});
+const loadDeviceData = () => {
+  getDeviceData()
+  getCommandData()
+  getEventData()
+  getServiceData()
+}
 const commandHeader = [
   {
     code: "commandCode",
@@ -231,13 +236,38 @@ const serviceHeader = [
     type: "Link"
   }
 ]
+const images = import.meta.glob('/src/assets/device/*.png');
+const getImage = async (deviceTypeCode) => {
+  const imagePath = `/src/assets/device/${deviceTypeCode}.png`; // 构建路径
+
+  try {
+    if (images[imagePath]) {
+      const imageModule = await images[imagePath]();  // 调用懒加载函数加载模块
+      return imageModule.default; // 返回图片的默认导出（图片路径）
+    } else {
+      console.error(`Image not found for device code: ${deviceTypeCode}`);
+      return '/logo.png'; // 图片未找到时返回空字符串或默认图片
+    }
+  } catch (e) {
+    console.error('Error loading image:', e);
+    return '/logo.png'; // 如果出错，返回默认图片路径或空
+  }
+}
 
 const getDeviceData = () =>{
-
+  loadDeviceInfo(deviceCode.value).then(async (res:any)=>{
+    if(res.status === 200){
+      deviceData.value = {
+        code: res.data.deviceTypeCode,
+        name: res.data.deviceTypeName,
+        imageUrl:await getImage(res.data.deviceTypeCode)
+      }
+    }
+  })
 }
 
 const getCommandData = ()=>{
-  getOperationCommand(deviceData.value.code).then((res: any)=>{
+  getOperationCommand(deviceCode.value).then((res: any)=>{
     if(res.status === 200){
       commandData.value = res.data.map((v)=>{
         return {
@@ -252,7 +282,7 @@ const getCommandData = ()=>{
 }
 
 const getServiceData = ()=>{
-  getService(deviceData.value.code,"AService").then((res:any) =>{
+  getService(deviceCode.value,"AService").then((res:any) =>{
     if(res.status === 200){
       serviceData.value = res.data
     }
@@ -260,7 +290,7 @@ const getServiceData = ()=>{
 }
 
 const getEventData = ()=>{
-  getOperationEvent(deviceData.value.code, "MakeCoffee").then((res:any)=>{
+  getOperationEvent(deviceCode.value, "MakeCoffee").then((res:any)=>{
     if(res.status === 200){
       eventData.value = res.data.map((v)=>{
         return {
