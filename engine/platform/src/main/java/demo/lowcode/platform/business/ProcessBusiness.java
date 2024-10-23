@@ -4,6 +4,8 @@ import demo.lowcode.common.Action;
 import demo.lowcode.common.ActionExecResult;
 import demo.lowcode.common.CommonConfig;
 import demo.lowcode.common.Param;
+import demo.lowcode.common.device.Device;
+import demo.lowcode.common.device.DeviceService;
 import demo.lowcode.common.util.JavaDynamicCompiler;
 import demo.lowcode.common.util.JsonUtils;
 import demo.lowcode.platform.model.ActionMeta;
@@ -159,6 +161,50 @@ public class ProcessBusiness {
             }
             result.put(actionMeta.getActionId(), action);
         }));
+        return result;
+    }
+
+    public Map<String, List<Param>> getProcessConfig(String processId) {
+        String domainId = "SmartBuilding";
+        String scenarioId = "BuildingA";
+        String applicationId = "GuestReception";
+        String scePath = CommonConfig.getWorkspacePath()+domainId+"/"+scenarioId+"/";
+        String procPath = scePath+"application/"+applicationId+"/process/";
+
+        List<ActionMeta> actionMetaList = getActionMetaList(processId, procPath);
+        Map<String, Action> actionMap = getProcessActions(scenarioId, scePath, actionMetaList);
+
+        Map<String, List<Param>> result = new HashMap<>();
+
+        for (Map.Entry<String, Action> entry : actionMap.entrySet()) {
+            Optional<ActionMeta> actionMetaFind = actionMetaList.stream().filter(meta -> meta.getActionId().equals(entry.getKey())).findFirst();
+            actionMetaFind.ifPresent(actionMeta -> {
+                if (entry.getValue() instanceof Device) {
+                    Device device = (Device) entry.getValue();
+                    DeviceService service = device.getDeviceService();
+                    Map<String, Object> serviceProperty = service.getProperty();
+                    List<Param> params = new ArrayList<>();
+
+                    // 读取当前节点操作
+                    String operation = actionMeta.getExecParam();
+
+                    // 读取该操作需要的inputParam
+                    if (Objects.equals(operation, "makeCoffee")) {
+                        // mock
+                        Param param = new Param("coffeeType", "咖啡类型", "Enum");
+
+                        // 若param类型为enum，则读取serviceProperty
+                        if (Objects.equals(param.getType(), "Enum")) {
+                            param.setOptions((List<String>) serviceProperty.get(param.getCode()));
+                        }
+                        params.add(param);
+                    }
+
+                    result.put(entry.getKey(), params);
+                }
+            });
+        }
+
         return result;
     }
 }

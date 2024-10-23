@@ -93,17 +93,16 @@ public int invokeOperation(String operation, Object... args) {
                     }
                     flag = true;
                 } catch (InvocationTargetException e) {
-                    e.printStackTrace();
+                    // ignore
                 }
             }
             if (!flag){
                 throw new RuntimeException("There is no available service to handle operation "+operation);
             }
-
-            if (args.length > 0) {
-                onComplete(operation, new CoffeeMakerEvent(operation, 200, args));
+            if (args.length > 0){
+               onComplete(operation, new CoffeeMakerEvent(operation, 200, args));
             }else {
-                onComplete(operation, null);
+               onComplete(operation, null);
             }
             return 0;
         } catch (Exception e) {

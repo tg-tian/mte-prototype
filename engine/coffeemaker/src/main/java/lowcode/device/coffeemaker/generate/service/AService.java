@@ -1,7 +1,9 @@
 package lowcode.device.coffeemaker.generate.service;
 
 import demo.lowcode.common.*;
+import demo.lowcode.common.connect.*;
 import lowcode.device.coffeemaker.service.*;
+import java.io.*;
 import java.util.*;
 
 public class AService extends CoffeeMakerService {
@@ -23,13 +25,24 @@ public class AService extends CoffeeMakerService {
 
     @Override
     public void start() {
-        System.out.println("Accessing URI: " + uri + "on");
+        HTTPService service = new HTTPService();
+        try {
+            String response = service.sendPostRequest(uri + "?operation=start", "");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
     public void makeCoffee(String coffeeType) {
-        System.out.println("Accessing URI: " + uri + "makeCoffee");
+        System.out.println("Accessing URI: " + uri + "?operation=makeCoffee");
         System.out.println(coffeeType);
+        HTTPService service = new HTTPService();
+        try {
+            String response = service.sendPostRequest(uri + "?operation=makeCoffee", "{\"coffeeType\":\""+coffeeType+"\"}");
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 }

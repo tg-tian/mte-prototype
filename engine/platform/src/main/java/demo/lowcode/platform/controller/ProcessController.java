@@ -2,7 +2,6 @@ package demo.lowcode.platform.controller;
 
 import demo.lowcode.common.Param;
 import demo.lowcode.platform.business.ProcessBusiness;
-import demo.lowcode.platform.business.ProcessBusinessBefore;
 import jakarta.annotation.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +16,9 @@ public class ProcessController {
     @Resource
     ProcessBusiness processBusiness;
 
-    @Resource
-    ProcessBusinessBefore processBusinessBefore;
-
     @GetMapping(value = "/get-process-config")
     public ResponseEntity<?> getProcessConfig(@RequestParam String processId) {
-        Map<String, List<Param>> result = processBusinessBefore.getProcessConfig(processId);
+        Map<String, List<Param>> result = processBusiness.getProcessConfig(processId);
         return new ResponseEntity<>(result, HttpStatus.OK);
     }
 
