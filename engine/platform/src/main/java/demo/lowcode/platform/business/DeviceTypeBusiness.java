@@ -60,8 +60,19 @@ public class DeviceTypeBusiness {
         return  deviceTypeMapper.selectBatchIds(deviceTypeIdList);
     }
 
+    /**
+     * 根据设备类型id查询设备类型名称
+     * @param deviceTypeId
+     * @return
+     */
     public String loadDeviceType(long deviceTypeId){
         return deviceTypeMapper.getDeviceTypeCode(deviceTypeId);
     }
+
+    /**
+     * 查询某一设备类型的数据
+     * @param deviceTypeCode
+     * @return
+     */
     public DeviceType loadDeviceTypeInfo(String deviceTypeCode) {return deviceTypeMapper.selectByCode(deviceTypeCode);}
 }

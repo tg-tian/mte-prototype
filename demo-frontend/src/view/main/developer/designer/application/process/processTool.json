@@ -59,25 +59,5 @@
         "icon": "xunhuan.png"
       }
     ]
-  },
-  {
-    "type": "domainDevice",
-    "name": "领域设备类型控件",
-    "items": [
-      {
-        "id": "CoffeeMaker",
-        "type": "deviceType",
-        "name": "咖啡机器人",
-        "category": "command",
-        "icon": "deviceType.png"
-      },
-      {
-        "id": "AirConditioner",
-        "type": "deviceType",
-        "name": "空调",
-        "category": "command",
-        "icon": "deviceType.png"
-      }
-    ]
   }
 ]

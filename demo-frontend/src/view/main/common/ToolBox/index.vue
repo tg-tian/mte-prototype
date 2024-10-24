@@ -16,6 +16,8 @@
 
 <script setup lang="ts">
 import {ToolboxCategory} from "@/view/main/common/ToolBox/toolboxTypes";
+import {loadComponentData} from "@/api/toolBoxApi";
+import {mapGetters} from "pinia";
 
 const props = defineProps({
   toolboxJson: Array
@@ -25,16 +27,46 @@ const itemList = ref<ToolboxCategory[]>(props.toolboxJson);
 
 interface State{
   icons: any
+  deviceType: object
 }
 
 const state = reactive<State>({
-  icons: {}
+  icons: {},
+  deviceType:{
+    type:String,
+    name:String,
+    item:Array,
+  }
 })
-const {icons} = toRefs(state)
+const {icons,deviceType} = toRefs(state)
 
 onMounted(()=>{
+
+  getDeviceType();
   icons.value = import.meta.glob('@/assets/icon/*');
 })
+
+const getDeviceType = ()=>{
+  loadComponentData("Device").then( (res:any)=> {
+    if(res.status === 200){
+      const deviceTypeList = res.data.map((v)=>{
+        return{
+          id:v.deviceTypeCode,
+          type:"deviceType",
+          name:v.deviceTypeName,
+          category:"command",
+          icon: "deviceType.png"
+        }
+      })
+      // 使用赋值语法来添加属性
+      deviceType.type = "domainDevice";
+      deviceType.name = "领域设备类型控件";
+      deviceType.items = deviceTypeList;
+      itemList.value.push(deviceType)
+      console.log(itemList);
+    }
+  });
+}
 
 const requireIcon = (iconPath) => {
   if (iconPath === ""){
