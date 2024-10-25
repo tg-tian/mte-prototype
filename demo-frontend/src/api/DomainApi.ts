@@ -26,11 +26,11 @@ export const loadDoaminComponentData = (componentType: String) =>
  * 上传组件绑定信息至数据库
  * @param data
  * @param componentType
- * @param domainName
+ * @param domainCode
  */
-export const uploadDomainBindingData = (data:any,componentType: String,domainName : String) =>
+export const uploadDomainBindingData = (data:any,componentType: String,domainCode : String) =>
     request({
-        url:`/upload-domain-component-binding?componentType=${componentType}&domainName=${domainName}`,
+        url:`/upload-domain-component-binding?componentType=${componentType}&domainCode=${domainName}`,
         method:"post",
         data: data,
     })
@@ -38,10 +38,10 @@ export const uploadDomainBindingData = (data:any,componentType: String,domainNam
 /**
  * 从数据库获取组件绑定信息
  * @param componentType
- * @param domainName
+ * @param domainCode
  */
-export const loadDomainBindingData = (componentType: String ,domainName : String) =>
+export const loadDomainBindingData = (componentType: String ,domainCode : String) =>
     request({
-        url:`/load-domain-component-binding?componentType=${componentType}&domainName=${domainName}`,
+        url:`/load-domain-component-binding?componentType=${componentType}&domainCode=${domainCode}`,
         method:"get",
     })

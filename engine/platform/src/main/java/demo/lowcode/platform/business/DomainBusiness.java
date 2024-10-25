@@ -28,8 +28,12 @@ public class DomainBusiness {
      * @param domainName
      * @return
      */
-    public long getDomainId (String domainName){
-        return domainMapper.getDomainId(domainName);
+    public long getDomainIdByName (String domainName){
+        return domainMapper.getDomainIdByName(domainName);
+    }
+
+    public long getDomainIdByCode (String domainCode){
+        return domainMapper.getDomainIdByCode(domainCode);
     }
 
     // domain增删改查

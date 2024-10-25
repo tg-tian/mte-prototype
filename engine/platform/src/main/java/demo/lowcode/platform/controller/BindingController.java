@@ -36,7 +36,7 @@ public class BindingController {
      */
     @PostMapping(value = "/upload-domain-component-binding")
     @ApiOperation(value = "上传绑定信息",notes = "将组件绑定信息上传至数据库")
-    public ResponseEntity<?> uploadDomainComponentBinding(@RequestBody Map<String, Object> requestBody, String componentType, String domainName) throws IOException {
+    public ResponseEntity<?> uploadDomainComponentBinding(@RequestBody Map<String, Object> requestBody, String componentType, String domainCode) throws IOException {
         List<String> selectedCodes = (List<String>) requestBody.get("selectedCodes");
         //遍历每个被选择的设备类型
         if(Objects.equals(componentType, "Device"))
@@ -45,7 +45,7 @@ public class BindingController {
                 //查询devicetype表，找到对应的deviceTypeId
                 long deviceTypeId = deviceTypeBusiness.loadDeiceTypeId(selectCode);
                 //查询domain表，找到对应的domainId
-                long domainId = domainBusiness.getDomainId(domainName);
+                long domainId = domainBusiness.getDomainIdByCode(domainCode);
                 //将deviceTypeId和domainName 写入binding表
                 DeviceBinding deviceBinding = new DeviceBinding(deviceTypeId,domainId);
                 try{
@@ -64,17 +64,17 @@ public class BindingController {
     /**
      * 获取领域被绑定的组件信息
      * @param componentType
-     * @param domainName
+     * @param domainCode
      * @return
      * @throws IOException
      */
     @GetMapping(value = "/load-domain-component-binding")
     @ApiOperation(value = "获取绑定信息",notes = "获取领域被绑定的组件信息")
-    public ResponseEntity<?> loadDomainComponentBinding(String componentType ,String domainName) throws IOException{
+    public ResponseEntity<?> loadDomainComponentBinding(String componentType ,String domainCode) throws IOException{
         //根据componentType查询对应的binding表
         if(Objects.equals(componentType, "Device")){
             //查询deviceBinding获取domainName绑定的deviceTypeId列表
-            long domainId = domainBusiness.getDomainId(domainName);
+            long domainId = domainBusiness.getDomainIdByCode(domainCode);
             List<Long> deviceTypeIdList = deviceBindingBusiness.loadDeviceBindingId(domainId);
             //根据deviceTypeId列表，查找deviceTypeId对应的数据
             List<DeviceType> deviceTypeList= deviceTypeBusiness.loadDeviceData(deviceTypeIdList);

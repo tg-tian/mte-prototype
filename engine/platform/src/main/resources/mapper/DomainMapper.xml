@@ -6,8 +6,12 @@
 <mapper namespace="demo.lowcode.platform.mapper.DomainMapper">
 
     <!--获取领域id-->
-    <select id="getDomainId" resultType="java.lang.Long">
+    <select id="getDomainIdByName" resultType="java.lang.Long">
         SELECT domainId FROM domain WHERE domainName = #{domainName}
     </select>
 
+    <!--获取领域id-->
+    <select id="getDomainIdByCode" resultType="java.lang.Long">
+        SELECT domainId FROM domain WHERE domainCode = #{domainCode}
+    </select>
 </mapper>
