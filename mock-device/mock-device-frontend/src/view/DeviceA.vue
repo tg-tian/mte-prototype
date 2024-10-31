@@ -2,7 +2,8 @@
   <div style="padding: 20px;">
     <div>
       <div style="text-align: center;margin-bottom: 20px">咖啡机器人A</div>
-      <img :src="imageUrl" alt="device Image" />
+      <div>支持咖啡类型：摩卡</div>
+      <div style="display: flex;justify-content: center"><img :src="imageUrl" alt="device Image" /></div>
     </div>
     <div style="line-height: 32px">
       <div>当前状态：{{currentStatus}}</div>

@@ -13,7 +13,7 @@
     {
       "code": "coffeeType",
       "type": "List<String>",
-      "default": ["摩卡","美式"],
+      "default": ["摩卡"],
       "canInitial": false
     },
     {

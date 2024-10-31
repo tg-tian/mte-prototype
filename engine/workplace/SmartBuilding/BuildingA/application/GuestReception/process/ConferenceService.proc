@@ -28,20 +28,10 @@
       ]
     },
     {
-      "actionId": "check",
-      "actionName": "检查",
-      "type": "Device",
-      "bindDevices": [],
-      "parentActionId": "makeCoffee",
-      "objectId": "CoffeeMaker",
-      "execParam": "check",
-      "executeArgs": []
-    },
-    {
       "actionId": "end",
       "actionName": "结束节点",
       "type": "Default",
-      "parentActionId": "",
+      "parentActionId": "makeCoffee",
       "objectId": "",
       "execParam": "",
       "executeArgs": []

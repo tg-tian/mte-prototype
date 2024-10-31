@@ -9,7 +9,7 @@ import java.util.*;
 public class AService extends CoffeeMakerService {
 
     private String uri = "";
-    private List<String> coffeeType = List.of("摩卡", "美式");
+    private List<String> coffeeType = List.of("摩卡");
     private List<Double> sugar = List.of(0.3, 0.5, 0.8, 1.0);
 
     public AService(String uri){

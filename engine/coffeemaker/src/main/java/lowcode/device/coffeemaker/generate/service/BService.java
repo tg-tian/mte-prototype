@@ -9,7 +9,7 @@ import java.util.*;
 public class BService extends CoffeeMakerService {
 
     private String uri = "";
-    private List<String> coffeeType = List.of("摩卡", "美式");
+    private List<String> coffeeType = List.of("美式");
     private List<Double> sugar = List.of(0.3, 0.5, 0.8, 1.0);
 
     public BService(String uri){
@@ -19,6 +19,7 @@ public class BService extends CoffeeMakerService {
     @Override
     public Map<String, Object> getProperty() {
         Map<String, Object> result = new HashMap<>();
+        result.put("coffeeType",coffeeType);
         return result;
     }
 
@@ -34,11 +35,11 @@ public class BService extends CoffeeMakerService {
 
     @Override
     public void makeCoffee(String coffeeType) {
-        System.out.println("Accessing URI: " + uri + "?operation=makeCoffee");
+        System.out.println("Accessing URI: " + uri + "?operation=on");
         System.out.println(coffeeType);
         HTTPService service = new HTTPService();
         try {
-            String response = service.sendPostRequest(uri + "?operation=makeCoffee", "{\"coffeeType\":\""+coffeeType+"\"}");
+            String response = service.sendPostRequest(uri + "?operation=on", "{\"coffeeType\":\""+coffeeType+"\"}");
         } catch (IOException e) {
             e.printStackTrace();
         }

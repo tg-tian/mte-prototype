@@ -36,7 +36,7 @@ public class ProcessBusiness {
         List<ActionMeta> actionMetaList = getActionMetaList(processId, procPath);
 
         // 根据节点信息获取对应的action节点
-        Map<String, Action> actionMap = getProcessActions(scenarioId, scePath, actionMetaList);
+        Map<String, Action> actionMap = getProcessActions(scenarioId, scePath, actionMetaList, executeActionArgs);
 
         Map<String, Integer> executionStatus = new HashMap<>(); // 跟踪每个Action的执行状态
         Map<String, ActionExecResult> actionResults = new HashMap<>(); // 记录每个Action的执行结果
@@ -149,12 +149,12 @@ public class ProcessBusiness {
         return result;
     }
 
-    private Map<String, Action> getProcessActions(String scenarioId, String scePath, List<ActionMeta> actionMetaList) {
+    private Map<String, Action> getProcessActions(String scenarioId, String scePath, List<ActionMeta> actionMetaList, Map<String, Map<String, Object>> executeActionArgs) {
         Map<String, Action> result = new HashMap<>();
         actionMetaList.forEach((actionMeta -> {
             Action action = null;
             try {
-                action = actionBusiness.getAction(scenarioId, scePath, actionMeta);
+                action = actionBusiness.getAction(scenarioId, scePath, actionMeta, executeActionArgs.get(actionMeta.getActionId()));
             } catch (Exception e) {
                 e.printStackTrace();
                 throw new RuntimeException(e.getMessage());
@@ -172,38 +172,39 @@ public class ProcessBusiness {
         String procPath = scePath+"application/"+applicationId+"/process/";
 
         List<ActionMeta> actionMetaList = getActionMetaList(processId, procPath);
-        Map<String, Action> actionMap = getProcessActions(scenarioId, scePath, actionMetaList);
+//        Map<String, Action> actionMap = getProcessActions(scenarioId, scePath, actionMetaList, new HashMap<>());
 
         Map<String, List<Param>> result = new HashMap<>();
+        // TODO:读取每个action节点参数
 
-        for (Map.Entry<String, Action> entry : actionMap.entrySet()) {
-            Optional<ActionMeta> actionMetaFind = actionMetaList.stream().filter(meta -> meta.getActionId().equals(entry.getKey())).findFirst();
-            actionMetaFind.ifPresent(actionMeta -> {
-                if (entry.getValue() instanceof Device) {
-                    Device device = (Device) entry.getValue();
-                    DeviceService service = device.getDeviceService();
-                    Map<String, Object> serviceProperty = service.getProperty();
-                    List<Param> params = new ArrayList<>();
-
-                    // 读取当前节点操作
-                    String operation = actionMeta.getExecParam();
-
-                    // 读取该操作需要的inputParam
-                    if (Objects.equals(operation, "makeCoffee")) {
-                        // mock
-                        Param param = new Param("coffeeType", "咖啡类型", "Enum");
-
-                        // 若param类型为enum，则读取serviceProperty
-                        if (Objects.equals(param.getType(), "Enum")) {
-                            param.setOptions((List<String>) serviceProperty.get(param.getCode()));
-                        }
-                        params.add(param);
-                    }
-
-                    result.put(entry.getKey(), params);
-                }
-            });
-        }
+//        for (Map.Entry<String, Action> entry : actionMap.entrySet()) {
+//            Optional<ActionMeta> actionMetaFind = actionMetaList.stream().filter(meta -> meta.getActionId().equals(entry.getKey())).findFirst();
+//            actionMetaFind.ifPresent(actionMeta -> {
+//                if (entry.getValue() instanceof Device) {
+//                    Device device = (Device) entry.getValue();
+//                    DeviceService service = device.getDeviceService();
+//                    Map<String, Object> serviceProperty = service.getProperty();
+//                    List<Param> params = new ArrayList<>();
+//
+//                    // 读取当前节点操作
+//                    String operation = actionMeta.getExecParam();
+//
+//                    // 读取该操作需要的inputParam
+//                    if (Objects.equals(operation, "makeCoffee")) {
+//                        // mock
+//                        Param param = new Param("coffeeType", "咖啡类型", "Enum");
+//
+//                        // 若param类型为enum，则读取serviceProperty
+//                        if (Objects.equals(param.getType(), "Enum")) {
+//                            param.setOptions((List<String>) serviceProperty.get(param.getCode()));
+//                        }
+//                        params.add(param);
+//                    }
+//
+//                    result.put(entry.getKey(), params);
+//                }
+//            });
+//        }
 
         return result;
     }

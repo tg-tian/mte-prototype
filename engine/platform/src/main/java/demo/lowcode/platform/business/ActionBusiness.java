@@ -32,7 +32,7 @@ public class ActionBusiness {
     @Resource
     MockBusiness mockBusiness;
 
-    public Action getAction(String scenarioId, String scePath, ActionMeta actionMeta) throws Exception {
+    public Action getAction(String scenarioId, String scePath, ActionMeta actionMeta, Map<String, Object> executeArgs) throws Exception {
         if (Objects.equals(actionMeta.getType(), "Device")){
             String deviceType = actionMeta.getObjectId();
             // 根据设备类型（objectId）获取该场景中对应的设备实例
@@ -69,6 +69,30 @@ public class ActionBusiness {
                 Class<?> serviceClass = classLoader.loadClass(packageName);
                 DeviceService deviceService = (DeviceService) serviceClass.getConstructor(String.class).newInstance(service.getUri());
                 device.bindService(deviceService);
+
+                // 获取执行参数
+                if (executeArgs != null){
+                    Map<String, Object> properties = deviceService.getProperty();
+                    boolean canExecArg = true;
+                    for (Map.Entry<String, Object> arg : executeArgs.entrySet()) {
+                        if (properties.containsKey(arg.getKey())){
+                            Object deviceProperty = properties.get(arg.getKey());
+                            if (deviceProperty instanceof List<?>){
+                                // 判断服务执行操作时是否支持相关属性
+                                System.out.println(deviceProperty);
+
+                                System.out.println(arg.getValue());
+
+                                if (!((List<?>) deviceProperty).contains(arg.getValue())){
+                                    canExecArg = false;
+                                }
+                            }
+                        }
+                    }
+                    if (!canExecArg){
+                        continue;
+                    }
+                }
 
                 // 设备注册事件
                 Class<?> eventClass = Class.forName("demo.lowcode.common.Event");

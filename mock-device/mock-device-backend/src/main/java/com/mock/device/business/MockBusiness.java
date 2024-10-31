@@ -39,7 +39,7 @@ public class MockBusiness {
         if (Objects.equals(operation, "start")){
             deviceB.start();
         }else if (Objects.equals(operation, "on")){
-            deviceB.on("");
+            deviceB.on(params.get("coffeeType"));
         }else if (Objects.equals(operation, "check")){
             deviceB.check();
         }else {

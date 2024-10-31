@@ -13,7 +13,7 @@
     {
       "code": "coffeeType",
       "type": "List<String>",
-      "default": ["摩卡","美式"],
+      "default": ["美式"],
       "canInitial": false
     },
     {
@@ -27,7 +27,7 @@
     {
       "signature": "getProperty()",
       "output": "Map<String, Object>",
-      "body": "Map<String, Object> result = new HashMap<>();\n        return result;"
+      "body": "Map<String, Object> result = new HashMap<>();\n        result.put(\"coffeeType\",coffeeType);\n        return result;"
     },
     {
       "signature": "start()",
@@ -37,7 +37,7 @@
     {
       "signature": "makeCoffee(String coffeeType)",
       "output": "void",
-      "body": "System.out.println(\"Accessing URI: \" + uri + \"?operation=makeCoffee\");\n        System.out.println(coffeeType);\n        HTTPService service = new HTTPService();\n        try {\n            String response = service.sendPostRequest(uri + \"?operation=makeCoffee\", \"{\\\"coffeeType\\\":\\\"\"+coffeeType+\"\\\"}\");\n        } catch (IOException e) {\n            e.printStackTrace();\n        }"
+      "body": "System.out.println(\"Accessing URI: \" + uri + \"?operation=on\");\n        System.out.println(coffeeType);\n        HTTPService service = new HTTPService();\n        try {\n            String response = service.sendPostRequest(uri + \"?operation=on\", \"{\\\"coffeeType\\\":\\\"\"+coffeeType+\"\\\"}\");\n        } catch (IOException e) {\n            e.printStackTrace();\n        }"
     },
     {
       "signature": "check()",
