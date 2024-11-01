@@ -19,13 +19,14 @@
 
       <div style="border: 1px solid lightgray; padding: 20px;margin-left: 20px;width: 50%;overflow-y: auto">
         <!-- 配置节点（选择设备及操作后，会对应加载该操作需要的参数） -->
-        <VAceEditor
+        <el-image :src="boardImage"></el-image>
+        <!--<VAceEditor
             v-model:value="content"
             lang="json"
             theme="monokai"
             :options="options"
             class="vue-ace-editor">
-        </VAceEditor>
+        </VAceEditor>-->
       </div>
 
       <div style="border: 1px solid lightgray; padding: 20px;margin-left: 20px;width: 20%;overflow-y: auto">
@@ -57,6 +58,7 @@ const state = reactive<State>({
   processId: '',
   processName: '',
 })
+const boardImage = new URL('@/assets/images/board.png', import.meta.url).href
 const {processId, processName} = toRefs(state)
 
 const router = useRouter()

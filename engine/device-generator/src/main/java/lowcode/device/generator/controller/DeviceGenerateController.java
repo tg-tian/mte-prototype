@@ -3,6 +3,7 @@ package lowcode.device.generator.controller;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiOperation;
 import demo.lowcode.common.CommonConfig;
+import jakarta.annotation.Resource;
 import lowcode.device.generator.core.DeviceGenerator;
 import lowcode.device.generator.dto.ProgressData;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -43,6 +44,8 @@ public class DeviceGenerateController {
                 emitter.send(new ProgressData("发布成功", 100));
                 Thread.sleep(1000);
                 emitter.complete();  // 完成后关闭连接
+
+                //修改数据库发布字段的值
             } catch (Exception e) {
                 try {
                     emitter.send(new ProgressData("打包失败: " + e.getMessage(), 0));

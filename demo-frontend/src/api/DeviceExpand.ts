@@ -68,14 +68,14 @@ export  const getService = (deviceName : String , serviceName : String) =>
         methodL:'get',
     })
 
-export const publishDevice = (deviceType: String) =>
-    request({
-        url:`/device/publish?deviceType=${deviceType}`,
-        methodL:'get',
-    })
-
 export const loadDeviceInfo = (deviceTypeCode: String) =>
     request({
         url:`/device-type/info?deviceTypeCode=${deviceTypeCode}`,
         method:'get',
+    })
+
+export const updateDevicePublish = (deviceTypeCode: String) =>
+    request({
+        url:`/device-type/publish?deviceTypeCode=${deviceTypeCode}`,
+        method:`put`,
     })

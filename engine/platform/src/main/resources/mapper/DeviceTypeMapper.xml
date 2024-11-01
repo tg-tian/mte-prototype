@@ -12,8 +12,8 @@
 
     <!-- 插入操作 -->
     <insert id="insertDeviceType"  keyProperty="deviceTypeId">
-        INSERT IGNORE INTO devicetype (deviceTypeCode, deviceTypeName, imgPath)
-        VALUES (#{deviceTypeCode}, #{deviceTypeName}, #{imgPath})
+        INSERT IGNORE INTO devicetype (deviceTypeCode, deviceTypeName, imgPath, isPublish)
+        VALUES (#{deviceTypeCode}, #{deviceTypeName}, #{imgPath} , 0)
     </insert>
 
     <!-- 查询单个设备ID -->
@@ -38,4 +38,9 @@
     <select id="selectByCode" resultType="demo.lowcode.platform.entity.DeviceType">
         SELECT * FROM devicetype WHERE deviceTypeCode = #{deviceTypeCode}
     </select>
+
+    <!--修改设备发布状态-->
+    <update id="updatePublish">
+        UPDATE  devicetype SET isPublish = 1 WHERE deviceTypeCode = #{deviceTypeCode}
+    </update>
 </mapper>

@@ -18,4 +18,5 @@ public interface DeviceTypeMapper extends BaseMapper<DeviceType> {
      List<DeviceType> selectBatchIds(@Param("deviceTypeIdList") List<Long> deviceTypeIdList);
      String getDeviceTypeCode(@Param("deviceTypeId") Long deviceTypeId);
      DeviceType selectByCode(@Param("deviceTypeCode") String deviceTypeCode);
+     void updatePublish(@Param("deviceTypeCode")String deviceTypeCode);
 }

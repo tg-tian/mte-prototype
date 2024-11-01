@@ -75,4 +75,10 @@ public class DeviceTypeBusiness {
      * @return
      */
     public DeviceType loadDeviceTypeInfo(String deviceTypeCode) {return deviceTypeMapper.selectByCode(deviceTypeCode);}
+
+    /**
+     * 更新发布状态
+     * @param deviceTypeCode
+     */
+    public void updatePublish(String deviceTypeCode) {deviceTypeMapper.updatePublish(deviceTypeCode);}
 }

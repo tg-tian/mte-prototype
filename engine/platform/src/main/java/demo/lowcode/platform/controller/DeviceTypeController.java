@@ -60,4 +60,21 @@ public class DeviceTypeController {
             return new ResponseEntity<>("未查询到该设备记录",HttpStatus.CONFLICT);
         }
     }
+
+    /**
+     * 修改设备发布状态
+     * @param deviceTypeCode
+     * @return
+     */
+    @PutMapping ("/publish")
+    @ApiOperation(value = "修改设备发布状态", notes = "根据设备类型code修改对应设备的发布状态")
+    public ResponseEntity<?> devicePublish(String deviceTypeCode){
+        try{
+            deviceTypeBusiness.updatePublish(deviceTypeCode);
+            return new ResponseEntity<>("设备模版发布成功",HttpStatus.OK);
+        }catch (RuntimeException e){
+            System.err.println("设备模版发布失败: " + e.getMessage());
+            return new ResponseEntity<>("设备模版发布失败",HttpStatus.CONFLICT);
+        }
+    }
 }
