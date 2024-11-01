@@ -20,13 +20,24 @@
   开发人员面板：
   2领域定义员（设置领域——增删改,设定领域组件/模板——UI/流程/设备）
   1场景设置员（设置场景，设定场景资源——设备/外部应用）
-  应用开发者（选定场景开发应用，应用增删改）
     -->
     <div style="margin-top: 10px" v-if="roles.includes('developer') || roles.includes('admin')">
       <div class="sub-title">工作台</div>
       <el-menu-item index="template" class="nav-item">
         <el-icon><Compass /></el-icon>
         <div class="menu-item">模板库</div>
+      </el-menu-item>
+      <el-menu-item index="workspace" class="nav-item">
+        <el-icon><DataBoard /></el-icon>
+        <div class="menu-item">我的空间</div>
+      </el-menu-item>
+    </div>
+    <!-- 应用开发者（业务人员）（选定场景开发应用，应用增删改） -->
+    <div style="margin-top: 10px" v-if="roles.includes('business')">
+      <div class="sub-title">业务区</div>
+      <el-menu-item index="businessManage" class="nav-item">
+        <el-icon><Compass /></el-icon>
+        <div class="menu-item">业务管理</div>
       </el-menu-item>
       <el-menu-item index="workspace" class="nav-item">
         <el-icon><DataBoard /></el-icon>
@@ -101,6 +112,17 @@ const state = reactive<State>({
       index: 'workspace',
       name: '我的空间',
       route: '/developer/workspace'
+    },
+      //业务人员
+    {
+      index: 'businessManage',
+      name: '业务管理',
+      route: '/business/businessManage'
+    },
+    {
+      index: 'businessWorkspace',
+      name: '业务空间',
+      route: '/business/businessWorkspace'
     },
       // 普通用户
     {

@@ -42,7 +42,7 @@
               图标
             </div>
           </template>
-          <el-image :src="deviceData.imageUrl" />
+            <el-image :src="deviceData.imageUrl" style="width: 10%"/>
         </el-descriptions-item>
       </el-descriptions>
   </div>
@@ -236,9 +236,9 @@ const serviceHeader = [
     type: "Link"
   }
 ]
-const images = import.meta.glob('/src/assets/device/*.png');
+const images = import.meta.glob('/src/assets/icon/*.png');
 const getImage = async (deviceTypeCode) => {
-  const imagePath = `/src/assets/device/${deviceTypeCode}.png`; // 构建路径
+  const imagePath = `/src/assets/icon/${deviceTypeCode}.png`; // 构建路径
 
   try {
     if (images[imagePath]) {
@@ -306,7 +306,7 @@ const startPublish = ()=>{
   progress.value = 0;
   progressImage.value = new URL('@/assets/progress/generate.png', import.meta.url).href
   // EventSource 是 HTML5 提供的一个用于服务器发送事件（Server-Sent Events, SSE）的接口。
-  // 它允许网页与服务器之间建立持久的连接，服务器可以通过该连接持续向客户端推送消息，而客户端可以实时接收这些消息。
+  // 它允许网页与服务器之间建立持久地连接，服务器可以通过该连接持续向客户端推送消息，而客户端可以实时接收这些消息。
   // 与 WebSocket 不同的是，EventSource 是单向的，只能由服务器向客户端发送数据，客户端不能向服务器发送消息。
   const eventSource = new EventSource(import.meta.env.VITE_BASE_PATH+`/device/publish?deviceType=${deviceData.value.code}`)
   eventSource.onmessage = (event) => {

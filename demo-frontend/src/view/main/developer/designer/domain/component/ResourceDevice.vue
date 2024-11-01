@@ -178,7 +178,7 @@ const getDomainData = () =>{
             code: device.deviceTypeCode,
             name: device.deviceTypeName,
             isSelected: false,
-            imageUrl: new URL('@/assets/logo.png', import.meta.url).href
+            imageUrl: new URL('/src/assets/icon/'+device.deviceTypeCode+'.png', import.meta.url).href
           }
           domainDevice.value.push(newDevice);  // 将对象加入到 domainDevice 中
         };

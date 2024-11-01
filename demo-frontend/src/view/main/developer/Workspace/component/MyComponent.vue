@@ -119,9 +119,9 @@ const handleBusinessClick = (device)=>{
 }
 
 //import.meta.glob 使用时，路径并不支持 @ 这种别名。import.meta.glob 只能处理相对于项目根目录的相对路径
-const images = import.meta.glob('/src/assets/device/*.png');
+const images = import.meta.glob('/src/assets/icon/*.png');
 const getImage = async (deviceTypeCode) => {
-  const imagePath = `/src/assets/device/${deviceTypeCode}.png`; // 构建路径
+  const imagePath = `/src/assets/icon/${deviceTypeCode}.png`; // 构建路径
 
   try {
     if (images[imagePath]) {

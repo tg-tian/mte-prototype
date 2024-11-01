@@ -16,7 +16,7 @@ import java.util.Map;
 public class FileController {
 
     // 设置文件存储的本地目录
-    private static String UPLOADED_FOLDER = "platform/src/main/resources/static/uploads/";
+    private static String UPLOADED_FOLDER = "D:/projects/ubml/mte-prototype/demo-frontend/src/assets/icon/";
 
 
     @GetMapping("/data")

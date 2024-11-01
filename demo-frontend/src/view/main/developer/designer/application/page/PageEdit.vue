@@ -3,8 +3,9 @@
     <div class="page-header">
       <div>{{pageName}}-页面编辑</div>
       <div>
-        <el-button type="primary">保存</el-button>
-        <el-button type="primary" @click="goToPage">试运行</el-button>
+        <el-button type="primary" >保存</el-button>
+        <el-button type="primary" @click="goToPage" >试运行</el-button>
+        <el-button type="primary" plain>应用发布</el-button>
       </div>
     </div>
 
@@ -16,7 +17,7 @@
             placeholder="搜索"
             :prefix-icon="Search"
         />
-        <ToolBox :toolboxJson="pageTool"/>
+        <ToolBox :toolboxJson="pageTool" designerType="Page"/>
       </div>
 
       <div style="border: 1px solid lightgray; padding: 20px;margin-left:20px;width: 50%;overflow-y: auto">

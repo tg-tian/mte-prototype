@@ -17,9 +17,9 @@ export const getScenarioResource = () =>
  * @param componentType
  * @param domainName
  */
-export const loadScenarioBindingData = (componentType: String ,domainName : String) =>
+export const loadScenarioBindingData = (componentType: String ,domainCode : String) =>
     request({
-        url:`/load-domain-component-binding?componentType=${componentType}&domainName=${domainName}`,
+        url:`/load-domain-component-binding?componentType=${componentType}&domainCode=${domainCode}`,
         method:"get",
     })
 

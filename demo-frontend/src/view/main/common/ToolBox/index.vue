@@ -20,6 +20,7 @@ import {loadComponentData} from "@/api/toolBoxApi";
 import {mapGetters} from "pinia";
 
 const props = defineProps({
+  designerType: String,
   toolboxJson: Array
 });
 
@@ -41,9 +42,11 @@ const state = reactive<State>({
 const {icons,deviceType} = toRefs(state)
 
 onMounted(()=>{
-
-  getDeviceType();
   icons.value = import.meta.glob('@/assets/icon/*');
+  if(props.designerType === "Process")
+  {
+    getDeviceType();
+  }
 })
 
 const getDeviceType = ()=>{
@@ -55,7 +58,7 @@ const getDeviceType = ()=>{
           type:"deviceType",
           name:v.deviceTypeName,
           category:"command",
-          icon: "deviceType.png"
+          icon: v.deviceTypeCode+".png"
         }
       })
       // 使用赋值语法来添加属性

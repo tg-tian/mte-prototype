@@ -14,7 +14,7 @@
             placeholder="搜索"
             :prefix-icon="Search"
         />
-        <ToolBox :toolboxJson="processTool"/>
+        <ToolBox :toolboxJson="processTool" designerType="Process"/>
       </div>
 
       <div style="border: 1px solid lightgray; padding: 20px;margin-left: 20px;width: 50%;overflow-y: auto">

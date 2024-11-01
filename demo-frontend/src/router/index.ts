@@ -43,7 +43,7 @@ const router = createRouter({
         },
         {
           path: 'admin',
-          name: '管理员页面',
+          name: '系统配置员页面',
           component: null,
           meta: {
             requiresAuth: true,
@@ -68,12 +68,33 @@ const router = createRouter({
           ]
         },
         {
-          path: 'developer',
-          name: '开发人员页面',
+          path: 'business',
+          name:'业务人员界面',
           component: null,
           meta: {
             requiresAuth: true,
-            roles: ['admin','developer']
+            roles: ['business']
+          },
+          children: [
+            {
+              path: 'businessManage',
+              name: '业务管理',
+              component: null
+            },
+            {
+              path: 'workspace',
+              name: '我的空间',
+              component: null
+            }
+          ]
+        },
+        {
+          path: 'developer',
+          name: '场景配置人员页面',
+          component: null,
+          meta: {
+            requiresAuth: true,
+            roles: ['admin','developer','business']
           },
           children: [
             {

@@ -266,7 +266,7 @@ const getScenarioDevice = ()=>{
         return {
           code: v.deviceTypeCode,
           name:v.deviceTypeName,
-          imageUrl: new URL('@/assets/logo.png', import.meta.url).href
+          imageUrl: new URL('/src/assets/icon/'+v.deviceTypeCode+'.png', import.meta.url).href
         }
       })
     }

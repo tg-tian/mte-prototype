@@ -1,13 +1,21 @@
 <template>
   <div style="position: relative">
     <el-tabs v-model="activeName" class="workspace-tabs" @tab-click="handleClick">
-<!--   领域定义员（设置领域——增删改,设定领域组件/模板——UI/流程/设备）   -->
-      <el-tab-pane label="我的组件" name="component" class="tab-pane"><MyComponent ref="myComponent"/></el-tab-pane>
-      <el-tab-pane label="我的领域" name="domain" class="tab-pane"><MyDomain /></el-tab-pane>
-<!--   场景设置员（设置场景，设定场景资源——设备/外部应用）   -->
-      <el-tab-pane label="我的场景" name="scenario" class="tab-pane"><MyScenario /></el-tab-pane>
+<!--系统管理员（管理系统组件）-->
+      <el-tab-pane label="我的组件" name="component" class="tab-pane" v-if="roles.includes('admin')">
+        <MyComponent ref="myComponent"/>
+      </el-tab-pane>
+      <!-- 领域场景配置员（设置领域——增删改,设定领域组件/模板——UI/流程/设备） （设置场景，设定场景资源——设备/外部应用）  -->
+      <el-tab-pane label="我的领域" name="domain" class="tab-pane" v-if="roles.includes('developer') || roles.includes('admin')">
+        <MyDomain />
+      </el-tab-pane>
+      <el-tab-pane label="我的场景" name="scenario" class="tab-pane" v-if="roles.includes('developer') || roles.includes('admin')">
+        <MyScenario />
+      </el-tab-pane>
 <!--   应用开发者（选定场景开发应用，应用增删改）   -->
-      <el-tab-pane label="我的应用" name="application" class="tab-pane"><MyApplication /></el-tab-pane>
+      <el-tab-pane label="我的应用" name="application" class="tab-pane" v-if="roles.includes('business')">
+        <MyApplication />
+      </el-tab-pane>
     </el-tabs>
     <div class="add-button" v-if="activeName !== 'component'">
       <el-dropdown>
@@ -32,7 +40,11 @@ import MyDomain from "./component/MyDomain.vue";
 import MyComponent from "./component/MyComponent.vue";
 import MyScenario from "./component/MyScenario.vue";
 import MyApplication from "./component/MyApplication.vue";
+import {useUserStore} from "../../../../store/modules/userStore";
+import {storeToRefs} from "pinia";
 
+const userStore = useUserStore()
+const { roles } = storeToRefs(userStore)
 const activeName = ref('component')
 const router = useRouter()
 const myComponent = ref<InstanceType<typeof MyComponent> | null>(null); // 引用 MyComponent

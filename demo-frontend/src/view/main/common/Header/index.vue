@@ -30,8 +30,9 @@
         </el-button>
         <template #dropdown>
           <el-dropdown-menu>
-            <el-dropdown-item command="admin">管理员</el-dropdown-item>
-            <el-dropdown-item command="developer">开发人员</el-dropdown-item>
+            <el-dropdown-item command="admin">系统管理员</el-dropdown-item>
+            <el-dropdown-item command="developer">场景配置员</el-dropdown-item>
+            <el-dropdown-item command="business">业务人员</el-dropdown-item>
             <el-dropdown-item command="user">普通用户</el-dropdown-item>
           </el-dropdown-menu>
         </template>
