@@ -5,7 +5,7 @@
       <div>
         <el-button type="primary" >保存</el-button>
         <el-button type="primary" @click="goToPage" >试运行</el-button>
-        <el-button type="primary" plain>应用发布</el-button>
+        <el-button type="primary" @click="doPublish" plain>应用发布</el-button>
       </div>
     </div>
 
@@ -87,6 +87,9 @@ import pageTool from './pageTool.json'
 import {Search} from "@element-plus/icons-vue";
 const router = useRouter()
 
+const doPublish = () =>{
+  ElMessage.success("应用发布成功");
+}
 const goToPage = ()=>{
   const fullPath = router.resolve(`/demo/page?processId=${buttonConfig.value.processId}`).href
   window.open(fullPath, '_blank')

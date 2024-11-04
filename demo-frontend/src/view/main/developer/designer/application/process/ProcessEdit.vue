@@ -4,7 +4,7 @@
       <div>{{processName}}-流程编辑页面</div>
       <div>
         <el-button type="primary" @click="saveFile">保存</el-button>
-        <el-button type="primary">发布</el-button>
+        <el-button type="primary" @click="flowPublish">流程发布</el-button>
       </div>
     </div>
     <div class="process-content">
@@ -92,6 +92,9 @@ onMounted(async ()=>{
   content.value = JSON.stringify(result.data, null, 2)
 })
 
+const flowPublish=()=>{
+  ElMessage.success("流程发布成功");
+}
 const saveFile=()=>{
   console.log('save')
   saveFileData("/definition/ConferenceService.proc", content.value)  //调用后端数据
