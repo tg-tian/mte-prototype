@@ -325,6 +325,14 @@ const startPublish = ()=>{
         if(res.status === 200) { ElMessage.success('设备发布成功')}
       })
     }
+
+    if (progress.value === 100){
+      updateDevicePublish(deviceData.value.code).then((res:any)=>{
+        if(res.status === 200) {
+          ElMessage.success('设备发布成功')
+        }
+      })
+    }
   };
 
   eventSource.onerror = () => {

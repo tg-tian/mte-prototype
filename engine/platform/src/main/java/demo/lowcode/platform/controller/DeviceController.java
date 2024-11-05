@@ -13,7 +13,7 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/device")
-@CrossOrigin(origins = "http://localhost:2400")
+@CrossOrigin
 @Api(value = "设备接口",tags={"设备实例管理"})
 public class DeviceController {
     @Resource
