@@ -310,9 +310,6 @@ const startPublish = ()=>{
   // 它允许网页与服务器之间建立持久地连接，服务器可以通过该连接持续向客户端推送消息，而客户端可以实时接收这些消息。
   // 与 WebSocket 不同的是，EventSource 是单向的，只能由服务器向客户端发送数据，客户端不能向服务器发送消息。
   const eventSource = new EventSource(import.meta.env.VITE_BASE_PATH+`/device/publish?deviceType=${deviceData.value.code}`)
-  updateDevicePublish(deviceData.value.code).then((res:any)=>{
-      if(res.status === 200) { ElMessage.success('设备发布成功')}
-  })
   eventSource.onmessage = (event) => {
     const progressData = JSON.parse(event.data);
     console.log(progressData);
@@ -324,6 +321,14 @@ const startPublish = ()=>{
       progressImage.value = new URL('@/assets/progress/package.png', import.meta.url).href
     }else {
       progressImage.value = new URL('@/assets/progress/copy.png', import.meta.url).href
+    }
+
+    if (progress.value === 100){
+      updateDevicePublish(deviceData.value.code).then((res:any)=>{
+        if(res.status === 200) {
+          ElMessage.success('设备发布成功')
+        }
+      })
     }
   };
 
