@@ -1,7 +1,10 @@
 <template>
   <div>
     <div v-for="itemCategory in itemList" :key="itemCategory.type">
-      <div class="sub-title">{{itemCategory.name}}</div>
+      <div class="sub-title">
+        {{itemCategory.name}}
+        <el-button style="float: right; margin-right: 20px" type="primary" plain>新增</el-button>
+      </div>
       <div style="display: flex;flex-wrap: wrap;gap: 2px">
         <div v-for="item in itemCategory.items" :key="item.id" class="tool-item">
           <div class="tool-icon">

@@ -2,13 +2,13 @@
   <div class="component-container">
     <div class="component-subtitle" style="display: flex;justify-content: space-between">
       <div @click="deviceVisible = !deviceVisible" style="cursor: pointer">
-        设备模板({{deviceData.length}})
+        设备组件({{deviceData.length}})
         <el-icon>
           <CaretBottom v-if="deviceVisible"/>
           <CaretTop v-if="!deviceVisible"/>
         </el-icon>
       </div>
-      <el-button type="primary" @click="router.push({path: '/developer/device-component/add'})">新增设备模板</el-button>
+      <el-button type="primary" @click="router.push({path: '/developer/device-component/add'})">新增设备组件</el-button>
     </div>
     <div class="component-content" v-if="deviceVisible">
       <div style="display: flex;flex-wrap: wrap;gap: 20px">
@@ -16,6 +16,7 @@
           <Card
               :cardItem="device"
               canSelect
+              needPublish
               @itemClick="handleDeviceClick(device)"
               @update:isSelected="updateDeviceIsSelected(index, $event)"/>
         </div>
@@ -25,13 +26,13 @@
   <div style="margin-top: 30px" class="component-container">
     <div class="component-subtitle" style="display: flex;justify-content: space-between">
       <div @click="businessVisible = !businessVisible" style="cursor: pointer">
-        业务组件模板({{businessData.length}})
+        业务模板({{businessData.length}})
         <el-icon>
           <CaretBottom v-if="businessVisible"/>
           <CaretTop v-if="!businessVisible"/>
         </el-icon>
       </div>
-      <el-button type="primary">新增业务组件模板</el-button>
+      <el-button type="primary">新增业务模板</el-button>
     </div>
     <div class="component-content" v-if="businessVisible">
       <div style="display: flex;flex-wrap: wrap;gap: 20px">
@@ -39,6 +40,7 @@
           <Card
               :cardItem="business"
               canSelect
+              needPublish
               @itemClick="handleBusinessClick(business)"
               @update:isSelected="updateBusinessIsSelected(index, $event)"/>
         </div>
@@ -147,6 +149,7 @@ const getComponentData = async ()=>{
             code: device.deviceTypeCode,
             name: device.deviceTypeName,
             isSelected: false,
+            isPublish: device.publish,
             imageUrl: await getImage(device.deviceTypeCode)
           }
           deviceData.value.push(newDevice);  // 将对象加入到 domainDevice 中

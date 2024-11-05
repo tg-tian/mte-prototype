@@ -36,4 +36,7 @@ public class DeviceType {
     @Column(name = "imgPath")
     @ApiModelProperty(value = "图标路径", example = "/images/smartphone.png")
     private String imgPath;
+    @Column(name = "isPublish")
+    @ApiModelProperty(value = "发布状态", example = "1")
+    private boolean isPublish;
 }

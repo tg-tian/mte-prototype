@@ -2,7 +2,7 @@
   <div style="position: relative">
     <el-tabs v-model="activeName" class="workspace-tabs" @tab-click="handleClick">
 <!--系统管理员（管理系统组件）-->
-      <el-tab-pane label="我的组件" name="component" class="tab-pane" v-if="roles.includes('admin')">
+      <el-tab-pane label="我的控件" name="component" class="tab-pane" v-if="roles.includes('admin')">
         <MyComponent ref="myComponent"/>
       </el-tab-pane>
       <!-- 领域场景配置员（设置领域——增删改,设定领域组件/模板——UI/流程/设备） （设置场景，设定场景资源——设备/外部应用）  -->

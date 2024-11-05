@@ -6,6 +6,12 @@
       </div>
       <div style="z-index: 1; margin: 15px" @click="handleItemClick">
         <el-image :src="cardItem.imageUrl" class="folder-icon"></el-image>
+        <div v-if="Boolean(needPublish) && Boolean(cardItem.isPublish)" style="margin: 0 auto;text-align: center;">
+          <span class="publish-span">已发布</span>
+        </div>
+        <div v-if="Boolean(needPublish) && !Boolean(cardItem.isPublish)" style="margin: 0 auto;text-align: center;">
+          <span class="not-publish-span">待发布</span>
+        </div>
       </div>
 
       <el-dropdown trigger="click" class="more-options" @command="handleDropdownItemClick" v-if="dropDownItems.length !== 0">
@@ -36,6 +42,10 @@ const props = defineProps({
   canSelect: {
     type: Boolean,
     default: false
+  },
+  needPublish:{
+    type:Boolean,
+    default:false
   }
 });
 const emit = defineEmits(['update:isSelected', 'commandClick', 'itemClick']);
@@ -110,5 +120,27 @@ const handleDropdownItemClick = (item) => {
 .file-name {
   margin-top: 10px;
   text-align: center;
+}
+
+.publish-span{
+  background-color: rgba(255, 255, 255, 0.7);
+  padding: 2px 10px;
+  font-weight: bold;
+  font-size: 13px;
+  color: #007BFF;
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
+}
+
+.not-publish-span{
+  background-color: rgba(255, 255, 255, 0.7); /* 使用浅橙色背景 */
+  padding: 2px 10px;
+  font-weight: bold;
+  font-size: 13px;
+  color: #FFA500; /* 橙色字体，表示“待发布”状态 */
+  border-radius: 5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  font-family: 'Arial', sans-serif;
 }
 </style>
