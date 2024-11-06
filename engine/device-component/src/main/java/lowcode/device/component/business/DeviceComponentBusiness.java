@@ -139,11 +139,23 @@ public class DeviceComponentBusiness {
                 String name = event.path("name").asText();
                 String description = event.path("description").asText();
                 String type = event.path("type").asText();
-                DeviceEvent new_Device_event = new DeviceEvent(name,description,type);
+                String commandId = event.path("command").asText();
+                DeviceEvent new_Device_event = new DeviceEvent(name,description,type, commandId);
                 deviceEventList.add(new_Device_event);
             }
         }
         return deviceEventList;
+    }
+
+    public List<DeviceEvent> loadEvent(String deviceName) throws IOException {
+        List<DeviceEvent> result = new ArrayList<>();
+        // 获取所有operation
+        List<CommandDto> commandDtoList = loadCommand(deviceName);
+        for (CommandDto command: commandDtoList){
+            List<DeviceEvent> events = loadEvent(deviceName, command.getCommandCode());
+            result.addAll(events);
+        }
+        return result;
     }
 
     //TODO 事件读取存在一些逻辑问题需要修改

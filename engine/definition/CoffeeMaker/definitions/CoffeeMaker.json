@@ -37,7 +37,7 @@
   ],
   "commands": [
     {
-      "code": "Start",
+      "code": "start",
       "name": "启动",
       "inputParam": [],
       "outputParam": "void",
@@ -45,7 +45,7 @@
       "services": ["AService"]
     },
     {
-      "code": "MakeCoffee",
+      "code": "makeCoffee",
       "name": "做咖啡",
       "inputParam": [{
         "code": "coffeeType",
@@ -66,7 +66,7 @@
       ]
     },
     {
-      "code": "Check",
+      "code": "check",
       "name": "检查",
       "inputParam": [],
       "outputParam": "void",

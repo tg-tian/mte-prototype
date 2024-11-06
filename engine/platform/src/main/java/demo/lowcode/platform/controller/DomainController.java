@@ -17,7 +17,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:2400")
+@CrossOrigin
 @Api(value = "领域接口",tags={"领域内容管理"})
 public class DomainController {
     @Resource

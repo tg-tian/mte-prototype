@@ -20,5 +20,7 @@ public class DeviceEvent {
     private String description;
     @ApiModelProperty("事件类型")
     private String type;
+    @ApiModelProperty("绑定操作")
+    private String commandId;
 
 }

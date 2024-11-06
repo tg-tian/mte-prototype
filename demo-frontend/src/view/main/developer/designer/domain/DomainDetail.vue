@@ -15,6 +15,12 @@
           </div>
         </div>
         <div class="domain-resource">
+          <div class="domain-title" id="领域设备类型">设备类型</div>
+          <div style="margin-top: 30px">
+            <ResourceDevice :domainId="domainId" :domainName="domainName"/>
+          </div>
+        </div>
+        <div class="domain-resource">
           <div class="domain-title" id="领域模板管理">模板管理</div>
           <div style="margin-top: 30px">
             <DomainResource :domainId="domainId" :domainName="domainName"/>
@@ -32,6 +38,8 @@
         class="anchor"
       >
         <el-anchor-link href="#领域设置" title="领域设置">
+        </el-anchor-link>
+        <el-anchor-link href="#领域设备类型" title="领域设备类型">
         </el-anchor-link>
         <el-anchor-link href="#领域模板管理" title="领域模板管理">
           <!--
@@ -55,6 +63,7 @@
 
 import DomainArea from "@/view/main/developer/designer/domain/component/DomainArea.vue";
 import DomainResource from "@/view/main/developer/designer/domain/component/DomainResource.vue";
+import ResourceDevice from "@/view/main/developer/designer/domain/component/ResourceDevice.vue";
 
 
 /**

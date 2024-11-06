@@ -2,7 +2,7 @@
     "code": "Conditioner",
     "name": "空调",
     "type": "Device",
-    "img_link": "",
+    "img_link": "./Conditioner.png",
     "refs": [
         {
             "refID": "events",
