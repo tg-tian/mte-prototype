@@ -22,7 +22,7 @@ onActivated(()=>{
   processList.value = [
     {
       code: "ConferenceService",
-      name: "会议服务",
+      name: "咖啡服务",
       imageUrl: new URL('@/assets/images/process.png', import.meta.url).href
     }
   ]
