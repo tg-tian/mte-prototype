@@ -7,6 +7,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -57,6 +58,9 @@ public class DeviceTypeBusiness {
         return deviceTypeMapper.loadDeviceId(deviceTypeCode);
     }
     public  List<DeviceType> loadDeviceData(List<Long> deviceTypeIdList){
+        if (deviceTypeIdList == null || deviceTypeIdList.size() == 0){
+            return new ArrayList<>();
+        }
         return  deviceTypeMapper.selectBatchIds(deviceTypeIdList);
     }
 

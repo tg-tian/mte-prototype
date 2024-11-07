@@ -38,7 +38,7 @@ service.interceptors.response.use(
       console.log(error.response)
       return error.response
     }
-    ElMessage.warning(error.response.data)
+    // ElMessage.warning(error.response.data)
     console.log(error.response)
     return error.response
   }

@@ -2,7 +2,7 @@
   <div style="display: flex;justify-content: space-between">
     <div style="font-size: 18px;margin-bottom: 30px">
       <el-button link @click="router.go(-1)" style="margin-right: 10px"><el-icon><ArrowLeft /></el-icon></el-button>
-      设备模板详情-{{deviceName}}
+      设备类型详情-{{deviceName}}
     </div>
     <el-button type="primary" @click="dialogVisible = true;startPublish()">发布</el-button>
   </div>
@@ -23,7 +23,7 @@
         <el-descriptions-item>
           <template #label>
             <div class="cell-item">
-              设备模板代码
+              设备类型代码
             </div>
           </template>
           {{deviceData.code}}
@@ -31,7 +31,7 @@
         <el-descriptions-item>
           <template #label>
             <div class="cell-item">
-              设备模板名
+              设备类型名
             </div>
           </template>
           {{ deviceData.name }}
@@ -171,6 +171,9 @@ watch(route, (newRoute, oldRoute) => {
   loadDeviceData();
 });
 const loadDeviceData = () => {
+  commandData.value = []
+  serviceData.value = []
+  eventData.value = []
   getDeviceData()
   getCommandData()
   getEventData()
@@ -291,14 +294,9 @@ const getServiceData = ()=>{
 }
 
 const getEventData = ()=>{
-  getOperationEvent(deviceCode.value, "MakeCoffee").then((res:any)=>{
+  getOperationEvent(deviceCode.value, "").then((res:any)=>{
     if(res.status === 200){
-      eventData.value = res.data.map((v)=>{
-        return {
-          ...v,
-          commandId: "MakeCoffee"
-        }
-      })
+      eventData.value = res.data
     }
   })
 }
@@ -321,9 +319,6 @@ const startPublish = ()=>{
       progressImage.value = new URL('@/assets/progress/package.png', import.meta.url).href
     }else {
       progressImage.value = new URL('@/assets/progress/copy.png', import.meta.url).href
-      updateDevicePublish(deviceData.value.code).then((res:any)=>{
-        if(res.status === 200) { ElMessage.success('设备发布成功')}
-      })
     }
 
     if (progress.value === 100){

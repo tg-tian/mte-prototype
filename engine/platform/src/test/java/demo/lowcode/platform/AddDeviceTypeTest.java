@@ -51,7 +51,7 @@ public class AddDeviceTypeTest {
 
     @Test
     public void addEventSuccess(){
-        DeviceEvent event = new DeviceEvent("onStartError", "启动失败", "onError");
+        DeviceEvent event = new DeviceEvent("onStartError", "启动失败", "onError", "start");
         addDeviceTypeBusiness.addEvent("Conditioner", "start", event);
     }
 

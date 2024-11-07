@@ -18,7 +18,7 @@ import java.util.Map;
 import java.util.Objects;
 
 @RestController
-@CrossOrigin(origins = "http://localhost:2400")
+@CrossOrigin
 @Api(value = "领域绑定接口",tags={"领域绑定管理"})
 public class BindingController {
 

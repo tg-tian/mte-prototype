@@ -1,9 +1,11 @@
 <template>
   <div>
     <div v-for="itemCategory in itemList" :key="itemCategory.type">
-      <div class="sub-title">
-        {{itemCategory.name}}
-        <el-button style="float: right; margin-right: 20px" type="primary" plain>新增</el-button>
+      <div style="display:flex;justify-content: space-between">
+        <div class="sub-title">
+          {{itemCategory.name}}
+        </div>
+        <el-button style="float: right;" type="primary" plain>新增</el-button>
       </div>
       <div style="display: flex;flex-wrap: wrap;gap: 2px">
         <div v-for="item in itemCategory.items" :key="item.id" class="tool-item">
@@ -21,6 +23,7 @@
 import {ToolboxCategory} from "@/view/main/common/ToolBox/toolboxTypes";
 import {loadComponentData} from "@/api/toolBoxApi";
 import {mapGetters} from "pinia";
+import {loadDomainBindingData} from "@/api/DomainApi";
 
 const props = defineProps({
   designerType: String,
@@ -48,12 +51,16 @@ onMounted(()=>{
   icons.value = import.meta.glob('@/assets/icon/*');
   if(props.designerType === "Process")
   {
+    deviceType.type = "domainDevice";
+    deviceType.name = "领域设备类型控件";
+    deviceType.items = []
     getDeviceType();
   }
 })
 
 const getDeviceType = ()=>{
-  loadComponentData("Device").then( (res:any)=> {
+  // loadComponentData("Device")
+  loadDomainBindingData("Device", "SmartBuilding").then( (res:any)=> {
     if(res.status === 200){
       const deviceTypeList = res.data.map((v)=>{
         return{

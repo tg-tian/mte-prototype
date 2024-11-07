@@ -4,12 +4,11 @@
       <template #title>
         <el-button type="primary" style="padding: 10px">+</el-button>
       </template>
-      <el-menu-item-group title="流程">
-        <el-menu-item index="0-1">新增流程</el-menu-item>
+      <el-menu-item-group title="功能">
+        <el-menu-item index="0-1">新增功能服务</el-menu-item>
       </el-menu-item-group>
       <el-menu-item-group title="页面">
-        <el-menu-item index="1-1">新增普通页面</el-menu-item>
-        <el-menu-item index="1-2">新增表单</el-menu-item>
+        <el-menu-item index="1-1">新增页面</el-menu-item>
       </el-menu-item-group>
     </el-sub-menu>
     <el-menu-item index="index" class="nav-item">

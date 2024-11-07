@@ -1,7 +1,7 @@
 <template>
   <div class="application-title">{{applicationName}}应用设计</div>
-  新增功能组件
-  新增页面视图
+  当前领域：智慧楼宇<br>
+  当前场景：交叉二号楼
 </template>
 <script setup lang="ts">
 interface State{

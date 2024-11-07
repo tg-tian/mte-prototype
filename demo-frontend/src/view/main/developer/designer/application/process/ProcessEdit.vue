@@ -13,6 +13,7 @@
         <el-input
             placeholder="搜索"
             :prefix-icon="Search"
+            style="margin-bottom: 10px"
         />
         <ToolBox :toolboxJson="processTool" designerType="Process"/>
       </div>

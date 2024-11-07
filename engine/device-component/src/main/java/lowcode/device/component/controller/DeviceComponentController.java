@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Objects;
 
 @RestController //?
 @CrossOrigin    //?
@@ -42,7 +43,12 @@ public class DeviceComponentController {
     @GetMapping(value = "/load-operation-event")
     public ResponseEntity<?> loadOperationEvent(String deviceName,String operationCode) {
         try {
-            List<DeviceEvent> deviceEventList = deviceComponentBusiness.loadEvent(deviceName,operationCode);
+            List<DeviceEvent> deviceEventList;
+            if (Objects.equals(operationCode, "")){
+                deviceEventList = deviceComponentBusiness.loadEvent(deviceName);
+            }else {
+                deviceEventList = deviceComponentBusiness.loadEvent(deviceName,operationCode);
+            }
             return new ResponseEntity<List<DeviceEvent>>(deviceEventList, HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
