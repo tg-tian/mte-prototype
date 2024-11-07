@@ -82,7 +82,6 @@ public class DeviceGenerator {
 
     public void copyJarFile() throws Exception{
         String filePath = parentPath+deviceType.toLowerCase()+"/target/"+deviceType.toLowerCase()+"-"+version+".jar";
-        System.out.println(filePath+"...////////////////////////////");
         // 生成的jar包拷贝到工作目录
         File source = new File(parentPath+deviceType.toLowerCase()+"/target/"+deviceType.toLowerCase()+"-"+version+".jar");
 

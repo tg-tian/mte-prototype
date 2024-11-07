@@ -161,7 +161,10 @@ const deviceForm = reactive<RuleForm>({
   deviceCode: '',
   deviceName: '',
   deviceType: '',
-  deviceService: '',
+  deviceService: {
+    code: '',
+    name: ''
+  },
   protocol: '',
   host: '',
   port: ''
@@ -266,6 +269,17 @@ const getScenarioDevice = ()=>{
         return {
           code: v.deviceTypeCode,
           name:v.deviceTypeName,
+          //todo:此处应该读取json文件，暂时写死
+          services: [
+            {
+              code: "AService",
+              name: "A品牌"
+            },
+            {
+              code: "BService",
+              name: "B品牌"
+            }
+          ],
           imageUrl: new URL('/src/assets/icon/'+v.deviceTypeCode+'.png', import.meta.url).href
         }
       })
@@ -298,6 +312,13 @@ const submitForm = async (formEl: FormInstance | undefined) => {
               ElMessage.success("设备实例注册成功")
               await getScenarioDevice();
               selectedDevice.value='';
+              //清空输入的值
+              deviceForm.deviceCode = '';
+              deviceForm.deviceName = '';
+              deviceForm.deviceType = '';
+              deviceForm.protocol = '';
+              deviceForm.host = '';
+              deviceForm.port = '';
             }
           })
         }

@@ -30,7 +30,7 @@ export const loadDoaminComponentData = (componentType: String) =>
  */
 export const uploadDomainBindingData = (data:any,componentType: String,domainCode : String) =>
     request({
-        url:`/upload-domain-component-binding?componentType=${componentType}&domainCode=${domainName}`,
+        url:`/upload-domain-component-binding?componentType=${componentType}&domainCode=${domainCode}`,
         method:"post",
         data: data,
     })

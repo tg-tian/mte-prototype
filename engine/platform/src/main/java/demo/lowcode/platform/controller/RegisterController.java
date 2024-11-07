@@ -86,7 +86,7 @@ public class RegisterController {
             result.put("deviceCode",devices.getDeviceCode());
             result.put("deviceName",devices.getDeviceName());
             result.put("deviceType",deviceTypeBusiness.loadDeviceType(devices.getDeviceTypeId()));
-            result.put("deviceService","A品牌");
+            result.put("deviceService",devices.getManufacturer());
             result.put("protocol",deviceRegister.getProtocol());
             result.put("host",deviceRegister.getIPAddress());
             result.put("port",Integer.toString(deviceRegister.getPort()));

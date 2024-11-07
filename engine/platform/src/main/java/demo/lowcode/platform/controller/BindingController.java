@@ -77,8 +77,11 @@ public class BindingController {
             long domainId = domainBusiness.getDomainIdByCode(domainCode);
             List<Long> deviceTypeIdList = deviceBindingBusiness.loadDeviceBindingId(domainId);
             //根据deviceTypeId列表，查找deviceTypeId对应的数据
-            List<DeviceType> deviceTypeList= deviceTypeBusiness.loadDeviceData(deviceTypeIdList);
-            return new ResponseEntity<>(deviceTypeList,HttpStatus.OK);
+            if(!deviceTypeIdList.isEmpty()){
+                List<DeviceType> deviceTypeList= deviceTypeBusiness.loadDeviceData(deviceTypeIdList);
+                return new ResponseEntity<>(deviceTypeList,HttpStatus.OK);
+            }
+            else return new ResponseEntity<>("",HttpStatus.OK);
         }
         return  new ResponseEntity<>("绑定组件查询失败", HttpStatus.BAD_REQUEST);
     }
