@@ -245,24 +245,7 @@ onMounted(()=>{
 })
 
 const getScenarioDevice = ()=>{
-  data.value = [];
-  loadScenarioData("The second interdisciplinary building").then((res:any) =>{
-    if (res.status === 200){
-      const devices = res.data;
-      devices.forEach((device: any) => {
-        const newDevice = {
-          deviceCode: device.deviceCode,
-          deviceName: device.deviceName,
-          deviceType:device.deviceType,
-          deviceService: device.deviceService,
-          protocol:device.protocol,
-          host:device.host,
-          port:device.port,
-        }
-        data.value.push(newDevice);
-      })
-    }
-  })
+
   loadScenarioBindingData("Device","SmartBuilding").then((res:any)=>{
     if(res.status === 200){
       domainDevice.value = res.data.map( v => {
@@ -281,6 +264,30 @@ const getScenarioDevice = ()=>{
             }
           ],
           imageUrl: new URL('/src/assets/icon/'+v.deviceTypeCode+'.png', import.meta.url).href
+        }
+      })
+
+      //加载设备数据
+      data.value = [];
+      loadScenarioData("The second interdisciplinary building").then((res:any) =>{
+        if (res.status === 200){
+          const devices = res.data;
+          devices.forEach((device: any) => {
+            // 查找设备类型对应的 domainDevice 项
+            const matchedDevice = domainDevice.value.find(d => d.code === device.deviceType);
+            // 获取对应的服务名称
+            const serviceName = matchedDevice?.services.find(service => service.code === device.deviceService)?.name || device.deviceService;
+            const newDevice = {
+              deviceCode: device.deviceCode,
+              deviceName: device.deviceName,
+              deviceType:device.deviceType,
+              deviceService: serviceName,
+              protocol:device.protocol,
+              host:device.host,
+              port:device.port,
+            }
+            data.value.push(newDevice);
+          })
         }
       })
     }
@@ -311,6 +318,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
             if(res.status === 200){
               ElMessage.success("设备实例注册成功")
               await getScenarioDevice();
+              console.log('submit!', deviceForm)
               selectedDevice.value='';
               //清空输入的值
               deviceForm.deviceCode = '';
@@ -323,7 +331,6 @@ const submitForm = async (formEl: FormInstance | undefined) => {
           })
         }
       })
-      console.log('submit!', deviceForm)
     } else {
       console.log('error submit!', fields)
     }

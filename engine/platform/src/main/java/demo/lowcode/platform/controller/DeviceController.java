@@ -29,13 +29,14 @@ public class DeviceController {
             Map<String, Object> deviceForm = (Map<String, Object>) requestBody.get("deviceForm");
             Device device = new Device();
             device.setDeviceCode((String) deviceForm.get("deviceCode"));
-            device.setDeviceName((String) deviceForm.get("deviceName"));
+            device.setDeviceName((String) deviceForm.get("deviceName"));;
             // 获取 deviceType 对象并填充设备类型信息
             Map<String, Object> deviceType = (Map<String, Object>) deviceForm.get("deviceType");
             device.setDeviceTypeId(deviceTypeBusiness.loadDeiceTypeId((String) deviceType.get("code")));
+            // 获取 deviceService 的品牌服务数据
+            Map<String, Object> deviceService = (Map<String, Object>) deviceForm.get("deviceService");
+            device.setManufacturer((String) deviceService.get("code"));
             device.setVersionNumber("1.0.0");
-            device.setManufacturer("");
-
             deviceBusiness.deviceUpload(device);
 
             return new ResponseEntity<>("设备上传成功", HttpStatus.OK);
