@@ -7,7 +7,8 @@
         <el-table-column prop="applicationName" label="应用名" />
         <el-table-column label="操作" width="150">
           <template #default="scope">
-            <el-button type="primary" size="small" @click="goToDetail(scope.row.applicationId, scope.row.applicationName)">打开</el-button>
+            <el-button type="primary" size="small" @click="goToDetail(scope.row.applicationId, scope.row.applicationName)">详情</el-button>
+            <el-button type="success" size="small">扫描</el-button>
           </template>
         </el-table-column>
       </el-table>

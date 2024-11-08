@@ -21,6 +21,7 @@ import DesignPage from '../view/main/developer/designer/application/detailCompon
 import ProcessEdit from '../view/main/developer/designer/application/process/ProcessEdit.vue'
 import PageEdit from '../view/main/developer/designer/application/page/PageEdit.vue'
 import DeveloperConfig from '../view/main/developer/DeveloperConfig/index.vue'
+import TemplateView from '../view/main/developer/designer/template/TemplateView.vue'
 import { getToken } from '../utils/auth.ts'
 import { useUserStore } from "../store/modules/userStore";
 import {ElMessage} from "element-plus";
@@ -100,7 +101,7 @@ const router = createRouter({
             {
               path: 'template',
               name: '模板库',
-              component: null
+              component: TemplateView
             },
             {
               path: 'workspace',
