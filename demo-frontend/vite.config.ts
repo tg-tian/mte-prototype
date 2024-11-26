@@ -68,16 +68,40 @@ export default defineConfig(({ mode }): UserConfig => {
     },
     build: {
       outDir: 'dist', // 指定输出路径
-      assetsDir: 'static', // 指定生成静态资源的存放路径
+      assetsDir: 'assets', // 指定生成静态资源的存放路径
       minify: 'terser', // 混淆器,terser构建后文件体积更小 ,boolean | 'terser' | 'esbuild',默认使用esbuild
       sourcemap: false, // 是否产出soucemap.json
       manifest: false, // 是否产出maifest.json
+      cssCodeSplit: true,
+      emptyOutDir: true,
       // reportCompressedSize: true,
       chunkSizeWarningLimit: 1500,
       terserOptions: {
         compress: {
           drop_console: true, // 生产环境移除console
           drop_debugger: true // 生产环境移除debugger
+        }
+      },
+      rollupOptions: {
+        output: {
+            compact: true,
+            entryFileNames: "static/js/[name]-[hash].js",
+            chunkFileNames: "static/js/vendor/[name]-[hash].js",
+            // assetFileNames: "static/[ext]/[name].[ext]",
+            manualChunks:(id)=>{
+              if (id.includes('node_modules')) {
+                 return "vendor"
+              } 
+            },
+            assetFileNames: (assetInfo)=>{
+              if (assetInfo.name?.endsWith(".css")) {
+                 return "static/css/[name].[ext]";
+              }
+              if (/\.(png|jpe?g|gif|svg|webp|ico)$/.test(assetInfo.name ?? "")) {
+                 return "static/img/[name].[ext]";
+              }
+              return "static/assets/[name].[ext]";
+            }
         }
       }
     }

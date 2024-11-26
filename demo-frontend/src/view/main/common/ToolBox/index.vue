@@ -22,27 +22,32 @@
 <script setup lang="ts">
 import {ToolboxCategory} from "@/view/main/common/ToolBox/toolboxTypes";
 import {loadComponentData} from "@/api/toolBoxApi";
-import {mapGetters} from "pinia";
 import {loadDomainBindingData} from "@/api/DomainApi";
 
 const props = defineProps({
   designerType: String,
-  toolboxJson: Array
+  toolboxJson: Array<ToolboxCategory>
 });
 
 const itemList = ref<ToolboxCategory[]>(props.toolboxJson);
 
+interface DeviceType {
+  type:String,
+  name:String,
+  items:any[],
+}
+
 interface State{
   icons: any
-  deviceType: object
+  deviceType: DeviceType
 }
 
 const state = reactive<State>({
   icons: {},
   deviceType:{
-    type:String,
-    name:String,
-    item:Array,
+    type:'',
+    name:'',
+    items:[],
   }
 })
 const {icons,deviceType} = toRefs(state)
@@ -51,9 +56,9 @@ onMounted(()=>{
   icons.value = import.meta.glob('@/assets/icon/*');
   if(props.designerType === "Process")
   {
-    deviceType.type = "domainDevice";
-    deviceType.name = "领域设备类型控件";
-    deviceType.items = []
+    deviceType.value.type = "domainDevice";
+    deviceType.value.name = "领域设备类型控件";
+    deviceType.value.items = []
     getDeviceType();
   }
 })
@@ -72,10 +77,10 @@ const getDeviceType = ()=>{
         }
       })
       // 使用赋值语法来添加属性
-      deviceType.type = "domainDevice";
-      deviceType.name = "领域设备类型控件";
-      deviceType.items = deviceTypeList;
-      itemList.value.push(deviceType)
+      deviceType.value.type = "domainDevice";
+      deviceType.value.name = "领域设备类型控件";
+      deviceType.value.items = deviceTypeList;
+      itemList.value.push(deviceType.value as ToolboxCategory)
       console.log(itemList);
     }
   });

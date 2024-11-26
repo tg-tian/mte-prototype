@@ -91,13 +91,14 @@ interface State{
   service_data:any[];
   serviceVisible:boolean;
   dialogVisible:boolean;
-  dia_title:String;
+  dia_title:string;
   selectedService: any;  // 添加一个 selectedService 用于保存选中的行数据
 }
 interface Service_RuleForm{
-  factory_Code: String;
-  factory_Name:String;
-  factory_Description:String;
+  factory_Code: string;
+  factory_Name:string;
+  factory_Description:string;
+  fileName: string
   //signature:String;
   //event_Args:
 }
@@ -168,7 +169,7 @@ const onEdit = (row) =>{
   ServiceForm.factory_Description = row.description
   ServiceForm.fileName = row.filename
 };
-const  {service_header,service_data,header ,data,serviceVisible,dialogVisible,dia_title,selectedService} = toRefs(state)
+const  {service_header,service_data,serviceVisible,dialogVisible,dia_title,selectedService} = toRefs(state)
 
 onMounted(() => {
   if(import.meta.env.VITE_MODE === "mock"){

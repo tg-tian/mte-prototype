@@ -72,8 +72,8 @@ import ResourceDevice from "@/view/main/developer/designer/domain/component/Reso
  *     使用 reactive：处理复杂对象或多属性状态时使用。
  * */
 interface State {
-  domainId: String;
-  domainName: String;
+  domainId: string;
+  domainName: string;
 }
 
 const anchorRef = ref < HTMLElement | null>(null) //?

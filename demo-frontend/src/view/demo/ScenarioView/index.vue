@@ -42,10 +42,14 @@ const fetchData = ()=>{
 }
 
 const goToApplicationList = (scenarioId: String, scenarioName: String)=>{
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   router.push({ path: '/demo/applicationList', query: { scenarioId: scenarioId, scenarioName: scenarioName } })
 }
 
 const goToResourceList = (scenarioId: String, scenarioName: String)=>{
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   router.push({ path: '/demo/resource', query: { scenarioId: scenarioId, scenarioName: scenarioName } })
 }
 </script>

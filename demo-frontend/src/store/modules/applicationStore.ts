@@ -10,7 +10,7 @@ export const useApplicationStore = defineStore('application', {
         getApplicationName: (state) => state.applicationName
     },
     actions: {
-        loadApplication(application) {
+        loadApplication(application: any) {
             this.applicationId = application.applicationId
             this.applicationName = application.applicationName
         }

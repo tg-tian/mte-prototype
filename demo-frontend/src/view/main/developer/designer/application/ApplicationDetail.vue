@@ -18,8 +18,8 @@ import DesignHeader from "@/view/main/developer/designer/application/detailCompo
 import DesignAsideBar from "@/view/main/developer/designer/application/detailComponents/DesignAsideBar.vue";
 
 interface State {
-  applicationId: String;
-  applicationName: String;
+  applicationId: string;
+  applicationName: string;
 }
 
 const state = reactive<State>({

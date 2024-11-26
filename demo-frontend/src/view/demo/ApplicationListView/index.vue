@@ -50,6 +50,8 @@ const fetchData = ()=>{
 }
 
 const goToDetail = (applicationId: String, applicationName: String)=>{
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   router.push({ path: '/demo/application/detail', query: { applicationId: applicationId, applicationName: applicationName, scenarioName: scenarioName.value } })
 }
 </script>

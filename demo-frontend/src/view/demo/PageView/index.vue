@@ -40,7 +40,7 @@ interface State {
 
   executing: Boolean;
 
-  configIds: String;
+  configIds: any[];
   config: any;
   saveConfig: any;
   rules: any
@@ -53,7 +53,7 @@ const state = reactive<State>({
   scenarioName: '',
 
   executing: false,
-  configIds: '',
+  configIds: [],
   config: {},
   saveConfig: {},
   rules: {}

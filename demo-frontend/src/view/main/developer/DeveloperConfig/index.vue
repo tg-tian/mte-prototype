@@ -46,7 +46,12 @@ const state = reactive<State>({
     definitionPath: ''
   },
   editable: false,
-  rawData: {}
+  rawData: {
+mavenPath: "",
+workspacePath: "",
+projectPath: "",
+definitionPath: ""
+}
 })
 const {form, editable, rawData} = toRefs(state)
 

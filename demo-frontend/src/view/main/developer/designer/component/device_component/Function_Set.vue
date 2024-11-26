@@ -59,7 +59,7 @@
       <!--事件表单-->
       <div style="display: flex;justify-content: space-between;">
         <div id="公共事件" style="margin-top: 10px;">公共事件</div>
-        <el-button  @click="event_data.length===3 ? $message.warning('当前已无可绑定事件') : eventsVisible=true" type="primary" style="margin-left: auto; margin-bottom:20px;" plain>绑定事件</el-button>
+        <el-button  @click="showEventForm" type="primary" style="margin-left: auto; margin-bottom:20px;" plain>绑定事件</el-button>
       </div>
       <Table :header="event_header" :data="event_data"  @handleLinkClick="editEventFile($event)"  />
 
@@ -205,10 +205,10 @@ interface Operation_RuleForm{
   operation_Name:String;
   Param_header:any[]; //参数头
   operation_InputParam:any[];  //输入参数,用于公共操作函数
-  operation_OutputParam:any[]; //输出参数，用于公共操作函数
+  operation_OutputParam:any; //输出参数，用于公共操作函数
 }
 interface Event_RuleForm{
-  eventType_is_chosen: EventType_Is_Chosen;
+  eventType_Is_Chosen: EventType_Is_Chosen;
   event_Name:String;
   event_Description:String;
   event_Type:String;
@@ -257,6 +257,13 @@ const operation_change_rules = reactive<FormRules<Operation_RuleForm>> ({
 
 // form
 // 添加事件
+const showEventForm = ()=>{
+  if (event_data.value.length === 3){
+    ElMessage.warning('当前已无可绑定事件')
+  }else {
+    eventsVisible.value=true
+  }
+}
 const EventForm = reactive<Event_RuleForm> ({
   eventType_Is_Chosen:{
     onStart:true,
@@ -271,43 +278,45 @@ const EventForm = reactive<Event_RuleForm> ({
 })
 //列表展示及visible变量
 const  state = reactive<State>({
-  event_header:[
-    {
-      code:"name",
-      name:"事件名称",
-      type:"String"
-    },{
-      code:"description",
-      name:"事件描述",
-      type:"String"
-    },{
-      code:"type",
-      name:"事件类型",
-      type:"String"
-    }
-  ],
-  event_data:[],
-  header:[
-    {
-      code:"code",
-      name:"操作码",
-      type:"String"
-    },{
-      code:"name",
-      name:"操作名称",
-      type:"String"
-    },{
-      code:"events_count",
-      name:"已绑定事件",
-      type:"Int"
-    }
-  ],
-  data:[],
-  dialogVisible:false,
-  eventsVisible:false,
-  operationVisible:false,
-  selectedService:null,
-  dia_title:"编辑操作",
+event_header: [
+{
+code: "name",
+name: "事件名称",
+type: "String"
+}, {
+code: "description",
+name: "事件描述",
+type: "String"
+}, {
+code: "type",
+name: "事件类型",
+type: "String"
+}
+],
+event_data: [],
+header: [
+{
+code: "code",
+name: "操作码",
+type: "String"
+}, {
+code: "name",
+name: "操作名称",
+type: "String"
+}, {
+code: "events_count",
+name: "已绑定事件",
+type: "Int"
+}
+],
+data: [],
+dialogVisible: false,
+eventsVisible: false,
+operationVisible: false,
+selectedService: null,
+dia_title: "编辑操作",
+service_header: [],
+service_data: []
 })
 // 编辑&新增操作表单
 const outputParams = [
@@ -339,12 +348,12 @@ const  OperationForm = reactive<Operation_RuleForm>({
     }
   ],
   operation_InputParam:[],
-  operation_OutputParam:''
+  operation_OutputParam:""
 })
 //toRefs(state) 会返回一个包含 state 各个属性的 ref 对象的对象
 //在这里，header、data 和 dialogVisible 都是 ref 对象，它们分别引用 state 对象中的对应属性。
 const  {event_header,event_data,header ,data,dialogVisible,eventsVisible,operationVisible,dia_title,selectedService} = toRefs(state)
-const {Param_header,operation_InputParam,operation_OutputParam} = toRefs(OperationForm)
+const {operation_InputParam,operation_OutputParam} = toRefs(OperationForm)
 onMounted(()=>{
   if (import.meta.env.VITE_MODE === "mock"){
     operation_InputParam.value = [{
@@ -386,7 +395,7 @@ watchEffect(() => {
 });
 
 // 编辑操作
-const onEdit = (row) =>{
+const onEdit = (row: any) =>{
   //要修改 dialogVisible 的值，应该修改 dialogVisible.value 而不是 dialogVisible，因为 dialogVisible 是一个 ref 对象，实际的值存储在 value 属性中。
   //这种情况下，dialogVisible 被重新赋值成一个布尔值 true，而不是修改原来的 ref 对象。
   dialogVisible.value = true;
@@ -400,8 +409,8 @@ const onEdit = (row) =>{
 };
 const submitForm = async (formEl: FormInstance | undefined) => {
   if (!formEl) return
-  await formEl.validate((valid, fields) => {
-    if (eventFormRef) {
+  await formEl.validate((_valid, fields) => {
+    if (eventFormRef !== undefined) {
       const event = {
         name: EventForm.event_Name,
         type: EventForm.event_Type,
@@ -412,7 +421,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         if (res.status === 200){
           ElMessage.success('新增事件成功')
           state.eventsVisible = false;
-          eventFormRef.value.resetFields()
+          eventFormRef.value?.resetFields()
           getEventData()
           getCommandData()
         }
@@ -425,7 +434,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 }
 const resetForm = () => {
   if(eventFormRef){
-    eventFormRef.value.resetFields()
+    eventFormRef.value?.resetFields()
   }
 }
 const beforeOperationEditClose = ()=>{
@@ -436,14 +445,14 @@ const beforeOperationEditClose = ()=>{
   event_data.value = []
 }
 
-const editEventFile = (fileName)=>{
+const editEventFile = (fileName: any)=>{
   console.log(fileName)
 }
 
 const getCommandData = ()=>{
   getOperationCommand(<String>props.name).then((res:any)=>{
     if (res.status === 200){
-      state.data = res.data.map((v)=>{
+      state.data = res.data.map((v: any)=>{
         return {
           code: v.commandCode,
           name: v.commandName,
@@ -471,8 +480,15 @@ const getEventData =() =>{
   getOperationEvent(<String>props.name,selectedService.value.code).then((res:any) =>{
     if(res.status === 200){
       event_data.value = res.data
-      res.data.forEach((v)=>{
-        EventForm.eventType_Is_Chosen[v.type] = false
+      res.data.forEach((v: any)=>{
+        const type: String = v.type
+        if (type === "onStart"){
+          EventForm.eventType_Is_Chosen.onStart = false
+        }else if (type === "onComplete"){
+          EventForm.eventType_Is_Chosen.onComplete = false
+        }else if (type === "onError"){
+          EventForm.eventType_Is_Chosen.onError = false
+        }
       })
     }
   })
@@ -482,7 +498,7 @@ const getEventData =() =>{
 const CommitOperation =  async (formEl: FormInstance | undefined)=>{
   operationVisible.value = false;
   if (!formEl) return
-  await formEl.validate((valid, fields) => {
+  await formEl.validate((_valid, fields) => {
     if (operationFormRef) {
       console.log('submit! operation', OperationForm);
       emit('operation-info',OperationForm)

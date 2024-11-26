@@ -246,7 +246,7 @@ const getImage = async (deviceTypeCode) => {
 
   try {
     if (images[imagePath]) {
-      const imageModule = await images[imagePath]();  // 调用懒加载函数加载模块
+      const imageModule: any = await images[imagePath]();  // 调用懒加载函数加载模块
       return imageModule.default; // 返回图片的默认导出（图片路径）
     } else {
       console.error(`Image not found for device code: ${deviceTypeCode}`);
