@@ -25,7 +25,10 @@
 
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"]
+      "@/*": ["src/*"],
+      "pinia-plugin-persist": [
+        "node_modules/pinia-plugin-persist/dist/index.d.ts"
+      ]
     }
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],

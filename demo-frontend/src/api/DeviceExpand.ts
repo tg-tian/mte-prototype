@@ -59,13 +59,13 @@ export const getOperationEvent = (deviceName : String , operationCode : String) 
 export  const getOperationCommand = (deviceType: String) =>
     request({
         url:`/load-operation-command?deviceType=${deviceType}`,
-        methodL:'get',
+        method:'get',
     })
 
 export  const getService = (deviceName : String , serviceName : String) =>
     request({
         url:`/load-service?deviceName=${deviceName}&serviceName=${serviceName}`,
-        methodL:'get',
+        method:'get',
     })
 
 export const loadDeviceInfo = (deviceTypeCode: String) =>

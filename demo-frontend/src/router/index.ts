@@ -21,7 +21,6 @@ import DesignPage from '../view/main/developer/designer/application/detailCompon
 import ProcessEdit from '../view/main/developer/designer/application/process/ProcessEdit.vue'
 import PageEdit from '../view/main/developer/designer/application/page/PageEdit.vue'
 import DeveloperConfig from '../view/main/developer/DeveloperConfig/index.vue'
-import { getToken } from '../utils/auth.ts'
 import { useUserStore } from "../store/modules/userStore";
 import {ElMessage} from "element-plus";
 const router = createRouter({
@@ -53,17 +52,20 @@ const router = createRouter({
             {
               path: 'auth',
               name: '权限配置',
-              component: null
+              component: null,
+              children: [] // 添加空的 children 属性
             },
             {
               path: 'publish-setting',
               name: '应用发布',
-              component: null
+              component: null,
+              children: [] // 添加空的 children 属性
             },
             {
               path: 'userManage',
               name: '用户管理',
-              component: null
+              component: null,
+              children: [] // 添加空的 children 属性
             },
           ]
         },
