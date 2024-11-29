@@ -42,17 +42,17 @@ const state = reactive<State>({
     }
   ]
 })
-const { applicationList, dropDownItems } = toRefs(state)
+const { applicationList } = toRefs(state)
 
-const updateIsSelected = (index, value) => {
-  applicationList.value[index].isSelected = value;
-};
+// const updateIsSelected = (index: number, value: any) => {
+//   applicationList.value[index].isSelected = value;
+// };
 
-const handleCommand = (application, command)=>{
-  console.log('Clicked item:', application, command);
-}
+// const handleCommand = (application: any, command: any)=>{
+//   console.log('Clicked item:', application, command);
+// }
 
-const handleClick = (application)=>{
+const handleClick = (application: any)=>{
   console.log(application)
   const fullPath = router.resolve(application.route).href
   window.open(fullPath, '_blank')

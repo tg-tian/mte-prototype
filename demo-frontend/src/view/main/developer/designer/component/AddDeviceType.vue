@@ -42,7 +42,7 @@ const router = useRouter()
 interface State {
   active: number;
   //保存DeviceJson所需的所有参数
-  deviceName:String;
+  deviceName:string;
   deviceInfo: any;
   //保存Function_set所需中的所需参数
   operationCode:String[];

@@ -37,6 +37,10 @@
 import {executeProcess, getActionConfig} from "../../../api/processApi";
 import {ElMessage} from "element-plus";
 
+interface Config {
+  [key: string]: any
+}
+
 interface State {
   processName: String;
   processId: String;
@@ -45,10 +49,10 @@ interface State {
 
   executing: Boolean;
 
-  configId: String;
+  configId: string;
   configTitle: String;
   configVisible: Boolean;
-  config: any;
+  config: Config;
   saveConfig: any
 }
 

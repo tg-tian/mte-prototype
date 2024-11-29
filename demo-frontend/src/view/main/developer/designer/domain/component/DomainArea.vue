@@ -11,7 +11,7 @@
     <div style="padding:  20px">
       <el-form
         :rules="rules"
-        :model="fieldForm"
+        :model="FieldForm"
         ref = "fieldFormRef"
         label-width="auto"
         label-position="left"

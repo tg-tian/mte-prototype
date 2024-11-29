@@ -48,10 +48,10 @@ const props = defineProps({
 interface State{
   header: any[];
   data: any[];
-  searchInput: String;
+  searchInput: string;
   dialogVisible: boolean;
   domainProcess: any[];
-  selectedProcessList: String;
+  selectedProcessList: [];
 }
 
 //初始化

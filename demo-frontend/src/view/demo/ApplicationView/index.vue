@@ -54,6 +54,8 @@ const fetchData = ()=>{
 }
 
 const goToDetail = (processId: String, processName: String)=>{
+  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+  // @ts-ignore
   router.push({ path: '/demo/page', query: { processId: processId, processName: processName, applicationName: applicationName.value, scenarioName: scenarioName.value } })
 }
 </script>

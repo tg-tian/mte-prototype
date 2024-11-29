@@ -53,8 +53,8 @@ import DetailDevice from "@/view/main/developer/designer/scenario/component/Deta
 const anchorRef = ref<HTMLElement | null>(null)
 
 interface State {
-  scenarioId: String;
-  scenarioName: String;
+  scenarioId: string;
+  scenarioName: string;
 }
 
 const state = reactive<State>({

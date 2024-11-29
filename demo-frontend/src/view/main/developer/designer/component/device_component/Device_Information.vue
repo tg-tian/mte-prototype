@@ -72,7 +72,7 @@ const uploadUrl=import.meta.env.VITE_BASE_PATH+"/file/upload"
 interface RuleForm{
   deviceCode: string;
   deviceName: string;
-  icon_upload:any;
+  // icon_upload:any;
   //deviceType:string;
   imageUrl:string;
 }
@@ -98,9 +98,9 @@ const rules = reactive<FormRules<RuleForm>>({
 })
 
 const deviceForm = reactive<RuleForm>({
-  deviceCode:"",
-  deviceName:"",
-  imageUrl: "",
+deviceCode: "",
+deviceName: "",
+imageUrl: ""
 })
 watchEffect(() => {
   if (props.info) {
@@ -140,8 +140,8 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
   return true
 }
 const handleAvatarUpload: UploadProps['onSuccess'] = (res)=>{
-  deviceForm.imgUrl = res;
-  console.log(deviceForm.imgUrl);
+  deviceForm.imageUrl = res;
+  console.log(deviceForm.imageUrl);
 }
 
 </script>

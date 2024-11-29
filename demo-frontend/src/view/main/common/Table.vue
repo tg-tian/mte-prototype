@@ -39,7 +39,7 @@
 
   <!-- 图片放大弹出框 -->
   <el-dialog v-model="imgVisible" width="50%" @close="handleDialogClose">
-    <img :src="selectedImage" alt="Expanded Image" style="width: 100%">
+    <el-image :src="selectedImage" alt="Expanded Image" style="width: 100%" />
   </el-dialog>
 </template>
 
@@ -47,7 +47,7 @@
 
 const props = defineProps({
   data: Array,
-  header: Array,
+  header: Array<any>,
 
   canChoose:{
     type: Boolean,

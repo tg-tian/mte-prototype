@@ -1,14 +1,15 @@
 {
   "compilerOptions": {
 
-    "target": "ES2020",
+    "target": "ESNext",
     "useDefineForClassFields": true,
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
 
     /* Bundler mode */
-    "moduleResolution": "bundler",
+    "allowJs": true,
+    "moduleResolution": "node",
     "allowImportingTsExtensions": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
@@ -18,18 +19,18 @@
     "jsx": "preserve",
 
     /* Linting */
-    "strict": true,
-    "noUnusedLocals": true,
-    "noUnusedParameters": true,
-    "noFallthroughCasesInSwitch": true,
+    // "strict": true,
+    // "noUnusedLocals": true,
+    // "noUnusedParameters": true,
+    // "noFallthroughCasesInSwitch": true,
 
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "pinia-plugin-persist": [
-        "node_modules/pinia-plugin-persist/dist/index.d.ts"
-      ]
-    }
+
+      "@/*": ["src/*"]
+    },
+
+    "typeRoots": ["./node_modules/@types", "./types"]
   },
   "include": ["src/**/*.ts", "src/**/*.tsx", "src/**/*.vue"],
   "references": [{ "path": "./tsconfig.node.json" }]

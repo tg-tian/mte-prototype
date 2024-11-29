@@ -10,7 +10,7 @@ export const useScenarioStore = defineStore('scenario', {
         getScenarioName: (state) => state.scenarioName
     },
     actions: {
-        loadScenario(scenario) {
+        loadScenario(scenario: any) {
             this.scenarioId = scenario.scenarioId
             this.scenarioName = scenario.scenarioName
         }

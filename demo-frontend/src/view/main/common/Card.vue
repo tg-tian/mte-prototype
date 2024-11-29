@@ -36,7 +36,7 @@ import {More} from "@element-plus/icons-vue";
 const props = defineProps({
   cardItem: Object,
   dropDownItems: {
-    type: Array,
+    type: Array<any>,
     default: []
   },
   canSelect: {

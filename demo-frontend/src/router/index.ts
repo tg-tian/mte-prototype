@@ -21,6 +21,7 @@ import DesignPage from '../view/main/developer/designer/application/detailCompon
 import ProcessEdit from '../view/main/developer/designer/application/process/ProcessEdit.vue'
 import PageEdit from '../view/main/developer/designer/application/page/PageEdit.vue'
 import DeveloperConfig from '../view/main/developer/DeveloperConfig/index.vue'
+import TemplateView from '../view/main/developer/designer/template/TemplateView.vue'
 import { useUserStore } from "../store/modules/userStore";
 import {ElMessage} from "element-plus";
 const router = createRouter({
@@ -102,7 +103,7 @@ const router = createRouter({
             {
               path: 'template',
               name: '模板库',
-              component: null
+              component: TemplateView
             },
             {
               path: 'workspace',
@@ -270,12 +271,13 @@ const router = createRouter({
 router.beforeEach((to, _from, next) => {
   const userStore = useUserStore();
   const { isAuthenticated, roles } = userStore;
+  const metaRoles: any = to.meta.roles
 
   if (to.meta.requiresAuth){
     if (!isAuthenticated) {
       ElMessage.warning('请先登录')
       next('/');
-    } else if (to.meta.roles && !to.meta.roles.some(role => roles.includes(role))) {
+    } else if (to.meta.roles && !metaRoles.some(role => roles.includes(role))) {
       ElMessage.warning('权限不足')
       next('/');
     } else {

@@ -47,6 +47,10 @@ const state = reactive<State>({
     {
       code: 'edit',
       name: '编辑'
+    },
+    {
+      code: 'scan',
+      name: '扫描'
     }
   ]
 })
