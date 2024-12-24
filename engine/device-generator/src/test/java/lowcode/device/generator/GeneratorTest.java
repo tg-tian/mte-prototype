@@ -1,5 +1,6 @@
 package lowcode.device.generator;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import demo.lowcode.common.util.FileUtil;
 import demo.lowcode.common.util.StringUtil;
 import lowcode.device.generator.core.DeviceGenerator;
@@ -7,8 +8,6 @@ import lowcode.device.generator.core.EventGenerator;
 import lowcode.device.generator.core.ProjectGenerator;
 import lowcode.device.generator.core.ServiceGenerator;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -54,11 +53,11 @@ public class GeneratorTest {
         for (String operation: operations){
             // 读取jar包中的json文件
             String jsonFile = "events/"+ StringUtil.capitalizeFirstLetter(operation)+"Event.json";
-            JSONObject jsonObject = FileUtil.readJarJson(jarPath, jsonFile);
+            JsonNode jsonNode = FileUtil.readJarJson(jarPath, jsonFile);
             // 根据json文件在对应文件夹生成对应java文件
             EventGenerator eventGenerator = new EventGenerator();
             String groupId = "lowcode.device.coffeemaker";
-            eventGenerator.generateEventFile(groupId, eventPath, jsonObject);
+            eventGenerator.generateEventFile(groupId, eventPath, jsonNode);
         }
     }
 }

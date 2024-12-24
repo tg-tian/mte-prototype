@@ -1,5 +1,9 @@
 package demo.lowcode.platform.business;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import demo.lowcode.common.Action;
 import demo.lowcode.common.ActionExecResult;
 import demo.lowcode.common.CommonConfig;
@@ -11,9 +15,6 @@ import demo.lowcode.common.util.JsonUtils;
 import demo.lowcode.platform.model.ActionMeta;
 import demo.lowcode.platform.model.RTProcess;
 import jakarta.annotation.Resource;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Method;
@@ -112,25 +113,26 @@ public class ProcessBusiness {
         List<ActionMeta> result = new ArrayList<>();
         String filePath = procPath+processId+".proc";
         String jsonContent = JsonUtils.readJson(filePath);
+        ObjectMapper objectMapper = new ObjectMapper();
         try {
-            JSONObject jsonObject = new JSONObject(jsonContent);
-            JSONArray actionArray = jsonObject.getJSONArray("actionList");
-            for (int i=0;i<actionArray.length();i++){
-                JSONObject actionObject = actionArray.getJSONObject(i);
-                String actionId = actionObject.getString("actionId");
-                String actionName = actionObject.getString("actionName");
-                String type = actionObject.getString("type");
-                String parentActionId = actionObject.getString("parentActionId");
-                String objectId = actionObject.getString("objectId");
-                String execParam = actionObject.getString("execParam");
+            JsonNode jsonNode = objectMapper.readTree(jsonContent);
+            ArrayNode actionArray = (ArrayNode) jsonNode.get("actionList");
+            for (int i=0;i<actionArray.size();i++){
+                ObjectNode actionObject = (ObjectNode) actionArray.get(i);
+                String actionId = actionObject.get("actionId").asText();
+                String actionName = actionObject.get("actionName").asText();
+                String type = actionObject.get("type").asText();
+                String parentActionId = actionObject.get("parentActionId").asText();
+                String objectId = actionObject.get("objectId").asText();
+                String execParam = actionObject.get("execParam").asText();
 
-                JSONArray paramArray = actionObject.getJSONArray("executeArgs");
+                ArrayNode paramArray = (ArrayNode)actionObject.get("executeArgs");
                 List<Param> params = new ArrayList<>();
-                for (int j=0;j<paramArray.length();j++){
-                    JSONObject paramObject = paramArray.getJSONObject(j);
-                    String paramCode = paramObject.getString("code");
-                    String paramName = paramObject.getString("name");
-                    String paramType = paramObject.getString("type");
+                for (int j=0;j<paramArray.size();j++){
+                    ObjectNode paramObject = (ObjectNode)paramArray.get(j);
+                    String paramCode = paramObject.get("code").asText();
+                    String paramName = paramObject.get("name").asText();
+                    String paramType = paramObject.get("type").asText();
                     Param param = new Param(paramCode, paramName, paramType);
                     params.add(param);
                 }
@@ -143,7 +145,7 @@ public class ProcessBusiness {
 //            ActionMeta checkMeta = new ActionMeta("check", "检查", "Device", "makeCoffee", "CoffeeMaker", "check", null);
 //            result.add(actionMeta);
 //            result.add(checkMeta);
-        }catch (JSONException e){
+        }catch (Exception e){
             throw new RuntimeException("读取process信息失败："+e.getMessage());
         }
         return result;

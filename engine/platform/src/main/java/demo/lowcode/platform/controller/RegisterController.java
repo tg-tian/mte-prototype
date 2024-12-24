@@ -22,7 +22,7 @@ import java.util.Map;
 
 @Controller
 @RequestMapping("/register" )
-@CrossOrigin(origins = "http://localhost:2400")
+@CrossOrigin
 @Api(value = "场景注册接口",tags={"场景注册管理"})
 public class RegisterController {
 
