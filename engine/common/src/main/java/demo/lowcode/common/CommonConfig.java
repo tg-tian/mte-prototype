@@ -5,13 +5,13 @@ import lombok.Data;
 @Data
 public class CommonConfig {
     // maven目录
-    private static String mavenPath = "D:/apache-maven-3.6.3/bin/mvn.cmd";
+    private static String mavenPath = "/usr/tool/apache-maven-3.6.3/bin/mvn.cmd";
     // 设备打包临时目录
-    private static String projectPath = "D:/projects/ubml/mte-prototype/engine/";
+    private static String projectPath = "/usr/tool/";
     // 工作区目录
-    private static String workspacePath = "D:/projects/ubml/mte-prototype/engine/workplace/";
+    private static String workspacePath = "/usr/tool/workplace/";
     // 设备定义工作目录
-    private static String definitionPath = "D:/projects/ubml/mte-prototype/engine/workplace/deviceType/";
+    private static String definitionPath = "/usr/tool/workplace/deviceType/";
 
     public static void setMavenPath(String mavenPath) {
         CommonConfig.mavenPath = mavenPath;

@@ -2,6 +2,7 @@ package demo.lowcode.platform.business;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import demo.lowcode.common.CommonConfig;
 import demo.lowcode.platform.mapper.SceneMapper;
 import demo.lowcode.platform.model.*;
 import lowcode.device.component.model.*;
@@ -42,7 +43,7 @@ public class ScenarioBusiness {
     }
 
     public Scenario_ResourceJson loadResourceJson() throws IOException{
-        File file = new File("definition/BuildingA.sce"); //获取文件夹
+        File file = new File(CommonConfig.getWorkspacePath()+"SmartBuilding/BuildingA/BuildingA.sce"); //获取文件夹
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
 
@@ -75,7 +76,7 @@ public class ScenarioBusiness {
     //获取领域基本信息json
     public ScenarioJson loadScenarioJson() throws IOException{
 
-        File file = new File("definition/BuildingA.sce"); //获取文件夹
+        File file = new File(CommonConfig.getWorkspacePath()+"SmartBuilding/BuildingA/BuildingA.sce"); //获取文件夹
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
 
