@@ -87,6 +87,7 @@ import {
   uploadDeviceData,
   uploadDeviceRegisterData
 } from "@/api/scenarioApi";
+import getAssetsFile from '@/utils/pub-use'
 
 const props = defineProps({
   scenarioId: String,
@@ -228,13 +229,13 @@ onMounted(()=>{
             name: "B品牌"
           }
         ],
-        imageUrl: new URL('@/assets/logo.png', import.meta.url).href
+        imageUrl: getAssetsFile('device/CoffeeMaker.png')
       },
       {
         code: "AirConditioner",
         name: "空调",
         services: [],
-        imageUrl: new URL('@/assets/logo.png', import.meta.url).href
+        imageUrl: getAssetsFile('device/AirConditioner.png')
       }]
 
   }else {
@@ -263,7 +264,7 @@ const getScenarioDevice = ()=>{
               name: "B品牌"
             }
           ],
-          imageUrl: new URL('/src/assets/icon/'+v.deviceTypeCode+'.png', import.meta.url).href
+          imageUrl: getAssetsFile('device/'+v.deviceTypeCode+'.png'),
         }
       })
 

@@ -54,6 +54,7 @@ import { ref } from 'vue';
 import Card from "@/view/main/common/Card.vue";
 import {CaretBottom, CaretTop} from "@element-plus/icons-vue";
 import {loadDoaminComponentData} from "@/api/DomainApi";
+import getAssetsFile from '@/utils/pub-use'
 interface State{
   deviceData: any[];
   businessData: any[];
@@ -76,19 +77,19 @@ onMounted(async ()=>{
       {
         code: "CoffeeMaker",
         name: "咖啡机器人",
-        imageUrl: new URL('@/assets/device/CoffeeMaker.png', import.meta.url).href,
+        imageUrl: getAssetsFile('device/CoffeeMaker.png'),
         isSelected: false
       },
       {
         code: "AirConditioner",
         name: "空调",
-        imageUrl: new URL('@/assets/device/AirConditioner.png', import.meta.url).href,
+        imageUrl: getAssetsFile('device/AirConditioner.png'),
         isSelected: false
       },
       {
         code: "SmokeDetector",
         name: "烟感器",
-        imageUrl: new URL('@/assets/device/SmokeDetector.png', import.meta.url).href,
+        imageUrl: getAssetsFile('device/SmokeDetector.png'),
         isSelected: false
       }
     ]
@@ -97,7 +98,7 @@ onMounted(async ()=>{
       {
         code: "ConferenceService",
         name: "会议接待流程图",
-        imageUrl: new URL('@/assets/icon/process-template.png', import.meta.url).href,
+        imageUrl: getAssetsFile('icon/process-template.png'),
         isSelected: false
       }
     ]
@@ -121,23 +122,23 @@ const handleBusinessClick = (device)=>{
 }
 
 //import.meta.glob 使用时，路径并不支持 @ 这种别名。import.meta.glob 只能处理相对于项目根目录的相对路径
-const images = import.meta.glob('/src/assets/icon/*.png');
-const getImage = async (deviceTypeCode) => {
-  const imagePath = `/src/assets/icon/${deviceTypeCode}.png`; // 构建路径
-
-  try {
-    if (images[imagePath]) {
-      const imageModule: any = await images[imagePath]();  // 调用懒加载函数加载模块
-      return imageModule.default; // 返回图片的默认导出（图片路径）
-    } else {
-      console.error(`Image not found for device code: ${deviceTypeCode}`);
-      return '/logo.png'; // 图片未找到时返回空字符串或默认图片
-    }
-  } catch (e) {
-    console.error('Error loading image:', e);
-    return '/logo.png'; // 如果出错，返回默认图片路径或空
-  }
-}
+// const images = import.meta.glob('/src/assets/icon/*.png');
+// const getImage = async (deviceTypeCode) => {
+//   const imagePath = `/src/assets/icon/${deviceTypeCode}.png`; // 构建路径
+//
+//   try {
+//     if (images[imagePath]) {
+//       const imageModule: any = await images[imagePath]();  // 调用懒加载函数加载模块
+//       return imageModule.default; // 返回图片的默认导出（图片路径）
+//     } else {
+//       console.error(`Image not found for device code: ${deviceTypeCode}`);
+//       return '/logo.png'; // 图片未找到时返回空字符串或默认图片
+//     }
+//   } catch (e) {
+//     console.error('Error loading image:', e);
+//     return '/logo.png'; // 如果出错，返回默认图片路径或空
+//   }
+// }
 
 const getComponentData = async ()=>{
   await loadDoaminComponentData("Device").then( (res:any) =>{
@@ -150,7 +151,7 @@ const getComponentData = async ()=>{
             name: device.deviceTypeName,
             isSelected: false,
             isPublish: device.publish,
-            imageUrl: await getImage(device.deviceTypeCode)
+            imageUrl: getAssetsFile('device/'+device.deviceTypeCode+".png")
           }
           deviceData.value.push(newDevice);  // 将对象加入到 domainDevice 中
       })

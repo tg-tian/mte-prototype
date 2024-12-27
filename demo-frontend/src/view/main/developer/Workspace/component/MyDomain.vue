@@ -13,6 +13,7 @@
 </template>
 <script setup lang="ts">
 import Card from "../../../common/Card.vue";
+import getAssetsFile from '@/utils/pub-use'
 
 interface State {
   domainList: any[],
@@ -26,13 +27,13 @@ onActivated(()=>{
     {
       code: "SmartBuilding",
       name: "智慧楼宇",
-      imageUrl: new URL('@/assets/logo.png', import.meta.url).href,
+      imageUrl: getAssetsFile('logo.png'),
       isSelected: false
     },
     {
       code: "SmartMine",
       name: "智慧矿山",
-      imageUrl: new URL('@/assets/logo.png', import.meta.url).href,
+      imageUrl: getAssetsFile('logo.png'),
       isSelected: false
     }
   ]

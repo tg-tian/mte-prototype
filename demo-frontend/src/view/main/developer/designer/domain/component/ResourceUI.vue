@@ -40,6 +40,7 @@ import Table from "@/view/main/common/Table.vue";
 import Card from '@/view/main/common/Card.vue'
 import {Search} from "@element-plus/icons-vue";
 import {getDomainComponent} from "@/api/DomainApi";
+import getAssetsFile from '@/utils/pub-use'
 
 const props = defineProps({
   domainId: String,
@@ -88,11 +89,11 @@ onMounted(()=> {
       {
         code: "001",
         name: "场景化导航",
-        imgUrl: new URL('@/assets/images/guide.svg', import.meta.url).href
+        imgUrl: getAssetsFile('images/guide.svg')
       },{
         code: "002",
         name: "柱状图",
-        imgUrl: new URL('@/assets/images/bar.svg', import.meta.url).href
+        imgUrl: getAssetsFile('images/bar.svg')
       }]
   }else {
     getDomainData()
@@ -102,13 +103,13 @@ onMounted(()=> {
     code: "001",
     name: "场景化导航",
     isSelected: false,
-    imageUrl: new URL('@/assets/images/guide.svg', import.meta.url).href
+    imageUrl: getAssetsFile('images/guide.svg')
   },
     {
       code: "002",
       name: "柱状图",
       isSelected: false,
-      imageUrl: new URL('@/assets/images/bar.svg', import.meta.url).href
+      imageUrl: getAssetsFile('images/bar.svg')
     }
   ]
 })
@@ -118,11 +119,11 @@ const getDomainData = () =>{
     if (res.status === 200){
       console.log(res.data)
       data.value = res.data.componentAbout.map(v=>{
-        const imgPath = "../../../../../../assets/icon/"+v.imgPath
+        const imgPath = "icon/"+v.imgPath
         return {
           code: v.componentId,
           name: v.componentName,
-          imgUrl: new URL(imgPath, import.meta.url).href,
+          imgUrl: getAssetsFile(imgPath),
           isSelected: false
         }
       })

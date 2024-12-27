@@ -11,6 +11,7 @@
 
 <script setup lang="ts">
 import Card from '../../../../common/Card.vue'
+import getAssetsFile from '@/utils/pub-use'
 const router = useRouter()
 
 interface State {
@@ -23,7 +24,7 @@ onActivated(()=>{
     {
       code: "ConferenceService",
       name: "咖啡服务",
-      imageUrl: new URL('@/assets/images/process.png', import.meta.url).href
+      imageUrl: getAssetsFile('images/process.png')
     }
   ]
 })

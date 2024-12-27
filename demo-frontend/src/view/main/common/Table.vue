@@ -3,7 +3,7 @@
     <el-table-column type="selection" width="55"  v-if="canChoose"/>
     <el-table-column  v-for="col in header" :key="col.code" :prop="col.code" :label="col.name">
       <template v-slot="scope">
-        <img
+        <el-image
             v-if="col.type === 'Image'"
             :src="scope.row[col.code]"
             alt="Image"
@@ -11,7 +11,7 @@
             @click="handleImageClick(scope.row[col.code])"
         />
         <el-button link @click="handleLinkClick(scope.row[col.code])" style="color: #50a5fb" v-if="col.type === 'Link'">{{scope.row[col.code]}}</el-button>
-        <span v-else>{{ scope.row[col.code] }}</span>
+        <span v-if="col.type !== 'Image' && col.type !== 'Link'">{{ scope.row[col.code] }}</span>
       </template>
     </el-table-column>
     <el-table-column label="操作" v-if="canDelete || canEdit">
