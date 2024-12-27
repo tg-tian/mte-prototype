@@ -1,4 +1,4 @@
-import { createRouter, createWebHistory } from 'vue-router'
+import { createRouter, createWebHashHistory } from 'vue-router'
 import MockDeviceView from '../view/demo/MockDeviceView/index.vue'
 import PageDemoView from '../view/demo/PageView/index.vue'
 import ProcessDemoView from '../view/demo/ProcessView/index.vue'
@@ -25,7 +25,7 @@ import TemplateView from '../view/main/developer/designer/template/TemplateView.
 import { useUserStore } from "../store/modules/userStore";
 import {ElMessage} from "element-plus";
 const router = createRouter({
-  history: createWebHistory(),
+  history: createWebHashHistory(),
   routes: [
     {
       path: '',

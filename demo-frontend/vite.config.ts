@@ -17,7 +17,7 @@ export default defineConfig(({ mode }): UserConfig => {
   // 根据环境变量加载环境变量文件
   const ASR_ENV = dotenv.parse(fs.readFileSync(`.env.${mode}`))
   return {
-    base: ASR_ENV.VITE_PUBLIC_PATH, // 环境路径
+    base: ASR_ENV.VITE_PUBLIC_PATH, // 部署基路径
     server: {
       open: true, // 是否主动唤醒浏览器
       host: '0.0.0.0',
