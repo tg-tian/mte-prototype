@@ -11,7 +11,7 @@
         <relativePath/> <!-- lookup parent from repository -->
     </parent>
 
-    <groupId>lowcode.device</groupId>
+    <groupId>demo.lowcode.device</groupId>
     <artifactId>coffeemaker</artifactId>
     <version>1.0.0</version>
 

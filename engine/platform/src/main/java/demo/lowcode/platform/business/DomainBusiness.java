@@ -2,6 +2,7 @@ package demo.lowcode.platform.business;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import demo.lowcode.common.CommonConfig;
 import demo.lowcode.common.Property;
 import demo.lowcode.platform.dto.DomainJson;
 import demo.lowcode.platform.dto.Domain_ComponentJson;
@@ -95,7 +96,7 @@ public class DomainBusiness {
     }
 
     public Domain_ComponentJson loadComponentJson(String componentType) throws IOException {
-        File file = new File("definition/SmartBuilding.do");//获取文件夹
+        File file = new File(CommonConfig.getWorkspacePath()+"SmartBuilding/SmartBuilding.do");//获取文件夹
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
         //组件信息表，定义在文件 definition/SmartBuilding.do 使用componentID作为“键”，使用剩下的内容作为“值”的List
@@ -136,7 +137,7 @@ public class DomainBusiness {
     public DomainJson loadJson() throws IOException {
         // 读取该领域的json文件(领域ID、名称、字段表、组件类型列表)
             //获取json文件
-        File file = new File("definition/SmartBuilding.do");  //获取文件类
+        File file = new File(CommonConfig.getWorkspacePath()+"SmartBuilding/SmartBuilding.do");  //获取文件类
         ObjectMapper objectMapper = new ObjectMapper(); //?
         JsonNode rootNode = objectMapper.readTree(file); //获取json树状结构
             //组织json文件

@@ -1,5 +1,9 @@
 package lowcode.device.component.business;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import demo.lowcode.common.Command;
 import demo.lowcode.common.CommonConfig;
 import demo.lowcode.common.Param;
@@ -8,9 +12,6 @@ import demo.lowcode.common.util.JsonUtils;
 import demo.lowcode.common.util.StringUtil;
 import lowcode.device.component.entity.BrandService;
 import lowcode.device.component.entity.DeviceEvent;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
@@ -35,28 +36,38 @@ public class AddDeviceTypeBusiness {
             new File(baseDir+"/definitions/services").mkdirs();
 
             // 2、写入json内容
+            ObjectMapper objectMapper = new ObjectMapper();
             try {
-                JSONObject jsonObject = new JSONObject();
+                // 创建根节点 (ObjectNode)
+                ObjectNode jsonObject = objectMapper.createObjectNode();
                 jsonObject.put("code", deviceCode);
                 jsonObject.put("name", deviceName);
                 jsonObject.put("type", "Device");
                 jsonObject.put("img_link", imageUrl);
 
-                JSONArray refs = new JSONArray();
-                JSONObject eventRef = new JSONObject();
+                // 创建 "refs" 数组 (ArrayNode)
+                ArrayNode refs = objectMapper.createArrayNode();
+                // 创建 eventRef 对象并添加到 refs
+                ObjectNode eventRef = objectMapper.createObjectNode();
                 eventRef.put("refID", "events");
-                eventRef.put("refPath", new JSONArray());
-                refs.put(eventRef);
-                JSONObject serviceRef = new JSONObject();
-                serviceRef.put("refID", "services");
-                serviceRef.put("refPath", new JSONArray());
-                refs.put(serviceRef);
-                jsonObject.put("refs", refs);
+                eventRef.set("refPath", objectMapper.createArrayNode());
+                refs.add(eventRef);
 
-                JSONArray commands = new JSONArray();
-                jsonObject.put("commands", commands);
-                FileUtil.writeFile(baseDir+"/definitions/"+deviceCode+".json", jsonObject.toString(4));
-            }catch (JSONException e){
+                // 创建 serviceRef 对象并添加到 refs
+                ObjectNode serviceRef = objectMapper.createObjectNode();
+                serviceRef.put("refID", "services");
+                serviceRef.set("refPath", objectMapper.createArrayNode());
+                refs.add(serviceRef);
+
+                jsonObject.set("refs", refs);
+
+                // 创建 "commands" 数组 (ArrayNode)
+                ArrayNode commands = objectMapper.createArrayNode();
+                jsonObject.set("commands", commands);
+
+                File outputFile = new File(baseDir + "/definitions/" + deviceCode + ".json");
+                objectMapper.writerWithDefaultPrettyPrinter().writeValue(outputFile, jsonObject);
+            }catch (Exception e){
                 throw new RuntimeException(e.getMessage());
             }
         }
@@ -72,42 +83,55 @@ public class AddDeviceTypeBusiness {
         String jsonContent = JsonUtils.readJson(baseDir+deviceType+".json");
 
         // TODO: 检查操作是否存在
+        ObjectMapper objectMapper = new ObjectMapper();
         try {
-            // 向文件中添加操作信息
-            JSONObject jsonObject = new JSONObject(jsonContent);
-            JSONObject commandObject = new JSONObject();
+            // 读取现有的 JSON 内容
+            JsonNode jsonObject = objectMapper.readTree(jsonContent);
+
+            // 创建新的 commandObject
+            ObjectNode commandObject = objectMapper.createObjectNode();
             commandObject.put("code", command.getCommandCode());
             commandObject.put("name", command.getCommandName());
-            JSONArray input = new JSONArray();
-            if (command.getInputParam() != null){
-                for (Param param: command.getInputParam()){
-                    JSONObject paramObject = new JSONObject();
+
+            // 创建 inputParams 数组
+            ArrayNode input = objectMapper.createArrayNode();
+            if (command.getInputParam() != null) {
+                for (Param param : command.getInputParam()) {
+                    ObjectNode paramObject = objectMapper.createObjectNode();
                     paramObject.put("code", param.getCode());
                     paramObject.put("name", param.getName());
                     paramObject.put("type", param.getType());
-                    paramObject.put("options", new JSONArray(param.getOptions()));
-                    paramObject.put("default", param.getDefaultValue()!=null ? param.getDefaultValue():"");
-                    input.put(paramObject);
+                    paramObject.set("options", objectMapper.valueToTree(param.getOptions()));
+                    paramObject.put("default", param.getDefaultValue() != null ? param.getDefaultValue() : "");
+                    input.add(paramObject);
                 }
             }
-            commandObject.put("inputParams", input);
+            commandObject.set("inputParams", input);
             commandObject.put("outputParam", command.getOutputParam());
-            commandObject.put("events", new JSONArray());
-            commandObject.put("services", new JSONArray());
-            jsonObject.getJSONArray("commands").put(commandObject);
+            commandObject.set("events", objectMapper.createArrayNode());
+            commandObject.set("services", objectMapper.createArrayNode());
 
-            String eventCode = StringUtil.capitalizeFirstLetter(command.getCommandCode())+"Event";
-            JSONArray ref = jsonObject.getJSONArray("refs");
-            JSONArray eventRefs = ref.getJSONObject(0).getJSONArray("refPath");
-            JSONObject event = new JSONObject();
+            // 将 commandObject 添加到 commands 数组
+            ((ArrayNode) jsonObject.get("commands")).add(commandObject);
+
+            // 添加 event 信息
+            String eventCode = StringUtil.capitalizeFirstLetter(command.getCommandCode()) + "Event";
+            ArrayNode ref = (ArrayNode) jsonObject.get("refs");
+            ArrayNode eventRefs = (ArrayNode) ref.get(0).get("refPath");
+            ObjectNode event = objectMapper.createObjectNode();
             event.put("code", eventCode);
-            event.put("path", "events/"+eventCode+".json");
-            eventRefs.put(event);
+            event.put("path", "events/" + eventCode + ".json");
+            eventRefs.add(event);
 
             // 生成对应的事件文件
-            FileUtil.createFile(baseDir+"events/"+ eventCode+".json");
-            FileUtil.writeFile(baseDir+deviceType+".json", jsonObject.toString(4));
-        }catch (JSONException e){
+            File eventFile = new File(baseDir + "events/" + eventCode + ".json");
+            if (!eventFile.exists()) {
+                eventFile.createNewFile();
+            }
+
+            File jsonFile = new File(baseDir + deviceType + ".json");
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(jsonFile, jsonObject);
+        }catch (Exception e){
             throw new RuntimeException(e.getMessage());
         }
     }
@@ -119,16 +143,27 @@ public class AddDeviceTypeBusiness {
         String baseDir = CommonConfig.getDefinitionPath()+deviceType+"/definitions/";
         String jsonContent = JsonUtils.readJson(baseDir+deviceType+".json");
         try {
-            JSONObject jsonObject = new JSONObject(jsonContent);
-            JSONArray jsonArray = jsonObject.getJSONArray("commands");
-            for (int i=0;i< jsonArray.length();i++){
-                JSONObject c = jsonArray.getJSONObject(i);
-                if (Objects.equals(c.getString("code"), commandCode)){
-                    c.getJSONArray("events").put(event.getName());
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonObject = objectMapper.readTree(jsonContent);
+
+            // 获取 "commands" 数组
+            ArrayNode commandsArray = (ArrayNode) jsonObject.get("commands");
+
+            // 遍历 "commands" 数组，查找匹配的 commandCode
+            for (int i = 0; i < commandsArray.size(); i++) {
+                ObjectNode commandObject = (ObjectNode) commandsArray.get(i);
+
+                // 如果找到匹配的 commandCode，添加事件到 "events" 数组
+                if (commandObject.get("code").asText().equals(commandCode)) {
+                    ArrayNode eventsArray = (ArrayNode) commandObject.get("events");
+                    eventsArray.add(event.getName());  // 添加事件名称
                 }
             }
-            FileUtil.writeFile(baseDir+deviceType+".json", jsonObject.toString(4));
-        } catch (JSONException e) {
+
+            // 写入更新后的 JSON 文件
+            File jsonFile = new File(baseDir + deviceType + ".json");
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(jsonFile, jsonObject);
+        } catch (Exception e) {
             e.printStackTrace();
         }
 
@@ -137,9 +172,11 @@ public class AddDeviceTypeBusiness {
         String eventCode = StringUtil.capitalizeFirstLetter(commandCode)+"Event";
         String eventContent = JsonUtils.readJson(baseDir+"events/"+eventCode+".json");
         try {
-            JSONObject eventObject;
+            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectNode eventObject;
 
-            JSONObject newEvent = new JSONObject();
+            // 创建新的 event 信息
+            ObjectNode newEvent = objectMapper.createObjectNode();
             newEvent.put("name", event.getName());
             newEvent.put("description", event.getDescription());
             newEvent.put("type", event.getType());
@@ -147,19 +184,30 @@ public class AddDeviceTypeBusiness {
             newEvent.put("signature", "");
             newEvent.put("body", "");
 
-            if (Objects.equals(eventContent, "")){
-                eventObject = new JSONObject();
-                eventObject.put("eventPath", eventCode+"Controller.java");
-                JSONArray eventArray = new JSONArray();
-                eventArray.put(newEvent);
-                eventObject.put("eventList", eventArray);
-            }else {
-                eventObject = new JSONObject(eventContent);
-                JSONArray eventArray = eventObject.getJSONArray("eventList");
-                eventArray.put(newEvent);
+            // 判断 eventContent 是否为空
+            if (eventContent.isEmpty()) {
+                eventObject = objectMapper.createObjectNode();
+                eventObject.put("eventPath", eventCode + "Controller.java");
+
+                // 创建新的 eventList 数组
+                ArrayNode eventArray = objectMapper.createArrayNode();
+                eventArray.add(newEvent);
+
+                // 设置 eventList 到 eventObject
+                eventObject.set("eventList", eventArray);
+            } else {
+                // 如果 eventContent 不为空，则读取已有的 JSON 内容
+                JsonNode existingContent = objectMapper.readTree(eventContent);
+                eventObject = (ObjectNode) existingContent;
+
+                // 获取并更新 eventList
+                ArrayNode eventArray = (ArrayNode) eventObject.get("eventList");
+                eventArray.add(newEvent);
             }
-            FileUtil.writeFile(baseDir+"events/"+ eventCode+".json", eventObject.toString(4));
-        }catch (JSONException e){
+            // 将更新后的 JSON 内容写入文件
+            File eventFile = new File(baseDir + "events/" + eventCode + ".json");
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(eventFile, eventObject);
+        }catch (Exception e){
             e.printStackTrace();
         }
     }
@@ -168,29 +216,48 @@ public class AddDeviceTypeBusiness {
     public void initService(String deviceType, BrandService service){
         String baseDir = CommonConfig.getDefinitionPath()+deviceType+"/definitions/";
         try{
-            JSONObject jsonObject = new JSONObject();
+            ObjectMapper objectMapper = new ObjectMapper();
+            ObjectNode jsonObject = objectMapper.createObjectNode();
             jsonObject.put("code", service.getCode());
             jsonObject.put("name", service.getName());
             jsonObject.put("device", deviceType);
             jsonObject.put("description", service.getDescription());
-            jsonObject.put("parameters", new JSONArray());
-            jsonObject.put("commands", new JSONArray());
-            FileUtil.writeFile(baseDir+"services/"+service.getFilename(), jsonObject.toString(4));
-        }catch (JSONException e){
+
+            // 创建空的 parameters 和 commands 数组
+            ArrayNode parametersArray = objectMapper.createArrayNode();
+            ArrayNode commandsArray = objectMapper.createArrayNode();
+
+            // 将空数组加入到 JSON 对象
+            jsonObject.set("parameters", parametersArray);
+            jsonObject.set("commands", commandsArray);
+
+            // 写入文件
+            File file = new File(baseDir + "services/" + service.getFilename());
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, jsonObject);
+        }catch (Exception e){
             e.printStackTrace();
         }
 
         // 读取主文件，添加对应ref
         String jsonContent = JsonUtils.readJson(baseDir+deviceType+".json");
         try {
-            JSONObject jsonObject = new JSONObject(jsonContent);
-            JSONArray jsonArray = jsonObject.getJSONArray("refs");
-            JSONObject serviceRef = new JSONObject();
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(jsonContent);
+            ArrayNode refsArray = (ArrayNode) jsonNode.get("refs");
+
+            // 创建新的 serviceRef 对象
+            ObjectNode serviceRef = objectMapper.createObjectNode();
             serviceRef.put("code", service.getCode());
-            serviceRef.put("path", "services/"+service.getFilename());
-            jsonArray.getJSONObject(1).getJSONArray("refPath").put(serviceRef);
-            FileUtil.writeFile(baseDir+deviceType+".json", jsonObject.toString(4));
-        } catch (JSONException e) {
+            serviceRef.put("path", "services/" + service.getFilename());
+
+            // 向 refs 数组的第二个元素中添加新的 serviceRef
+            ArrayNode refPathArray = (ArrayNode) refsArray.get(1).get("refPath");
+            refPathArray.add(serviceRef);
+
+            // 将更新后的 JSON 写回文件
+            File file = new File(baseDir + deviceType + ".json");
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, jsonNode);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }
@@ -201,33 +268,41 @@ public class AddDeviceTypeBusiness {
         // 读取服务文件，获取厂商信息
         String serviceContent = JsonUtils.readJson(baseDir+"services/"+serviceName+".json");
         List<String> commandList = new ArrayList<>();
+        ObjectMapper objectMapper = new ObjectMapper();
         try {
-            JSONObject serviceObject = new JSONObject(serviceContent);
-            JSONArray serviceMethod = serviceObject.getJSONArray("commands");
-            for (int i=0;i<serviceMethod.length();i++){
-                JSONObject method = serviceMethod.getJSONObject(i);
-                String signature = method.getString("signature");
-                commandList.add(signature.substring(0, signature.indexOf("(")));
+            JsonNode serviceObject = objectMapper.readTree(serviceContent);
+
+            // 获取 commands 数组
+            ArrayNode serviceMethod = (ArrayNode) serviceObject.get("commands");
+
+            // 遍历 commands 数组，提取每个方法的 signature
+            for (JsonNode method : serviceMethod) {
+                String signature = method.get("signature").asText();
+
+                // 提取方法签名中的方法名
+                if (signature != null && signature.contains("(")) {
+                    commandList.add(signature.substring(0, signature.indexOf("(")));
+                }
             }
-        }catch (JSONException e){
+        }catch (Exception e){
             e.printStackTrace();
         }
 
         // 读取主文件，添加对应ref
         String jsonContent = JsonUtils.readJson(baseDir+deviceType+".json");
         try {
-            JSONObject jsonObject = new JSONObject(jsonContent);
-            JSONArray jsonArray = jsonObject.getJSONArray("commands");
-            for (int i=0;i< jsonArray.length();i++){
-                JSONObject c = jsonArray.getJSONObject(i);
-                if (commandList.contains(c.getString("code"))){
-                    JSONArray services = c.getJSONArray("services");
+            JsonNode jsonNode = objectMapper.readTree(jsonContent);
+            ArrayNode commandsArray = (ArrayNode) jsonNode.get("commands");
+            for (int i=0;i< commandsArray.size();i++){
+                ObjectNode c = (ObjectNode) commandsArray.get(i);
+                if (commandList.contains(c.get("code").asText())){
+                    ArrayNode services = (ArrayNode)c.get("services");
 
-                    boolean serviceExists = IntStream.range(0, services.length())
+                    boolean serviceExists = IntStream.range(0, services.size())
                             .mapToObj(index -> {
                                 try {
-                                    return services.getString(index);
-                                } catch (JSONException e) {
+                                    return services.get(index).asText();
+                                } catch (Exception e) {
                                     throw new RuntimeException("Error while processing JSON", e);
                                 }
                             })
@@ -235,12 +310,13 @@ public class AddDeviceTypeBusiness {
 
                     // 如果 serviceName 不在服务列表中，则添加
                     if (!serviceExists) {
-                        services.put(serviceName);
+                        services.add(serviceName);
                     }
                 }
             }
-            FileUtil.writeFile(baseDir+deviceType+".json", jsonObject.toString(4));
-        } catch (JSONException e) {
+            File file = new File(baseDir + deviceType + ".json");
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, jsonNode);
+        } catch (Exception e) {
             e.printStackTrace();
         }
     }

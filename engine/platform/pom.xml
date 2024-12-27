@@ -57,12 +57,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-databind</artifactId>
-            <version>2.14.0</version>
-        </dependency>
-
-        <dependency>
             <groupId>com.yomahub</groupId>
             <artifactId>liteflow-core</artifactId>
             <version>2.12.1</version>
@@ -82,7 +76,7 @@
         <dependency>
             <groupId>com.github.ulisesbocchio</groupId>
             <artifactId>jasypt-spring-boot-starter</artifactId>
-            <version>3.0.5</version> <!-- 使用最新版本，兼容 Spring Boot 3.x -->
+            <version>3.0.5</version>
         </dependency>
         <dependency>
             <groupId>com.alibaba</groupId>
@@ -108,6 +102,7 @@
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <configuration>
                     <mainClass>demo.lowcode.platform.PlatformApplication</mainClass>
+                    <skip>false</skip>
                     <excludes>
                         <exclude>
                             <groupId>org.projectlombok</groupId>
@@ -115,6 +110,13 @@
                         </exclude>
                     </excludes>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
         </plugins>
     </build>

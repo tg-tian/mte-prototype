@@ -1,5 +1,6 @@
 package demo.lowcode.platform.business;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import demo.lowcode.common.Action;
 import demo.lowcode.common.ActionExecResult;
 import demo.lowcode.common.CommonConfig;
@@ -15,8 +16,6 @@ import lombok.SneakyThrows;
 import lowcode.device.component.business.MockBusiness;
 import lowcode.device.component.model.DeviceConnectService;
 import lowcode.device.component.model.DeviceMeta;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.lang.reflect.Method;
 import java.net.URLClassLoader;
@@ -102,8 +101,8 @@ public class ActionBusiness {
                 for (String operation: operations){
                     // 获取操作对应的事件controller文件
                     String jsonFile = "events/"+StringUtil.capitalizeFirstLetter(operation)+"Event.json";
-                    JSONObject jsonObject = FileUtil.readJarJson(jarPath, jsonFile);
-                    String eventFile = jsonObject.getString("eventPath");
+                    JsonNode jsonNode = FileUtil.readJarJson(jarPath, jsonFile);
+                    String eventFile = jsonNode.path("eventPath").asText();
 
                     String eventFilePath = scePath+"device/"+deviceType+"/event/java/"+eventFile;
                     String outputDir = scePath+"device/"+deviceType+"/event/class/";
@@ -113,35 +112,36 @@ public class ActionBusiness {
                     Class<?> controllerClass = controllerClassLoader.loadClass(controllerPackageName);
 
                     // 对其中每一个事件方法添加eventListener
-                    JSONArray eventArray = jsonObject.getJSONArray("eventList");
-                    for (int i = 0; i<eventArray.length(); i++){
-                        JSONObject eventObject = eventArray.getJSONObject(i);
-                        String eventType = eventObject.getString("type");
+                    JsonNode eventArrayNode = jsonNode.path("eventList");
+                    if (eventArrayNode.isArray()) {
+                        for (JsonNode eventNode : eventArrayNode) {
+                            String eventType = eventNode.path("type").asText();
 
-                        Method method = null;
-                        String methodSignature = eventObject.getString("signature");
-                        String methodName = methodSignature.substring(0, methodSignature.indexOf('('));
-                        String methodParam = methodSignature.substring(methodSignature.indexOf('(')+1, methodSignature.indexOf(')'));
-                        if (methodParam.equals("")){
-                            // 尝试获取无参数的方法
-                            method = controllerClass.getDeclaredMethod(methodName);
-                        }else {
-                            // 尝试获取带参数的方法
-                            method = controllerClass.getDeclaredMethod(methodName, eventClass);
-                        }
-                        Method finalMethod = method;
-                        EventListener eventListener = new EventListener() {
-                            @SneakyThrows
-                            @Override
-                            public void handleEvent(Object... args) {
-                                if (args.length == 0) {
-                                    finalMethod.invoke(controllerClass.getDeclaredConstructor().newInstance());
-                                }else {
-                                    finalMethod.invoke(controllerClass.getDeclaredConstructor().newInstance(), args);
-                                }
+                            Method method = null;
+                            String methodSignature = eventNode.path("signature").asText();
+                            String methodName = methodSignature.substring(0, methodSignature.indexOf('('));
+                            String methodParam = methodSignature.substring(methodSignature.indexOf('(')+1, methodSignature.indexOf(')'));
+                            if (methodParam.equals("")){
+                                // 尝试获取无参数的方法
+                                method = controllerClass.getDeclaredMethod(methodName);
+                            }else {
+                                // 尝试获取带参数的方法
+                                method = controllerClass.getDeclaredMethod(methodName, eventClass);
                             }
-                        };
-                        device.addEventListener(operation, eventType, eventListener);
+                            Method finalMethod = method;
+                            EventListener eventListener = new EventListener() {
+                                @SneakyThrows
+                                @Override
+                                public void handleEvent(Object... args) {
+                                    if (args.length == 0) {
+                                        finalMethod.invoke(controllerClass.getDeclaredConstructor().newInstance());
+                                    }else {
+                                        finalMethod.invoke(controllerClass.getDeclaredConstructor().newInstance(), args);
+                                    }
+                                }
+                            };
+                            device.addEventListener(operation, eventType, eventListener);
+                        }
                     }
                 }
                 return device;

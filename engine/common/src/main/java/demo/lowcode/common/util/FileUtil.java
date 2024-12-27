@@ -1,7 +1,7 @@
 package demo.lowcode.common.util;
 
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -98,8 +98,8 @@ public class FileUtil {
     }
 
     // 读取jar包中的json文件（resource目录下）
-    public static JSONObject readJarJson(String jarFilePath, String jsonFile) {
-        JSONObject result = null;
+    public static JsonNode readJarJson(String jarFilePath, String jsonFile) {
+        JsonNode result = null;
         try {
             // 打开 JAR 文件
             JarFile jarFile = new JarFile(jarFilePath);
@@ -121,7 +121,8 @@ public class FileUtil {
                 }
                 reader.close();
 
-                result = new JSONObject(String.valueOf(jsonContent));
+                ObjectMapper objectMapper = new ObjectMapper();
+                result = objectMapper.readTree(jsonContent.toString());
             } else {
                 throw new RuntimeException("jar包中不存在该json文件");
             }

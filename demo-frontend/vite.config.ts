@@ -2,6 +2,8 @@ import { fileURLToPath, URL } from 'node:url'
 
 import { defineConfig, UserConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
+import babel from "vite-plugin-babel";
+import commonjs from 'vite-plugin-commonjs';
 
 import AutoImport from 'unplugin-auto-import/vite' // 自动导入
 import Components from 'unplugin-vue-components/vite' // 组件注册
@@ -32,6 +34,24 @@ export default defineConfig(({ mode }): UserConfig => {
     },
     plugins: [
       vue(),
+      commonjs(),
+      babel({
+        include: ['src/**/*'],
+        babelConfig: {
+          presets: [
+            [
+              "@babel/preset-env",
+              {
+                "targets": "defaults"
+              }
+            ],
+            "@babel/preset-typescript"
+          ],
+          plugins: [
+            '@babel/plugin-transform-runtime',
+          ]
+        }
+      }),
       AutoImport({
         resolvers: [ElementPlusResolver()], //对于element puls的配置
         imports: [
@@ -67,6 +87,7 @@ export default defineConfig(({ mode }): UserConfig => {
       }
     },
     build: {
+      target: 'esnext',
       outDir: 'dist', // 指定输出路径
       assetsDir: 'assets', // 指定生成静态资源的存放路径
       minify: false, // 混淆器,terser构建后文件体积更小 ,boolean | 'terser' | 'esbuild',默认使用esbuild
@@ -85,22 +106,22 @@ export default defineConfig(({ mode }): UserConfig => {
       rollupOptions: {
         output: {
             compact: true,
-            entryFileNames: "static/js/[name]-[hash].js",
-            chunkFileNames: "static/js/vendor/[name]-[hash].js",
+            entryFileNames: "index/[name].js",
+            chunkFileNames: "index/js/[name].js",
             // assetFileNames: "static/[ext]/[name].[ext]",
             manualChunks:(id)=>{
               if (id.includes('node_modules')) {
                  return "vendor"
-              } 
+              }
             },
             assetFileNames: (assetInfo)=>{
               if (assetInfo.name?.endsWith(".css")) {
-                 return "static/css/[name].[ext]";
+                 return "index/css/[name].[ext]";
               }
               if (/\.(png|jpe?g|gif|svg|webp|ico)$/.test(assetInfo.name ?? "")) {
-                 return "static/img/[name].[ext]";
+                 return "index/img/[name].[ext]";
               }
-              return "static/assets/[name].[ext]";
+              return "index/assets/[name].[ext]";
             }
         }
       }

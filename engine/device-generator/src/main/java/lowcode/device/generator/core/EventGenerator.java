@@ -1,12 +1,11 @@
 package lowcode.device.generator.core;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import demo.lowcode.common.util.JsonUtils;
 import demo.lowcode.common.util.FileUtil;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 public class EventGenerator {
-    public void generateEventFile(String groupId, String devicePath, JSONObject jsonObject) {
+    public void generateEventFile(String groupId, String devicePath, JsonNode jsonNode) {
         try {
 //            // 读取 JSON 文件内容
 //            String jsonContent = JsonUtils.readJson(jsonFilePath);
@@ -15,8 +14,8 @@ public class EventGenerator {
 //            JSONObject jsonObject = new JSONObject(jsonContent);
 
             // 获取类名和事件列表
-            String className = jsonObject.getString("eventPath").replace(".java", "");
-            JSONArray eventList = jsonObject.getJSONArray("eventList");
+            String className = jsonNode.path("eventPath").asText().replace(".java", "");
+            JsonNode eventArrayNode = jsonNode.path("eventList");
 
             // 构建 Java 类内容
             StringBuilder classContent = new StringBuilder();
@@ -31,16 +30,16 @@ public class EventGenerator {
             classContent.append("@AllArgsConstructor").append("\n");
             classContent.append("public class ").append(className).append(" {\n\n");
 
-            for (int i = 0; i < eventList.length(); i++) {
-                JSONObject event = eventList.getJSONObject(i);
+            if (eventArrayNode.isArray()) {
+                for (JsonNode eventNode : eventArrayNode) {
+                    String signature = eventNode.path("signature").asText();
+                    String body = eventNode.path("body").asText();
 
-                String signature = event.getString("signature");
-                String body = event.getString("body");
-
-                // 添加方法定义
-                classContent.append("    public void ").append(signature).append(" {\n");
-                classContent.append("        ").append(body).append("\n");
-                classContent.append("    }\n\n");
+                    // 添加方法定义
+                    classContent.append("    public void ").append(signature).append(" {\n");
+                    classContent.append("        ").append(body).append("\n");
+                    classContent.append("    }\n\n");
+                }
             }
 
             classContent.append("}");

@@ -1,14 +1,14 @@
 package lowcode.device.generator.core;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.lowcode.common.Command;
 import demo.lowcode.common.Param;
 import demo.lowcode.common.util.JsonUtils;
 import demo.lowcode.common.util.FileUtil;
 import demo.lowcode.common.util.StringUtil;
 import demo.lowcode.common.CommonConfig;
-import org.springframework.boot.configurationprocessor.json.JSONArray;
-import org.springframework.boot.configurationprocessor.json.JSONException;
-import org.springframework.boot.configurationprocessor.json.JSONObject;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -163,69 +163,64 @@ public class DeviceGenerator {
         String jsonContent = JsonUtils.readJson(definitionPath+"definitions/"+deviceType+".json");
 
         try {
-            JSONObject jsonObject = new JSONObject(jsonContent);
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(jsonContent);
 
             // 获取services列表
-            JSONArray refList = jsonObject.getJSONArray("refs");
-            JSONArray serviceList = null;
-            for (int i=0;i<refList.length();i++){
-                if (Objects.equals(refList.getJSONObject(i).getString("refID"), "services")){
-                    serviceList = refList.getJSONObject(i).getJSONArray("refPath");
+            JsonNode refList = jsonNode.path("refs");
+            JsonNode serviceList = null;
+            for (JsonNode refNode : refList) {
+                if ("services".equals(refNode.path("refID").asText())) {
+                    serviceList = refNode.path("refPath");
                     break;
                 }
             }
 
-            if (serviceList!=null){
-                for (int i=0;i<serviceList.length();i++){
-                    services.add(serviceList.getJSONObject(i).getString("code"));
+            if (serviceList != null) {
+                for (JsonNode serviceNode : serviceList) {
+                    services.add(serviceNode.path("code").asText());
                 }
             }
 
             // 获取commands列表
-            JSONArray commandList = jsonObject.getJSONArray("commands");
-            for (int i = 0; i < commandList.length(); i++) {
-                JSONObject commandObject = commandList.getJSONObject(i);
+            JsonNode commandList = jsonNode.path("commands");
+            for (JsonNode commandNode : commandList) {
 
                 Command command = new Command();
-                command.setCommandCode(commandObject.getString("code"));
-                command.setCommandName(commandObject.getString("name"));
+                command.setCommandCode(commandNode.path("code").asText());
+                command.setCommandName(commandNode.path("name").asText());
 
-                JSONArray inputParamList = commandObject.getJSONArray("inputParam");
+                JsonNode inputParamList = commandNode.path("inputParam");
                 List<Param> params = new ArrayList<>();
-                for (int j=0; j<inputParamList.length(); j++){
-                    JSONObject inputObject = inputParamList.getJSONObject(j);
-
+                for (JsonNode inputNode : inputParamList) {
                     Param param = new Param();
-                    param.setCode(inputObject.getString("code"));
-                    param.setName(inputObject.getString("name"));
-                    String type = inputObject.getString("type");
-                    param.setType(type);
+                    param.setCode(inputNode.path("code").asText());
+                    param.setName(inputNode.path("name").asText());
+                    param.setType(inputNode.path("type").asText());
 
                     List<String> options = new ArrayList<>();
-                    JSONArray optionList = inputObject.getJSONArray("options");
-                    if (optionList.length() > 0){
-                        for (int k=0;k<optionList.length();k++){
-                            String item = optionList.getString(k);
-                            options.add(item);
+                    JsonNode optionList = inputNode.path("options");
+                    if (optionList.isArray()) {
+                        for (JsonNode optionNode : optionList) {
+                            options.add(optionNode.asText());
                         }
-                        param.setOptions(options);
                     }
-
+                    param.setOptions(options);
                     params.add(param);
                 }
                 command.setInputParam(params);
 
-                command.setOutputParam(commandObject.getString("outputParam"));
+                command.setOutputParam(commandNode.path("outputParam").asText());
 
                 commands.add(command);
 
                 // 获取events列表
-                JSONArray eventList = commandObject.getJSONArray("events");
-                for (int j=0; j<eventList.length(); j++){
-                    events.add(eventList.getString(j));
+                JsonNode eventList = commandNode.path("events");
+                for (JsonNode eventNode : eventList) {
+                    events.add(eventNode.asText());
                 }
             }
-        } catch (JSONException e) {
+        } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
     }
