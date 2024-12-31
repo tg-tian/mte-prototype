@@ -31,6 +31,7 @@ import {Search} from "@element-plus/icons-vue";
   border-radius: 10px;
   background-image: url('../../../../../assets/images/header-image.jpg');
   background-repeat: no-repeat;
+  background-size: cover;
 }
 
 .header-center {

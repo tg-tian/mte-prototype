@@ -4,7 +4,7 @@
       <div id="场景地图">场景地图</div>
       <el-button type="primary">导入地图</el-button></div>
     <div class="scenario-content">
-      <img :src="imageUrl" alt="场景地图" style="width: 80%;margin-left: 10%" />
+      <img :src="getAssetsFile('images/'+mapPath)" alt="场景地图" style="width: 80%;margin-left: 10%" />
     </div>
   </div>
   <div>
@@ -22,6 +22,7 @@
 import Table from "@/view/main/common/Table.vue";
 import {getDomainJson} from "@/api/DomainApi";
 import {getScenarioJson} from "@/api/scenarioApi";
+import getAssetsFile from '@/utils/pub-use'
 
 const props = defineProps({
   scenarioId: String,
@@ -59,17 +60,12 @@ onMounted(()=>{
     data.value = [{
       floor: "二层",
       description: "交叉二号楼二楼",
-      planPath: new URL('@/assets/images/floor.jpeg', import.meta.url).href
+      planPath: getAssetsFile('images/floor.jpeg')
     }]
   } else {
     getDomainField()
   }
 })
-
-const imageUrl = computed(() => {
-  const path = '../../../../../../assets/images/'+mapPath.value
-  return new URL(path, import.meta.url).href;
-});
 
 const getScenarioData = () =>{
   getScenarioJson().then((res:any) =>{
@@ -78,8 +74,8 @@ const getScenarioData = () =>{
       data.value = res.data.maplist.map((v)=>{
         header.value.forEach(item => {
           if (item.type === "Image" && v[item.code]) {
-            const imgPath = "../../../../../../assets/images/"+v[item.code]
-            v[item.code] = new URL(imgPath, import.meta.url).href
+            const imgPath = "images/"+v[item.code]
+            v[item.code] = getAssetsFile(imgPath)
           }
         });
         return v

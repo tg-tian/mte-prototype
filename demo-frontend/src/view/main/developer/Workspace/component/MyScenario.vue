@@ -20,6 +20,7 @@
 </template>
 <script setup lang="ts">
 import Card from "../../../common/Card.vue";
+import getAssetsFile from '@/utils/pub-use'
 
 interface State {
   scenarioList: any[],
@@ -37,13 +38,13 @@ onActivated(()=>{
         {
           code: "BuildingA",
           name: "交叉二号楼",
-          imageUrl: new URL('@/assets/logo.png', import.meta.url).href,
+          imageUrl: getAssetsFile('logo.png'),
           isSelected: false
         },
         {
           code: "BuildingB",
           name: "物理楼",
-          imageUrl: new URL('@/assets/logo.png', import.meta.url).href,
+          imageUrl: getAssetsFile('logo.png'),
           isSelected: false
         }
       ]

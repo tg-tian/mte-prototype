@@ -50,6 +50,7 @@ import type { Ace } from "ace-builds";
 import {getFileData, saveFileData} from "@/api/fileApi";
 import processTool from './processTool.json'
 import {Search} from "@element-plus/icons-vue";
+import getAssetsFile from '@/utils/pub-use'
 
 interface State{
   processId: String;
@@ -59,7 +60,7 @@ const state = reactive<State>({
   processId: '',
   processName: '',
 })
-const boardImage = new URL('@/assets/images/board.png', import.meta.url).href
+const boardImage = getAssetsFile('images/board.png')
 const {processId, processName} = toRefs(state)
 
 const router = useRouter()
@@ -89,8 +90,8 @@ const options: Partial<Ace.EditorOptions> = reactive({
 });
 
 onMounted(async ()=>{
-  const result = await getFileData("/definition/ConferenceService.proc")
-  content.value = JSON.stringify(result.data, null, 2)
+  // const result = await getFileData("SmartBuilding/BuildingA/application/GuestReception/process/ConferenceService.proc")
+  // content.value = JSON.stringify(result.data, null, 2)
 })
 
 const flowPublish=()=>{
@@ -98,7 +99,7 @@ const flowPublish=()=>{
 }
 const saveFile=()=>{
   console.log('save')
-  saveFileData("/definition/ConferenceService.proc", content.value)  //调用后端数据
+  saveFileData("SmartBuilding/BuildingA/application/GuestReception/process/ConferenceService.proc", content.value)  //调用后端数据
 }
 </script>
 

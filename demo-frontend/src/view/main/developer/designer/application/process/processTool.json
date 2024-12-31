@@ -8,7 +8,7 @@
         "type": "process",
         "name": "预约流程",
         "category": "flow-template",
-        "icon": "process-template.png"
+        "icon": "icon/process-template.png"
       }
     ]
   },
@@ -21,11 +21,11 @@
         "type": "flow-group",
         "name": "开始节点",
         "category": "flow",
-        "icon": "startNode.png"
+        "icon": "icon/startNode.png"
       },
       {
         "id": "EndNode",
-        "type": "flow-group",
+        "type": "icon/flow-group",
         "name": "结束节点",
         "category": "flow",
         "icon": "endNode.png"
@@ -35,28 +35,28 @@
         "type": "flow-group",
         "name": "异或网关",
         "category": "flow",
-        "icon": "xor.png"
+        "icon": "icon/xor.png"
       },
       {
         "id": "ParallelNode",
         "type": "flow-group",
         "name": "并行网关",
         "category": "flow",
-        "icon": "parallel.png"
+        "icon": "icon/parallel.png"
       },
       {
         "id": "DecisionNode",
         "type": "flow-group",
         "name": "决策节点",
         "category": "flow",
-        "icon": "decision.png"
+        "icon": "icon/decision.png"
       },
       {
         "id": "LoopNode",
         "type": "flow-group",
         "name": "循环节点",
         "category": "flow",
-        "icon": "xunhuan.png"
+        "icon": "icon/xunhuan.png"
       }
     ]
   }

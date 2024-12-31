@@ -14,6 +14,7 @@
 <script setup lang="ts">
 import Card from "../../../common/Card.vue";
 import {useApplicationStore} from "@/store/modules/applicationStore";
+import getAssetsFile from '@/utils/pub-use'
 
 const router = useRouter()
 
@@ -27,7 +28,7 @@ onActivated(()=>{
     {
       code: "GuestReception",
       name: "来访接待",
-      imageUrl: new URL('@/assets/logo.png', import.meta.url).href,
+      imageUrl: getAssetsFile('logo.png'),
       isSelected: false
     }
   ]

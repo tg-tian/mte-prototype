@@ -41,6 +41,7 @@ import {Search} from "@element-plus/icons-vue";
 import Card from '@/view/main/common/Card.vue'
 import {loadDomainBindingData,loadDoaminComponentData,uploadDomainBindingData} from "@/api/DomainApi";
 import {ElMessage} from "element-plus";
+import getAssetsFile from '@/utils/pub-use'
 
 const props = defineProps({
   domainId: String,
@@ -96,19 +97,19 @@ onMounted(()=> {
         code: "CoffeeMaker",
         name: "咖啡机器人",
         isSelected: false,
-        imageUrl: new URL('@/assets/logo.png', import.meta.url).href
+        imageUrl: getAssetsFile('logo.png'),
       },
       {
         code: "AirConditioner",
         name: "空调",
         isSelected: false,
-        imageUrl: new URL('@/assets/logo.png', import.meta.url).href
+        imageUrl: getAssetsFile('logo.png'),
       },
       {
         code: "SmokeDetector",
         name: "烟感器",
         isSelected: false,
-        imageUrl: new URL('@/assets/logo.png', import.meta.url).href
+        imageUrl: getAssetsFile('logo.png'),
       }
     ]
   }else {
@@ -178,7 +179,7 @@ const getDomainData = () =>{
             code: device.deviceTypeCode,
             name: device.deviceTypeName,
             isSelected: false,
-            imageUrl: new URL('/src/assets/icon/'+device.deviceTypeCode+'.png', import.meta.url).href
+            imageUrl: getAssetsFile('device/'+device.deviceTypeCode+'.png'),
           }
           domainDevice.value.push(newDevice);  // 将对象加入到 domainDevice 中
         };

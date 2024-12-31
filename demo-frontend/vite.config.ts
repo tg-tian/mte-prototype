@@ -97,6 +97,7 @@ export default defineConfig(({ mode }): UserConfig => {
       emptyOutDir: true,
       // reportCompressedSize: true,
       chunkSizeWarningLimit: 1500,
+      assetsInlineLimit: 0,
       terserOptions: {
         compress: {
           drop_console: true, // 生产环境移除console

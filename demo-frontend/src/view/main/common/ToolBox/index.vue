@@ -23,6 +23,7 @@
 import {ToolboxCategory} from "@/view/main/common/ToolBox/toolboxTypes";
 import {loadComponentData} from "@/api/toolBoxApi";
 import {loadDomainBindingData} from "@/api/DomainApi";
+import getAssetsFile from '@/utils/pub-use'
 
 const props = defineProps({
   designerType: String,
@@ -38,22 +39,19 @@ interface DeviceType {
 }
 
 interface State{
-  icons: any
   deviceType: DeviceType
 }
 
 const state = reactive<State>({
-  icons: {},
   deviceType:{
     type:'',
     name:'',
     items:[],
   }
 })
-const {icons,deviceType} = toRefs(state)
+const {deviceType} = toRefs(state)
 
 onMounted(()=>{
-  icons.value = import.meta.glob('@/assets/icon/*');
   if(props.designerType === "Process")
   {
     deviceType.value.type = "domainDevice";
@@ -73,7 +71,7 @@ const getDeviceType = ()=>{
           type:"deviceType",
           name:v.deviceTypeName,
           category:"command",
-          icon: v.deviceTypeCode+".png"
+          icon: 'device/'+v.deviceTypeCode+".png"
         }
       })
       // 使用赋值语法来添加属性
@@ -88,10 +86,9 @@ const getDeviceType = ()=>{
 
 const requireIcon = (iconPath) => {
   if (iconPath === ""){
-    return new URL('@/assets/logo.png', import.meta.url).href
+    return getAssetsFile('logo.png')
   }else {
-    const absolutePath = '../../../../assets/icon/'+iconPath
-    return new URL(absolutePath, import.meta.url).href
+    return getAssetsFile(iconPath)
   }
 }
 </script>

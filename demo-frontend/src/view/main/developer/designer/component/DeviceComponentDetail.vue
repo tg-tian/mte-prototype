@@ -78,6 +78,7 @@ import Table from "@/view/main/common/Table.vue";
 import {getOperationCommand, getOperationEvent, getService, loadDeviceInfo,updateDevicePublish} from "@/api/DeviceExpand";
 import { watch } from 'vue';
 import {ElMessage} from "element-plus";
+import getAssetsFile from '@/utils/pub-use'
 interface State {
   deviceCode: String;
   deviceName: String;
@@ -240,23 +241,23 @@ const serviceHeader = [
     type: "Link"
   }
 ]
-const images = import.meta.glob('/src/assets/icon/*.png');
-const getImage = async (deviceTypeCode) => {
-  const imagePath = `/src/assets/icon/${deviceTypeCode}.png`; // 构建路径
-
-  try {
-    if (images[imagePath]) {
-      const imageModule: any = await images[imagePath]();  // 调用懒加载函数加载模块
-      return imageModule.default; // 返回图片的默认导出（图片路径）
-    } else {
-      console.error(`Image not found for device code: ${deviceTypeCode}`);
-      return '/logo.png'; // 图片未找到时返回空字符串或默认图片
-    }
-  } catch (e) {
-    console.error('Error loading image:', e);
-    return '/logo.png'; // 如果出错，返回默认图片路径或空
-  }
-}
+// const images = import.meta.glob('/src/assets/icon/*.png');
+// const getImage = async (deviceTypeCode) => {
+//   const imagePath = `/src/assets/icon/${deviceTypeCode}.png`; // 构建路径
+//
+//   try {
+//     if (images[imagePath]) {
+//       const imageModule: any = await images[imagePath]();  // 调用懒加载函数加载模块
+//       return imageModule.default; // 返回图片的默认导出（图片路径）
+//     } else {
+//       console.error(`Image not found for device code: ${deviceTypeCode}`);
+//       return '/logo.png'; // 图片未找到时返回空字符串或默认图片
+//     }
+//   } catch (e) {
+//     console.error('Error loading image:', e);
+//     return '/logo.png'; // 如果出错，返回默认图片路径或空
+//   }
+// }
 
 const getDeviceData = () =>{
   loadDeviceInfo(deviceCode.value).then(async (res:any)=>{
@@ -264,7 +265,7 @@ const getDeviceData = () =>{
       deviceData.value = {
         code: res.data.deviceTypeCode,
         name: res.data.deviceTypeName,
-        imageUrl:await getImage(res.data.deviceTypeCode)
+        imageUrl:getAssetsFile('device/'+res.data.deviceTypeCode+".png")
       }
     }
   })
@@ -303,7 +304,7 @@ const getEventData = ()=>{
 
 const startPublish = ()=>{
   progress.value = 0;
-  progressImage.value = new URL('@/assets/progress/generate.png', import.meta.url).href
+  progressImage.value = getAssetsFile('progress/generate.png')
   // EventSource 是 HTML5 提供的一个用于服务器发送事件（Server-Sent Events, SSE）的接口。
   // 它允许网页与服务器之间建立持久地连接，服务器可以通过该连接持续向客户端推送消息，而客户端可以实时接收这些消息。
   // 与 WebSocket 不同的是，EventSource 是单向的，只能由服务器向客户端发送数据，客户端不能向服务器发送消息。
@@ -314,11 +315,11 @@ const startPublish = ()=>{
     progressMessage.value = progressData.message
     progress.value = progressData.progress
     if (progress.value < 50) {
-      progressImage.value = new URL('@/assets/progress/generate.png', import.meta.url).href
+      progressImage.value = getAssetsFile('progress/generate.png')
     }else if (progress.value < 75) {
-      progressImage.value = new URL('@/assets/progress/package.png', import.meta.url).href
+      progressImage.value = getAssetsFile('progress/package.png')
     }else {
-      progressImage.value = new URL('@/assets/progress/copy.png', import.meta.url).href
+      progressImage.value = getAssetsFile('progress/copy.png')
     }
 
     if (progress.value === 100){
