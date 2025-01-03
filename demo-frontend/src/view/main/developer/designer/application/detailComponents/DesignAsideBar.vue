@@ -1,33 +1,65 @@
 <template>
-  <el-menu :default-active="selectedItem" collapse class="nav-menu" @select="handleMenuSelect">
-    <el-sub-menu index="add">
-      <template #title>
-        <el-button type="primary" style="padding: 10px">+</el-button>
-      </template>
-      <el-menu-item-group title="功能">
-        <el-menu-item index="0-1">新增功能服务</el-menu-item>
-      </el-menu-item-group>
-      <el-menu-item-group title="页面">
-        <el-menu-item index="1-1">新增页面</el-menu-item>
-      </el-menu-item-group>
-    </el-sub-menu>
-    <el-menu-item index="index" class="nav-item">
-      <el-icon><House /></el-icon>
-      <template #title>设计</template>
-    </el-menu-item>
-    <el-menu-item index="process" class="nav-item">
-      <el-icon><Connection /></el-icon>
-      <template #title>功能</template>
-    </el-menu-item>
-    <el-menu-item index="page" class="nav-item">
-      <el-icon><Document /></el-icon>
-      <template #title>页面</template>
-    </el-menu-item>
-  </el-menu>
+
+    <el-menu :default-active="selectedItem"  class="nav-menu" @select="handleMenuSelect">
+      <!--el-sub-menu index="add">
+        <template #title>
+          <el-button type="primary" style="padding: 10px">+</el-button>
+        </template>
+        <el-menu-item-group title="功能">
+          <el-menu-item index="0-1">新增功能服务</el-menu-item>
+        </el-menu-item-group>
+        <el-menu-item-group title="页面">
+          <el-menu-item index="1-1">新增页面</el-menu-item>
+        </el-menu-item-group>
+      </el-sub-menu-->
+      <el-menu-item index="index" class="nav-item">
+        <template #title>
+          <el-icon><House /></el-icon>
+          <div class="menu-item">应用信息</div>
+        </template>
+      </el-menu-item>
+      <el-menu-item index="process" class="nav-item">
+        <template #title>
+          <el-icon><Connection /></el-icon>
+          <div class="menu-item">业务逻辑</div>
+        </template>
+      </el-menu-item>
+      <el-menu-item index="4" class="nav-item">
+        <template #title>
+          <el-icon><Cpu /></el-icon>
+          <div class="menu-item">设备逻辑</div>
+        </template>
+      </el-menu-item>
+      <el-menu-item index="page" class="nav-item">
+        <template #title>
+          <el-icon><Document /></el-icon>
+          <div class="menu-item">页面管理</div>
+        </template>
+      </el-menu-item>
+      <el-menu-item index="3" class="nav-item">
+        <template #title>
+          <el-icon><More /></el-icon>
+          <div class="menu-item">菜单管理</div>
+        </template>
+      </el-menu-item>
+      <el-menu-item index="2" class="nav-item">
+        <template #title>
+          <el-icon><Share /></el-icon>
+          <div class="menu-item">页面流管理</div>
+        </template>
+      </el-menu-item>
+      <el-menu-item index="1" class="nav-item">
+        <template #title>
+          <el-icon><Eleme /></el-icon>
+          <div class="menu-item">全局变量管理</div>
+        </template>
+      </el-menu-item>
+    </el-menu>
+
 </template>
 <script setup lang="ts">
 import router from "@/router";
-import {Connection, Document, House} from "@element-plus/icons-vue";
+import {Connection, Document, House,Cpu,More,Share,Eleme} from "@element-plus/icons-vue";
 import {useApplicationStore} from "@/store/modules/applicationStore";
 
 const props = defineProps({
@@ -83,8 +115,17 @@ const handleMenuSelect = (key: string, _keyPath: string[]) => {
 
 <style scoped>
 .nav-menu {
+  width: 100%;
   height: 100%;
   display: flex;
   flex-direction: column;
+}
+.nav-item {
+  width: 100%;
+}
+.menu-item {
+  width: 100px;
+  text-align: center;
+  font-size: 16px;
 }
 </style>
