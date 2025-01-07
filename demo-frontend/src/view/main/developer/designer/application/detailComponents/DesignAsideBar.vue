@@ -21,10 +21,10 @@
       <el-menu-item index="process" class="nav-item">
         <template #title>
           <el-icon><Connection /></el-icon>
-          <div class="menu-item">业务逻辑</div>
+          <div class="menu-item">业务流程</div>
         </template>
       </el-menu-item>
-      <el-menu-item index="4" class="nav-item">
+      <el-menu-item index="device_logic" class="nav-item">
         <template #title>
           <el-icon><Cpu /></el-icon>
           <div class="menu-item">设备逻辑</div>
@@ -36,19 +36,19 @@
           <div class="menu-item">页面管理</div>
         </template>
       </el-menu-item>
-      <el-menu-item index="3" class="nav-item">
+      <el-menu-item index="menu" class="nav-item">
         <template #title>
           <el-icon><More /></el-icon>
           <div class="menu-item">菜单管理</div>
         </template>
       </el-menu-item>
-      <el-menu-item index="2" class="nav-item">
+      <el-menu-item index="page_flow" class="nav-item">
         <template #title>
           <el-icon><Share /></el-icon>
           <div class="menu-item">页面流管理</div>
         </template>
       </el-menu-item>
-      <el-menu-item index="1" class="nav-item">
+      <el-menu-item index="global_variable" class="nav-item">
         <template #title>
           <el-icon><Eleme /></el-icon>
           <div class="menu-item">全局变量管理</div>
@@ -100,7 +100,27 @@ const state = reactive<State>({
       index: 'quality_assurance',
       name: '质量保障',
       route:'/design/quality_assurance'
-    }
+    },
+    {
+      index: 'device_logic',
+      name:'设备逻辑',
+      route: '/design/device_logic'
+    },
+    {
+      index: 'menu',
+      name:'菜单管理',
+      route: '/design/menu'
+    },
+    {
+      index: 'page_flow',
+      name:'页面流管理',
+      route: '/design/page_flow'
+    },
+    {
+      index: 'global_variable',
+      name:'全局变量管理',
+      route: '/design/global_variable'
+    },
   ]
 })
 const { selectedItem, items } = toRefs(state)

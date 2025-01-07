@@ -25,6 +25,10 @@ import TemplateView from '../view/main/developer/designer/template/TemplateView.
 import { useUserStore } from "../store/modules/userStore";
 import {ElMessage} from "element-plus";
 import DesignQualityAssurance from "@/view/main/developer/designer/application/detailComponents/DesignQualityAssurance.vue";
+import DesignDeviceLogic from "@/view/main/developer/designer/application/detailComponents/DesignDeviceLogic.vue";
+import DesignMenu from "@/view/main/developer/designer/application/detailComponents/DesignMenu.vue";
+import DesignPageFlow from "@/view/main/developer/designer/application/detailComponents/DesignPageFlow.vue";
+import DesignGlobalVariable from "@/view/main/developer/designer/application/detailComponents/DesignGlobalVariable.vue";
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
@@ -200,7 +204,27 @@ const router = createRouter({
               path: 'quality_assurance',
               name: '质量保障',
               component: DesignQualityAssurance
-            }
+            },
+            {
+              path: 'device_logic',
+              name:'设备逻辑',
+              component: DesignDeviceLogic
+            },
+            {
+              path: 'menu',
+              name:'菜单管理',
+              component: DesignMenu
+            },
+            {
+              path: 'page_flow',
+              name:'页面流管理',
+              component: DesignPageFlow
+            },
+            {
+              path: 'global_variable',
+              name:'全局变量管理',
+              component: DesignGlobalVariable
+            },
           ]
         },
         {
