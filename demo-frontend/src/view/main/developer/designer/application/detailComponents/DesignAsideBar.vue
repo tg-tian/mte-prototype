@@ -54,13 +54,19 @@
           <div class="menu-item">全局变量管理</div>
         </template>
       </el-menu-item>
+      <el-menu-item index="0" class="nav-item">
+        <template #title>
+          <MdiShieldBug/>
+          <div class="menu-item">质量保障</div>
+        </template>
+      </el-menu-item>
     </el-menu>
 
 </template>
 <script setup lang="ts">
 import router from "@/router";
 import {Connection, Document, House,Cpu,More,Share,Eleme} from "@element-plus/icons-vue";
-import {useApplicationStore} from "@/store/modules/applicationStore";
+import MdiShieldBug from "@/view/main/common/Icon/MdiShieldBug.vue";
 
 const props = defineProps({
   applicationId: String,

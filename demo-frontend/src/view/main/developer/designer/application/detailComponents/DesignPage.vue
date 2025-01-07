@@ -1,5 +1,5 @@
 <template>
-  <PageHeader title="页面流管理"/>
+  <PageHeader title="页面管理"/>
   <div style="margin-top: 10px;margin-bottom: 20px">页面列表</div>
   <div v-for="(page, index) in pageList" :key="index">
     <Card
