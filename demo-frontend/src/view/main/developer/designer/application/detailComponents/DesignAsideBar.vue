@@ -54,7 +54,7 @@
           <div class="menu-item">全局变量管理</div>
         </template>
       </el-menu-item>
-      <el-menu-item index="0" class="nav-item">
+      <el-menu-item index="quality_assurance" class="nav-item">
         <template #title>
           <MdiShieldBug/>
           <div class="menu-item">质量保障</div>
@@ -96,6 +96,11 @@ const state = reactive<State>({
       name: '页面目录',
       route: '/design/page'
     },
+    {
+      index: 'quality_assurance',
+      name: '质量保障',
+      route:'/design/quality_assurance'
+    }
   ]
 })
 const { selectedItem, items } = toRefs(state)

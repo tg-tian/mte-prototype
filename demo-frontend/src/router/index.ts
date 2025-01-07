@@ -24,6 +24,7 @@ import DeveloperConfig from '../view/main/developer/DeveloperConfig/index.vue'
 import TemplateView from '../view/main/developer/designer/template/TemplateView.vue'
 import { useUserStore } from "../store/modules/userStore";
 import {ElMessage} from "element-plus";
+import DesignQualityAssurance from "@/view/main/developer/designer/application/detailComponents/DesignQualityAssurance.vue";
 const router = createRouter({
   history: createWebHashHistory(),
   routes: [
@@ -195,6 +196,11 @@ const router = createRouter({
               name: '页面列表',
               component: DesignPage
             },
+            {
+              path: 'quality_assurance',
+              name: '质量保障',
+              component: DesignQualityAssurance
+            }
           ]
         },
         {
