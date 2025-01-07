@@ -2,20 +2,36 @@
   <div class="header-box">
     <div class="header-title">
       <el-icon class="header-icon"><Menu /></el-icon>
-      <div>111</div>
+      <div>{{title}}</div>
     </div>
-    <div></div>
+    <div style="display: flex;margin-right: 10px">
+      <div v-for="item in buttonGroup" style="margin-right: 10px">
+        <ElButton :type="item.type" @click="handleClick(item.code)"> {{item.name}}</ElButton>
+      </div>
+    </div>
   </div>
 </template>
 
 
 <script setup lang="ts">
-/**
- * 大括号 {} 用于引入 命名导出，从模块中选择需要的特定内容。
- * 没有大括号时，是在引入 默认导出。
- * 在 @element-plus/icons-vue 中，Menu 是一个命名导出，因此需要加 {}。
- * */
 import {Menu} from "@element-plus/icons-vue";
+
+interface ButtonProps {
+  code: string,
+  name: string,
+  type: string
+}
+
+const props = defineProps({
+  title: String,
+  buttonGroup: Array<ButtonProps>
+});
+
+const emit = defineEmits(['button-click']);
+
+const handleClick = (code: string) => {
+  emit('button-click', code)
+}
 </script>
 
 <style scoped>
@@ -23,7 +39,6 @@ import {Menu} from "@element-plus/icons-vue";
 .header-title{
   height: 50%;
   align-items: center;
-  overflow: auto;
   display: flex;
 }
 .header-icon{
@@ -41,6 +56,7 @@ import {Menu} from "@element-plus/icons-vue";
   align-items: center;
   overflow: auto;
   border-radius: 9px;
+  justify-content: space-between;
 }
 </style>
 
