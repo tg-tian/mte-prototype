@@ -1,4 +1,5 @@
 <template>
+  <PageHeader/>
   <div style="margin-top: 10px;margin-bottom: 20px">页面列表</div>
   <div v-for="(page, index) in pageList" :key="index">
     <Card
@@ -12,6 +13,7 @@
 <script setup lang="ts">
 import Card from '../../../../common/Card.vue'
 import getAssetsFile from '@/utils/pub-use'
+import PageHeader from "@/view/main/common/PageHeader.vue";
 const router = useRouter()
 
 interface State {
