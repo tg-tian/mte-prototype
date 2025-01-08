@@ -14,5 +14,6 @@ export const useScenarioStore = defineStore('scenario', {
             this.scenarioId = scenario.scenarioId
             this.scenarioName = scenario.scenarioName
         }
-    }
+    },
+    persist: true
 })

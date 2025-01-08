@@ -51,3 +51,12 @@ body {
   align-items: center;
 }
 
+
+.body-title {
+  font-size: 18px;
+  border-left: #50a5fb 5px solid;
+  margin-left: 30px;
+  margin-top: 20px;
+  padding-left: 10px;
+}
+

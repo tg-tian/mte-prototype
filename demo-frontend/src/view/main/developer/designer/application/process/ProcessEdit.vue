@@ -4,6 +4,7 @@
       <div>{{processName}}-流程编辑页面</div>
       <div>
         <el-button type="primary" @click="saveFile">保存</el-button>
+        <el-button type="warning">代码检查</el-button>
         <el-button type="primary" @click="flowPublish">流程发布</el-button>
       </div>
     </div>
