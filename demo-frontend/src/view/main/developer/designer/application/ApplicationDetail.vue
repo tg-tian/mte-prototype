@@ -17,6 +17,7 @@
 <script setup lang="ts">
 import DesignHeader from "@/view/main/developer/designer/application/detailComponents/DesignHeader.vue";
 import DesignAsideBar from "@/view/main/developer/designer/application/detailComponents/DesignAsideBar.vue";
+import {useApplicationStore} from "@/store/modules/applicationStore";
 
 interface State {
   applicationId: string;
@@ -30,12 +31,18 @@ const state = reactive<State>({
 const {applicationId, applicationName} = toRefs(state)
 
 const router = useRouter()
+const applicationStore = useApplicationStore()
 watchEffect(() => {
-  if (typeof router.currentRoute.value.query.applicationId === 'string') {
-    applicationId.value = router.currentRoute.value.query.applicationId || ''
+  const routerQuery = router.currentRoute.value.query
+  if (typeof routerQuery.applicationId === 'string' && routerQuery.applicationId !== '') {
+    applicationId.value = routerQuery.applicationId || ''
+  }else {
+    applicationId.value = applicationStore.getApplicationId
   }
-  if (typeof router.currentRoute.value.query.applicationName === 'string') {
-    applicationName.value = router.currentRoute.value.query.applicationName || ''
+  if (typeof routerQuery.applicationName === 'string' && routerQuery.applicationName !== '') {
+    applicationName.value = routerQuery.applicationName || ''
+  }else {
+    applicationName.value = applicationStore.getApplicationName
   }
 })
 </script>

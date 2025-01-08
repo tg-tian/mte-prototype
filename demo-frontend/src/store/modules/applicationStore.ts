@@ -14,5 +14,6 @@ export const useApplicationStore = defineStore('application', {
             this.applicationId = application.applicationId
             this.applicationName = application.applicationName
         }
-    }
+    },
+    persist: true
 })

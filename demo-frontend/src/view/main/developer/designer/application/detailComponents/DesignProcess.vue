@@ -9,6 +9,24 @@
           @itemClick="handleClick(process)"/>
     </div>
   </div>
+  <el-dialog
+      v-model="dialogVisible"
+      title="新增业务流程"
+      width="500"
+  >
+    <el-radio-group v-model="radio">
+      <el-radio value="head">从头创建</el-radio>
+      <el-radio value="template">从模板创建</el-radio>
+    </el-radio-group>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="addProcess">
+          确定
+        </el-button>
+      </div>
+    </template>
+  </el-dialog>
 </template>
 
 <script setup lang="ts">
@@ -29,9 +47,8 @@ interface State {
   dropDownItems: any[],
   applicationId: String,
   applicationName: String,
-}
-
-const handleHeaderButtonClick = (code: string)=>{
+  dialogVisible: boolean,
+  radio: String
 }
 
 onActivated(()=>{
@@ -58,8 +75,10 @@ const state = reactive<State>({
   ],
   applicationId: '',
   applicationName: '',
+  dialogVisible: false,
+  radio: 'head'
 })
-const { processList, dropDownItems,applicationId, applicationName} = toRefs(state)
+const { processList, dropDownItems,applicationId, applicationName, dialogVisible, radio} = toRefs(state)
 
 watchEffect(() => {
   if (typeof router.currentRoute.value.query.applicationId === 'string') {
@@ -70,6 +89,12 @@ watchEffect(() => {
   }
 })
 
+const handleHeaderButtonClick = (code: string)=>{
+  if (code == "newBusinessProcess") {
+    dialogVisible.value = true
+  }
+}
+
 const handleCommand = (process, command)=>{
   console.log('Clicked item:', process, command);
 }
@@ -78,6 +103,11 @@ const handleClick = (process)=>{
   console.log(process)
   const fullPath = router.resolve(`/design/edit/process?processId=${process.code}&processName=${process.name}`).href
   window.open(fullPath, '_blank')
+}
+
+const addProcess = ()=>{
+  dialogVisible.value = false
+  console.log(radio.value)
 }
 </script>
 

@@ -230,7 +230,7 @@ const router = createRouter({
         {
           path: 'edit',
           name: '编辑界面',
-          component: null,
+          component: ApplicationDetail,
           children: [
             {
               path: 'process',

@@ -21,4 +21,13 @@ body {
   margin-top: 10px;
   border:solid #eff0f2;
   border-radius: 9px;
+  padding: 20px;
+}
+
+.body-title {
+  font-size: 18px;
+  border-left: #50a5fb 5px solid;
+  margin-left: 30px;
+  margin-top: 20px;
+  padding-left: 10px;
 }

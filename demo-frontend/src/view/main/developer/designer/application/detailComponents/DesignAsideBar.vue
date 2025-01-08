@@ -130,7 +130,9 @@ watchEffect(() => {
   const matchingItemData = items.value.find(item => item.route === path);
   if (matchingItemData) {
     selectedItem.value = matchingItemData.index;
-  } else {
+  } else if (path.includes('/design/edit/process')) {
+    selectedItem.value = 'process'
+  } else{
     selectedItem.value = '';
   }
 })
