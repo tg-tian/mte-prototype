@@ -1,6 +1,6 @@
 <template>
   <el-container style="width: 100%; height: 100%">
-    <el-header style="padding: 0"><DesignHeader :applicationId="applicationId" :applicationName="applicationName" /></el-header>
+<!--    <el-header style="padding: 0"><DesignHeader :applicationId="applicationId" :applicationName="applicationName" /></el-header>-->
     <el-container>
       <el-aside style="width: 200px"><DesignAsideBar :applicationId="applicationId" :applicationName="applicationName" /></el-aside>
 

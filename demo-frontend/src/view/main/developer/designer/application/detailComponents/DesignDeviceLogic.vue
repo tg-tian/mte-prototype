@@ -1,16 +1,15 @@
 <template>
-  <PageHeader :title="applicationName+'——设备逻辑列表'" :button-group="buttonGroup" @button-click="handleHeaderButtonClick"/>
+  <PageHeader :title="applicationName+'——设备列表'" :button-group="buttonGroup" @button-click="handleHeaderButtonClick"/>
   <div class="body-box">
-    <div class="title-box">共享设备逻辑</div>
-
+    <div class="title-box">场景设备</div>
 
     <div class="table-box">
       <div class="table-row">
-        <div class="title-cell label">逻辑名称</div>
+        <div class="title-cell label">设备名称</div>
         <div class="table-cell">
-          <el-input v-model="input" style="width: 240px" placeholder="制作" />
+          <el-input  style="width: 240px" placeholder="制作" />
         </div>
-        <div class="title-cell label">应用状态</div>
+        <div class="title-cell label">设备状态</div>
         <div class="table-cell">
           <el-select
               v-model="value"
@@ -28,39 +27,10 @@
         <el-button type="primary" style="margin-left: 30px">筛选</el-button>
       </div>
       <div class="table">
-        <Table :header="header_public" :data="data_public"/>
+        <Table :header="header_public" :button-group="tableButtonGroup" :data="data_public"/>
       </div>
     </div>
 
-
-    <div class="title-box">私有设备逻辑</div>
-    <div class="table-box">
-      <div class="table-row">
-        <div class="title-cell label">逻辑名称</div>
-        <div class="table-cell">
-          <el-input v-model="input" style="width: 240px" placeholder="制作" />
-        </div>
-        <div class="title-cell label">应用状态</div>
-        <div class="table-cell">
-          <el-select
-              v-model="value"
-              placeholder="请选择"
-              style="width: 240px"
-          >
-            <el-option
-                v-for="item in options"
-                :key="item.value"
-                :label="item.label"
-                :value="item.value"
-            />
-          </el-select>
-        </div>
-        <el-button type="primary" style="margin-left: 30px">筛选</el-button>
-      </div>
-      <div class="table">
-        <Table :header="header_private" :data="data_private"/>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -76,9 +46,6 @@ interface State {
   applicationName: String,
   header_public: any[];
   data_public:any[];
-  header_private:any[];
-  data_private: any[];
-
 }
 
 const  state = reactive<State>({
@@ -87,83 +54,56 @@ const  state = reactive<State>({
   header_public:[
     {
      code: "name",
-     name:"逻辑名称",
+     name:"设备名称",
      type:"String",
     },{
       code: "description",
-      name:"功能描述",
-      type:"String",
-    },{
-      code: "number",
-      name:"共享应用数",
-      type:"Number",
-    },{
-      code: "status",
-      name:"逻辑状态",
-      type:"Any",
-    },
-  ],
-  header_private:[
-    {
-      code: "name",
-      name:"逻辑名称",
-      type:"String",
-    },{
-      code: "description",
-      name:"功能描述",
-      type:"String",
-    },{
-      code: "belong",
-      name:"所属应用",
+      name:"位置信息",
       type:"String",
     },{
       code: "status",
       name:"逻辑状态",
-      type:"Any",
+      type:"String",
     },
   ],
   data_public:[
     {
-      name:'咖啡制作',
-      description:'咖啡制作流程用于完善制作咖啡的关联操作...',
-      number:2,
-    }
-  ],
-  data_private:[
-    {
-      name:'咖啡机自检',
-      description:'用于检查咖啡机当前的状态',
-      belong:'会议接待',
+      name:'咖啡机1',
+      description:'物理楼A2003...',
+      status: "已启用",
+    },{
+      name:'咖啡机2',
+      description:'物理楼1楼水吧',
+      status: "已启用",
     }
   ],
 })
-const  {applicationId,applicationName,header_public,header_private,data_public,data_private} = toRefs(state)
+const  {applicationId,applicationName,header_public,data_public} = toRefs(state)
 const options = [
   {
-    value: '11',
-    label: '（已启用,已绑定）',
+    value: '1',
+    label: '已启用',
   },
   {
-    value: '10',
-    label: '（已启用,未绑定）',
-  },
-  {
-    value: '00',
-    label: '（未启用,未绑定）',
-  },
-  {
-    value: '01',
-    label: '（未启用,已绑定）',
+    value: '0',
+    label: '未启用',
   },
 ]
 const buttonGroup = [
   {
-    code: 'newDeviceLogic',
-    name: '新增设备逻辑',
+    code: 'newDevice',
+    name: '+新增设备',
     type: 'primary'
   }
 ]
-
+const tableButtonGroup =[
+  {
+    code:'unavailable',
+    name:'禁用',
+    type:'warning',
+    size:'small',
+  }
+]
 watchEffect(() => {
   if (typeof router.currentRoute.value.query.applicationId === 'string') {
     applicationId.value = router.currentRoute.value.query.applicationId || ''

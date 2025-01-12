@@ -1,7 +1,7 @@
 <template>
     <PageHeader :title="applicationName+'——应用信息'" :button-group="buttonGroup" @button-click="handleHeaderButtonClick"/>
     <div class="body-box">
-      <div class="body-title">
+      <div class="title-box">
         应用信息
       </div>
       <el-form label-width="auto" :form="applicationForm" class="application-form">

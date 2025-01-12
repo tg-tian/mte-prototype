@@ -14,19 +14,26 @@
         <span v-if="col.type !== 'Image' && col.type !== 'Link'">{{ scope.row[col.code] }}</span>
       </template>
     </el-table-column>
-    <el-table-column label="操作" v-if="canDelete || canEdit">
-      <template #default="scope">
-        <el-button size="small" @click="handleEdit(scope.$index, scope.row)" v-if="canEdit">
-          编辑
-        </el-button>
-        <el-button
-            size="small"
-            type="danger"
-            @click="handleDelete(scope.$index, scope.row)"
-            v-if="canDelete"
-        >
-          删除
-        </el-button>
+    <el-table-column label="操作" v-if="canDelete || canEdit" >
+      <template #default="scope" >
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <div v-for="item in buttonGroup" :key="item.code" style="margin-right: 10px">
+            <ElButton :type="item.type" @click="handleClick(item.code)" :size="item.size">
+              {{ item.name }}
+            </ElButton>
+          </div>
+          <el-button size="small" @click="handleEdit(scope.$index, scope.row)" v-if="canEdit">
+            编辑
+          </el-button>
+          <el-button
+              size="small"
+              type="danger"
+              @click="handleDelete(scope.$index, scope.row)"
+              v-if="canDelete"
+          >
+            删除
+          </el-button>
+        </div>
       </template>
     </el-table-column>
   </el-table>
@@ -45,6 +52,14 @@
 
 <script setup lang="ts">
 
+interface ButtonProps {
+  code: string,
+  name: string,
+  type: string,
+  size: string,
+}
+
+
 const props = defineProps({
   data: Array,
   header: Array<any>,
@@ -60,7 +75,9 @@ const props = defineProps({
   canDelete:{
     type: Boolean,
     default: true
-  }
+  },
+  buttonGroup: Array<ButtonProps>
+
 });
 //设置表格组件
 const tableRef = ref<any>(null);
@@ -88,7 +105,7 @@ const clearSelection=() =>{
   tableRef.value.clearSelection();
 }
 
-const emit = defineEmits(['handleEdit', 'handleDelete', 'handleLinkClick']);
+const emit = defineEmits(['handleEdit', 'handleDelete', 'handleLinkClick','button-click']);
 
 const handleEdit = (index, row) => {
   emit('handleEdit', row);
@@ -107,5 +124,8 @@ const handleLinkClick = (link)=>{
 }
 const handleDialogClose = ()=>{
   selectedImage.value=''
+}
+const handleClick = (code: string) => {
+  emit('button-click', code)
 }
 </script>
