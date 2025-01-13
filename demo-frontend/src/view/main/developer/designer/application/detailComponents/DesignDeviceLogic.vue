@@ -116,21 +116,5 @@ const handleHeaderButtonClick=()=>{
 </script>
 
 <style scoped>
-.title-cell{
-  margin-left: 10%;
-  margin-top: 8px;
-}
-.table-cell {
-  text-align: left;
-}
-.label {
-  flex: 0 0 90px;
-  font-weight: bold;
-  color: #666;
-}
-.table{
-  width: 80%;
-  margin-top: 20px;
-  margin-left: 8%;
-}
+
 </style>
