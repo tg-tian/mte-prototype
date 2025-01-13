@@ -2,7 +2,6 @@
   <PageHeader :title="applicationName+'——设备列表'" :button-group="buttonGroup" @button-click="handleHeaderButtonClick"/>
   <div class="body-box">
     <div class="title-box">场景设备</div>
-
     <div class="table-box">
       <div class="table-row">
         <div class="title-cell label">设备名称</div>
@@ -30,7 +29,6 @@
         <Table :header="header_public" :button-group="tableButtonGroup" :data="data_public"/>
       </div>
     </div>
-
   </div>
 </template>
 
