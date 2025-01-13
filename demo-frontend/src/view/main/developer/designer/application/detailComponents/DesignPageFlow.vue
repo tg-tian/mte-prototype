@@ -35,6 +35,7 @@
 <script setup lang="ts">
 import PageHeader from "@/view/main/common/PageHeader.vue";
 import Table from "@/view/main/common/Table.vue";
+import {ref} from "vue";
 const router = useRouter()
 const buttonGroup = [
   {
@@ -49,6 +50,18 @@ interface State {
   header:any[],
   data:any[],
 }
+
+const value = ref('')
+const options = [
+  {
+    value: '0',
+    label: '待发布',
+  },
+  {
+    value: '1',
+    label: '已发布',
+  },
+]
 
 const tableButtonGroup=[
     {

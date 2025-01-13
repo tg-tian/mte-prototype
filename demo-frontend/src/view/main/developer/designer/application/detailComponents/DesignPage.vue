@@ -44,6 +44,7 @@ import Card from '../../../../common/Card.vue'
 import getAssetsFile from '@/utils/pub-use'
 import PageHeader from "@/view/main/common/PageHeader.vue";
 import Table from "@/view/main/common/Table.vue";
+import {ref} from "vue";
 const router = useRouter()
 
 const  buttonGroup =[
@@ -60,6 +61,7 @@ interface State {
   applicationId: String,
   applicationName: String,
   header:any[],
+  data:any[],
 }
 
 onActivated(()=>{
@@ -72,6 +74,17 @@ onActivated(()=>{
   ]
 })
 
+const value = ref('')
+const options = [
+  {
+    value: 'CoffeeFlow',
+    label: '咖啡点单页面流',
+  },
+  {
+    value: 'MeetingFlow',
+    label: '会议室预定页面流',
+  },
+]
 const state = reactive<State>({
   pageList: [],
   dropDownItems: [
