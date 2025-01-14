@@ -1,10 +1,10 @@
 <template xmlns="">
   <div class="common-layout">
     <el-container style="width: 100%; height: 100%">
+      <el-header style="padding: 0"><Header/></el-header>
       <el-container>
         <el-aside width="200px" v-if="isAuthenticated"><AsideBar /></el-aside>
         <el-main style="padding: 30px 50px 50px;">
-          <el-header style="padding: 0"><Header/></el-header>
           <RouterView v-slot="slotProps">
             <keep-alive>
               <component :is="slotProps.Component"></component>

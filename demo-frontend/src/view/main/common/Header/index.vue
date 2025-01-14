@@ -1,17 +1,17 @@
 <template>
   <div class="header">
-<!--    <div class="header-title" style="cursor: pointer" @click="router.push({path:'/'})">-->
-<!--      <img width="30" height="30" title="低代码" :src="logo" />-->
-<!--      <div style="line-height: 32px; padding-left: 10px">面向场景计算的低代码平台</div>-->
-<!--    </div>-->
+    <div class="header-title" style="cursor: pointer" @click="router.push({path:'/'})">
+      <img width="30" height="30" title="低代码" :src="logo" />
+      <div style="line-height: 32px; padding-left: 10px">面向场景计算的低代码平台</div>
+    </div>
     <div class="header-right">
 <!--      <el-button link style="margin-right: 20px;display: flex;color: white">-->
 <!--        <el-icon style="margin-right: 2px; margin-top: 1px;" size="20" color="white"><DataBoard /></el-icon>-->
 <!--      </el-button>-->
-      <div style="margin-right: 20px;margin-left: 30px; ">
+      <div style="margin-right: 20px">
         <el-dropdown @command="handleDropdownItemClick">
           <el-button link style="display: flex;color: white">
-            <el-icon style="margin-right: 2px; margin-top: 1px;" size="20" color=#50a5fb><Setting /></el-icon>
+            <el-icon style="margin-right: 2px; margin-top: 1px;" size="20" color="white"><Setting /></el-icon>
           </el-button>
           <template #dropdown>
             <el-dropdown-menu>
@@ -23,7 +23,7 @@
       </div>
 
       <el-dropdown @command="handleCommand">
-        <el-button link style="display: flex;color: #50a5fb;font-size: 16px">
+        <el-button link style="display: flex;color: white;font-size: 16px">
           <div>
             {{ isAuthenticated ? username : '登录/注册' }}
           </div>
@@ -53,7 +53,7 @@ const { username, isAuthenticated, roles } = storeToRefs(userStore)
 
 const handleCommand = (command) => {
   userStore.login({
-    username: '用户',
+    username: 'test',
     roles: [command]
   })
   router.push({path: '/'})
@@ -76,14 +76,13 @@ const handleDropdownItemClick = (item) => {
 
 <style>
 .header {
-  width: 10%;
+  width: 100%;
   height: 100%;
-  background-color: #ffffff;
-  color: #50a5fb;
+  background-color: #50a5fb;
+  color: #ffffff;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  float: right;
 }
 
 .header-title {
@@ -98,6 +97,7 @@ const handleDropdownItemClick = (item) => {
 }
 
 .header-right {
+  margin-right: 20px;
   display: flex;
 }
 
