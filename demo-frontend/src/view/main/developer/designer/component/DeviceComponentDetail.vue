@@ -18,7 +18,7 @@
           border
       >
         <template #extra>
-          <el-button type="primary" plain>编辑</el-button>
+          <el-button type="primary" plain @click="goToCodeServer()">编辑</el-button>
         </template>
         <el-descriptions-item>
           <template #label>
@@ -171,6 +171,11 @@ onMounted(()=>{
 watch(route, (newRoute, oldRoute) => {
   loadDeviceData();
 });
+
+const goToCodeServer = ()=>{
+  window.open(`http://139.196.147.52:5200/?folder=/home/coder/project/workplace/deviceType/${deviceCode.value}/definitions/`, '_blank');
+}
+
 const loadDeviceData = () => {
   commandData.value = []
   serviceData.value = []

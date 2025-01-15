@@ -24,7 +24,7 @@
               :show-file-list="true"
               :before-upload="beforeAvatarUpload"
               :on-success="handleAvatarUpload"
-              :action = "uploadUrl"
+              :action="`${uploadUrl}?deviceCode=${deviceForm.deviceCode}`"
               :auto-upload="false"
           >
             <!--:action="uploadUrl"-->
