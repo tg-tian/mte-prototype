@@ -3,6 +3,7 @@ package lowcode.device.component.business;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.lowcode.common.CommonConfig;
+import demo.lowcode.common.util.StringUtil;
 import lowcode.device.component.dto.CommandDto;
 import lowcode.device.component.dto.ParamDto;
 import lowcode.device.component.entity.BrandService;
@@ -129,7 +130,7 @@ public class DeviceComponentBusiness {
             @ApiImplicitParam(name="operationCode",value="事件操作码",required=true),
     })
     public List<DeviceEvent> loadEvent(String deviceName, String operationCode) throws IOException {
-        File file = new File(CommonConfig.getDefinitionPath()+deviceName+"/definitions/events/"+operationCode+"Event.json");
+        File file = new File(CommonConfig.getDefinitionPath()+deviceName+"/definitions/events/"+ StringUtil.capitalizeFirstLetter(operationCode)+"Event.json");
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
         JsonNode events = rootNode.path("eventList");
