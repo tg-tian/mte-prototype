@@ -142,7 +142,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 }
 
 const getDomainData = () =>{
-  getDomainJson().then((res:any) =>{
+  getDomainJson(props.domainId).then((res:any) =>{
     if (res.status === 200){
       data.value = res.data.domainField
     }

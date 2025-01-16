@@ -1,5 +1,5 @@
 {
-  "processId": "ConferenceService",
+  "processId": "CoffeeService",
   "processName": "咖啡服务",
   "actionList": [
     {

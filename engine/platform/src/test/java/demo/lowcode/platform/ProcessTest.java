@@ -40,7 +40,7 @@ class ProcessTest {
         System.out.println("当前领域设备类型列表："+deviceTypeList.toString());
 
         // 场景层面：加载具体设备以及场景地图
-        scenarioBusiness.loadScenario(System.getProperty("user.dir")+"\\definition\\BuildingA.sce");
+        scenarioBusiness.loadScenario(System.getProperty("user.dir")+"\\definition\\PhysicalBuilding.sce");
 
         Map<String, String> scenarioMap = scenarioBusiness.getScenarioMap("scenarioId");
         System.out.println("当前场景地图："+scenarioMap.toString());
@@ -48,8 +48,8 @@ class ProcessTest {
         System.out.println("当前场景具体设备列表："+deviceList.toString());
 
         // 应用层面：加载应用流程列表
-        applicationBusiness.loadApplication(System.getProperty("user.dir")+"\\definition\\GuestReception.app");
-        System.out.println("来访接待应用的流程列表："+applicationBusiness.getProcesses("GuestReception"));
+        applicationBusiness.loadApplication(System.getProperty("user.dir")+"\\definition\\SelfServeCoffee.app");
+        System.out.println("来访接待应用的流程列表："+applicationBusiness.getProcesses("SelfServeCoffee"));
 
 //        List<ActionMeta> actionMetaList = processBusiness.getActionMetaList("ConferenceService");
 //        System.out.println("会议服务流程的action元数据列表："+actionMetaList.toString());

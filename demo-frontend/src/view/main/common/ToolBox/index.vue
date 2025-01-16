@@ -23,7 +23,7 @@
 import {ToolboxCategory} from "@/view/main/common/ToolBox/toolboxTypes";
 import {loadComponentData} from "@/api/toolBoxApi";
 import {loadDomainBindingData} from "@/api/DomainApi";
-import getAssetsFile from '@/utils/pub-use'
+import {getAssetsFile} from '@/utils/pub-use'
 
 const props = defineProps({
   designerType: String,

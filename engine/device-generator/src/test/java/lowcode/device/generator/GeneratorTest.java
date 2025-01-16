@@ -46,7 +46,7 @@ public class GeneratorTest {
     @Test
     public void generateEventJava() {// 模拟应用编辑阶段根据eve nt.json生成对应代码
         String deviceType = "CoffeeMaker";
-        String devicePath = "D:/projects/ubml/mte-prototype/engine/workplace/SmartBuilding/BuildingA/device/";
+        String devicePath = "D:/projects/ubml/mte-prototype/engine/workplace/SmartBuilding/PhysicalBuilding/device/";
         String jarPath = devicePath+deviceType+"/"+deviceType.toLowerCase()+"-1.0.0.jar";
         String eventPath = devicePath+deviceType+"/event/";
         List<String> operations = List.of("start", "makeCoffee", "check");

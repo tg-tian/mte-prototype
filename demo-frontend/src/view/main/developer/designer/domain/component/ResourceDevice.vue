@@ -41,7 +41,7 @@ import {Search} from "@element-plus/icons-vue";
 import Card from '@/view/main/common/Card.vue'
 import {loadDomainBindingData,loadDoaminComponentData,uploadDomainBindingData} from "@/api/DomainApi";
 import {ElMessage} from "element-plus";
-import getAssetsFile from '@/utils/pub-use'
+import {getAssetsFile, getDeviceImage} from '@/utils/pub-use'
 
 const props = defineProps({
   domainId: String,
@@ -138,7 +138,7 @@ const SubmitDevice = () => {
   //提取被选择的设备code
   const deviceCodes = selectedDevices.map(device => device.code);
   console.log(selectedDevices);
-  uploadDomainBindingData({selectedCodes: deviceCodes},"Device","SmartBuilding").then(async (res: any) => {
+  uploadDomainBindingData({selectedCodes: deviceCodes},"Device",props.domainId).then(async (res: any) => {
     if (res.status === 200) {
       console.log('Binding successful', res.data);
       ElMessage.success('组件绑定成功')
@@ -156,7 +156,7 @@ const clearDevice = ()=>{
 }
 
 const getDomainData = () =>{
-  loadDomainBindingData("Device","SmartBuilding").then((res:any) =>{
+  loadDomainBindingData("Device",props.domainId).then((res:any) =>{
     if (res.status === 200){
       data.value = res.data.map( v=>{
         return {
@@ -179,7 +179,7 @@ const getDomainData = () =>{
             code: device.deviceTypeCode,
             name: device.deviceTypeName,
             isSelected: false,
-            imageUrl: getAssetsFile('device/'+device.deviceTypeCode+'.png'),
+            imageUrl: getDeviceImage(device.imgPath),
           }
           domainDevice.value.push(newDevice);  // 将对象加入到 domainDevice 中
         };

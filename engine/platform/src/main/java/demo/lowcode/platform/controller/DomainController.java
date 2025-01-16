@@ -25,23 +25,11 @@ public class DomainController {
     @Resource
     DeviceTypeBusiness deviceTypeBusiness ;
 
-    // load领域定义
-    // TODO: 解释引擎不用加载domain。应该放到开发工具中。但是Domain这个概念还是可以在engine中保留。
-    @PostMapping(value = "/load-domain")
-    public ResponseEntity<?> loadDomain(String domainPath) {
-        try {
-            domainBusiness.loadDomain(domainPath);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
     // load领域json文件
     @GetMapping(value = "/load-domain-json")
-    public ResponseEntity<?> loadDomainJson() {
+    public ResponseEntity<?> loadDomainJson(@RequestParam(defaultValue = "SmartBuilding") String domainCode) {
         try {
-            DomainJson domainJson = domainBusiness.loadJson();
+            DomainJson domainJson = domainBusiness.loadJson(domainCode);
             return new ResponseEntity<>(domainJson, HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
@@ -50,9 +38,9 @@ public class DomainController {
     }
 
     @GetMapping(value = "/load-domain-component-json")
-    public ResponseEntity<?> loadDomainComponentJson(String componentType) {
+    public ResponseEntity<?> loadDomainComponentJson(@RequestParam String componentType, @RequestParam(defaultValue = "SmartBuilding") String domainCode) {
         try {
-            Domain_ComponentJson componentJson = domainBusiness.loadComponentJson(componentType);
+            Domain_ComponentJson componentJson = domainBusiness.loadComponentJson(componentType, domainCode);
             return new ResponseEntity<>(componentJson, HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();

@@ -33,7 +33,7 @@ public class DeviceGenerator {
     ServiceGenerator serviceGenerator;
 
     public DeviceGenerator(String deviceType, String definitionPath) {
-        this.deviceType = deviceType;
+        this.deviceType = StringUtil.capitalizeFirstLetter(deviceType);
         this.definitionPath = definitionPath;
         this.parentPath = CommonConfig.getProjectPath();
 
@@ -45,8 +45,8 @@ public class DeviceGenerator {
         serviceGenerator = new ServiceGenerator();
 
         groupId = groupId + "." + deviceType.toLowerCase();
-        baseDir = parentPath+deviceType+"/src/main/java/" + groupId.replace(".", "/");
-        resourceDir = parentPath+deviceType+"/src/main/resources/";
+        baseDir = parentPath+deviceType.toLowerCase()+"/src/main/java/" + groupId.replace(".", "/");
+        resourceDir = parentPath+deviceType.toLowerCase()+"/src/main/resources/";
     }
 
     public void initial() {
@@ -54,7 +54,7 @@ public class DeviceGenerator {
     }
 
     public void clear() {
-        FileUtil.deleteDir(new File(parentPath+deviceType));
+        FileUtil.deleteDir(new File(parentPath+deviceType.toLowerCase()));
     }
 
     public void generate() throws Exception {

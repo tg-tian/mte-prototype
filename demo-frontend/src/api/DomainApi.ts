@@ -1,14 +1,14 @@
 import request from '../utils/request'
 
-export const getDomainJson = () =>
+export const getDomainJson = (domainCode: string) =>
     request({
-        url: `/load-domain-json`,
+        url: `/load-domain-json?domainCode=${domainCode}`,
         method: 'get',
     })
 
-export const getDomainComponent = (componentType: String) =>
+export const getDomainComponent = (componentType: String, domainCode: string) =>
     request({
-        url: `/load-domain-component-json?componentType=${componentType}`,
+        url: `/load-domain-component-json?componentType=${componentType}&domainCode=${domainCode}`,
         method: 'get',
     })
 

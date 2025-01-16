@@ -11,7 +11,7 @@
         <div class="scenario-map">
           <div class="scenario-title" id="场景区域">场景区域</div>
           <div>
-            <DetailArea :scenarioId="scenarioId" :scenarioName="scenarioName"/>
+            <DetailArea :scenarioId="scenarioId" :scenarioName="scenarioName" :domainId="domainId"/>
           </div>
         </div>
         <div class="scenario-resource">
@@ -53,18 +53,23 @@ import DetailDevice from "@/view/main/developer/designer/scenario/component/Deta
 const anchorRef = ref<HTMLElement | null>(null)
 
 interface State {
+  domainId: string;
   scenarioId: string;
   scenarioName: string;
 }
 
 const state = reactive<State>({
+  domainId: '',
   scenarioId: '',
   scenarioName: ''
 })
-const {scenarioId, scenarioName} = toRefs(state)
+const {domainId, scenarioId, scenarioName} = toRefs(state)
 
 const router = useRouter()
 watchEffect(() => {
+  if (typeof router.currentRoute.value.query.domainId === 'string') {
+    domainId.value = router.currentRoute.value.query.domainId || ''
+  }
   if (typeof router.currentRoute.value.query.scenarioId === 'string') {
     scenarioId.value = router.currentRoute.value.query.scenarioId || ''
   }

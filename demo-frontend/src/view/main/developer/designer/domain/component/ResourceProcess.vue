@@ -107,7 +107,7 @@ onMounted(()=> {
 })
 
 const getDomainData = () =>{
-  getDomainComponent("Process").then((res:any) =>{
+  getDomainComponent("Process", props.domainId).then((res:any) =>{
     if (res.status === 200){
       console.log(res.data)
       data.value = res.data.componentAbout.map(v=>{

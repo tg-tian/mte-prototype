@@ -1,0 +1,81 @@
+{
+  "code" : "PUMP",
+  "name" : "水泵",
+  "type" : "Device",
+  "img_link" : "",
+  "refs" : [ {
+    "refID" : "events",
+    "refPath" : [ {
+      "code" : "STARTEvent",
+      "path" : "events/STARTEvent.json"
+    }, {
+      "code" : "STOPEvent",
+      "path" : "events/STOPEvent.json"
+    } ]
+  }, {
+    "refID" : "services",
+    "refPath" : [ {
+      "code" : "AAA",
+      "path" : "services/AAA.json"
+    } ]
+  } ],
+  "properties" : [
+        {
+            "identifier": "valve",
+            "name": "阀门",
+            "accessMode": "rw",
+            "enableValidate": false,
+            "validateParams": null,
+            "dataType": {
+                "type": "bool",
+                "specs": {
+                    "0": "关",
+                    "1": "开"
+                }
+            }
+        },
+        {
+            "identifier": "current",
+            "name": "电流",
+            "accessMode": "r",
+            "enableValidate": false,
+            "validateParams": null,
+            "dataType": {
+                "type": "float",
+                "specs": {
+                    "unit": "A",
+                    "unitName": "安培(A)"
+                }
+            }
+        },
+        {
+            "identifier": "voltage",
+            "name": "电压",
+            "accessMode": "r",
+            "enableValidate": false,
+            "validateParams": null,
+            "dataType": {
+                "type": "float",
+                "specs": {
+                    "unit": "V",
+                    "unitName": "伏(V)"
+                }
+            }
+        }
+  ],
+  "commands" : [ {
+    "code" : "START",
+    "name" : "启动",
+    "inputParams" : [ ],
+    "outputParam" : "void",
+    "events" : [ ],
+    "services" : [ ]
+  }, {
+    "code" : "STOP",
+    "name" : "停止",
+    "inputParams" : [ ],
+    "outputParam" : "void",
+    "events" : [ ],
+    "services" : [ ]
+  } ]
+}

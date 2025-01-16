@@ -3,6 +3,10 @@ package lowcode.device.component.business;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.lowcode.common.CommonConfig;
+import demo.lowcode.common.device.DeviceDataType;
+import demo.lowcode.common.device.DeviceProperty;
+import demo.lowcode.common.device.ValidateParam;
+import demo.lowcode.common.util.StringUtil;
 import lowcode.device.component.dto.CommandDto;
 import lowcode.device.component.dto.ParamDto;
 import lowcode.device.component.entity.BrandService;
@@ -129,7 +133,7 @@ public class DeviceComponentBusiness {
             @ApiImplicitParam(name="operationCode",value="事件操作码",required=true),
     })
     public List<DeviceEvent> loadEvent(String deviceName, String operationCode) throws IOException {
-        File file = new File(CommonConfig.getDefinitionPath()+deviceName+"/definitions/events/"+operationCode+"Event.json");
+        File file = new File(CommonConfig.getDefinitionPath()+deviceName+"/definitions/events/"+ StringUtil.capitalizeFirstLetter(operationCode)+"Event.json");
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
         JsonNode events = rootNode.path("eventList");
@@ -239,5 +243,38 @@ public class DeviceComponentBusiness {
         }
 
         return brandServiceList;
+    }
+
+    public List<DeviceProperty> loadProperties(String deviceType) throws IOException {
+        File file = new File(CommonConfig.getDefinitionPath()+deviceType+"/definitions/"+deviceType+".json");
+        ObjectMapper objectMapper = new ObjectMapper();
+        JsonNode rootNode = objectMapper.readTree(file);
+        JsonNode properties = rootNode.path("properties");
+        List<DeviceProperty> propertyList = new ArrayList<>();
+        if(properties.isArray()){
+            for(JsonNode property:properties){
+                String identifier = property.path("identifier").asText();
+                String name = property.path("name").asText();
+                String accessMode = property.path("accessMode").asText();
+                boolean enableValidate = property.path("enableValidate").asBoolean();
+
+                List<ValidateParam> validateParams = new ArrayList<>();
+
+                JsonNode dataTypeNode = property.path("dataType");
+                DeviceDataType deviceDataType = new DeviceDataType();
+                deviceDataType.setType(dataTypeNode.path("type").asText());
+                Map<String, String> specs = new HashMap<>();
+                JsonNode specNode = dataTypeNode.path("specs");
+                for (Iterator<String> it = specNode.fieldNames(); it.hasNext(); ) {
+                    String key = it.next();
+                    specs.put(key, specNode.path(key).asText());
+                }
+                deviceDataType.setSpecs(specs);
+
+                DeviceProperty property1 = new DeviceProperty(identifier, name, accessMode, enableValidate, validateParams, deviceDataType);
+                propertyList.add(property1);
+            }
+        }
+        return propertyList;
     }
 }

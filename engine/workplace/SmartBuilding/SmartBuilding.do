@@ -27,7 +27,7 @@
           "componentName": "咖啡机"
 
         },{
-          "componentID":"AirConditioner",
+          "componentID":"Conditioner",
           "componentName": "空调"
         }
       ]

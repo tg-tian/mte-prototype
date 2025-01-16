@@ -8,6 +8,9 @@
         <el-form-item label="应用名称" class="application-form-item">
           <el-input v-model="applicationForm.applicationName" :disabled="!editStatus"/>
         </el-form-item>
+        <el-form-item label="应用代码" class="application-form-item">
+          <el-input v-model="applicationForm.applicationId" :disabled="!editStatus"/>
+        </el-form-item>
         <el-form-item label="应用介绍" class="application-form-item">
           <el-input type="textarea" v-model="applicationForm.description" :disabled="!editStatus"/>
         </el-form-item>
@@ -35,9 +38,12 @@
 <script setup lang="ts">
 import PageHeader from "@/view/main/common/PageHeader.vue";
 import {useApplicationStore} from "@/store/modules/applicationStore";
+import { useScenarioStore } from "@/store/modules/scenarioStore";
+import { useDomainStore } from "@/store/modules/domainStore";
 
 interface ApplicationForm {
   applicationName: String;
+  applicationId: String;
   description: String;
   applicationPath: String;
   scenario: String;
@@ -55,11 +61,12 @@ const state = reactive<State>({
   applicationId: '',
   applicationName: '',
   applicationForm: {
+    applicationId: '',
     applicationName: '',
     description: '',
     applicationPath: '',
-    scenario: '物理楼',
-    domain: '智慧楼宇',
+    scenario: '',
+    domain: '',
     isPublish: false
   },
   editStatus: false
@@ -67,10 +74,15 @@ const state = reactive<State>({
 const {applicationId, applicationName, applicationForm, editStatus} = toRefs(state)
 const router = useRouter()
 const applicationStore = useApplicationStore()
+const scenarioStore = useScenarioStore()
+const domainStore = useDomainStore()
 watchEffect(() => {
   applicationId.value = applicationStore.getApplicationId
   applicationName.value = applicationStore.getApplicationName
   applicationForm.value.applicationName = applicationName.value
+  applicationForm.value.applicationId = applicationId.value
+  applicationForm.value.domain = domainStore.getDomainName
+  applicationForm.value.scenario = scenarioStore.getScenarioName
 })
 
 const buttonGroup = computed(()=>{
@@ -120,7 +132,7 @@ const buttonGroup = computed(()=>{
 })
 
 const goToCodeServer = ()=>{
-  window.open("http://139.196.147.52:5200/?folder=/home/coder", '_blank');
+  window.open("http://139.196.147.52:5200/?folder=/home/coder/project/workplace/SmartBuilding/PhysicalBuilding/application/SelfServeCoffee", '_blank');
 }
 
 const handleHeaderButtonClick = (code: string)=>{

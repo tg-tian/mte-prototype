@@ -88,7 +88,7 @@ export default defineConfig(({ mode }): UserConfig => {
     },
     build: {
       target: 'esnext',
-      outDir: 'demo', // 指定输出路径
+      outDir: 'dist', // 指定输出路径
       assetsDir: 'assets', // 指定生成静态资源的存放路径
       minify: false, // 混淆器,terser构建后文件体积更小 ,boolean | 'terser' | 'esbuild',默认使用esbuild
       sourcemap: false, // 是否产出soucemap.json

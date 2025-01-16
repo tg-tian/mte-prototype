@@ -14,7 +14,9 @@
 <script setup lang="ts">
 import Card from "../../../common/Card.vue";
 import {useApplicationStore} from "@/store/modules/applicationStore";
-import getAssetsFile from '@/utils/pub-use'
+import { useDomainStore } from "@/store/modules/domainStore";
+import { useScenarioStore } from "@/store/modules/scenarioStore";
+import {getAssetsFile} from '@/utils/pub-use'
 
 const router = useRouter()
 
@@ -66,11 +68,21 @@ const handleCommand = (application, command)=>{
 }
 
 const applicationStore = useApplicationStore()
+const scenarioStore = useScenarioStore()
+const domainStore = useDomainStore()
 const handleClick = (application)=>{
   console.log(application)
   applicationStore.loadApplication({
     applicationId: application.code,
     applicationName: application.name
+  })
+  scenarioStore.loadScenario({
+    scenarioId: 'PhysicalBuilding',
+    scenarioName: '物理楼'
+  })
+  domainStore.loadDomain({
+    domainId: 'SmartBuilding',
+    domainName: '智慧楼宇'
   })
   const fullPath = router.resolve(`/design/index?applicationId=${application.code}&applicationName=${application.name}`).href
   window.open(fullPath, '_blank')

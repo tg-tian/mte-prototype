@@ -102,7 +102,7 @@ const UploadDeviceInfo = () =>{
   uploadDeviceType({
     deviceTypeCode : deviceInfo.value.deviceCode,
     deviceTypeName : deviceInfo.value.deviceName,
-    imgPath : deviceInfo.value.imgUrl
+    imgPath : deviceInfo.value.imageUrl
   }).then(async (res:any) => {
         if(res.status === 200){
           console.log('DeviceInfo posted successfully', res.data);

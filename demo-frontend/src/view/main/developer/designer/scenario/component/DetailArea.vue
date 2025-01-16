@@ -22,11 +22,12 @@
 import Table from "@/view/main/common/Table.vue";
 import {getDomainJson} from "@/api/DomainApi";
 import {getScenarioJson} from "@/api/scenarioApi";
-import getAssetsFile from '@/utils/pub-use'
+import {getAssetsFile} from '@/utils/pub-use'
 
 const props = defineProps({
   scenarioId: String,
-  scenarioName: String
+  scenarioName: String,
+  domainId: String
 });
 
 interface State{
@@ -85,7 +86,7 @@ const getScenarioData = () =>{
 }
 
 const getDomainField = ()=>{
-  getDomainJson().then((res:any) =>{
+  getDomainJson(props.domainId).then((res:any) =>{
     if (res.status === 200){
       header.value = res.data.domainField
 

@@ -7,7 +7,7 @@ public class CommonConfig {
     // maven目录
     private static String mavenPath = "/usr/tool/apache-maven-3.6.3/bin/mvn.cmd";
     // 设备打包临时目录
-    private static String projectPath = "/usr/tool/";
+    private static String projectPath = "/usr/tool/workplace/temp/";
     // 工作区目录
     private static String workspacePath = "/usr/tool/workplace/";
     // 设备定义工作目录

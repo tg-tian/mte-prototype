@@ -13,14 +13,14 @@
             canSelect
             :dropDownItems="dropDownItems"
             @commandClick="handleCommand(scenario, $event)"
-            @itemClick="handleClick(scenario)"
+            @itemClick="handleClick(scenario, domain)"
             @update:isSelected="updateIsSelected(index, $event)"/>
       </div>
     </div>
 </template>
 <script setup lang="ts">
 import Card from "../../../common/Card.vue";
-import getAssetsFile from '@/utils/pub-use'
+import {getAssetsFile} from '@/utils/pub-use'
 
 interface State {
   scenarioList: any[],
@@ -36,13 +36,13 @@ onActivated(()=>{
       collapse: false,
       children: [
         {
-          code: "BuildingA",
+          code: "CrossingBuilding",
           name: "交叉二号楼",
           imageUrl: getAssetsFile('logo.png'),
           isSelected: false
         },
         {
-          code: "BuildingB",
+          code: "PhysicalBuilding",
           name: "物理楼",
           imageUrl: getAssetsFile('logo.png'),
           isSelected: false
@@ -81,9 +81,9 @@ const handleCommand = (scenario, command)=>{
   console.log('Clicked item:', scenario, command);
 }
 
-const handleClick = (scenario)=>{
+const handleClick = (scenario: any, domain: any)=>{
   console.log(scenario)
-  router.push({path: '/developer/scenario/detail', query: {scenarioId: scenario.code, scenarioName: scenario.name}})
+  router.push({path: '/developer/scenario/detail', query: {scenarioId: scenario.code, scenarioName: scenario.name, domainId: domain.domainCode}})
 }
 </script>
 <style scoped>

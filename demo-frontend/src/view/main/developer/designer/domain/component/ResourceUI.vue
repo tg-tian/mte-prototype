@@ -40,7 +40,7 @@ import Table from "@/view/main/common/Table.vue";
 import Card from '@/view/main/common/Card.vue'
 import {Search} from "@element-plus/icons-vue";
 import {getDomainComponent} from "@/api/DomainApi";
-import getAssetsFile from '@/utils/pub-use'
+import {getAssetsFile} from '@/utils/pub-use'
 
 const props = defineProps({
   domainId: String,
@@ -115,7 +115,7 @@ onMounted(()=> {
 })
 
 const getDomainData = () =>{
-  getDomainComponent("UI").then((res:any) =>{
+  getDomainComponent("UI", props.domainId).then((res:any) =>{
     if (res.status === 200){
       console.log(res.data)
       data.value = res.data.componentAbout.map(v=>{

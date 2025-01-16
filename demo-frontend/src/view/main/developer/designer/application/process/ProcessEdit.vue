@@ -51,7 +51,7 @@ import type { Ace } from "ace-builds";
 import {getFileData, saveFileData} from "@/api/fileApi";
 import processTool from './processTool.json'
 import {Search} from "@element-plus/icons-vue";
-import getAssetsFile from '@/utils/pub-use'
+import {getAssetsFile} from '@/utils/pub-use'
 
 interface State{
   processId: String;
@@ -91,8 +91,6 @@ const options: Partial<Ace.EditorOptions> = reactive({
 });
 
 onMounted(async ()=>{
-  // const result = await getFileData("SmartBuilding/BuildingA/application/GuestReception/process/ConferenceService.proc")
-  // content.value = JSON.stringify(result.data, null, 2)
 })
 
 const flowPublish=()=>{
@@ -100,7 +98,7 @@ const flowPublish=()=>{
 }
 const saveFile=()=>{
   console.log('save')
-  saveFileData("SmartBuilding/BuildingA/application/GuestReception/process/ConferenceService.proc", content.value)  //调用后端数据
+  saveFileData("SmartBuilding/PhysicalBuilding/application/SelfServeCoffee/process/CoffeeService.proc", content.value)  //调用后端数据
 }
 </script>
 

@@ -24,11 +24,10 @@
               :show-file-list="true"
               :before-upload="beforeAvatarUpload"
               :on-success="handleAvatarUpload"
-              :action = "uploadUrl"
+              :action="`${uploadUrl}?deviceCode=${deviceForm.deviceCode}`"
               :auto-upload="false"
           >
-            <!--:action="uploadUrl"-->
-            <el-image v-if="deviceForm.imageUrl" :src="deviceForm.imageUrl" class="avatar" />
+            <el-image v-if="deviceForm.imageUrl" :src="getDeviceImage(deviceForm.imageUrl)" class="avatar" />
             <el-icon v-else class="avatar-uploader-icon"><UploadFilled /></el-icon>
             <div class="el-upload__text">
               将文件拖入框中或者 <em>点击上传</em>
@@ -56,6 +55,7 @@
 
 import {ElMessage, FormInstance, FormRules, UploadProps,UploadInstance} from "element-plus";
 import { UploadFilled } from '@element-plus/icons-vue'
+import { getDeviceImage } from "@/utils/pub-use";
 
 const uploadRef = ref<UploadInstance>()
 const uploadUrl=import.meta.env.VITE_BASE_PATH+"/file/upload"

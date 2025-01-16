@@ -43,7 +43,7 @@ public class ScenarioBusiness {
     }
 
     public Scenario_ResourceJson loadResourceJson() throws IOException{
-        File file = new File(CommonConfig.getWorkspacePath()+"SmartBuilding/BuildingA/BuildingA.sce"); //获取文件夹
+        File file = new File(CommonConfig.getWorkspacePath()+"SmartBuilding/PhysicalBuilding/PhysicalBuilding.sce"); //获取文件夹
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
 
@@ -76,7 +76,7 @@ public class ScenarioBusiness {
     //获取领域基本信息json
     public ScenarioJson loadScenarioJson() throws IOException{
 
-        File file = new File(CommonConfig.getWorkspacePath()+"SmartBuilding/BuildingA/BuildingA.sce"); //获取文件夹
+        File file = new File(CommonConfig.getWorkspacePath()+"SmartBuilding/PhysicalBuilding/PhysicalBuilding.sce"); //获取文件夹
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
 
@@ -141,7 +141,7 @@ public class ScenarioBusiness {
     public List<DeviceMeta> getDeviceMetaList(String scenarioId) {
         // TODO: 获取具体设备实例（包括服务，不包括事件，事件在应用编辑时定义）
 
-        scenarioId = "BuildingA";
+        scenarioId = "PhysicalBuilding";
         String deviceType = "CoffeeMaker";
 
         // 咖啡机器人A
