@@ -235,12 +235,17 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         name: AttributeForm.attribute_Name,
         accessMode:AttributeForm.accessMode,
         enableValidate:AttributeForm.enableValidate,
-        validateParams:AttributeForm.validateParams,
-        dataType:dataType,
+        validateParams:[], //todo:这里需要根据enableValidate做出修改，暂时赋值为空
+        dataDataType:dataType,
       }
-      console.log(attribute)
+      const propertiesList = []
+      propertiesList.push(attribute)
+      const data={
+        deviceType:<String>props.info.deviceCode,
+        properties:propertiesList,
+      }
 
-      addDeviceProperty(attribute).then((res)=>{
+      addDeviceProperty(data).then((res)=>{
         if (res.status === 200){
           ElMessage.success("新增属性成功")
           state.attriVisible = false;
@@ -256,7 +261,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 }
 
 const getAttributeData =() =>{
-  getAttribute("CoffeeMaker").then((res:any) =>{
+  getAttribute(<String>props.info.deviceCode).then((res:any) =>{
     if(res.status === 200){
 
       data.value = res.data.map((v: any)=>{
