@@ -28,8 +28,8 @@ public class ProcessBusiness {
 
     public void executeProcess(String processId, Map<String, Map<String, Object>> executeActionArgs){
         String domainId = "SmartBuilding";
-        String scenarioId = "BuildingA";
-        String applicationId = "GuestReception";
+        String scenarioId = "PhysicalBuilding";
+        String applicationId = "SelfServeCoffee";
         String scePath = CommonConfig.getWorkspacePath()+domainId+"/"+scenarioId+"/";
         String procPath = scePath+"application/"+applicationId+"/process/";
 
@@ -168,8 +168,8 @@ public class ProcessBusiness {
 
     public Map<String, List<Param>> getProcessConfig(String processId) {
         String domainId = "SmartBuilding";
-        String scenarioId = "BuildingA";
-        String applicationId = "GuestReception";
+        String scenarioId = "PhysicalBuilding";
+        String applicationId = "SelfServeCoffee";
         String scePath = CommonConfig.getWorkspacePath()+domainId+"/"+scenarioId+"/";
         String procPath = scePath+"application/"+applicationId+"/process/";
 

@@ -81,9 +81,9 @@ onMounted(async ()=>{
         isSelected: false
       },
       {
-        code: "AirConditioner",
+        code: "Conditioner",
         name: "空调",
-        imageUrl: getAssetsFile('device/AirConditioner.png'),
+        imageUrl: getAssetsFile('device/Conditioner.png'),
         isSelected: false
       },
       {

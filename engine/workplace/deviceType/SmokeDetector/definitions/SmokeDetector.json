@@ -1,0 +1,15 @@
+{
+  "code" : "SmokeDetector",
+  "name" : "烟感器",
+  "type" : "Device",
+  "img_link" : "",
+  "refs" : [ {
+    "refID" : "events",
+    "refPath" : [ ]
+  }, {
+    "refID" : "services",
+    "refPath" : [ ]
+  } ],
+  "properties" : [ ],
+  "commands" : [ ]
+}

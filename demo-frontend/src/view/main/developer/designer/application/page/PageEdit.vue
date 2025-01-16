@@ -57,7 +57,7 @@
         <el-form :model="buttonConfig" ref="configFormRefs" style="margin-top: 10px" v-if="selectItem==='button-52152'">
           <el-form-item label="功能">
             <el-select v-model="buttonConfig.processId" @change="handleProcessChange" clearable>
-              <el-option v-for="option in [{label: '咖啡服务', value: 'ConferenceService'}]" :key="option.value" :label="option.label" :value="option.value"></el-option>
+              <el-option v-for="option in [{label: '咖啡服务', value: 'CoffeeService'}]" :key="option.value" :label="option.label" :value="option.value"></el-option>
             </el-select>
           </el-form-item>
           <div v-for="action in buttonConfig.params">
@@ -159,7 +159,7 @@ watchEffect(() => {
 })
 
 const handleProcessChange = (processId)=>{
-  if (processId === 'ConferenceService') {
+  if (processId === 'CoffeeService') {
     buttonConfig.value.params = [
       {
         "actionId": "makeCoffee",

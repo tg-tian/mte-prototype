@@ -28,7 +28,7 @@ public class ApplicationBusiness {
         // 新增应用，获取应用信息
 
         // 加载该应用流程
-        addProcess("ConferenceService","会议服务", "EventRegistration", "GuestReception", null);
+        addProcess("CoffeeService","咖啡服务", "", "SelfServeCoffee", null);
     }
 
     public void addProcess(String processId, String processName, String parentProcessId, String applicationId, List<ActionMeta> actionMetas) {
@@ -36,11 +36,10 @@ public class ApplicationBusiness {
     }
 
     public List<ProcessMeta> getProcesses(String applicationId) {
-        ProcessMeta processMeta = new ProcessMeta("EventRegistration", "活动申报", "GuestReception", "",  null);
-        ProcessMeta processMeta2 = new ProcessMeta("ConferenceService","会议服务", "GuestReception", "EventRegistration",  processBusiness.getActionMetaList("ConferenceService", CommonConfig.getWorkspacePath()+"SmartBuilding/BuildingA/application/GuestReception/process/"));
+        ProcessMeta processMeta2 = new ProcessMeta("CoffeeService","咖啡服务", "SelfServeCoffee", "",  processBusiness.getActionMetaList("CoffeeService", CommonConfig.getWorkspacePath()+"SmartBuilding/PhysicalBuilding/application/SelfServeCoffee/process/"));
 
         // TODO：初始化RTProcess
 
-        return new ArrayList<>(Arrays.asList(processMeta, processMeta2));
+        return new ArrayList<>(Arrays.asList(processMeta2));
     }
 }

@@ -20,11 +20,11 @@ interface State {
 onActivated(()=>{
   applicationList.value = [
     {
-      code: "GuestReception",
-      name: "来访接待",
+      code: "SelfServeCoffee",
+      name: "自助咖啡",
       imageUrl: new URL('@/assets/logo.png', import.meta.url).href,
       isSelected: false,
-      route: '/demo/application/detail?applicationId=GuestReception&applicationName=来访接待&scenarioName=交叉二号楼'
+      route: '/demo/application/detail?applicationId=SelfServeCoffee&applicationName=自助咖啡&scenarioName=物理楼'
     }
   ]
 })

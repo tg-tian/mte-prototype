@@ -1,21 +1,16 @@
 {
-  "domainId": "SmartBuilding",
-  "domainName": "智慧楼宇",
+  "domainId": "SmartMine",
+  "domainName": "智慧矿山",
   "domainField":[
     {
-        "fieldID": "floor",
-        "fieldName": "楼层",
+        "fieldID": "mine",
+        "fieldName": "矿井",
         "type": "String"
     },
     {
-        "fieldID": "description",
-        "fieldName": "描述",
+        "fieldID": "tunnel",
+        "fieldName": "巷道",
         "type": "String"
-    },
-    {
-        "fieldID": "planPath",
-        "fieldName": "平面图",
-        "type": "Image"
     }
   ],
   "componentTypeList": [
@@ -23,8 +18,9 @@
       "componentType": "Device",
       "componentAbout":[
         {
-          "componentID": "CoffeeMaker",
-          "componentName": "咖啡机器人"
+          "componentID": "PUMP",
+          "componentName": "水泵"
+
         }
       ]
     },
@@ -32,10 +28,6 @@
       "componentType": "UI",
       "componentAbout":[
         {
-          "componentID": "001",
-          "componentName": "场景化导航",
-          "imgPath":"guide.svg"
-        },{
           "componentID":"002",
           "componentName": "柱状图",
           "imgPath":"bar.svg"

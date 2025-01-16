@@ -1,13 +1,13 @@
 {
-  "scenarioId": "BuildingA",
-  "scenarioName": "交叉二号楼",
+  "scenarioId": "PhysicalBuilding",
+  "scenarioName": "物理楼",
   "domainId": "SmartBuilding",
   "map": {
     "mapPath": "map.png",
     "mapList": [
       {
         "floor": "二层",
-        "description": "交叉二号楼二楼",
+        "description": "物理楼二楼",
         "planPath": "floor.jpeg"
       }
     ]

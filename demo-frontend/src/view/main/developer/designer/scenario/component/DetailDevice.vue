@@ -270,7 +270,7 @@ const getScenarioDevice = ()=>{
 
       //加载设备数据
       data.value = [];
-      loadScenarioData("The second interdisciplinary building").then((res:any) =>{
+      loadScenarioData("PhysicalBuilding").then((res:any) =>{
         if (res.status === 200){
           const devices = res.data;
           devices.forEach((device: any) => {
@@ -315,7 +315,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
       uploadDeviceData({deviceForm:deviceForm}).then((res:any) => {
         if(res.status === 200){
           ElMessage.success("设备实例上传成功")
-          uploadDeviceRegisterData({deviceForm:deviceForm},"The second interdisciplinary building",deviceForm.deviceName).then(async (res:any)=>{
+          uploadDeviceRegisterData({deviceForm:deviceForm},"PhysicalBuilding",deviceForm.deviceName).then(async (res:any)=>{
             if(res.status === 200){
               ElMessage.success("设备实例注册成功")
               await getScenarioDevice();

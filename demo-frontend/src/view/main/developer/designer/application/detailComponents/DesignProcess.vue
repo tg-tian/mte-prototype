@@ -54,7 +54,7 @@ interface State {
 onActivated(()=>{
   processList.value = [
     {
-      code: "ConferenceService",
+      code: "CoffeeService",
       name: "咖啡服务",
       imageUrl: getAssetsFile('images/process.png')
     }
