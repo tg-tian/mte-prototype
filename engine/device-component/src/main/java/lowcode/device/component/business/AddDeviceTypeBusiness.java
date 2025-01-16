@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import demo.lowcode.common.Command;
 import demo.lowcode.common.CommonConfig;
 import demo.lowcode.common.Param;
+import demo.lowcode.common.device.DeviceProperty;
 import demo.lowcode.common.util.FileUtil;
 import demo.lowcode.common.util.JsonUtils;
 import demo.lowcode.common.util.StringUtil;
@@ -63,6 +64,10 @@ public class AddDeviceTypeBusiness {
                 refs.add(serviceRef);
 
                 jsonObject.set("refs", refs);
+
+                // 创建 "properties" 数组 (ArrayNode)
+                ArrayNode properties = objectMapper.createArrayNode();
+                jsonObject.set("properties", properties);
 
                 // 创建 "commands" 数组 (ArrayNode)
                 ArrayNode commands = objectMapper.createArrayNode();
@@ -321,6 +326,57 @@ public class AddDeviceTypeBusiness {
             objectMapper.writerWithDefaultPrettyPrinter().writeValue(file, jsonNode);
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    public void addProperty(String deviceType, List<DeviceProperty> properties) {
+        // 读取对应的json文件
+        String baseDir = CommonConfig.getDefinitionPath()+deviceType+"/definitions/";
+        String jsonContent = JsonUtils.readJson(baseDir+deviceType+".json");
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            // 读取现有的 JSON 内容
+            JsonNode jsonObject = objectMapper.readTree(jsonContent);
+            ArrayNode propertiesNode = (ArrayNode) jsonObject.get("properties");
+
+            for (DeviceProperty property : properties) {
+                // 判断属性是否存在
+                boolean isExist = false;
+                for (int i=0; i<propertiesNode.size();i++){
+                    if (Objects.equals(propertiesNode.get(i).path("identifier").asText(), property.getIdentifier())){
+                        isExist = true;
+                    }
+                }
+                if (isExist) continue;
+
+                // 创建新的 propertyObject
+                ObjectNode propertyObject = objectMapper.createObjectNode();
+
+                propertyObject.put("identifier", property.getIdentifier());
+                propertyObject.put("name", property.getName());
+                propertyObject.put("accessMode", property.getAccessMode());
+                propertyObject.put("enableValidate", property.isEnableValidate());
+
+                propertyObject.set("validateParams", objectMapper.createArrayNode());
+                // 数据类型
+                ObjectNode dataTypeNode = objectMapper.createObjectNode();
+                dataTypeNode.put("type", property.getDeviceDataType().getType());
+                ObjectNode specsNode = objectMapper.createObjectNode();
+                for (String key: property.getDeviceDataType().getSpecs().keySet()){
+                    specsNode.put(key, property.getDeviceDataType().getSpecs().get(key));
+                }
+                dataTypeNode.set("specs", specsNode);
+                propertyObject.set("dataType", dataTypeNode);
+
+                // 将 propertyObject 添加到 properties 数组
+                propertiesNode.add(propertyObject);
+            }
+
+            File jsonFile = new File(baseDir + deviceType + ".json");
+            objectMapper.writerWithDefaultPrettyPrinter().writeValue(jsonFile, jsonObject);
+        }catch (Exception e){
+            throw new RuntimeException(e.getMessage());
         }
     }
 }

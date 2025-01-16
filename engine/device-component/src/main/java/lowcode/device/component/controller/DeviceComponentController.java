@@ -1,5 +1,6 @@
 package lowcode.device.component.controller;
 
+import demo.lowcode.common.device.DeviceProperty;
 import lowcode.device.component.business.DeviceComponentBusiness;
 
 
@@ -75,6 +76,18 @@ public class DeviceComponentController {
         try {
             List<BrandService> brandServiceList= deviceComponentBusiness.loadServiceList(deviceName);
             return new ResponseEntity<>(brandServiceList, HttpStatus.OK);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("文件读取错误", HttpStatus.BAD_REQUEST);
+        }
+    }
+
+    @ApiOperation(value = "属性读取接口")
+    @GetMapping(value = "/load-property")
+    public ResponseEntity<?> loadProperties(String deviceType) {
+        try {
+            List<DeviceProperty> deviceProperties = deviceComponentBusiness.loadProperties(deviceType);
+            return new ResponseEntity<>(deviceProperties, HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
             return new ResponseEntity<>("文件读取错误", HttpStatus.BAD_REQUEST);

@@ -31,6 +31,18 @@ public class AddDeviceTypeController {
         }
     }
 
+    @ApiOperation(value = "新增属性")
+    @PostMapping(value = "/add-device-type/property/add")
+    public ResponseEntity<?> addDeviceTypeProperty(@RequestBody AddPropertyRqt request) {
+        try {
+            addDeviceTypeBusiness.addProperty(request.getDeviceType(),request.getProperties());
+            return new ResponseEntity<>("新增属性成功", HttpStatus.OK);
+        } catch (Exception e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("新增属性错误:"+e.getMessage(), HttpStatus.BAD_REQUEST);
+        }
+    }
+
     @ApiOperation(value = "新增操作")
     @PostMapping(value = "/add-device-type/operation/add")
     public ResponseEntity<?> addDeviceTypeOperation(@RequestBody AddOperationRqt request) {
