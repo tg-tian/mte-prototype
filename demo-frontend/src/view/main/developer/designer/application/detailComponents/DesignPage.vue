@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import Card from '../../../../common/Card.vue'
-import getAssetsFile from '@/utils/pub-use'
+import {getAssetsFile} from '@/utils/pub-use'
 import PageHeader from "@/view/main/common/PageHeader.vue";
 import Table from "@/view/main/common/Table.vue";
 import {ref} from "vue";

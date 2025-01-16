@@ -31,7 +31,7 @@
 
 <script setup lang="ts">
 import Card from '../../../../common/Card.vue'
-import getAssetsFile from '@/utils/pub-use'
+import {getAssetsFile} from '@/utils/pub-use'
 import PageHeader from "@/view/main/common/PageHeader.vue";
 const router = useRouter()
 const buttonGroup = [

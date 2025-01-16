@@ -14,7 +14,7 @@
 <script setup lang="ts">
 import Card from "../../../common/Card.vue";
 import {useApplicationStore} from "@/store/modules/applicationStore";
-import getAssetsFile from '@/utils/pub-use'
+import {getAssetsFile} from '@/utils/pub-use'
 
 const router = useRouter()
 

@@ -51,7 +51,7 @@ import type { Ace } from "ace-builds";
 import {getFileData, saveFileData} from "@/api/fileApi";
 import processTool from './processTool.json'
 import {Search} from "@element-plus/icons-vue";
-import getAssetsFile from '@/utils/pub-use'
+import {getAssetsFile} from '@/utils/pub-use'
 
 interface State{
   processId: String;

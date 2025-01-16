@@ -20,7 +20,7 @@
 </template>
 <script setup lang="ts">
 import Card from "../../../common/Card.vue";
-import getAssetsFile from '@/utils/pub-use'
+import {getAssetsFile} from '@/utils/pub-use'
 
 interface State {
   scenarioList: any[],

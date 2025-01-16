@@ -78,7 +78,7 @@ import Table from "@/view/main/common/Table.vue";
 import {getOperationCommand, getOperationEvent, getService, loadDeviceInfo,updateDevicePublish} from "@/api/DeviceExpand";
 import { watch } from 'vue';
 import {ElMessage} from "element-plus";
-import getAssetsFile from '@/utils/pub-use'
+import {getAssetsFile, getDeviceImage} from '@/utils/pub-use'
 interface State {
   deviceCode: String;
   deviceName: String;
@@ -270,7 +270,7 @@ const getDeviceData = () =>{
       deviceData.value = {
         code: res.data.deviceTypeCode,
         name: res.data.deviceTypeName,
-        imageUrl:getAssetsFile('device/'+res.data.deviceTypeCode+".png")
+        imageUrl:getDeviceImage(res.data.imgPath)
       }
     }
   })

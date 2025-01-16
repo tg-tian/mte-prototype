@@ -54,7 +54,7 @@ import { ref } from 'vue';
 import Card from "@/view/main/common/Card.vue";
 import {CaretBottom, CaretTop} from "@element-plus/icons-vue";
 import {loadDoaminComponentData} from "@/api/DomainApi";
-import getAssetsFile from '@/utils/pub-use'
+import { getDeviceImage, getAssetsFile } from '@/utils/pub-use'
 interface State{
   deviceData: any[];
   businessData: any[];
@@ -121,25 +121,6 @@ const handleBusinessClick = (device)=>{
   console.log(device)
 }
 
-//import.meta.glob 使用时，路径并不支持 @ 这种别名。import.meta.glob 只能处理相对于项目根目录的相对路径
-// const images = import.meta.glob('/src/assets/icon/*.png');
-// const getImage = async (deviceTypeCode) => {
-//   const imagePath = `/src/assets/icon/${deviceTypeCode}.png`; // 构建路径
-//
-//   try {
-//     if (images[imagePath]) {
-//       const imageModule: any = await images[imagePath]();  // 调用懒加载函数加载模块
-//       return imageModule.default; // 返回图片的默认导出（图片路径）
-//     } else {
-//       console.error(`Image not found for device code: ${deviceTypeCode}`);
-//       return '/logo.png'; // 图片未找到时返回空字符串或默认图片
-//     }
-//   } catch (e) {
-//     console.error('Error loading image:', e);
-//     return '/logo.png'; // 如果出错，返回默认图片路径或空
-//   }
-// }
-
 const getComponentData = async ()=>{
   await loadDoaminComponentData("Device").then( (res:any) =>{
     deviceData.value =[]
@@ -151,7 +132,7 @@ const getComponentData = async ()=>{
             name: device.deviceTypeName,
             isSelected: false,
             isPublish: device.publish,
-            imageUrl: getAssetsFile('device/'+device.deviceTypeCode+".png")
+            imageUrl: getDeviceImage(device.imgPath)
           }
           deviceData.value.push(newDevice);  // 将对象加入到 domainDevice 中
       })

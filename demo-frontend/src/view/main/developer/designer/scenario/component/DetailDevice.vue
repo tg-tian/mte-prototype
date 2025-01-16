@@ -87,7 +87,7 @@ import {
   uploadDeviceData,
   uploadDeviceRegisterData
 } from "@/api/scenarioApi";
-import getAssetsFile from '@/utils/pub-use'
+import {getAssetsFile, getDeviceImage} from '@/utils/pub-use'
 
 const props = defineProps({
   scenarioId: String,
@@ -264,7 +264,7 @@ const getScenarioDevice = ()=>{
               name: "B品牌"
             }
           ],
-          imageUrl: getAssetsFile('device/'+v.deviceTypeCode+'.png'),
+          imageUrl: getDeviceImage(v.imgPath),
         }
       })
 

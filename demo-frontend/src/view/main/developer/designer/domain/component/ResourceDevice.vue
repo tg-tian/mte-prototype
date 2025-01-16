@@ -41,7 +41,7 @@ import {Search} from "@element-plus/icons-vue";
 import Card from '@/view/main/common/Card.vue'
 import {loadDomainBindingData,loadDoaminComponentData,uploadDomainBindingData} from "@/api/DomainApi";
 import {ElMessage} from "element-plus";
-import getAssetsFile from '@/utils/pub-use'
+import {getAssetsFile, getDeviceImage} from '@/utils/pub-use'
 
 const props = defineProps({
   domainId: String,
@@ -179,7 +179,7 @@ const getDomainData = () =>{
             code: device.deviceTypeCode,
             name: device.deviceTypeName,
             isSelected: false,
-            imageUrl: getAssetsFile('device/'+device.deviceTypeCode+'.png'),
+            imageUrl: getDeviceImage(device.imgPath),
           }
           domainDevice.value.push(newDevice);  // 将对象加入到 domainDevice 中
         };

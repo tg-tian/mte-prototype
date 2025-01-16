@@ -22,7 +22,7 @@
 import Table from "@/view/main/common/Table.vue";
 import {getDomainJson} from "@/api/DomainApi";
 import {getScenarioJson} from "@/api/scenarioApi";
-import getAssetsFile from '@/utils/pub-use'
+import {getAssetsFile} from '@/utils/pub-use'
 
 const props = defineProps({
   scenarioId: String,

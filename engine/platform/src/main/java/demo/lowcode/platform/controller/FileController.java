@@ -35,6 +35,7 @@ public class FileController {
         return "文件保存成功";
     }
 
+    // 上传设备类型图片
     @PostMapping("/file/upload")
     public ResponseEntity<?> uploadFileData(@RequestParam("deviceCode") String deviceCode, @RequestParam("file") MultipartFile file) throws IOException{
         try {
@@ -47,7 +48,7 @@ public class FileController {
             Files.createDirectories(path.getParent());
             // 将文件写入指定位置
             Files.write(path, bytes);
-            return ResponseEntity.ok(path.toString());
+            return ResponseEntity.ok("/images/deviceType/"+StringUtil.capitalizeFirstLetter(deviceCode)+"/"+fileName);
         } catch (IOException e) {
             e.printStackTrace();
             return new ResponseEntity<>("文件上传失败", HttpStatus.INTERNAL_SERVER_ERROR);

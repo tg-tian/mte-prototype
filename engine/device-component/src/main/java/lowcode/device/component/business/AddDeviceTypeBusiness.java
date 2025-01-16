@@ -27,6 +27,9 @@ public class AddDeviceTypeBusiness {
     // 根据基本信息初始化设备类型
     public void initDeviceType(String deviceCode, String deviceName, String imageUrl){
         // TODO: 判断是否已存在（查数据库）
+        if (deviceCode == null) {
+            throw new RuntimeException("传入deviceCode不能为空");
+        }
         String baseDir = CommonConfig.getDefinitionPath()+deviceCode;
         if (!new File(baseDir).exists()){
             // 1、新建文件夹及文件
