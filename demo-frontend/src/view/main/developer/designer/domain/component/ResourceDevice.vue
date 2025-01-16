@@ -138,7 +138,7 @@ const SubmitDevice = () => {
   //提取被选择的设备code
   const deviceCodes = selectedDevices.map(device => device.code);
   console.log(selectedDevices);
-  uploadDomainBindingData({selectedCodes: deviceCodes},"Device","SmartBuilding").then(async (res: any) => {
+  uploadDomainBindingData({selectedCodes: deviceCodes},"Device",props.domainId).then(async (res: any) => {
     if (res.status === 200) {
       console.log('Binding successful', res.data);
       ElMessage.success('组件绑定成功')
@@ -156,7 +156,7 @@ const clearDevice = ()=>{
 }
 
 const getDomainData = () =>{
-  loadDomainBindingData("Device","SmartBuilding").then((res:any) =>{
+  loadDomainBindingData("Device",props.domainId).then((res:any) =>{
     if (res.status === 200){
       data.value = res.data.map( v=>{
         return {

@@ -115,7 +115,7 @@ onMounted(()=> {
 })
 
 const getDomainData = () =>{
-  getDomainComponent("UI").then((res:any) =>{
+  getDomainComponent("UI", props.domainId).then((res:any) =>{
     if (res.status === 200){
       console.log(res.data)
       data.value = res.data.componentAbout.map(v=>{

@@ -11,6 +11,7 @@ import demo.lowcode.platform.mapper.DomainMapper;
 import demo.lowcode.platform.model.DomainMeta;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import java.io.File;
 import java.io.IOException;
@@ -95,8 +96,8 @@ public class DomainBusiness {
         return addDomain(domainId,domainName,componentMap);
     }
 
-    public Domain_ComponentJson loadComponentJson(String componentType) throws IOException {
-        File file = new File(CommonConfig.getWorkspacePath()+"SmartBuilding/SmartBuilding.do");//获取文件夹
+    public Domain_ComponentJson loadComponentJson(String componentType, String domainCode) throws IOException {
+        File file = new File(CommonConfig.getWorkspacePath()+domainCode+"/"+domainCode+".do");//获取文件夹
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
         //组件信息表，定义在文件 definition/SmartBuilding.do 使用componentID作为“键”，使用剩下的内容作为“值”的List
@@ -134,10 +135,10 @@ public class DomainBusiness {
         return addComponentJson(componentType,componentMap);
     }
 
-    public DomainJson loadJson() throws IOException {
+    public DomainJson loadJson(String domainCode) throws IOException {
         // 读取该领域的json文件(领域ID、名称、字段表、组件类型列表)
             //获取json文件
-        File file = new File(CommonConfig.getWorkspacePath()+"SmartBuilding/SmartBuilding.do");  //获取文件类
+        File file = new File(CommonConfig.getWorkspacePath()+domainCode+"/"+domainCode+".do");  //获取文件类
         ObjectMapper objectMapper = new ObjectMapper(); //?
         JsonNode rootNode = objectMapper.readTree(file); //获取json树状结构
             //组织json文件
