@@ -1,13 +1,41 @@
 <template>
   <PageHeader :title="applicationName+'——业务流程列表'" :button-group="buttonGroup" @button-click="handleHeaderButtonClick"/>
   <div class="body-box">
-    <div v-for="(process, index) in processList" :key="index">
-      <Card
-          :cardItem="process"
-          :dropDownItems="dropDownItems"
-          @commandClick="handleCommand(process, $event)"
-          @itemClick="handleClick(process)"/>
+    <div class="title-box">业务逻辑管理</div>
+    <div class="table-box">
+      <div class="table-row">
+        <div class="title-cell label">功能名称</div>
+        <div class="table-cell">
+          <el-input  style="width: 240px" placeholder="请输入" />
+        </div>
+        <div class="title-cell label">功能状态</div>
+        <div class="table-cell">
+          <el-select
+              v-model="value"
+              placeholder="请选择"
+              style="width: 240px"
+          >
+            <el-option
+                v-for="item in options"
+                :key="item.value"
+                :label="item.label"
+                :value="item.value"
+            />
+          </el-select>
+        </div>
+        <el-button type="primary" style="margin-left: 30px">筛选</el-button>
+      </div>
+      <div class="table">
+        <Table :header="header"  :data="data" @handle-edit="handleClick"/>
+      </div>
     </div>
+<!--    <div v-for="(process, index) in processList" :key="index">-->
+<!--      <Card-->
+<!--          :cardItem="process"-->
+<!--          :dropDownItems="dropDownItems"-->
+<!--          @commandClick="handleCommand(process, $event)"-->
+<!--          @itemClick="handleClick(process)"/>-->
+<!--    </div>-->
   </div>
   <el-dialog
       v-model="dialogVisible"
@@ -33,11 +61,13 @@
 import Card from '../../../../common/Card.vue'
 import getAssetsFile from '@/utils/pub-use'
 import PageHeader from "@/view/main/common/PageHeader.vue";
+import Table from "@/view/main/common/Table.vue";
+import {ref} from "vue";
 const router = useRouter()
 const buttonGroup = [
   {
     code: 'newBusinessProcess',
-    name: '新增业务流程',
+    name: '+新增业务流程',
     type: 'primary'
   },
 ]
@@ -48,7 +78,9 @@ interface State {
   applicationId: String,
   applicationName: String,
   dialogVisible: boolean,
-  radio: String
+  radio: String,
+  header:any[],
+  data:any[],
 }
 
 onActivated(()=>{
@@ -61,6 +93,17 @@ onActivated(()=>{
   ]
 })
 
+const value = ref('')
+const options = [
+  {
+    value: '0',
+    label: '未运行',
+  },
+  {
+    value: '1',
+    label: '运行中',
+  },
+]
 const state = reactive<State>({
   processList: [],
   dropDownItems: [
@@ -76,9 +119,29 @@ const state = reactive<State>({
   applicationId: '',
   applicationName: '',
   dialogVisible: false,
-  radio: 'head'
+  radio: 'head',
+  header:[
+    {
+      code: "name",
+      name:"功能名称",
+      type:"String",
+    },{
+      code: "status",
+      name:"功能状态",
+      type:"String",
+    }
+  ],
+  data:[
+    {
+      name:'数据采集',
+      status:'运行中',
+    },{
+      name:'水泵检修',
+      status:'未运行',
+    }
+  ],
 })
-const { processList, dropDownItems,applicationId, applicationName, dialogVisible, radio} = toRefs(state)
+const { processList, dropDownItems,applicationId, applicationName, dialogVisible, radio,header,data} = toRefs(state)
 
 watchEffect(() => {
   if (typeof router.currentRoute.value.query.applicationId === 'string') {

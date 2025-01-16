@@ -79,3 +79,15 @@ export const updateDevicePublish = (deviceTypeCode: String) =>
         url:`/device-type/publish?deviceTypeCode=${deviceTypeCode}`,
         method:`put`,
     })
+
+export const getAttribute = (deviceTypeCode: String) =>
+    request({
+        url:`/load-property?deviceType=${deviceTypeCode}`,
+        method:`get`,
+    })
+
+export const addDeviceProperty = (deviceProperty: any) => request({
+    url:`/add-device-type/property/add`,
+    method:`post`,
+    data:deviceProperty,
+})

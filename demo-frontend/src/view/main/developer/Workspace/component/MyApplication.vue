@@ -26,8 +26,8 @@ interface State {
 onActivated(()=>{
   applicationList.value = [
     {
-      code: "CoffeeReception",
-      name: "自助咖啡",
+      code: "PumpSystem",
+      name: "智慧水泵系统",
       imageUrl: getAssetsFile('logo.png'),
       isSelected: false
     }

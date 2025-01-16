@@ -65,7 +65,6 @@ const state = reactive<State>({
   editStatus: false
 })
 const {applicationId, applicationName, applicationForm, editStatus} = toRefs(state)
-
 const router = useRouter()
 const applicationStore = useApplicationStore()
 watchEffect(() => {
