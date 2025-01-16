@@ -103,7 +103,7 @@ interface Attribute_RuleForm{
   attribute_Name: string;
   attribute_Code: string;
   accessMode:string;
-  enableValidate:boolean;
+  enableValidate:string;
   validateParams: any[];
   attribute_Unit: string;
   attribute_UnitName: string;
@@ -236,7 +236,7 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         accessMode:AttributeForm.accessMode,
         enableValidate:AttributeForm.enableValidate,
         validateParams:[], //todo:这里需要根据enableValidate做出修改，暂时赋值为空
-        dataDataType:dataType,
+        deviceDataType:dataType,
       }
       const propertiesList = []
       propertiesList.push(attribute)
@@ -245,10 +245,11 @@ const submitForm = async (formEl: FormInstance | undefined) => {
         properties:propertiesList,
       }
 
+      console.log(data)
       addDeviceProperty(data).then((res)=>{
         if (res.status === 200){
           ElMessage.success("新增属性成功")
-          state.attriVisible = false;
+          state.attributeVisible = false;
           attributeFormRef.value.resetFields();
           getAttributeData();
         }
