@@ -132,7 +132,7 @@ const buttonGroup = computed(()=>{
 })
 
 const goToCodeServer = ()=>{
-  window.open("http://139.196.147.52:5200/?folder=/home/coder/project/workplace/SmartBuilding/PhysicalBuilding/application/SelfServeCoffee", '_blank');
+  window.open("http://139.196.147.52:5200/?folder=/home/coder/project/workplace/SmartBuilding/PhysicalBuilding/", '_blank');
 }
 
 const handleHeaderButtonClick = (code: string)=>{
