@@ -46,7 +46,13 @@
         </el-descriptions-item>
       </el-descriptions>
   </div>
-
+  <div style="margin: 50px 20px 20px;">
+    <div style="font-weight: bold; margin-bottom: 20px">设备属性</div>
+    <div style="margin-bottom: 10px;display: flex;justify-content: end">
+      <el-button type="primary" plain>新增</el-button>
+    </div>
+    <Table :header="propertyHeader"/>
+  </div>
   <div style="margin: 50px 20px 20px;">
     <div style="font-weight: bold; margin-bottom: 20px">功能服务</div>
     <el-tabs type="card">
@@ -244,6 +250,29 @@ const serviceHeader = [
     code: "filename",
     name: "厂商定义文件",
     type: "Link"
+  }
+]
+const propertyHeader = [
+  {
+    code:"name",
+    name:"属性名称",
+    type:"String",
+  },{
+    code:"identifier",
+    name:"属性编码",
+    type:"String",
+  },{
+    code:"type",
+    name:"数据类型",
+    type:"String",
+  },{
+    code:"unit",
+    name:"单位",
+    type:"String",
+  },{
+    code:"unitName",
+    name:"单位名称",
+    type:"String",
   }
 ]
 // const images = import.meta.glob('/src/assets/icon/*.png');
