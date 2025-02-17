@@ -14,7 +14,7 @@
         <span v-if="col.type !== 'Image' && col.type !== 'Link'">{{ scope.row[col.code] }}</span>
       </template>
     </el-table-column>
-    <el-table-column label="操作" v-if="canDelete || canEdit" >
+    <el-table-column label="操作" v-if="canOperate" >
       <template #default="scope" >
         <div style="display: flex; gap: 8px; align-items: center;">
           <div v-for="item in buttonGroup" :key="item.code" style="margin-right: 10px">
@@ -62,8 +62,11 @@ interface ButtonProps {
 
 const props = defineProps({
   data: Array,
-  header: Array<any>,
-
+  header: Array,
+  canOperate:{
+    type: Boolean,
+    default: true
+  },
   canChoose:{
     type: Boolean,
     default: false

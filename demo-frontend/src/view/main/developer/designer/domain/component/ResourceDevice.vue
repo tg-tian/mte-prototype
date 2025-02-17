@@ -1,32 +1,14 @@
 <template>
   <div class="domain-subtitle" style="display: flex;justify-content: space-between">
-    <el-button type="primary"  @click="openDialog" style="margin-left: auto;">添加设备类型</el-button>
+    <el-button type="primary"  @click="openDialog" style="margin-left: auto;">添加设备模型</el-button>
   </div>
   <div class = "domain-content">
-    <Table :header="header" :data="data" :canChoose="true" />
+    <Table :header="header" :data="data" :can-edit="false" />
   </div>
 
   <!--添加设备表单-->
-  <el-dialog v-model = "dialogVisible" title="添加设备类型" width="50%" @close="clearDevice">
-    <div style="display: flex;justify-content: space-between;font-size: 16px;margin-bottom: 20px;margin-top: 10px">
-      <div>模板库</div>
-      <div style="color: #50a5fb">
-        <el-input
-            v-model="searchInput"
-            style="width: 240px"
-            placeholder="搜索"
-            :prefix-icon="Search"
-        />
-      </div>
-    </div>
-    <div style="display: flex;flex-wrap: wrap;gap: 20px;">
-      <Card
-          v-for="(device, index) in domainDevice"
-          :key="device.code"
-          :cardItem="device"
-          canSelect
-          @update:isSelected="updateIsSelected(index, $event)"/>
-    </div>
+  <el-dialog v-model = "dialogVisible" title="添加设备模型" width="50%" @close="clearDevice">
+    TODO：选择iot平台-获取设备模型列表-选择要添加的设备模型
     <div style="margin-top: 20px;display: flex;justify-content: end">
       <el-button type="primary" @click="SubmitDevice">确定</el-button>
       <el-button @click="clearDevice">清空</el-button>
@@ -63,11 +45,15 @@ const state = reactive<State>({
   header:[
     {
       code: "ID",
-      name: "类型ID",
+      name: "设备模型编码",
       type: "String"
     },{
       code: "name",
-      name: "设备名称",
+      name: "设备模型名称",
+      type: "String"
+    },{
+      code: "platform",
+      name: "所属平台",
       type: "String"
     }],
   data:[],
@@ -83,38 +69,7 @@ const {header, data, dialogVisible, searchInput, domainDevice, selectedDeviceLis
 
 //赋值
 onMounted(()=> {
-  if (import.meta.env.VITE_MODE === "mock") {
-    data.value = [
-      {
-        ID: "CoffeeMaker",
-        name: "咖啡机"
-      },{
-        ID: "AirConditioner",
-        name: "空调"
-      }]
-    domainDevice.value = [
-      {
-        code: "CoffeeMaker",
-        name: "咖啡机器人",
-        isSelected: false,
-        imageUrl: getAssetsFile('logo.png'),
-      },
-      {
-        code: "AirConditioner",
-        name: "空调",
-        isSelected: false,
-        imageUrl: getAssetsFile('logo.png'),
-      },
-      {
-        code: "SmokeDetector",
-        name: "烟感器",
-        isSelected: false,
-        imageUrl: getAssetsFile('logo.png'),
-      }
-    ]
-  }else {
     getDomainData()
-  }
 })
 
 const openDialog = () => {
@@ -127,9 +82,6 @@ const updateIsSelected = (index, value) => {
 };
 
 const SubmitDevice = () => {
-  //这是一个箭头函数，作为 .filter() 方法的参数。
-  //device 是 domainDevice.value 数组中的每一个元素，即一个设备对象。
-  //device.isSelected 是设备对象的 isSelected 属性，它是一个布尔值（true 或 false）。
   const selectedDevices = domainDevice.value.filter(device => device.isSelected);
   if(selectedDevices.length === 0){
     ElMessage.warning("请先选择设备！");

@@ -11,14 +11,6 @@
     <div v-if="selectedDevice === ''">
       <div style="display: flex;justify-content: space-between;font-size: 16px;margin-bottom: 20px;margin-top: 10px">
         <div>领域设备类型</div>
-        <div style="color: #50a5fb">
-          <el-input
-              v-model="searchInput"
-              style="width: 240px"
-              placeholder="从模板库搜索"
-              :prefix-icon="Search"
-          />
-        </div>
       </div>
       <div style="display: flex;flex-wrap: wrap;gap: 20px;">
         <Card v-for="device in domainDevice" :key="device.code" :cardItem="device" @itemClick="handleDomainDeviceClick(device)" />

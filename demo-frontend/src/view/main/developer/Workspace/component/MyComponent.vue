@@ -2,13 +2,13 @@
   <div class="component-container">
     <div class="component-subtitle" style="display: flex;justify-content: space-between">
       <div @click="deviceVisible = !deviceVisible" style="cursor: pointer">
-        设备组件({{deviceData.length}})
+        设备模型({{deviceData.length}})
         <el-icon>
           <CaretBottom v-if="deviceVisible"/>
           <CaretTop v-if="!deviceVisible"/>
         </el-icon>
       </div>
-      <el-button type="primary" @click="router.push({path: '/developer/device-component/add'})">新增设备组件</el-button>
+      <el-button type="primary" @click="">同步设备模型</el-button>
     </div>
     <div class="component-content" v-if="deviceVisible">
       <div style="display: flex;flex-wrap: wrap;gap: 20px">
@@ -72,28 +72,6 @@ const state = reactive<State>({
 const  {deviceData, businessData, deviceVisible, businessVisible} = toRefs(state)
 
 onMounted(async ()=>{
-  if(import.meta.env.VITE_MODE === "mock"){
-    deviceData.value = [
-      {
-        code: "CoffeeMaker",
-        name: "咖啡机器人",
-        imageUrl: getAssetsFile('device/CoffeeMaker.png'),
-        isSelected: false
-      },
-      {
-        code: "Conditioner",
-        name: "空调",
-        imageUrl: getAssetsFile('device/Conditioner.png'),
-        isSelected: false
-      },
-      {
-        code: "SmokeDetector",
-        name: "烟感器",
-        imageUrl: getAssetsFile('device/SmokeDetector.png'),
-        isSelected: false
-      }
-    ]
-  }else {
     businessData.value = [
       {
         code: "ConferenceService",
@@ -102,7 +80,6 @@ onMounted(async ()=>{
         isSelected: false
       }
     ]
-  }
 })
 
 const router = useRouter()

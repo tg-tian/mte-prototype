@@ -15,8 +15,8 @@
           </div>
         </div>
         <div class="domain-resource">
-          <div class="domain-title" id="领域设备类型">设备类型</div>
-          <div style="margin-top: 30px">
+          <div class="domain-title" id="领域设备类型">设备模型</div>
+          <div >
             <ResourceDevice :domainId="domainId" :domainName="domainName"/>
           </div>
         </div>
