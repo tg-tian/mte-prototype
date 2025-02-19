@@ -24,16 +24,6 @@ export const loadScenarioBindingData = (componentType: String ,domainCode: Strin
     })
 
 /**
- * 上传具体设备信息到数据库
- * @param data
- */
-export const uploadDeviceData = (data : any) =>
-    request({
-        url:`/device/data`,
-        method:"post",
-        data:data,
-    })
-/**
  * 上传设备注册信息到数据库
  * @param data
  * @param scenarioCode

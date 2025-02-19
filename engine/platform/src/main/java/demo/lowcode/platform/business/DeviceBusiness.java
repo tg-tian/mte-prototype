@@ -14,20 +14,4 @@ public class DeviceBusiness extends ServiceImpl<DeviceMapper, Device> implements
     @Autowired
     public DeviceBusiness( DeviceMapper deviceMapper) {this.deviceMapper = deviceMapper;}
 
-    public void deviceUpload(Device device) {
-        int count = deviceMapper.countByDeviceCode(device.getDeviceCode());
-        if(count == 0){
-            deviceMapper.insertDevice(device.getDeviceCode(),device.getDeviceName(),device.getDeviceTypeId(),device.getVersionNumber(),device.getManufacturer());
-        }else{
-            throw new RuntimeException("deviceCode 已存在，不能插入重复的记录");
-        }
-    }
-    /**
-     * 获取deviceId
-     * @return
-     */
-    public Long loadDeviceId(String deviceCode){
-        return deviceMapper.getDeviceId(deviceCode);
-    }
-
 }

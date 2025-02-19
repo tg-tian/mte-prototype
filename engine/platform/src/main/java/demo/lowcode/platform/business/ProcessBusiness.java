@@ -67,40 +67,7 @@ public class ProcessBusiness {
             if (action != null){
                 // 执行
                 ActionExecResult output = null;
-                if (executeArgs == null || executeArgs.isEmpty()){
-                    output = actionBusiness.executeAction(action, actionMeta.getExecParam());
-                } else {
-                    try {
-                        String jarPath = scePath+"device/"+actionMeta.getObjectId()+"/"+actionMeta.getObjectId().toLowerCase()+"-1.0.0.jar";
-                        URLClassLoader classLoader = JavaDynamicCompiler.loadJar(jarPath);
-                        Class<?> serviceClass = classLoader.loadClass("lowcode.device."+actionMeta.getObjectId().toLowerCase()+".service."+actionMeta.getObjectId()+"Service");
-                        // 获取所有方法找到要调用的具体方法从而得到参数
-                        Method[] methods = serviceClass.getMethods();
-                        for (Method method : methods) {
-                            if (method.getName().equals(actionMeta.getExecParam())){
-                                Class<?>[] parameterTypes = method.getParameterTypes();
-                                Object[] params = new Object[parameterTypes.length];
-
-                                int index = 0;
-                                for (Class<?> paramType : parameterTypes) {
-                                    String paramName = method.getParameters()[index].getName();
-
-                                    if (executeArgs.containsKey(paramName)) {
-                                        // 将 Map 中的值转换为对应类型
-                                        params[index] = paramType.cast(executeArgs.get(paramName));
-                                    } else {
-                                        throw new IllegalArgumentException("参数 " + paramName + " 缺失");
-                                    }
-                                    index++;
-                                }
-                                output = actionBusiness.executeAction(action, actionMeta.getExecParam(), params);
-                            }
-                        }
-                    }catch (Exception e){
-                        e.printStackTrace();
-                        throw new RuntimeException(e.getMessage());
-                    }
-                }
+                // TODO
                 actionResults.put(actionMeta.getActionId(), output);
                 executionStatus.put(actionMeta.getActionId(), 3);
             }else {
@@ -140,11 +107,6 @@ public class ProcessBusiness {
                 ActionMeta actionMeta = new ActionMeta(actionId, actionName, type, parentActionId, objectId, execParam, params);
                 result.add(actionMeta);
             }
-//            Param param = new Param("coffeeType", "咖啡类型", "String");
-//            ActionMeta actionMeta = new ActionMeta("makeCoffee", "制作咖啡", "Device", "", "CoffeeMaker", "makeCoffee", new ArrayList<>(List.of(param)));
-//            ActionMeta checkMeta = new ActionMeta("check", "检查", "Device", "makeCoffee", "CoffeeMaker", "check", null);
-//            result.add(actionMeta);
-//            result.add(checkMeta);
         }catch (Exception e){
             throw new RuntimeException("读取process信息失败："+e.getMessage());
         }
@@ -174,39 +136,9 @@ public class ProcessBusiness {
         String procPath = scePath+"application/"+applicationId+"/process/";
 
         List<ActionMeta> actionMetaList = getActionMetaList(processId, procPath);
-//        Map<String, Action> actionMap = getProcessActions(scenarioId, scePath, actionMetaList, new HashMap<>());
 
         Map<String, List<Param>> result = new HashMap<>();
         // TODO:读取每个action节点参数
-
-//        for (Map.Entry<String, Action> entry : actionMap.entrySet()) {
-//            Optional<ActionMeta> actionMetaFind = actionMetaList.stream().filter(meta -> meta.getActionId().equals(entry.getKey())).findFirst();
-//            actionMetaFind.ifPresent(actionMeta -> {
-//                if (entry.getValue() instanceof Device) {
-//                    Device device = (Device) entry.getValue();
-//                    DeviceService service = device.getDeviceService();
-//                    Map<String, Object> serviceProperty = service.getProperty();
-//                    List<Param> params = new ArrayList<>();
-//
-//                    // 读取当前节点操作
-//                    String operation = actionMeta.getExecParam();
-//
-//                    // 读取该操作需要的inputParam
-//                    if (Objects.equals(operation, "makeCoffee")) {
-//                        // mock
-//                        Param param = new Param("coffeeType", "咖啡类型", "Enum");
-//
-//                        // 若param类型为enum，则读取serviceProperty
-//                        if (Objects.equals(param.getType(), "Enum")) {
-//                            param.setOptions((List<String>) serviceProperty.get(param.getCode()));
-//                        }
-//                        params.add(param);
-//                    }
-//
-//                    result.put(entry.getKey(), params);
-//                }
-//            });
-//        }
 
         return result;
     }

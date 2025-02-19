@@ -49,18 +49,13 @@ public class DomainController {
     }
 
     /**
-     * 读取相应组件的组件数据库
+     * TODO:读取相应组件的组件列表
      * @param componentType
      * @return
      */
     @GetMapping(value = "/load-domain-component-data")
     public ResponseEntity<?> loadDomainComponentData(String componentType) {
-        if(Objects.equals(componentType, "Device"))  //todo:暂定这样写，其他组件的类还没定义,之后其他类定义后将这里改写
-        {
-            List<DeviceType> deviceTypeList = deviceTypeBusiness.getDeviceTypeData();
-            return  new ResponseEntity<>(deviceTypeList,HttpStatus.OK);
-        }
-        else return new ResponseEntity<>("文件读取错误", HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>("",HttpStatus.OK);
     }
 
 }

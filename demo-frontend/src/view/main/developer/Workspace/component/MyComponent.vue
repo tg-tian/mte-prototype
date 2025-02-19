@@ -53,7 +53,7 @@
 import { ref } from 'vue';
 import Card from "@/view/main/common/Card.vue";
 import {CaretBottom, CaretTop} from "@element-plus/icons-vue";
-import {loadDoaminComponentData} from "@/api/DomainApi";
+import {loadDomainComponentData} from "@/api/DomainApi";
 import { getDeviceImage, getAssetsFile } from '@/utils/pub-use'
 interface State{
   deviceData: any[];
@@ -99,7 +99,7 @@ const handleBusinessClick = (device)=>{
 }
 
 const getComponentData = async ()=>{
-  await loadDoaminComponentData("Device").then( (res:any) =>{
+  await loadDomainComponentData("Device").then( (res:any) =>{
     deviceData.value =[]
     if(res.status === 200){
       const dataArray = res.data;

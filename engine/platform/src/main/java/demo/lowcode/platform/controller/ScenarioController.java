@@ -19,9 +19,7 @@ public class ScenarioController {
     @Resource
     ScenarioBusiness scenarioBusiness;
 
-
     // load场景定义
-    // TODO: 解释引擎不用加载scenario。应该放到开发工具中。但是scenario这个概念还是可以在engine中保留。
     @PostMapping(value = "/load-scenario")
     public ResponseEntity<?> loadScenario(String scePath) {
         scenarioBusiness.loadScenario(scePath);
@@ -39,17 +37,4 @@ public class ScenarioController {
             return new ResponseEntity<>("场景数据读取错误",HttpStatus.BAD_REQUEST);
         }
     }
-
-    @GetMapping (value = "/load-scenario-resource-json")
-    public ResponseEntity<?> loadResourceJson(){
-        try {
-            Scenario_ResourceJson scenario_resourceJson = scenarioBusiness.loadResourceJson();
-            System.out.println("场景资源loading成功！");
-            return new ResponseEntity<>(scenario_resourceJson, HttpStatus.OK);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ResponseEntity<>("场景资源读取错误",HttpStatus.BAD_REQUEST);
-        }
-    }
-
 }

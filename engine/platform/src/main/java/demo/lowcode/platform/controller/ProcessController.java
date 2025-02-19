@@ -26,10 +26,6 @@ public class ProcessController {
     //TODO: 解释引擎支持多个app：参数要加上appId
     @PostMapping(value = "/execute-process")
     public ResponseEntity<?> executeProcess(@RequestParam String processId, @RequestBody Map<String, Map<String, Object>> requestBody) {
-//        List<ExecuteActionArgs> executeActionArgs = new ArrayList<>();
-//        for (Map.Entry<String, Map<String, Object>> entry : requestBody.entrySet()) {
-//            executeActionArgs.add(new ExecuteActionArgs(entry.getKey(), entry.getValue()));
-//        }
         processBusiness.executeProcess(processId, requestBody);
         return new ResponseEntity<>("结束执行", HttpStatus.OK);
     }

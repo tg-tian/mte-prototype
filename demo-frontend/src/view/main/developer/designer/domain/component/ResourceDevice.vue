@@ -21,7 +21,7 @@
 import Table from "@/view/main/common/Table.vue";
 import {Search} from "@element-plus/icons-vue";
 import Card from '@/view/main/common/Card.vue'
-import {loadDomainBindingData,loadDoaminComponentData,uploadDomainBindingData} from "@/api/DomainApi";
+import {loadDomainBindingData,loadDomainComponentData,uploadDomainBindingData} from "@/api/DomainApi";
 import {ElMessage} from "element-plus";
 import {getAssetsFile, getDeviceImage} from '@/utils/pub-use'
 
@@ -36,7 +36,6 @@ interface State{
   data: any[];
   dialogVisible: boolean;
   searchInput: String;
-  domainDevice: any[];
   selectedDeviceList: any[]
 }
 
@@ -59,12 +58,11 @@ const state = reactive<State>({
   data:[],
   dialogVisible:false,
   searchInput: '',
-  domainDevice: [],
   selectedDeviceList: []
 })
 
 //获取元素结点
-const {header, data, dialogVisible, searchInput, domainDevice, selectedDeviceList} = toRefs(state)
+const {header, data, dialogVisible, searchInput, selectedDeviceList} = toRefs(state)
 
 
 //赋值
@@ -77,12 +75,8 @@ const openDialog = () => {
   getDomainData();
 }
 
-const updateIsSelected = (index, value) => {
-  domainDevice.value[index].isSelected = value;
-};
-
 const SubmitDevice = () => {
-  const selectedDevices = domainDevice.value.filter(device => device.isSelected);
+  const selectedDevices = [];
   if(selectedDevices.length === 0){
     ElMessage.warning("请先选择设备！");
     return;
@@ -101,9 +95,6 @@ const SubmitDevice = () => {
 }
 
 const clearDevice = ()=>{
-  domainDevice.value.forEach((device)=>{
-    device.isSelected=false
-  })
   selectedDeviceList.value = []
 }
 
@@ -115,26 +106,6 @@ const getDomainData = () =>{
           ID: v.deviceTypeCode,
           name: v.deviceTypeName
         }
-      })
-    }
-  })
-  domainDevice.value=[];
-  loadDoaminComponentData("Device").then((res:any) =>{
-    if(res.status === 200){
-      const dataArray = res.data;
-      dataArray.forEach((device : any) => {
-        // 检查 deviceTypeCode 是否不在 data.ID 数组中
-        const isDeviceInData = data.value.some((item: any) => item.ID === device.deviceTypeCode);
-        if(!isDeviceInData)
-        {
-          const newDevice = {
-            code: device.deviceTypeCode,
-            name: device.deviceTypeName,
-            isSelected: false,
-            imageUrl: getDeviceImage(device.imgPath),
-          }
-          domainDevice.value.push(newDevice);  // 将对象加入到 domainDevice 中
-        };
       })
     }
   })

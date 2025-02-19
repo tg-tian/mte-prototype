@@ -21,8 +21,8 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Objects;
 
-@RestController //?
-@CrossOrigin    //?
+@RestController
+@CrossOrigin
 @ApiModel(value = "设备组件拓展类")
 public class DeviceComponentController {
     @Resource
@@ -40,16 +40,12 @@ public class DeviceComponentController {
         }
     }
 
-    @ApiOperation(value = "操作事件读取接口")
+    @ApiOperation(value = "事件读取接口")
     @GetMapping(value = "/load-operation-event")
     public ResponseEntity<?> loadOperationEvent(String deviceName,String operationCode) {
         try {
             List<DeviceEvent> deviceEventList;
-            if (Objects.equals(operationCode, "")){
-                deviceEventList = deviceComponentBusiness.loadEvent(deviceName);
-            }else {
-                deviceEventList = deviceComponentBusiness.loadEvent(deviceName,operationCode);
-            }
+            deviceEventList = deviceComponentBusiness.loadEvent(deviceName);
             return new ResponseEntity<List<DeviceEvent>>(deviceEventList, HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
@@ -64,18 +60,6 @@ public class DeviceComponentController {
             System.out.println(deviceType);
             List<CommandDto> commandList= deviceComponentBusiness.loadCommand(deviceType);
             return new ResponseEntity<>(commandList, HttpStatus.OK);
-        } catch (IOException e) {
-            e.printStackTrace();
-            return new ResponseEntity<>("文件读取错误", HttpStatus.BAD_REQUEST);
-        }
-    }
-
-    @ApiOperation(value = "服务读取接口")
-    @GetMapping(value = "/load-service")
-    public ResponseEntity<?> loadService(String deviceName) {
-        try {
-            List<BrandService> brandServiceList= deviceComponentBusiness.loadServiceList(deviceName);
-            return new ResponseEntity<>(brandServiceList, HttpStatus.OK);
         } catch (IOException e) {
             e.printStackTrace();
             return new ResponseEntity<>("文件读取错误", HttpStatus.BAD_REQUEST);

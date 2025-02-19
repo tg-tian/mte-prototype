@@ -20,9 +20,6 @@ public class ScenarioBusiness {
     @Autowired
     public ScenarioBusiness(SceneMapper sceneMapper) {this.sceneMapper = sceneMapper;}
 
-    @Value("${eventPath}")
-    private String eventFilePath;
-
     public ScenarioJson addScearioJson(String scenarioId, String scenarioName, String domainId, String mapPath, List<Map<String,String>> mapList)
     {
         ScenarioJson scenarioJson = new ScenarioJson();
@@ -40,37 +37,6 @@ public class ScenarioBusiness {
         scenario_resourceJson.setDevicesList(devicesList);
         scenario_resourceJson.setDevices_service(devices_service);
         return scenario_resourceJson;
-    }
-
-    public Scenario_ResourceJson loadResourceJson() throws IOException{
-        File file = new File(CommonConfig.getWorkspacePath()+"SmartBuilding/PhysicalBuilding/PhysicalBuilding.sce"); //获取文件夹
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode rootNode = objectMapper.readTree(file);
-
-        List<Map<String,String>> devicesList = new ArrayList<>();
-        Map<String,Map<String,String>> devices_service = new HashMap<>();
-
-        JsonNode devicesNodeList = rootNode.path("devices");
-        for(JsonNode devicesNode: devicesNodeList){
-            Map<String,String> devices_imf = new HashMap<>();
-
-            String deviceId = devicesNode.path("deviceId").asText();
-            devices_imf.put("deviceId",deviceId);
-            devices_imf.put("deviceName", devicesNode.path("deviceName").asText());
-            devices_imf.put("deviceType",devicesNode.path("deviceType").asText());
-            devicesList.add(devices_imf);
-
-            JsonNode serviceNode = devicesNode.path("service");
-            Map<String,String> service_imf = new HashMap<>();
-            service_imf.put("code",serviceNode.path("code").asText());
-            service_imf.put("name",serviceNode.path("name").asText());
-            service_imf.put("protocol",serviceNode.path("protocol").asText());
-            service_imf.put("uri",serviceNode.path("uri").asText());
-            service_imf.put("port",serviceNode.path("port").asText());
-            devices_service.put(deviceId,service_imf);
-        }
-
-        return addResourceJson(devicesList,devices_service);
     }
 
     //获取领域基本信息json

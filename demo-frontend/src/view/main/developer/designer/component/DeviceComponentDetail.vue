@@ -141,6 +141,16 @@ const commandHeader = [
     code: "description",
     name: "描述",
     type: "String"
+  },
+  {
+    code: "inputParam",
+    name: "输入参数",
+    type: "String"
+  },
+  {
+    code: "outputParam",
+    name: "输出参数",
+    type: "String"
   }
 ]
 const eventHeader = [
