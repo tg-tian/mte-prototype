@@ -15,12 +15,10 @@ import java.util.*;
 
 @org.springframework.stereotype.Service
 public class ScenarioBusiness {
-
-    private final SceneMapper sceneMapper;
     @Autowired
-    public ScenarioBusiness(SceneMapper sceneMapper) {this.sceneMapper = sceneMapper;}
+    public ScenarioBusiness() {}
 
-    public ScenarioJson addScearioJson(String scenarioId, String scenarioName, String domainId, String mapPath, List<Map<String,String>> mapList)
+    public ScenarioJson addScenarioJson(String scenarioId, String scenarioName, String domainId, String mapPath, List<Map<String,String>> mapList)
     {
         ScenarioJson scenarioJson = new ScenarioJson();
         scenarioJson.setScenarioId(scenarioId);
@@ -32,16 +30,8 @@ public class ScenarioBusiness {
         return scenarioJson;
     }
 
-    public Scenario_ResourceJson addResourceJson(List<Map<String,String>> devicesList, Map<String,Map<String,String>> devices_service){
-        Scenario_ResourceJson scenario_resourceJson = new Scenario_ResourceJson();
-        scenario_resourceJson.setDevicesList(devicesList);
-        scenario_resourceJson.setDevices_service(devices_service);
-        return scenario_resourceJson;
-    }
-
     //获取领域基本信息json
     public ScenarioJson loadScenarioJson() throws IOException{
-
         File file = new File(CommonConfig.getWorkspacePath()+"SmartBuilding/PhysicalBuilding/PhysicalBuilding.sce"); //获取文件夹
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
@@ -67,66 +57,6 @@ public class ScenarioBusiness {
             mapList.add(map_imf);
         }
 
-        return addScearioJson(scenarioId, scenarioName,domainId,mapPath,mapList);
-    }
-
-
-
-    // 场景增删改查
-    public void addScenario() {
-
-    }
-
-    public void loadScenario(String scePath) {
-        // 读取该场景的json文件
-
-        // 新增场景，获取场景信息
-
-        // 加载该场景地图信息
-        addScenarioMap(null, "");
-
-        // 加载该场景具体设备
-        addDeviceMeta("", "CoffeeMaker", "AService", null);
-    }
-
-    public void addScenarioMap(Map<String, String> map, String scenarioId) {
-
-    }
-
-    public Map<String, String> getScenarioMap(String scenarioId) {
-        return new HashMap<>() {{
-            put("楼层", "2");
-            put("房间号", "D2009");
-        }};
-    }
-
-    public void addDeviceMeta(String scenarioId, String deviceType, String serviceType, DeviceTypeInformation deviceInformation) {
-
-    }
-
-    public List<DeviceMeta> getDeviceMetaList(String scenarioId) {
-        // TODO: 获取具体设备实例（包括服务，不包括事件，事件在应用编辑时定义）
-
-        scenarioId = "PhysicalBuilding";
-        String deviceType = "CoffeeMaker";
-
-        // 咖啡机器人A
-        // TODO: 读数据库或读json文件获取品牌支持的操作
-        List<String> operationsA = new ArrayList<>(Arrays.asList("getProperty()", "start()", "makeCoffee(String coffeeType)"));
-        DeviceConnectService serviceA = new DeviceConnectService("AService", "http://localhost:8090/coffeemaker/aservice", operationsA);
-        DeviceInformation deviceInformation = new DeviceInformation("deviceId", "咖啡机器人A", deviceType, serviceA);
-        DeviceMeta deviceMeta = new DeviceMeta("deviceId", "咖啡机器人A", scenarioId, deviceInformation);
-
-        // 咖啡机器人B
-        List<String> operationsB = new ArrayList<>(Arrays.asList("getProperty()", "start()", "makeCoffee(String coffeeType)", "check()"));
-        DeviceConnectService serviceB = new DeviceConnectService("BService", "http://localhost:8090/coffeemaker/bservice", operationsB);
-        DeviceInformation deviceInformation2 = new DeviceInformation("deviceId2", "咖啡机器人B", deviceType, serviceB);
-        DeviceMeta deviceMeta2 = new DeviceMeta("deviceId2", "咖啡机器人B", scenarioId, deviceInformation2);
-
-        return new ArrayList<>(Arrays.asList(deviceMeta, deviceMeta2));
-    }
-
-    public Long loadSceneId(String sceneCode){
-        return  sceneMapper.getSceneId(sceneCode);
+        return addScenarioJson(scenarioId, scenarioName,domainId,mapPath,mapList);
     }
 }

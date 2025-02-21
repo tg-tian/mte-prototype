@@ -25,19 +25,6 @@ public class DomainBusiness {
     @Autowired
     public  DomainBusiness(DomainMapper domainMapper) { this.domainMapper = domainMapper;}
 
-    /**
-     * 基于领域名称获取领域号
-     * @param domainName
-     * @return
-     */
-    public long getDomainIdByName (String domainName){
-        return domainMapper.getDomainIdByName(domainName);
-    }
-
-    public long getDomainIdByCode (String domainCode){
-        return domainMapper.getDomainIdByCode(domainCode);
-    }
-
     // domain增删改查
     public DomainMeta addDomain(String domainId, String domainName, Map<String, List<String>> componentMap) {
         DomainMeta domainMeta = new DomainMeta();
@@ -63,37 +50,6 @@ public class DomainBusiness {
         domain_componentJson.setComponentAbout(componentAbout.values().stream().toList());
         System.out.println("正在加载领域"+componentType+"信息：");
         return domain_componentJson;
-    }
-    public DomainMeta loadDomain(String domainPath) throws IOException {
-        // 读取该领域信息
-        File file = new File(domainPath);
-        ObjectMapper objectMapper = new ObjectMapper();
-        JsonNode rootNode = objectMapper.readTree(file);
-        String domainId = rootNode.path("domainId").asText();
-        String domainName = rootNode.path("domainName").asText();
-
-        Map<String, List<String>> componentMap = new HashMap<>();
-        JsonNode componentTypeListNode = rootNode.path("componentTypeList");
-        if (componentTypeListNode.isArray()){
-            for (JsonNode componentTypeNode: componentTypeListNode){
-                String componentName = componentTypeNode.path("componentName").asText();
-                String type = componentTypeNode.path("type").asText();
-
-                if (componentMap.containsKey(type)){
-                    List<String> componentTypes = componentMap.get(type);
-                    if (componentTypes.contains(componentName)){
-                        System.out.println("领域内存在重复组件");
-                    }else {
-                        componentTypes.add(componentName); //?
-                    }
-                }else {
-                    componentMap.put(type, new ArrayList<>(List.of(componentName)));
-                }
-            }
-        }
-
-        // 新增领域
-        return addDomain(domainId,domainName,componentMap);
     }
 
     public Domain_ComponentJson loadComponentJson(String componentType, String domainCode) throws IOException {
@@ -164,25 +120,5 @@ public class DomainBusiness {
             }
         }
         return  addDomainJson(domainId,domainName,domainFieldMap);
-    }
-
-    public void addComponentType(String componentName, String type, String domainId) {
-        DomainMeta domainMeta = null;
-        Map<String, List<String>> componentTypeList = domainMeta.getComponentType();
-        if (componentTypeList.containsKey(type)) {
-            List<String> componentTypes = componentTypeList.get(type);
-            if (componentTypes.contains(componentName)){
-                System.out.println("领域内存在重复组件");
-            }else {
-                componentTypes.add(componentName);
-            }
-        }else {
-            componentTypeList.put(type, new ArrayList<>(List.of(componentName)));
-        }
-        domainMeta.setComponentType(componentTypeList);
-    }
-
-    public List<String> getDeviceTypeList(String domainId) {
-        return new ArrayList<>(List.of("CoffeeMaker"));
     }
 }

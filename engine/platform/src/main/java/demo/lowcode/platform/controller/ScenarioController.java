@@ -2,7 +2,6 @@ package demo.lowcode.platform.controller;
 
 import demo.lowcode.platform.business.ScenarioBusiness;
 import demo.lowcode.platform.model.ScenarioJson;
-import demo.lowcode.platform.model.Scenario_ResourceJson;
 import jakarta.annotation.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,13 +17,6 @@ import java.io.IOException;
 public class ScenarioController {
     @Resource
     ScenarioBusiness scenarioBusiness;
-
-    // load场景定义
-    @PostMapping(value = "/load-scenario")
-    public ResponseEntity<?> loadScenario(String scePath) {
-        scenarioBusiness.loadScenario(scePath);
-        return null;
-    }
 
     @GetMapping (value = "/load-scenario-json")
     public ResponseEntity<?> loadScenarioJson(){
