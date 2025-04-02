@@ -1,7 +1,8 @@
 import { reactive } from 'vue'
+import { Domain, Scene, Device } from '@/types/models'
 
 // Mock domain data
-export const mockDomains = reactive([
+export const mockDomains = reactive<Domain[]>([
     {
         id: 1,
         name: '智能制造领域',
@@ -41,7 +42,7 @@ export const mockDomains = reactive([
 ])
 
 // Mock scenes data
-export const mockScenes = reactive([
+export const mockScenes = reactive<Scene[]>([
     {
         id: 1,
         domainId: 1,
@@ -75,7 +76,7 @@ export const mockScenes = reactive([
 ])
 
 // Mock devices data
-export const mockDevices = reactive([
+export const mockDevices = reactive<Device[]>([
     {
         id: 1,
         sceneId: 1,
@@ -83,7 +84,12 @@ export const mockDevices = reactive([
         type: '传感器',
         status: 'online',
         lastUpdated: '2023-12-20 14:30:45',
-        location: { x: 120, y: 85 }
+        location: { x: 120, y: 85 },
+        properties: {
+            unit: '°C',
+            range: [-30, 80],
+            currentValue: 24.5
+        }
     },
     {
         id: 2,
@@ -92,7 +98,12 @@ export const mockDevices = reactive([
         type: '监测器',
         status: 'online',
         lastUpdated: '2023-12-20 14:35:22',
-        location: { x: 180, y: 120 }
+        location: { x: 180, y: 120 },
+        properties: {
+            unit: 'kPa',
+            range: [0, 1000],
+            currentValue: 320
+        }
     },
     {
         id: 3,
@@ -101,6 +112,30 @@ export const mockDevices = reactive([
         type: '控制设备',
         status: 'offline',
         lastUpdated: '2023-12-19 09:15:10',
-        location: { x: 210, y: 160 }
+        location: { x: 210, y: 160 },
+        properties: {
+            openState: false,
+            controlMode: 'manual'
+        }
+    }
+])
+
+// Mock users data
+export const mockUsers = reactive([
+    {
+        id: 1,
+        username: 'admin',
+        password: '123456', // Note: In real app, passwords should never be stored in plaintext
+        displayName: '管理员',
+        role: 'admin',
+        avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png'
+    },
+    {
+        id: 2,
+        username: 'user',
+        password: '123456',
+        displayName: '普通用户',
+        role: 'user',
+        avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png'
     }
 ])

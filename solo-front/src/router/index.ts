@@ -2,14 +2,25 @@ import { RouteRecordRaw, createRouter, createWebHashHistory } from 'vue-router'
 import DomainList from '@/views/meta/DomainList/index.vue'
 import Layout from '@/views/components/Layout/index.vue'
 import SceneList from '@/views/domain/SceneList/index.vue'
+import Login from '@/views/Login/index.vue'
+import { getToken } from '@/utils/auth'
 
 const routes: RouteRecordRaw[] = [
+    {
+        path: '/login',
+        name: '登录',
+        component: Login,
+        meta: {
+            requiresAuth: false
+        }
+    },
     {
         path: '/',
         name: '低代码平台',
         component: Layout,
         meta: {
-            keepAlive: true
+            keepAlive: true,
+            requiresAuth: true
         },
         children: [
             {
@@ -65,6 +76,11 @@ const routes: RouteRecordRaw[] = [
                         path: 'location',
                         name: '场景布局',
                         component: () => import('@/views/scene/Location/index.vue')
+                    },
+                    {
+                        path: 'dashboard',
+                        name: '数据面板',
+                        component: () => import('@/views/scene/Dashboard/index.vue')
                     }
                 ]
             }
@@ -78,16 +94,14 @@ const router = createRouter({
 })
 
 // 登录拦截
-router.beforeEach((_to, _from, next) => {
-    next()
-    // if (to.meta.requiresAuth && !getToken()) {
-    //   // 如果路由需要身份验证并且用户未登录，重定向到登录页
-    //   next('/login')
-    //   // next()
-    // } else {
-    //   // 否则，继续导航
-    //   next()
-    // }
+router.beforeEach((to, _from, next) => {
+    if (to.meta.requiresAuth && !getToken()) {
+        // 如果路由需要身份验证并且用户未登录，重定向到登录页
+        next('/login')
+    } else {
+        // 否则，继续导航
+        next()
+    }
 })
 
 export default router
