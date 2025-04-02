@@ -1,15 +1,17 @@
 import { RouteRecordRaw, createRouter, createWebHashHistory } from 'vue-router'
 import DomainList from '@/views/meta/DomainList/index.vue'
 import Layout from '@/views/components/Layout/index.vue'
+import SceneList from '@/views/domain/SceneList/index.vue'
+
 const routes: RouteRecordRaw[] = [
     {
         path: '/',
         name: '低代码平台',
         component: Layout,
-        meta:{
+        meta: {
             keepAlive: true
         },
-        children:[
+        children: [
             {
                 path: 'meta',
                 name: '元工具平台',
@@ -23,7 +25,7 @@ const routes: RouteRecordRaw[] = [
                     {
                         path: 'domain/setting',
                         name: '领域定制',
-                        component: null
+                        component: () => import('@/views/meta/DomainSetting/index.vue')
                     }
                 ]
             },
@@ -35,12 +37,12 @@ const routes: RouteRecordRaw[] = [
                     {
                         path: 'scene/list',
                         name: '场景列表',
-                        component: null
+                        component: SceneList
                     },
                     {
                         path: 'scene/setting',
                         name: '场景定制',
-                        component: null
+                        component: () => import('@/views/domain/SceneSetting/index.vue')
                     }
                 ]
             },
@@ -52,17 +54,17 @@ const routes: RouteRecordRaw[] = [
                     {
                         path: 'information',
                         name: '场景信息',
-                        component: null
+                        component: () => import('@/views/scene/Information/index.vue')
                     },
                     {
                         path: 'device',
                         name: '设备列表',
-                        component: null
+                        component: () => import('@/views/scene/Device/index.vue')
                     },
                     {
                         path: 'location',
                         name: '场景布局',
-                        component: null
+                        component: () => import('@/views/scene/Location/index.vue')
                     }
                 ]
             }
@@ -87,5 +89,5 @@ router.beforeEach((_to, _from, next) => {
     //   next()
     // }
 })
-  
+
 export default router

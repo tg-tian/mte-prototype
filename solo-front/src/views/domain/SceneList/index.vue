@@ -1,14 +1,14 @@
 <template>
-  <div class="domain-list-container">
-    <div class="domain-header">
-      <h2>领域平台列表</h2>
-      <el-button type="primary" @click="handleCreate">创建领域</el-button>
+  <div class="scene-list-container">
+    <div class="scene-header">
+      <h2>场景列表 <small v-if="currentDomain">- {{ currentDomain.name }}</small></h2>
+      <el-button type="primary" @click="handleCreate">创建场景</el-button>
     </div>
     
-    <el-card class="domain-search">
+    <el-card class="scene-search">
       <el-form :inline="true" :model="searchForm" class="search-form">
-        <el-form-item label="领域名称">
-          <el-input v-model="searchForm.name" placeholder="请输入领域名称" clearable></el-input>
+        <el-form-item label="场景名称">
+          <el-input v-model="searchForm.name" placeholder="请输入场景名称" clearable></el-input>
         </el-form-item>
         <el-form-item label="状态">
           <el-select v-model="searchForm.status" placeholder="请选择状态" clearable>
@@ -24,17 +24,17 @@
     </el-card>
     
     <el-table
-      v-loading="domainStore.loading"
-      :data="filteredDomains"
+      v-loading="sceneStore.loading"
+      :data="filteredScenes"
       style="width: 100%; margin-top: 20px"
       border
     >
       <el-table-column prop="id" label="ID" width="80"></el-table-column>
-      <el-table-column prop="name" label="领域名称" min-width="150"></el-table-column>
+      <el-table-column prop="name" label="场景名称" min-width="150"></el-table-column>
       <el-table-column prop="description" label="描述" min-width="200"></el-table-column>
       <el-table-column prop="createTime" label="创建时间" width="120"></el-table-column>
       <el-table-column prop="updateTime" label="更新时间" width="120"></el-table-column>
-      <el-table-column prop="sceneCount" label="场景数量" width="100"></el-table-column>
+      <el-table-column prop="deviceCount" label="设备数量" width="100"></el-table-column>
       <el-table-column prop="status" label="状态" width="100">
         <template #default="scope">
           <el-tag :type="scope.row.status === 'active' ? 'success' : 'info'">
@@ -45,37 +45,37 @@
       <el-table-column label="操作" width="220">
         <template #default="scope">
           <el-button type="primary" size="small" @click="handleEdit(scope.row)">编辑</el-button>
-          <el-button type="success" size="small" @click="handleViewScenes(scope.row)">查看场景</el-button>
+          <el-button type="success" size="small" @click="handleViewScene(scope.row)">进入场景</el-button>
           <el-button type="danger" size="small" @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
     
-    <!-- 创建/编辑领域的对话框 -->
+    <!-- 创建/编辑场景的对话框 -->
     <el-dialog
       v-model="dialogVisible"
-      :title="isEdit ? '编辑领域' : '创建领域'"
+      :title="isEdit ? '编辑场景' : '创建场景'"
       width="50%"
     >
       <el-form
-        :model="domainForm"
+        :model="sceneForm"
         label-width="120px"
         :rules="rules"
-        ref="domainFormRef"
+        ref="sceneFormRef"
       >
-        <el-form-item label="领域名称" prop="name">
-          <el-input v-model="domainForm.name" placeholder="请输入领域名称"></el-input>
+        <el-form-item label="场景名称" prop="name">
+          <el-input v-model="sceneForm.name" placeholder="请输入场景名称"></el-input>
         </el-form-item>
         <el-form-item label="描述" prop="description">
           <el-input
-            v-model="domainForm.description"
+            v-model="sceneForm.description"
             type="textarea"
             rows="3"
-            placeholder="请输入领域描述"
+            placeholder="请输入场景描述"
           ></el-input>
         </el-form-item>
         <el-form-item label="状态" prop="status">
-          <el-select v-model="domainForm.status" placeholder="请选择状态">
+          <el-select v-model="sceneForm.status" placeholder="请选择状态">
             <el-option label="活跃" value="active"></el-option>
             <el-option label="非活跃" value="inactive"></el-option>
           </el-select>
@@ -95,14 +95,17 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, toRefs } from 'vue'
+import { useSceneStore } from '@/store/scene'
 import { useDomainStore } from '@/store/domain'
 import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
 
 const router = useRouter()
+const route = useRoute()
+const sceneStore = useSceneStore()
 const domainStore = useDomainStore()
 
 // 表单引用
-const domainFormRef = ref<FormInstance>()
+const sceneFormRef = ref<FormInstance>()
 
 // 状态
 const state = reactive({
@@ -110,10 +113,11 @@ const state = reactive({
     name: '',
     status: ''
   },
-  domainForm: {
+  sceneForm: {
     name: '',
     description: '',
-    status: 'active'
+    status: 'active',
+    domainId: parseInt(route.query.domainId as string) || null
   },
   dialogVisible: false,
   isEdit: false,
@@ -122,37 +126,48 @@ const state = reactive({
 })
 
 const { 
-  searchForm, domainForm, dialogVisible, isEdit, currentId, submitting 
+  searchForm, sceneForm, dialogVisible, isEdit, currentId, submitting 
 } = toRefs(state)
+
+// 获取当前域
+const currentDomain = computed(() => {
+  return domainStore.currentDomain
+})
 
 // 表单验证规则
 const rules = {
   name: [
-    { required: true, message: '请输入领域名称', trigger: 'blur' },
+    { required: true, message: '请输入场景名称', trigger: 'blur' },
     { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
   ],
   description: [
-    { required: true, message: '请输入领域描述', trigger: 'blur' }
+    { required: true, message: '请输入场景描述', trigger: 'blur' }
   ],
   status: [
     { required: true, message: '请选择状态', trigger: 'change' }
   ]
 }
 
-// 过滤后的领域列表
-const filteredDomains = computed(() => {
-  if (!domainStore.domains) return []
+// 过滤后的场景列表
+const filteredScenes = computed(() => {
+  if (!sceneStore.scenes) return []
   
-  return domainStore.domains.filter((domain: any) => {
-    const nameMatch = !searchForm.value.name || domain.name.toLowerCase().includes(searchForm.value.name.toLowerCase())
-    const statusMatch = !searchForm.value.status || domain.status === searchForm.value.status
+  return sceneStore.scenes.filter((scene: any) => {
+    const nameMatch = !searchForm.value.name || scene.name.toLowerCase().includes(searchForm.value.name.toLowerCase())
+    const statusMatch = !searchForm.value.status || scene.status === searchForm.value.status
     return nameMatch && statusMatch
   })
 })
 
 // 初始化
 onMounted(async () => {
-  await domainStore.fetchDomains()
+  // 获取domainId参数
+  const domainId = parseInt(route.query.domainId as string)
+  if (domainId) {
+    await sceneStore.fetchScenes(domainId)
+  } else {
+    await sceneStore.fetchScenes()
+  }
 })
 
 // 搜索处理
@@ -169,10 +184,11 @@ const resetSearch = () => {
 // 打开创建对话框
 const handleCreate = () => {
   isEdit.value = false
-  domainForm.value = {
+  sceneForm.value = {
     name: '',
     description: '',
-    status: 'active'
+    status: 'active',
+    domainId: parseInt(route.query.domainId as string) || null
   }
   currentId.value = null
   dialogVisible.value = true
@@ -181,25 +197,26 @@ const handleCreate = () => {
 // 打开编辑对话框
 const handleEdit = (row: any) => {
   isEdit.value = true
-  domainForm.value = {
+  sceneForm.value = {
     name: row.name,
     description: row.description,
-    status: row.status
+    status: row.status,
+    domainId: row.domainId
   }
   currentId.value = row.id
   dialogVisible.value = true
 }
 
 // 查看场景
-const handleViewScenes = (row: any) => {
-  domainStore.setCurrentDomain(row)
-  router.push(`/domain/scene/list?domainId=${row.id}`)
+const handleViewScene = (row: any) => {
+  sceneStore.setCurrentScene(row)
+  router.push(`/scene/information?sceneId=${row.id}`)
 }
 
-// 删除领域
+// 删除场景
 const handleDelete = (row: any) => {
   ElMessageBox.confirm(
-    `确定要删除领域 "${row.name}" 吗？`,
+    `确定要删除场景 "${row.name}" 吗？`,
     '警告',
     {
       confirmButtonText: '确定',
@@ -209,7 +226,7 @@ const handleDelete = (row: any) => {
   )
   .then(async () => {
     try {
-      await domainStore.deleteDomain(row.id)
+      await sceneStore.deleteScene(row.id)
       ElMessage.success('删除成功')
     } catch (error) {
       ElMessage.error('删除失败')
@@ -222,17 +239,17 @@ const handleDelete = (row: any) => {
 
 // 提交表单
 const submitForm = async () => {
-  if (!domainFormRef.value) return
+  if (!sceneFormRef.value) return
   
-  await domainFormRef.value.validate(async (valid) => {
+  await sceneFormRef.value.validate(async (valid) => {
     if (valid) {
       submitting.value = true
       try {
         if (isEdit.value && currentId.value) {
-          await domainStore.updateDomain(currentId.value, domainForm.value)
+          await sceneStore.updateScene(currentId.value, sceneForm.value)
           ElMessage.success('更新成功')
         } else {
-          await domainStore.createDomain(domainForm.value)
+          await sceneStore.createScene(sceneForm.value)
           ElMessage.success('创建成功')
         }
         dialogVisible.value = false
@@ -247,18 +264,18 @@ const submitForm = async () => {
 </script>
 
 <style scoped>
-.domain-list-container {
+.scene-list-container {
   padding: 20px;
 }
 
-.domain-header {
+.scene-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
   margin-bottom: 20px;
 }
 
-.domain-search {
+.scene-search {
   margin-bottom: 20px;
 }
 

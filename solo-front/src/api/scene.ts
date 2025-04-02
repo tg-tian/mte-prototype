@@ -1,0 +1,154 @@
+import request from '@/utils/request'
+import { mockScenes } from './mock'
+
+// 实际环境下的API接口
+export function getScenes(domainId?: number) {
+    return request({
+        url: '/scenes',
+        method: 'get',
+        params: { domainId }
+    })
+}
+
+export function getSceneById(id: number) {
+    return request({
+        url: `/scenes/${id}`,
+        method: 'get'
+    })
+}
+
+export function createScene(data: any) {
+    return request({
+        url: '/scenes',
+        method: 'post',
+        data
+    })
+}
+
+export function updateScene(id: number, data: any) {
+    return request({
+        url: `/scenes/${id}`,
+        method: 'put',
+        data
+    })
+}
+
+export function deleteScene(id: number) {
+    return request({
+        url: `/scenes/${id}`,
+        method: 'delete'
+    })
+}
+
+// Mock API functions
+export function getMockScenes(domainId?: number) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            let data = [...mockScenes]
+            if (domainId) {
+                data = data.filter(s => s.domainId === domainId)
+            }
+            resolve({
+                data: {
+                    code: 200,
+                    message: 'success',
+                    data
+                }
+            })
+        }, 300)
+    })
+}
+
+export function getMockSceneById(id: number) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const scene = mockScenes.find(s => s.id === id)
+            resolve({
+                data: {
+                    code: 200,
+                    message: 'success',
+                    data: scene
+                }
+            })
+        }, 300)
+    })
+}
+
+export function createMockScene(data: any) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const newScene = {
+                id: mockScenes.length + 1,
+                ...data,
+                createTime: new Date().toISOString().split('T')[0],
+                updateTime: new Date().toISOString().split('T')[0],
+                deviceCount: 0,
+                status: 'active'
+            }
+            mockScenes.push(newScene)
+            resolve({
+                data: {
+                    code: 200,
+                    message: 'success',
+                    data: newScene
+                }
+            })
+        }, 300)
+    })
+}
+
+export function updateMockScene(id: number, data: any) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const index = mockScenes.findIndex(s => s.id === id)
+            if (index !== -1) {
+                mockScenes[index] = {
+                    ...mockScenes[index],
+                    ...data,
+                    updateTime: new Date().toISOString().split('T')[0]
+                }
+                resolve({
+                    data: {
+                        code: 200,
+                        message: 'success',
+                        data: mockScenes[index]
+                    }
+                })
+            } else {
+                resolve({
+                    data: {
+                        code: 404,
+                        message: 'Scene not found',
+                        data: null
+                    }
+                })
+            }
+        }, 300)
+    })
+}
+
+export function deleteMockScene(id: number) {
+    return new Promise((resolve) => {
+        setTimeout(() => {
+            const index = mockScenes.findIndex(s => s.id === id)
+            if (index !== -1) {
+                mockScenes.splice(index, 1)
+                resolve({
+                    data: {
+                        code: 200,
+                        message: 'success',
+                        data: null
+                    }
+                })
+            } else {
+                resolve({
+                    data: {
+                        code: 404,
+                        message: 'Scene not found',
+                        data: null
+                    }
+                })
+            }
+        }, 300)
+    })
+}
