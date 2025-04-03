@@ -46,13 +46,27 @@
 - `/scenes` (GET) - 获取场景列表
   - 参数: `domainId?: number` - 可选，按领域ID筛选
   - 响应: `{ code: number, message: string, data: Scene[] }`
+    - `Scene` 包括以下字段:
+      - `id: number`
+      - `name: string`
+      - `description: string`
+      - `status: string`
+      - `domainId: number`
+      - `location: { lng: number, lat: number }` - 场景的坐标位置
 - `/scenes/{id}` (GET) - 获取指定ID的场景
   - 响应: `{ code: number, message: string, data: Scene }`
+    - `Scene` 包括以下字段:
+      - `id: number`
+      - `name: string`
+      - `description: string`
+      - `status: string`
+      - `domainId: number`
+      - `location: { lng: number, lat: number }` - 场景的坐标位置
 - `/scenes` (POST) - 创建新场景
-  - 请求体: `{ name: string, description: string, status: string, domainId: number }`
+  - 请求体: `{ name: string, description: string, status: string, domainId: number, location: { lng: number, lat: number } }`
   - 响应: `{ code: number, message: string, data: Scene }`
 - `/scenes/{id}` (PUT) - 更新场景信息
-  - 请求体: `{ name?: string, description?: string, status?: string, domainId?: number }`
+  - 请求体: `{ name?: string, description?: string, status?: string, location?: { lng: number, lat: number } }`
   - 响应: `{ code: number, message: string, data: Scene }`
 - `/scenes/{id}` (DELETE) - 删除场景
   - 响应: `{ code: number, message: string }`

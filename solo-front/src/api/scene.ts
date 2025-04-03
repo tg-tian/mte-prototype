@@ -21,7 +21,10 @@ export function createScene(data: any) {
     return request({
         url: '/scenes',
         method: 'post',
-        data
+        data: {
+            ...data,
+            location: data.location // Ensure location is included
+        }
     })
 }
 
@@ -29,7 +32,10 @@ export function updateScene(id: number, data: any) {
     return request({
         url: `/scenes/${id}`,
         method: 'put',
-        data
+        data: {
+            ...data,
+            location: data.location // Ensure location is included
+        }
     })
 }
 
@@ -52,7 +58,10 @@ export function getMockScenes(domainId?: number) {
                 data: {
                     code: 200,
                     message: 'success',
-                    data
+                    data: data.map(scene => ({
+                        ...scene,
+                        location: scene.location // Ensure location is returned
+                    }))
                 }
             })
         }, 300)
