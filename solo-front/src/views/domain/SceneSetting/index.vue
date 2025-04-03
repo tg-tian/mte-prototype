@@ -36,6 +36,33 @@
                 <el-option label="教育场所" value="education"></el-option>
               </el-select>
             </el-form-item>
+            
+            <el-form-item label="地理位置">
+              <div class="location-fields">
+                <el-input-number
+                  v-model="sceneForm.lng"
+                  :precision="6"
+                  :step="0.000001"
+                  :min="-180"
+                  :max="180"
+                  placeholder="经度"
+                  class="coordinate-input"
+                ></el-input-number>
+                <el-input-number
+                  v-model="sceneForm.lat"
+                  :precision="6"
+                  :step="0.000001"
+                  :min="-90"
+                  :max="90"
+                  placeholder="纬度"
+                  class="coordinate-input"
+                ></el-input-number>
+              </div>
+            </el-form-item>
+            
+            <el-form-item label="" v-if="sceneForm.lng && sceneForm.lat">
+              <div id="location-map" ref="locationMap" class="location-map"></div>
+            </el-form-item>
           </el-form>
         </el-tab-pane>
         
@@ -52,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, watch, toRefs } from 'vue'
+import { ref, reactive, computed, onMounted, watch, toRefs, nextTick } from 'vue'
 import { useSceneStore } from '@/store/scene'
 import { useDomainStore } from '@/store/domain'
 import { ElMessage, type FormInstance } from 'element-plus'
@@ -63,6 +90,7 @@ const route = useRoute()
 const sceneStore = useSceneStore()
 const domainStore = useDomainStore()
 const sceneFormRef = ref<FormInstance>()
+const locationMap = ref<HTMLElement | null>(null)
 
 // State
 const state = reactive({
@@ -71,12 +99,16 @@ const state = reactive({
     name: '',
     description: '',
     status: 'active',
-    domainId: parseInt(route.query.domainId as string) || null
+    domainId: parseInt(route.query.domainId as string) || null,
+    lng: undefined as number | undefined,
+    lat: undefined as number | undefined
   },
-  submitting: false
+  submitting: false,
+  baiduMap: null as BMap.Map | null,
+  locationMarker: null as BMap.Marker | null
 })
 
-const { activeTab, sceneForm, submitting } = toRefs(state)
+const { activeTab, sceneForm, submitting, baiduMap, locationMarker } = toRefs(state)
 
 // Determine if we're in edit mode
 const isEditMode = computed(() => {
@@ -118,7 +150,9 @@ const resetFormData = () => {
     name: '',
     description: '',
     status: 'active',
-    domainId: domainId.value
+    domainId: domainId.value,
+    lng: undefined,
+    lat: undefined
   }
 }
 
@@ -134,9 +168,90 @@ const loadSceneToForm = (scene: any) => {
     sceneForm.value.status = scene.status || 'active'
     sceneForm.value.domainId = scene.domainId || domainId.value
     
+    // Load location if available
+    if (scene.location) {
+      sceneForm.value.lng = scene.location.lng
+      sceneForm.value.lat = scene.location.lat
+    }
+    
     console.log('Scene data loaded to form:', sceneForm.value)
   }
 }
+
+// Initialize location map
+const initLocationMap = () => {
+  if (!locationMap.value) return
+  
+  // Create map instance
+  baiduMap.value = new BMap.Map('location-map')
+  
+  // Set initial center and zoom
+  let centerPoint: BMap.Point
+  
+  if (sceneForm.value.lng && sceneForm.value.lat) {
+    centerPoint = new BMap.Point(sceneForm.value.lng, sceneForm.value.lat)
+  } else {
+    // Default to Shanghai as center
+    centerPoint = new BMap.Point(121.4737, 31.2304)
+  }
+  
+  baiduMap.value.centerAndZoom(centerPoint, 12)
+  
+  // Enable scroll wheel zoom
+  baiduMap.value.enableScrollWheelZoom()
+  
+  // Add navigation control
+  const navigationControl = new BMap.NavigationControl({
+    type: BMAP_NAVIGATION_CONTROL_LARGE
+  })
+  baiduMap.value.addControl(navigationControl)
+  
+  // Add marker if coordinates are set
+  if (sceneForm.value.lng && sceneForm.value.lat) {
+    addLocationMarker()
+  }
+  
+  // Allow clicking on map to set location
+  baiduMap.value.addEventListener('click', (e: any) => {
+    const clickPoint = e.point
+    sceneForm.value.lng = clickPoint.lng
+    sceneForm.value.lat = clickPoint.lat
+    
+    // Update marker
+    addLocationMarker()
+  })
+}
+
+// Add marker for location
+const addLocationMarker = () => {
+  if (!baiduMap.value || !sceneForm.value.lng || !sceneForm.value.lat) return
+  
+  // Clear any existing marker
+  if (locationMarker.value) {
+    baiduMap.value.removeOverlay(locationMarker.value)
+  }
+  
+  // Create and add new marker
+  const point = new BMap.Point(sceneForm.value.lng, sceneForm.value.lat)
+  locationMarker.value = new BMap.Marker(point)
+  baiduMap.value.addOverlay(locationMarker.value)
+  
+  // Center map on marker
+  baiduMap.value.setCenter(point)
+}
+
+// Watch for changes in coordinates to update marker
+watch([() => sceneForm.value.lng, () => sceneForm.value.lat], () => {
+  if (sceneForm.value.lng && sceneForm.value.lat) {
+    if (!baiduMap.value && locationMap.value) {
+      nextTick(() => {
+        initLocationMap()
+      })
+    } else if (baiduMap.value) {
+      addLocationMarker()
+    }
+  }
+})
 
 // Watch for changes in route params to update form data accordingly
 watch([() => route.query.sceneId, () => route.query.mode, () => route.query.domainId], async ([newSceneId, newMode, newDomainId]) => {
@@ -155,6 +270,13 @@ watch([() => route.query.sceneId, () => route.query.mode, () => route.query.doma
       if (res.data && res.data.code === 200 && res.data.data) {
         sceneStore.setCurrentScene(res.data.data)
         loadSceneToForm(res.data.data)
+        
+        // Initialize map after data is loaded
+        nextTick(() => {
+          if (sceneForm.value.lng && sceneForm.value.lat) {
+            initLocationMap()
+          }
+        })
       } else {
         ElMessage.warning('场景数据不存在或获取失败')
         navigateBack()
@@ -179,6 +301,13 @@ onMounted(async () => {
     if (currentScene && currentScene.id === sceneId.value) {
       // Load from current scene in store
       loadSceneToForm(currentScene)
+      
+      // Initialize map after data is loaded
+      nextTick(() => {
+        if (sceneForm.value.lng && sceneForm.value.lat) {
+          initLocationMap()
+        }
+      })
     } else {
       // Try to fetch scene data from API if not in store
       try {
@@ -186,6 +315,13 @@ onMounted(async () => {
         if (res.data && res.data.code === 200 && res.data.data) {
           sceneStore.setCurrentScene(res.data.data)
           loadSceneToForm(res.data.data)
+          
+          // Initialize map after data is loaded
+          nextTick(() => {
+            if (sceneForm.value.lng && sceneForm.value.lat) {
+              initLocationMap()
+            }
+          })
         } else {
           ElMessage.warning('场景数据不存在或获取失败')
           navigateBack()
@@ -220,13 +356,27 @@ const submitForm = async () => {
     if (valid) {
       submitting.value = true
       try {
+        // Create location object if coordinates are set
+        const formData = { ...sceneForm.value }
+        
+        if (formData.lng && formData.lat) {
+          formData.location = {
+            lng: formData.lng,
+            lat: formData.lat
+          }
+        }
+        
+        // Remove lng and lat properties as they're now in the location object
+        delete formData.lng
+        delete formData.lat
+        
         if (isEditMode.value && sceneId.value) {
           // Update existing scene
-          await sceneStore.updateScene(sceneId.value, sceneForm.value)
+          await sceneStore.updateScene(sceneId.value, formData)
           ElMessage.success('更新成功')
         } else {
           // Create new scene
-          await sceneStore.createScene(sceneForm.value)
+          await sceneStore.createScene(formData)
           ElMessage.success('创建成功')
         }
         // Navigate back to list after successful operation
@@ -261,6 +411,23 @@ const submitForm = async () => {
 .setting-content {
   background: #fff;
   padding: 20px;
+  border-radius: 4px;
+}
+
+.location-fields {
+  display: flex;
+  gap: 10px;
+}
+
+.coordinate-input {
+  width: 180px;
+}
+
+.location-map {
+  width: 100%;
+  height: 300px;
+  margin-top: 10px;
+  border: 1px solid #dcdfe6;
   border-radius: 4px;
 }
 </style>

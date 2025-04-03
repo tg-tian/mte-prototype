@@ -2,7 +2,12 @@
   <div class="scene-list-container">
     <div class="scene-header">
       <h2>场景列表 <small v-if="currentDomain">- {{ currentDomain.name }}</small></h2>
-      <el-button type="primary" @click="navigateToSceneSetting()">创建场景</el-button>
+      <div class="header-actions">
+        <el-button type="primary" @click="navigateToSceneSetting()">创建场景</el-button>
+        <el-button @click="toggleViewMode">
+          {{ isMapView ? '切换到列表视图' : '切换到地图视图' }}
+        </el-button>
+      </div>
     </div>
     
     <el-card class="scene-search">
@@ -23,7 +28,14 @@
       </el-form>
     </el-card>
     
+    <!-- Map View -->
+    <div v-if="isMapView" class="map-container">
+      <div id="map-canvas" ref="mapCanvas"></div>
+    </div>
+    
+    <!-- List View -->
     <el-table
+      v-else
       v-loading="sceneStore.loading"
       :data="filteredScenes"
       style="width: 100%; margin-top: 20px"
@@ -54,15 +66,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, toRefs } from 'vue'
+import { ref, reactive, computed, onMounted, onUnmounted, toRefs, nextTick } from 'vue'
 import { useSceneStore } from '@/store/scene'
 import { useDomainStore } from '@/store/domain'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { Scene } from '@/types/models'
 
 const router = useRouter()
 const route = useRoute()
 const sceneStore = useSceneStore()
 const domainStore = useDomainStore()
+const mapCanvas = ref<HTMLElement | null>(null)
 
 // 状态
 const state = reactive({
@@ -71,10 +85,14 @@ const state = reactive({
     status: ''
   },
   dialogVisible: false,
-  currentId: null
+  currentId: null,
+  isMapView: true, // Default to map view
+  baiduMap: null as BMap.Map | null,
+  markers: [] as BMap.Marker[],
+  infoWindow: null as BMap.InfoWindow | null
 })
 
-const { searchForm, dialogVisible, currentId } = toRefs(state)
+const { searchForm, dialogVisible, currentId, isMapView, baiduMap, markers, infoWindow } = toRefs(state)
 
 // 获取当前域
 const currentDomain = computed(() => {
@@ -94,24 +112,239 @@ const filteredScenes = computed(() => {
 
 // 初始化
 onMounted(async () => {
-  // 获取domainId参数
+  // Get domainId parameter
   const domainId = parseInt(route.query.domainId as string)
   if (domainId) {
     await sceneStore.fetchScenes(domainId)
   } else {
     await sceneStore.fetchScenes()
   }
+  
+  // Initialize map after data is loaded
+  nextTick(() => {
+    if (isMapView.value) {
+      initMap()
+    }
+  })
+})
+
+// Clean up on component unmount
+onUnmounted(() => {
+  // Clean up map resources if needed
+  if (baiduMap.value) {
+    baiduMap.value.clearOverlays()
+  }
+})
+
+// Toggle between map view and list view
+const toggleViewMode = () => {
+  isMapView.value = !isMapView.value
+  
+  if (isMapView.value && !baiduMap.value) {
+    nextTick(() => {
+      initMap()
+    })
+  }
+}
+
+// Initialize Baidu Map
+const initMap = () => {
+  if (!mapCanvas.value) return
+  
+  // Create map instance
+  baiduMap.value = new BMap.Map('map-canvas')
+  
+  // Set initial center and zoom
+  let centerPoint: BMap.Point
+  
+  // Check if we have scenes with locations
+  const scenesWithLocation = filteredScenes.value.filter(
+    (scene: Scene) => scene.location && scene.location.lng && scene.location.lat
+  )
+  
+  if (scenesWithLocation.length > 0) {
+    // Use first scene with location as center
+    const firstScene = scenesWithLocation[0]
+    centerPoint = new BMap.Point(firstScene.location!.lng, firstScene.location!.lat)
+  } else {
+    // Default to Shanghai as center
+    centerPoint = new BMap.Point(121.4737, 31.2304)
+  }
+  
+  baiduMap.value.centerAndZoom(centerPoint, 12)
+  
+  // Enable scroll wheel zoom
+  baiduMap.value.enableScrollWheelZoom()
+  
+  // Add navigation control
+  const navigationControl = new BMap.NavigationControl({
+    type: BMAP_NAVIGATION_CONTROL_LARGE
+  })
+  baiduMap.value.addControl(navigationControl)
+  
+  // Add scale control
+  const scaleControl = new BMap.ScaleControl()
+  baiduMap.value.addControl(scaleControl)
+  
+  // Add markers for each scene
+  addSceneMarkers()
+}
+
+// Add markers for scenes
+const addSceneMarkers = () => {
+  if (!baiduMap.value) return
+  
+  // Clear any existing markers
+  baiduMap.value.clearOverlays()
+  markers.value = []
+  
+  // Create info window for markers
+  infoWindow.value = new BMap.InfoWindow('', {
+    width: 300,
+    height: 140,
+    enableAutoPan: true
+  })
+  
+  // Add a marker for each scene with location
+  filteredScenes.value.forEach((scene: Scene) => {
+    if (scene.location && scene.location.lng && scene.location.lat) {
+      const point = new BMap.Point(scene.location.lng, scene.location.lat)
+      const marker = new BMap.Marker(point)
+      
+      // Add marker to map
+      baiduMap.value?.addOverlay(marker)
+      markers.value.push(marker)
+      
+      // Add click listener to marker
+      marker.addEventListener('click', () => {
+        showSceneInfo(scene, marker)
+      })
+    }
+  })
+}
+
+// Show scene info when marker is clicked
+const showSceneInfo = (scene: Scene, marker: BMap.Marker) => {
+  if (!infoWindow.value || !baiduMap.value) return
+  
+  // Create info window content
+  const content = document.createElement('div')
+  content.className = 'map-info-window'
+  
+  // Scene title
+  const title = document.createElement('h3')
+  title.textContent = scene.name
+  title.style.marginBottom = '5px'
+  content.appendChild(title)
+  
+  // Scene description
+  const description = document.createElement('p')
+  description.textContent = scene.description
+  description.style.fontSize = '12px'
+  description.style.marginBottom = '10px'
+  content.appendChild(description)
+  
+  // Status
+  const statusContainer = document.createElement('div')
+  statusContainer.style.marginBottom = '10px'
+  
+  const statusLabel = document.createElement('span')
+  statusLabel.textContent = '状态: '
+  statusContainer.appendChild(statusLabel)
+  
+  const statusValue = document.createElement('span')
+  statusValue.textContent = scene.status === 'active' ? '活跃' : '非活跃'
+  statusValue.style.padding = '2px 6px'
+  statusValue.style.borderRadius = '4px'
+  statusValue.style.backgroundColor = scene.status === 'active' ? '#67C23A' : '#909399'
+  statusValue.style.color = 'white'
+  statusValue.style.fontSize = '12px'
+  statusContainer.appendChild(statusValue)
+  
+  content.appendChild(statusContainer)
+  
+  // Action buttons
+  const actionsContainer = document.createElement('div')
+  actionsContainer.style.display = 'flex'
+  actionsContainer.style.justifyContent = 'space-between'
+  
+  // Edit button
+  const editButton = document.createElement('button')
+  editButton.textContent = '编辑'
+  editButton.style.backgroundColor = '#409EFF'
+  editButton.style.color = 'white'
+  editButton.style.border = 'none'
+  editButton.style.padding = '5px 10px'
+  editButton.style.borderRadius = '4px'
+  editButton.style.cursor = 'pointer'
+  editButton.onclick = (e) => {
+    e.preventDefault()
+    navigateToSceneSetting(scene)
+  }
+  actionsContainer.appendChild(editButton)
+  
+  // Enter button
+  const enterButton = document.createElement('button')
+  enterButton.textContent = '进入场景'
+  enterButton.style.backgroundColor = '#67C23A'
+  enterButton.style.color = 'white'
+  enterButton.style.border = 'none'
+  enterButton.style.padding = '5px 10px'
+  enterButton.style.borderRadius = '4px'
+  enterButton.style.cursor = 'pointer'
+  enterButton.onclick = (e) => {
+    e.preventDefault()
+    handleViewScene(scene)
+  }
+  actionsContainer.appendChild(enterButton)
+  
+  // Delete button
+  const deleteButton = document.createElement('button')
+  deleteButton.textContent = '删除'
+  deleteButton.style.backgroundColor = '#F56C6C'
+  deleteButton.style.color = 'white'
+  deleteButton.style.border = 'none'
+  deleteButton.style.padding = '5px 10px'
+  deleteButton.style.borderRadius = '4px'
+  deleteButton.style.cursor = 'pointer'
+  deleteButton.onclick = (e) => {
+    e.preventDefault()
+    baiduMap.value?.closeInfoWindow() // Close info window first
+    handleDelete(scene)
+  }
+  actionsContainer.appendChild(deleteButton)
+  
+  content.appendChild(actionsContainer)
+  
+  // Set info window content and open it
+  infoWindow.value.setContent(content)
+  marker.openInfoWindow(infoWindow.value)
+}
+
+// Refresh map markers when search criteria change
+watch([() => searchForm.value.name, () => searchForm.value.status], () => {
+  if (isMapView.value && baiduMap.value) {
+    nextTick(() => {
+      addSceneMarkers()
+    })
+  }
 })
 
 // 搜索处理
 const handleSearch = () => {
-  // 过滤是在计算属性中完成的
+  if (isMapView.value && baiduMap.value) {
+    addSceneMarkers()
+  }
 }
 
 // 重置搜索
 const resetSearch = () => {
   searchForm.value.name = ''
   searchForm.value.status = ''
+  
+  if (isMapView.value && baiduMap.value) {
+    addSceneMarkers()
+  }
 }
 
 // 导航到场景设置页面
@@ -155,6 +388,11 @@ const handleDelete = (row: any) => {
     try {
       await sceneStore.deleteScene(row.id)
       ElMessage.success('删除成功')
+      
+      // Refresh map markers after deletion
+      if (isMapView.value && baiduMap.value) {
+        addSceneMarkers()
+      }
     } catch (error) {
       ElMessage.error('删除失败')
     }
@@ -177,6 +415,11 @@ const handleDelete = (row: any) => {
   margin-bottom: 20px;
 }
 
+.header-actions {
+  display: flex;
+  gap: 10px;
+}
+
 .scene-search {
   margin-bottom: 20px;
 }
@@ -184,5 +427,28 @@ const handleDelete = (row: any) => {
 .search-form {
   display: flex;
   flex-wrap: wrap;
+}
+
+.map-container {
+  width: 100%;
+  height: 600px;
+  margin-top: 20px;
+  border: 1px solid #dcdfe6;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+#map-canvas {
+  width: 100%;
+  height: 100%;
+}
+
+:deep(.BMap_bubble_content) {
+  overflow: hidden;
+}
+
+:deep(.map-info-window) {
+  font-family: 'Arial', sans-serif;
+  padding: 5px;
 }
 </style>

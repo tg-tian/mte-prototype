@@ -51,7 +51,11 @@ export const mockScenes = reactive<Scene[]>([
         createTime: '2023-10-20',
         updateTime: '2023-12-01',
         deviceCount: 12,
-        status: 'active'
+        status: 'active',
+        location: {
+            lng: 121.4737, // Shanghai coordinates
+            lat: 31.2304
+        }
     },
     {
         id: 2,
@@ -61,7 +65,11 @@ export const mockScenes = reactive<Scene[]>([
         createTime: '2023-10-25',
         updateTime: '2023-11-30',
         deviceCount: 8,
-        status: 'active'
+        status: 'active',
+        location: {
+            lng: 121.5012,
+            lat: 31.2352
+        }
     },
     {
         id: 3,
@@ -71,7 +79,11 @@ export const mockScenes = reactive<Scene[]>([
         createTime: '2023-09-25',
         updateTime: '2023-12-10',
         deviceCount: 24,
-        status: 'active'
+        status: 'active',
+        location: {
+            lng: 116.4074, // Beijing coordinates
+            lat: 39.9042
+        }
     }
 ])
 
