@@ -52,10 +52,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, toRefs } from 'vue'
+import { ref, reactive, computed, onMounted, watch, toRefs } from 'vue'
 import { useSceneStore } from '@/store/scene'
 import { useDomainStore } from '@/store/domain'
 import { ElMessage, type FormInstance } from 'element-plus'
+import { getMockSceneById } from '@/api/scene'
 
 const router = useRouter()
 const route = useRoute()
@@ -111,21 +112,89 @@ const rules = {
   ]
 }
 
+// Clear form for creation mode
+const resetFormData = () => {
+  sceneForm.value = {
+    name: '',
+    description: '',
+    status: 'active',
+    domainId: domainId.value
+  }
+}
+
+// Helper function to load scene data to form
+const loadSceneToForm = (scene: any) => {
+  // First reset the form to clear any previous data
+  resetFormData()
+  
+  // Then load the scene data
+  if (scene) {
+    sceneForm.value.name = scene.name || ''
+    sceneForm.value.description = scene.description || ''
+    sceneForm.value.status = scene.status || 'active'
+    sceneForm.value.domainId = scene.domainId || domainId.value
+    
+    console.log('Scene data loaded to form:', sceneForm.value)
+  }
+}
+
+// Watch for changes in route params to update form data accordingly
+watch([() => route.query.sceneId, () => route.query.mode, () => route.query.domainId], async ([newSceneId, newMode, newDomainId]) => {
+  // Update domainId in form when it changes
+  if (newDomainId) {
+    sceneForm.value.domainId = parseInt(newDomainId as string)
+  }
+  
+  if (newMode === 'create') {
+    // Clear form data when switching to create mode
+    resetFormData()
+  } else if (newMode === 'edit' && newSceneId) {
+    // Load scene data when switching to edit mode or changing scene ID
+    try {
+      const res: any = await getMockSceneById(parseInt(newSceneId as string))
+      if (res.data && res.data.code === 200 && res.data.data) {
+        sceneStore.setCurrentScene(res.data.data)
+        loadSceneToForm(res.data.data)
+      } else {
+        ElMessage.warning('场景数据不存在或获取失败')
+        navigateBack()
+      }
+    } catch (error) {
+      console.error('Failed to fetch scene:', error)
+      ElMessage.warning('场景数据不存在或获取失败')
+      navigateBack()
+    }
+  }
+}, { immediate: true })
+
 // Load scene data if in edit mode
-onMounted(() => {
-  if (isEditMode.value && sceneId.value) {
+onMounted(async () => {
+  // Clear form when in create mode
+  if (!isEditMode.value) {
+    resetFormData()
+  }
+  else if (isEditMode.value && sceneId.value) {
     const currentScene = sceneStore.currentScene
     
     if (currentScene && currentScene.id === sceneId.value) {
       // Load from current scene in store
-      sceneForm.value.name = currentScene.name
-      sceneForm.value.description = currentScene.description
-      sceneForm.value.status = currentScene.status
-      sceneForm.value.domainId = currentScene.domainId
+      loadSceneToForm(currentScene)
     } else {
-      // Redirect back if no scene data is available
-      ElMessage.warning('场景数据不存在')
-      navigateBack()
+      // Try to fetch scene data from API if not in store
+      try {
+        const res: any = await getMockSceneById(sceneId.value)
+        if (res.data && res.data.code === 200 && res.data.data) {
+          sceneStore.setCurrentScene(res.data.data)
+          loadSceneToForm(res.data.data)
+        } else {
+          ElMessage.warning('场景数据不存在或获取失败')
+          navigateBack()
+        }
+      } catch (error) {
+        console.error('Failed to fetch scene:', error)
+        ElMessage.warning('场景数据不存在或获取失败')
+        navigateBack()
+      }
     }
   } else if (!domainId.value) {
     // If not in edit mode and no domain ID, show warning

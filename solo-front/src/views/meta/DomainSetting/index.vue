@@ -53,10 +53,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, reactive, computed, onMounted, toRefs } from 'vue'
+import { ref, reactive, computed, onMounted, watch, toRefs } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import { useDomainStore } from '@/store/domain'
 import { ElMessage, type FormInstance } from 'element-plus'
+import { getMockDomainById } from '@/api/domain'
 
 const router = useRouter()
 const route = useRoute()
@@ -100,20 +101,82 @@ const rules = {
   ]
 }
 
+// Clear form for creation mode
+const resetFormData = () => {
+  domainForm.value = {
+    name: '',
+    description: '',
+    status: 'active'
+  }
+}
+
+// Helper function to load domain data to form
+const loadDomainToForm = (domain: any) => {
+  // First reset the form to clear any previous data
+  resetFormData()
+  
+  // Then load the domain data
+  if (domain) {
+    domainForm.value.name = domain.name || ''
+    domainForm.value.description = domain.description || ''
+    domainForm.value.status = domain.status || 'active'
+    
+    console.log('Domain data loaded to form:', domainForm.value)
+  }
+}
+
+// Watch for changes in route params to update form data accordingly
+watch([() => route.query.domainId, () => route.query.mode], async ([newDomainId, newMode]) => {
+  if (newMode === 'create') {
+    // Clear form data when switching to create mode
+    resetFormData()
+  } else if (newMode === 'edit' && newDomainId) {
+    // Load domain data when switching to edit mode or changing domain ID
+    try {
+      const res: any = await getMockDomainById(parseInt(newDomainId as string))
+      if (res.data && res.data.code === 200 && res.data.data) {
+        domainStore.setCurrentDomain(res.data.data)
+        loadDomainToForm(res.data.data)
+      } else {
+        ElMessage.warning('领域数据不存在或获取失败')
+        navigateBack()
+      }
+    } catch (error) {
+      console.error('Failed to fetch domain:', error)
+      ElMessage.warning('领域数据不存在或获取失败')
+      navigateBack()
+    }
+  }
+}, { immediate: true })
+
 // Load domain data if in edit mode
-onMounted(() => {
-  if (isEditMode.value && domainId.value) {
+onMounted(async () => {
+  // Clear form when in create mode
+  if (!isEditMode.value) {
+    resetFormData()
+  }
+  else if (isEditMode.value && domainId.value) {
     const currentDomain = domainStore.currentDomain
     
     if (currentDomain && currentDomain.id === domainId.value) {
       // Load from current domain in store
-      domainForm.value.name = currentDomain.name
-      domainForm.value.description = currentDomain.description
-      domainForm.value.status = currentDomain.status
+      loadDomainToForm(currentDomain)
     } else {
-      // Redirect back if no domain data is available
-      ElMessage.warning('领域数据不存在')
-      navigateBack()
+      // Try to fetch domain data from API if not in store
+      try {
+        const res: any = await getMockDomainById(domainId.value)
+        if (res.data && res.data.code === 200 && res.data.data) {
+          domainStore.setCurrentDomain(res.data.data)
+          loadDomainToForm(res.data.data)
+        } else {
+          ElMessage.warning('领域数据不存在或获取失败')
+          navigateBack()
+        }
+      } catch (error) {
+        console.error('Failed to fetch domain:', error)
+        ElMessage.warning('领域数据不存在或获取失败')
+        navigateBack()
+      }
     }
   }
 })
