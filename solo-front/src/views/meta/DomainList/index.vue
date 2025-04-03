@@ -2,7 +2,7 @@
   <div class="domain-list-container">
     <div class="domain-header">
       <h2>领域平台列表</h2>
-      <el-button type="primary" @click="handleCreate">创建领域</el-button>
+      <el-button type="primary" @click="navigateToDomainSetting()">创建领域</el-button>
     </div>
     
     <el-card class="domain-search">
@@ -44,100 +44,32 @@
       </el-table-column>
       <el-table-column label="操作" width="220">
         <template #default="scope">
-          <el-button type="primary" size="small" @click="handleEdit(scope.row)">编辑</el-button>
+          <el-button type="primary" size="small" @click="navigateToDomainSetting(scope.row)">编辑</el-button>
           <el-button type="success" size="small" @click="handleViewScenes(scope.row)">查看场景</el-button>
           <el-button type="danger" size="small" @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
-    
-    <!-- 创建/编辑领域的对话框 -->
-    <el-dialog
-      v-model="dialogVisible"
-      :title="isEdit ? '编辑领域' : '创建领域'"
-      width="50%"
-    >
-      <el-form
-        :model="domainForm"
-        label-width="120px"
-        :rules="rules"
-        ref="domainFormRef"
-      >
-        <el-form-item label="领域名称" prop="name">
-          <el-input v-model="domainForm.name" placeholder="请输入领域名称"></el-input>
-        </el-form-item>
-        <el-form-item label="描述" prop="description">
-          <el-input
-            v-model="domainForm.description"
-            type="textarea"
-            rows="3"
-            placeholder="请输入领域描述"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-select v-model="domainForm.status" placeholder="请选择状态">
-            <el-option label="活跃" value="active"></el-option>
-            <el-option label="非活跃" value="inactive"></el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitForm" :loading="submitting">
-            确认
-          </el-button>
-        </span>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, toRefs } from 'vue'
 import { useDomainStore } from '@/store/domain'
-import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const router = useRouter()
 const domainStore = useDomainStore()
-
-// 表单引用
-const domainFormRef = ref<FormInstance>()
 
 // 状态
 const state = reactive({
   searchForm: {
     name: '',
     status: ''
-  },
-  domainForm: {
-    name: '',
-    description: '',
-    status: 'active'
-  },
-  dialogVisible: false,
-  isEdit: false,
-  currentId: null,
-  submitting: false
+  }
 })
 
-const { 
-  searchForm, domainForm, dialogVisible, isEdit, currentId, submitting 
-} = toRefs(state)
-
-// 表单验证规则
-const rules = {
-  name: [
-    { required: true, message: '请输入领域名称', trigger: 'blur' },
-    { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
-  ],
-  description: [
-    { required: true, message: '请输入领域描述', trigger: 'blur' }
-  ],
-  status: [
-    { required: true, message: '请选择状态', trigger: 'change' }
-  ]
-}
+const { searchForm } = toRefs(state)
 
 // 过滤后的领域列表
 const filteredDomains = computed(() => {
@@ -166,28 +98,16 @@ const resetSearch = () => {
   searchForm.value.status = ''
 }
 
-// 打开创建对话框
-const handleCreate = () => {
-  isEdit.value = false
-  domainForm.value = {
-    name: '',
-    description: '',
-    status: 'active'
+// 导航到领域设置页面
+const navigateToDomainSetting = (domain?: any) => {
+  if (domain) {
+    // 编辑领域
+    domainStore.setCurrentDomain(domain)
+    router.push(`/meta/domain/setting?domainId=${domain.id}&mode=edit`)
+  } else {
+    // 创建领域
+    router.push('/meta/domain/setting?mode=create')
   }
-  currentId.value = null
-  dialogVisible.value = true
-}
-
-// 打开编辑对话框
-const handleEdit = (row: any) => {
-  isEdit.value = true
-  domainForm.value = {
-    name: row.name,
-    description: row.description,
-    status: row.status
-  }
-  currentId.value = row.id
-  dialogVisible.value = true
 }
 
 // 查看场景
@@ -217,31 +137,6 @@ const handleDelete = (row: any) => {
   })
   .catch(() => {
     // 用户取消操作
-  })
-}
-
-// 提交表单
-const submitForm = async () => {
-  if (!domainFormRef.value) return
-  
-  await domainFormRef.value.validate(async (valid) => {
-    if (valid) {
-      submitting.value = true
-      try {
-        if (isEdit.value && currentId.value) {
-          await domainStore.updateDomain(currentId.value, domainForm.value)
-          ElMessage.success('更新成功')
-        } else {
-          await domainStore.createDomain(domainForm.value)
-          ElMessage.success('创建成功')
-        }
-        dialogVisible.value = false
-      } catch (error) {
-        ElMessage.error(isEdit.value ? '更新失败' : '创建失败')
-      } finally {
-        submitting.value = false
-      }
-    }
   })
 }
 </script>

@@ -2,7 +2,7 @@
   <div class="scene-list-container">
     <div class="scene-header">
       <h2>场景列表 <small v-if="currentDomain">- {{ currentDomain.name }}</small></h2>
-      <el-button type="primary" @click="handleCreate">创建场景</el-button>
+      <el-button type="primary" @click="navigateToSceneSetting()">创建场景</el-button>
     </div>
     
     <el-card class="scene-search">
@@ -44,52 +44,12 @@
       </el-table-column>
       <el-table-column label="操作" width="220">
         <template #default="scope">
-          <el-button type="primary" size="small" @click="handleEdit(scope.row)">编辑</el-button>
+          <el-button type="primary" size="small" @click="navigateToSceneSetting(scope.row)">编辑</el-button>
           <el-button type="success" size="small" @click="handleViewScene(scope.row)">进入场景</el-button>
           <el-button type="danger" size="small" @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
-    
-    <!-- 创建/编辑场景的对话框 -->
-    <el-dialog
-      v-model="dialogVisible"
-      :title="isEdit ? '编辑场景' : '创建场景'"
-      width="50%"
-    >
-      <el-form
-        :model="sceneForm"
-        label-width="120px"
-        :rules="rules"
-        ref="sceneFormRef"
-      >
-        <el-form-item label="场景名称" prop="name">
-          <el-input v-model="sceneForm.name" placeholder="请输入场景名称"></el-input>
-        </el-form-item>
-        <el-form-item label="描述" prop="description">
-          <el-input
-            v-model="sceneForm.description"
-            type="textarea"
-            rows="3"
-            placeholder="请输入场景描述"
-          ></el-input>
-        </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-select v-model="sceneForm.status" placeholder="请选择状态">
-            <el-option label="活跃" value="active"></el-option>
-            <el-option label="非活跃" value="inactive"></el-option>
-          </el-select>
-        </el-form-item>
-      </el-form>
-      <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="dialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitForm" :loading="submitting">
-            确认
-          </el-button>
-        </span>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
@@ -97,15 +57,12 @@
 import { ref, reactive, computed, onMounted, toRefs } from 'vue'
 import { useSceneStore } from '@/store/scene'
 import { useDomainStore } from '@/store/domain'
-import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
+import { ElMessage, ElMessageBox } from 'element-plus'
 
 const router = useRouter()
 const route = useRoute()
 const sceneStore = useSceneStore()
 const domainStore = useDomainStore()
-
-// 表单引用
-const sceneFormRef = ref<FormInstance>()
 
 // 状态
 const state = reactive({
@@ -113,40 +70,16 @@ const state = reactive({
     name: '',
     status: ''
   },
-  sceneForm: {
-    name: '',
-    description: '',
-    status: 'active',
-    domainId: parseInt(route.query.domainId as string) || null
-  },
   dialogVisible: false,
-  isEdit: false,
-  currentId: null,
-  submitting: false
+  currentId: null
 })
 
-const { 
-  searchForm, sceneForm, dialogVisible, isEdit, currentId, submitting 
-} = toRefs(state)
+const { searchForm, dialogVisible, currentId } = toRefs(state)
 
 // 获取当前域
 const currentDomain = computed(() => {
   return domainStore.currentDomain
 })
-
-// 表单验证规则
-const rules = {
-  name: [
-    { required: true, message: '请输入场景名称', trigger: 'blur' },
-    { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
-  ],
-  description: [
-    { required: true, message: '请输入场景描述', trigger: 'blur' }
-  ],
-  status: [
-    { required: true, message: '请选择状态', trigger: 'change' }
-  ]
-}
 
 // 过滤后的场景列表
 const filteredScenes = computed(() => {
@@ -181,30 +114,24 @@ const resetSearch = () => {
   searchForm.value.status = ''
 }
 
-// 打开创建对话框
-const handleCreate = () => {
-  isEdit.value = false
-  sceneForm.value = {
-    name: '',
-    description: '',
-    status: 'active',
-    domainId: parseInt(route.query.domainId as string) || null
+// 导航到场景设置页面
+const navigateToSceneSetting = (scene?: any) => {
+  const domainId = parseInt(route.query.domainId as string) || 
+                  (currentDomain.value ? currentDomain.value.id : null)
+                  
+  if (!domainId) {
+    ElMessage.warning('请先选择一个领域')
+    return
   }
-  currentId.value = null
-  dialogVisible.value = true
-}
-
-// 打开编辑对话框
-const handleEdit = (row: any) => {
-  isEdit.value = true
-  sceneForm.value = {
-    name: row.name,
-    description: row.description,
-    status: row.status,
-    domainId: row.domainId
+  
+  if (scene) {
+    // For editing, set the current scene and navigate with scene ID
+    sceneStore.setCurrentScene(scene)
+    router.push(`/domain/scene/setting?sceneId=${scene.id}&domainId=${domainId}&mode=edit`)
+  } else {
+    // For creation, navigate to setting page with domain ID
+    router.push(`/domain/scene/setting?domainId=${domainId}&mode=create`)
   }
-  currentId.value = row.id
-  dialogVisible.value = true
 }
 
 // 查看场景
@@ -234,31 +161,6 @@ const handleDelete = (row: any) => {
   })
   .catch(() => {
     // 用户取消操作
-  })
-}
-
-// 提交表单
-const submitForm = async () => {
-  if (!sceneFormRef.value) return
-  
-  await sceneFormRef.value.validate(async (valid) => {
-    if (valid) {
-      submitting.value = true
-      try {
-        if (isEdit.value && currentId.value) {
-          await sceneStore.updateScene(currentId.value, sceneForm.value)
-          ElMessage.success('更新成功')
-        } else {
-          await sceneStore.createScene(sceneForm.value)
-          ElMessage.success('创建成功')
-        }
-        dialogVisible.value = false
-      } catch (error) {
-        ElMessage.error(isEdit.value ? '更新失败' : '创建失败')
-      } finally {
-        submitting.value = false
-      }
-    }
   })
 }
 </script>
