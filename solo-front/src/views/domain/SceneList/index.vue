@@ -274,9 +274,11 @@ const showSceneInfo = (scene: Scene, marker: BMap.Marker) => {
   editButton.style.backgroundColor = '#409EFF'
   editButton.style.color = 'white'
   editButton.style.border = 'none'
-  editButton.style.padding = '5px 10px'
+  editButton.style.padding = '2px 8px'  // 减小padding
   editButton.style.borderRadius = '4px'
   editButton.style.cursor = 'pointer'
+  editButton.style.fontSize = '12px'    // 减小字体大小
+  editButton.style.marginRight = '4px'  // 添加右边距
   editButton.onclick = (e) => {
     e.preventDefault()
     navigateToSceneSetting(scene)
@@ -289,9 +291,11 @@ const showSceneInfo = (scene: Scene, marker: BMap.Marker) => {
   enterButton.style.backgroundColor = '#67C23A'
   enterButton.style.color = 'white'
   enterButton.style.border = 'none'
-  enterButton.style.padding = '5px 10px'
+  enterButton.style.padding = '2px 8px'  // 减小padding
   enterButton.style.borderRadius = '4px'
   enterButton.style.cursor = 'pointer'
+  enterButton.style.fontSize = '12px'    // 减小字体大小
+  enterButton.style.marginRight = '4px'  // 添加右边距
   enterButton.onclick = (e) => {
     e.preventDefault()
     handleViewScene(scene)
@@ -304,9 +308,10 @@ const showSceneInfo = (scene: Scene, marker: BMap.Marker) => {
   deleteButton.style.backgroundColor = '#F56C6C'
   deleteButton.style.color = 'white'
   deleteButton.style.border = 'none'
-  deleteButton.style.padding = '5px 10px'
+  deleteButton.style.padding = '2px 8px'  // 减小padding
   deleteButton.style.borderRadius = '4px'
   deleteButton.style.cursor = 'pointer'
+  deleteButton.style.fontSize = '12px'    // 减小字体大小
   deleteButton.onclick = (e) => {
     e.preventDefault()
     baiduMap.value?.closeInfoWindow() // Close info window first
