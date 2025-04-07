@@ -1,0 +1,162 @@
+{
+  "scenarioId": "PhysicalBuilding",
+  "scenarioName": "物理楼",
+  "domainId": "SmartBuilding",
+  "map": {
+    "mapPath": "map.png",
+    "mapList": [
+      {
+        "floor": "二层",
+        "description": "物理楼二楼",
+        "planPath": "floor.jpeg"
+      }
+    ]
+  },
+  "environment": {
+    "description": "物理楼是一个现代化的智能建筑，主要用于办公和科研。楼内配备了多种物联网设备，如咖啡机器人、送餐机器人、智能灯光和温控系统。",
+    "features": [
+      {
+        "feature": "设备分布",
+        "details": "二层主要设备包括咖啡机器人A、送餐机器人X和智能灯光系统。"
+      },
+      {
+        "feature": "环境参数",
+        "details": "楼内温度保持在 22-26°C，湿度保持在 50-60%。"
+      },
+      {
+        "feature": "网络环境",
+        "details": "楼内覆盖高速 Wi-Fi，支持 HTTP 和 MQTT 协议。"
+      }
+    ]
+  },
+  "requirements": {
+    "description": "希望通过物联网设备提升办公效率和员工体验。",
+    "goals": [
+      {
+        "goalId": "goal1",
+        "description": "提供便捷的咖啡服务，减少员工等待时间。",
+        "priority": "high",
+        "relatedDevices": ["CoffeeMaker"]
+      },
+      {
+        "goalId": "goal2",
+        "description": "实现自动化送餐服务，提升午餐效率。",
+        "priority": "medium",
+        "relatedDevices": ["DeliveryRobot"]
+      },
+      {
+        "goalId": "goal3",
+        "description": "优化楼内环境，提供舒适的办公条件。",
+        "priority": "low",
+        "relatedDevices": ["SmartLight", "Thermostat"]
+      }
+    ]
+  },
+  "devices": [
+    {
+      "deviceId": "deviceId1",
+      "deviceName": "咖啡机器人A",
+      "deviceType": "CoffeeMaker",
+      "service": {
+        "code": "AService",
+        "name": "A品牌",
+        "protocol": "HTTP",
+        "uri": "http://aservice.coffee",
+        "port": "8080"
+      },
+      "context": {
+        "status": "idle",
+        "lastActivity": "2023-10-01T12:00:00Z",
+        "environment": {
+          "temperature": 25.5,
+          "humidity": 60
+        },
+        "history": [
+          {
+            "timestamp": "2023-10-01T11:00:00Z",
+            "action": "brew",
+            "coffeeType": "Latte",
+            "status": "success"
+          }
+        ]
+      },
+      "rules": [
+        {
+          "ruleId": "rule1",
+          "description": "当咖啡机器人空闲时，可以接受新订单。",
+          "condition": "status == 'idle'",
+          "action": "acceptOrder"
+        }
+      ],
+      "events": [
+        {
+          "eventId": "event1",
+          "description": "咖啡制作完成",
+          "trigger": "status == 'brewing' && lastActivity > 5 minutes",
+          "action": "notifyUser"
+        }
+      ]
+    },
+    {
+      "deviceId": "deviceId2",
+      "deviceName": "送餐机器人",
+      "deviceType": "DeliveryRobot",
+      "service": {
+        "code": "XService",
+        "name": "X品牌",
+        "protocol": "HTTP",
+        "uri": "http://xservice.delivery",
+        "port": "8080"
+      },
+      "context": {
+        "status": "delivering",
+        "lastActivity": "2023-10-01T12:10:00Z",
+        "environment": {
+          "temperature": 24.0,
+          "humidity": 55
+        },
+        "history": [
+          {
+            "timestamp": "2023-10-01T11:30:00Z",
+            "action": "deliver",
+            "destination": "Room 201",
+            "status": "success"
+          }
+        ]
+      },
+      "rules": [
+        {
+          "ruleId": "rule2",
+          "description": "当送餐机器人空闲时，可以接受新任务。",
+          "condition": "status == 'idle'",
+          "action": "acceptTask"
+        },
+        {
+          "ruleId": "rule3",
+          "description": "当电量低于 20% 时，自动返回充电站。",
+          "condition": "batteryLevel < 20",
+          "action": "returnToCharge"
+        }
+      ],
+      "events": [
+        {
+          "eventId": "event2",
+          "description": "送餐任务完成",
+          "trigger": "status == 'delivering' && lastActivity > 10 minutes",
+          "action": "notifyUser"
+        },
+        {
+          "eventId": "event3",
+          "description": "电量不足",
+          "trigger": "batteryLevel < 15",
+          "action": "alertMaintenance"
+        }
+      ]
+    }
+  ],
+  "metadata": {
+    "description": "物理楼智能设备场景，包含咖啡机器人和送餐机器人及其上下文数据。",
+    "tags": ["IoT", "Smart Building", "Coffee", "Delivery"],
+    "applicableDomains": ["Office", "Cafe", "Restaurant"]
+  }
+}
