@@ -8,17 +8,11 @@ import demo.lowcode.common.Action;
 import demo.lowcode.common.ActionExecResult;
 import demo.lowcode.common.CommonConfig;
 import demo.lowcode.common.Param;
-import demo.lowcode.common.device.Device;
-import demo.lowcode.common.device.DeviceService;
-import demo.lowcode.common.util.JavaDynamicCompiler;
 import demo.lowcode.common.util.JsonUtils;
 import demo.lowcode.platform.model.ActionMeta;
-import demo.lowcode.platform.model.RTProcess;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Method;
-import java.net.URLClassLoader;
 import java.util.*;
 
 @Service
@@ -44,12 +38,6 @@ public class ProcessBusiness {
         // 初始化每个节点的执行状态
         actionMetaList.forEach(actionMeta -> executionStatus.put(actionMeta.getActionId(), 1));
 
-        // 这里应该是根据processId获取到RTProcess
-        RTProcess rtProcess = new RTProcess(processId, 1, executionStatus, null);
-        rtProcess.setProcessStatus(2);
-        rtProcess.setStartTime(new Date());
-
-        // TODO:每个Action执行execute,目前是依次执行
         actionMetaList.forEach(actionMeta -> {
             if (executionStatus.get(actionMeta.getActionId()) == 4) {
                 System.out.println("父节点中止，无需继续执行节点"+actionMeta.getActionId());
@@ -134,8 +122,6 @@ public class ProcessBusiness {
         String applicationId = "SelfServeCoffee";
         String scePath = CommonConfig.getWorkspacePath()+domainId+"/"+scenarioId+"/";
         String procPath = scePath+"application/"+applicationId+"/process/";
-
-        List<ActionMeta> actionMetaList = getActionMetaList(processId, procPath);
 
         Map<String, List<Param>> result = new HashMap<>();
         // TODO:读取每个action节点参数
