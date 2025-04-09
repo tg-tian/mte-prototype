@@ -38,7 +38,7 @@
       <el-table-column prop="status" label="状态" width="100">
         <template #default="scope">
           <el-tag :type="scope.row.status === 'active' ? 'success' : 'info'">
-            {{ scope.row.status === 'active' ? '活跃' : '非活跃' }}
+            {{ scope.row.status === 'active' ? '已发布' : '定制中' }}
           </el-tag>
         </template>
       </el-table-column>

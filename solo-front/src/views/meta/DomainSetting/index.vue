@@ -4,6 +4,7 @@
       <h2>{{ isEditMode ? '编辑领域' : '创建领域' }}</h2>
       <div class="header-actions">
         <el-button @click="navigateBack">返回列表</el-button>
+        <el-button type="primary" >发布</el-button>
         <el-button type="primary" @click="submitForm" :loading="submitting">保存</el-button>
       </div>
     </div>
@@ -20,13 +21,10 @@
               <el-input v-model="domainForm.name" placeholder="请输入领域名称"></el-input>
             </el-form-item>
             <el-form-item label="领域描述" prop="description">
-              <el-input type="textarea" rows="3" v-model="domainForm.description" placeholder="请输入领域描述"></el-input>
+              <el-input type="textarea" :rows="3" v-model="domainForm.description" placeholder="请输入领域描述"></el-input>
             </el-form-item>
             <el-form-item label="状态" prop="status">
-              <el-select v-model="domainForm.status" placeholder="请选择状态">
-                <el-option label="活跃" value="active"></el-option>
-                <el-option label="非活跃" value="inactive"></el-option>
-              </el-select>
+              <el-tag :type="domainForm.status==='active' ? 'success':'info'">{{ domainForm.status==='active' ? '已发布':'定制中' }}</el-tag>
             </el-form-item>
             <el-form-item label="图标">
               <el-upload
@@ -40,12 +38,8 @@
           </el-form>
         </el-tab-pane>
         
-        <el-tab-pane label="模型定义" name="model">
-          <el-empty description="暂无模型数据" />
-        </el-tab-pane>
-        
-        <el-tab-pane label="业务流程" name="process">
-          <el-empty description="暂无业务流程" />
+        <el-tab-pane label="领域组件" name="model">
+          <el-empty description="暂无组件" />
         </el-tab-pane>
       </el-tabs>
     </el-card>
@@ -70,7 +64,7 @@ const state = reactive({
   domainForm: {
     name: '',
     description: '',
-    status: 'active'
+    status: 'inactive'
   },
   submitting: false
 })
@@ -106,7 +100,7 @@ const resetFormData = () => {
   domainForm.value = {
     name: '',
     description: '',
-    status: 'active'
+    status: 'inactive'
   }
 }
 
@@ -119,7 +113,7 @@ const loadDomainToForm = (domain: any) => {
   if (domain) {
     domainForm.value.name = domain.name || ''
     domainForm.value.description = domain.description || ''
-    domainForm.value.status = domain.status || 'active'
+    domainForm.value.status = domain.status || 'inactive'
     
     console.log('Domain data loaded to form:', domainForm.value)
   }
