@@ -120,7 +120,14 @@
     selectedItem.value = key
     const selectedItemData = items.value.find(item => item.index === key);
     if (selectedItemData) {
-      router.push(selectedItemData.route)
+      let query={}
+      if(selectedItemData.route==='/meta/domain/setting'){
+        query['mode']='create'
+      }
+      router.push({
+        path: selectedItemData.route,
+        query: query
+      })
     }
   }
   </script>
