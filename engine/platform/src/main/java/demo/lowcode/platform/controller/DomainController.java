@@ -4,7 +4,9 @@ import demo.lowcode.platform.business.DeviceTypeBusiness;
 import demo.lowcode.platform.business.DomainBusiness;
 import demo.lowcode.platform.dto.DomainJson;
 import demo.lowcode.platform.dto.Domain_ComponentJson;
+import demo.lowcode.platform.dto.newDomain;
 import demo.lowcode.platform.entity.DeviceType;
+import demo.lowcode.platform.entity.Domain;
 import io.swagger.annotations.Api;
 import jakarta.annotation.Resource;
 import org.springframework.http.HttpStatus;
@@ -58,4 +60,45 @@ public class DomainController {
         return new ResponseEntity<>("",HttpStatus.OK);
     }
 
+    @GetMapping(value = "/domains")
+    public ResponseEntity<?> getDomainList(){
+        List<Domain> response = domainBusiness.getDomainList();
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+
+    @GetMapping(value = "/domains/{id}")
+    public ResponseEntity<?> getDomainListbyId(@PathVariable Long id){
+        Domain response = domainBusiness.getDomainByID(id);
+        return new ResponseEntity<>(response,HttpStatus.OK);
+    }
+
+    @PostMapping(value = "/domains")
+    public ResponseEntity<?> createDomain(@RequestBody newDomain newDomain){
+        try {
+            domainBusiness.createDomain(newDomain);
+            return new ResponseEntity<>("创建成功",HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>("创建失败",HttpStatus.CONFLICT);
+        }
+    }
+
+    @PutMapping (value = "/domains/{id}")
+    public ResponseEntity<?> changeDomain(@PathVariable Long id ,@RequestBody newDomain newDomain){
+        try {
+            domainBusiness.changeDomainByID(id,newDomain);
+            return new ResponseEntity<>("修改成功",HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>("修改失败",HttpStatus.CONFLICT);
+        }
+    }
+
+    @DeleteMapping(value = "/domains/{id}")
+    public ResponseEntity<?> deleteDomain(@PathVariable Long id){
+        try {
+            domainBusiness.deleteDomainByID(id);
+            return new ResponseEntity<>("删除成功",HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>("删除失败",HttpStatus.CONFLICT);
+        }
+    }
 }

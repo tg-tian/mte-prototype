@@ -1,12 +1,15 @@
 package demo.lowcode.platform.business;
 
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.lowcode.common.CommonConfig;
 import demo.lowcode.common.Property;
 import demo.lowcode.platform.dto.DomainJson;
 import demo.lowcode.platform.dto.Domain_ComponentJson;
+import demo.lowcode.platform.dto.newDomain;
 import demo.lowcode.platform.entity.ComponentAbout;
+import demo.lowcode.platform.entity.Domain;
 import demo.lowcode.platform.mapper.DomainMapper;
 import demo.lowcode.platform.model.DomainMeta;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -120,5 +123,34 @@ public class DomainBusiness {
             }
         }
         return  addDomainJson(domainId,domainName,domainFieldMap);
+    }
+
+    public List<Domain> getDomainList() {
+        return domainMapper.selectList(null);
+    }
+
+    public  Domain getDomainByID(Long id){
+        return domainMapper.selectById(id);
+    }
+
+    public void createDomain(newDomain newDomain){
+        Domain domain = new Domain();
+        domain.setDomainName(newDomain.getName());
+        domain.setDomainDescription(newDomain.getDescription());
+        domain.setStatus(newDomain.getStatus());
+        domainMapper.insert(domain);
+    }
+
+    public void changeDomainByID(long id,newDomain newDomain){
+        Domain domain = new Domain();
+        domain.setDomainId(id);
+        domain.setDomainName(newDomain.getName());
+        domain.setDomainDescription(newDomain.getDescription());
+        domain.setStatus(newDomain.getStatus());
+        domainMapper.updateById(domain); // 第一个参数传 null
+    }
+
+    public void deleteDomainByID(long id){
+        domainMapper.deleteById(id);
     }
 }

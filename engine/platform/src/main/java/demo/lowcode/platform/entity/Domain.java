@@ -1,5 +1,7 @@
 package demo.lowcode.platform.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -17,7 +19,9 @@ import org.springframework.stereotype.Component;
 @NoArgsConstructor
 @ApiModel(value = "领域对象", description = "领域详细信息")
 public class Domain {
+
     @Id
+    @TableId(type = IdType.AUTO) // 明确指定主键类型（如自增）
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ApiModelProperty(value = "领域类型编号", example = "1")
     private long domainId;
@@ -29,4 +33,8 @@ public class Domain {
     @Column(name = "domainDescription", nullable = true)
     @ApiModelProperty(value = "领域描述", example = "this is a SmartBuilding")
     private String domainDescription;
+
+    @Column(name = "status", nullable = false)
+    @ApiModelProperty(value = "领域状态", example = "1")
+    private String status;
 }
