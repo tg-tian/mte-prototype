@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getMockDomains, createMockDomain, updateMockDomain, deleteMockDomain } from '@/api/domain'
+import { getMockDomains, createMockDomain, updateMockDomain, deleteMockDomain, getDomains, updateDomain, deleteDomain, createDomain } from '@/api/domain'
 
 export const useDomainStore = defineStore('domain', {
     state: () => ({
@@ -12,9 +12,9 @@ export const useDomainStore = defineStore('domain', {
         async fetchDomains() {
             this.loading = true
             try {
-                const res: any = await getMockDomains()
-                if (res.data && res.data.code === 200) {
-                    this.domains = res.data.data
+                const res: any = await getDomains()
+                if (res.data && res.status === 200) {
+                    this.domains = res.data
                 }
             } catch (error) {
                 console.error('Failed to fetch domains:', error)
@@ -25,10 +25,10 @@ export const useDomainStore = defineStore('domain', {
 
         async createDomain(domainData: any) {
             try {
-                const res: any = await createMockDomain(domainData)
-                if (res.data && res.data.code === 200) {
+                const res: any = await createDomain(domainData)
+                if (res.data && res.status === 200) {
                     await this.fetchDomains()
-                    return res.data.data
+                    return res.data
                 }
             } catch (error) {
                 console.error('Failed to create domain:', error)
@@ -38,10 +38,10 @@ export const useDomainStore = defineStore('domain', {
 
         async updateDomain(id: number, domainData: any) {
             try {
-                const res: any = await updateMockDomain(id, domainData)
-                if (res.data && res.data.code === 200) {
+                const res: any = await updateDomain(id, domainData)
+                if (res.data && res.status === 200) {
                     await this.fetchDomains()
-                    return res.data.data
+                    return res.data
                 }
             } catch (error) {
                 console.error('Failed to update domain:', error)
@@ -51,8 +51,8 @@ export const useDomainStore = defineStore('domain', {
 
         async deleteDomain(id: number) {
             try {
-                const res: any = await deleteMockDomain(id)
-                if (res.data && res.data.code === 200) {
+                const res: any = await deleteDomain(id)
+                if (res.data && res.status === 200) {
                     await this.fetchDomains()
                     return true
                 }

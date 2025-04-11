@@ -131,11 +131,14 @@ public class DomainBusiness {
         return domainMapper.selectById(id);
     }
 
+
     public Domain  createDomain(NewDomain newDomain){
         Domain domain = new Domain();
+        domain.setDomainCode(newDomain.getCode());
         domain.setDomainName(newDomain.getName());
         domain.setDomainDescription(newDomain.getDescription());
         domain.setStatus(newDomain.getStatus());
+        domain.setCreateTime(new Date());
         domainMapper.insert(domain);
         return domain;
     }
@@ -143,9 +146,11 @@ public class DomainBusiness {
     public Domain changeDomainByID(long id, NewDomain newDomain){
         Domain domain = new Domain();
         domain.setDomainId(id);
+        domain.setDomainCode(newDomain.getCode());
         domain.setDomainName(newDomain.getName());
         domain.setDomainDescription(newDomain.getDescription());
         domain.setStatus(newDomain.getStatus());
+        domain.setUpdateTime(new Date());
         domainMapper.updateById(domain); // 第一个参数传 null
         return domain;
     }

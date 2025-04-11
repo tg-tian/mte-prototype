@@ -12,8 +12,8 @@
         </el-form-item>
         <el-form-item label="状态">
           <el-select v-model="searchForm.status" placeholder="请选择状态" clearable>
-            <el-option label="活跃" value="active"></el-option>
-            <el-option label="非活跃" value="inactive"></el-option>
+            <el-option label="已发布" value="1"></el-option>
+            <el-option label="定制中" value="0"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -29,16 +29,16 @@
       style="width: 100%; margin-top: 20px"
       border
     >
-      <el-table-column prop="id" label="ID" width="80"></el-table-column>
-      <el-table-column prop="name" label="领域名称" min-width="150"></el-table-column>
-      <el-table-column prop="description" label="描述" min-width="200"></el-table-column>
+      <el-table-column prop="domainCode" label="领域编码" width="150"></el-table-column>
+      <el-table-column prop="domainName" label="领域名称" min-width="150"></el-table-column>
+      <el-table-column prop="domainDescription" label="描述" min-width="200"></el-table-column>
       <el-table-column prop="createTime" label="创建时间" width="120"></el-table-column>
       <el-table-column prop="updateTime" label="更新时间" width="120"></el-table-column>
       <el-table-column prop="sceneCount" label="场景数量" width="100"></el-table-column>
       <el-table-column prop="status" label="状态" width="100">
         <template #default="scope">
-          <el-tag :type="scope.row.status === 'active' ? 'success' : 'info'">
-            {{ scope.row.status === 'active' ? '已发布' : '定制中' }}
+          <el-tag :type="scope.row.status === '1' ? 'success' : 'info'">
+            {{ scope.row.status === '1' ? '已发布' : '定制中' }}
           </el-tag>
         </template>
       </el-table-column>
@@ -76,7 +76,7 @@ const filteredDomains = computed(() => {
   if (!domainStore.domains) return []
   
   return domainStore.domains.filter((domain: any) => {
-    const nameMatch = !searchForm.value.name || domain.name.toLowerCase().includes(searchForm.value.name.toLowerCase())
+    const nameMatch = !searchForm.value.name || domain.domainName.toLowerCase().includes(searchForm.value.name.toLowerCase())
     const statusMatch = !searchForm.value.status || domain.status === searchForm.value.status
     return nameMatch && statusMatch
   })
@@ -103,7 +103,7 @@ const navigateToDomainSetting = (domain?: any) => {
   if (domain) {
     // 编辑领域
     domainStore.setCurrentDomain(domain)
-    router.push(`/meta/domain/setting?domainId=${domain.id}&mode=edit`)
+    router.push(`/meta/domain/setting?domainId=${domain.domainId}&mode=edit`)
   } else {
     // 创建领域
     router.push('/meta/domain/setting?mode=create')
@@ -113,13 +113,13 @@ const navigateToDomainSetting = (domain?: any) => {
 // 查看场景
 const handleViewScenes = (row: any) => {
   domainStore.setCurrentDomain(row)
-  router.push(`/domain/scene/list?domainId=${row.id}`)
+  router.push(`/domain/scene/list?domainId=${row.domainId}`)
 }
 
 // 删除领域
 const handleDelete = (row: any) => {
   ElMessageBox.confirm(
-    `确定要删除领域 "${row.name}" 吗？`,
+    `确定要删除领域 "${row.domainName}" 吗？`,
     '警告',
     {
       confirmButtonText: '确定',
@@ -129,7 +129,7 @@ const handleDelete = (row: any) => {
   )
   .then(async () => {
     try {
-      await domainStore.deleteDomain(row.id)
+      await domainStore.deleteDomain(row.domainId)
       ElMessage.success('删除成功')
     } catch (error) {
       ElMessage.error('删除失败')
