@@ -21,7 +21,7 @@ import org.springframework.stereotype.Component;
 public class Domain {
 
     @Id
-    @TableId(type = IdType.AUTO) // 明确指定主键类型（如自增）
+    @TableId(type = IdType.AUTO)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ApiModelProperty(value = "领域类型编号", example = "1")
     private long domainId;

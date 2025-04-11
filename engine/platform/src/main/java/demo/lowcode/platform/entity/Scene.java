@@ -1,5 +1,8 @@
 package demo.lowcode.platform.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
@@ -22,12 +25,13 @@ import lombok.NoArgsConstructor;
 public class Scene {
 
     @Id
+    @TableId(type = IdType.AUTO)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "sceneId", nullable = false)
     @ApiModelProperty(value = "场景ID", example = "1")
     private long sceneId;
 
-    @Column(name = "sceneCode", nullable = false)
+    @Column(name = "sceneCode")
     @ApiModelProperty(value = "场景代码", example = "The second interdisciplinary building")
     private String sceneCode;
 
@@ -43,7 +47,20 @@ public class Scene {
     @ApiModelProperty(value = "领域ID", example = "1")
     private long domainId;
 
+    @Column(name = "status", nullable = false)
+    @ApiModelProperty(value = "场景状态", example = "active")
+    private String status;
+
+    @Column(name = "longitude")
+    @ApiModelProperty(value = "场景经度", example = "121.1")
+    private Float longitude;
+
+    @Column(name = "longitude")
+    @ApiModelProperty(value = "场景纬度", example = "54.23")
+    private Float latitude;
+
     @ManyToOne
+    @TableField(exist = false)  //设置不管理数据库
     @JoinColumn(name = "domainId", referencedColumnName = "domainId", insertable = false, updatable = false)
     @ApiModelProperty(value = "关联的领域对象")
     private Domain domain;

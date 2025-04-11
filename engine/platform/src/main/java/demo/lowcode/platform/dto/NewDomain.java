@@ -5,7 +5,7 @@ import org.springframework.stereotype.Component;
 
 @Data
 @Component
-public class newDomain {
+public class NewDomain {
     private String name;
     private String description;
     private String status;

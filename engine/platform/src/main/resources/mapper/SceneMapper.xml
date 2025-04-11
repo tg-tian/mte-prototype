@@ -10,4 +10,9 @@
         SELECT sceneId FROM scene WHERE sceneCode = #{sceneCode}
     </select>
 
+    <!--获取场景列表-->
+    <select id="selectByDomainId" resultType="demo.lowcode.platform.entity.Scene">
+        SELECT * FROM scene WHERE domainId = #{domainId}
+    </select>
+
 </mapper>
