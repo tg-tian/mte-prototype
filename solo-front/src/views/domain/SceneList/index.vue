@@ -205,11 +205,18 @@ const addSceneMarkers = () => {
     enableAutoPan: true
   })
   
+  // 添加调试信息
+  console.log('Adding markers for scenes:', filteredScenes.value)
+  
   // Add a marker for each scene with location
-  filteredScenes.value.forEach((scene: Scene) => {
-    // For backend data: longitude/latitude fields might be used instead of location object
+  filteredScenes.value.forEach((scene: any) => {
+    // 增强兼容性，处理不同的数据结构
+    // 场景位置可能存在于 location 对象中或分开存储为longitude/latitude
     const lng = scene.location?.lng || scene.longitude || null;
     const lat = scene.location?.lat || scene.latitude || null;
+    
+    // 打印每个场景的位置信息以便调试
+    console.log(`Scene ${scene.id || scene.sceneId} (${scene.name || scene.sceneName}) location:`, { lng, lat })
     
     // Make sure scene has location data before adding marker
     if (lng !== null && lat !== null) {
@@ -226,6 +233,12 @@ const addSceneMarkers = () => {
       })
     }
   })
+  
+  // 如果没有场景有位置信息，居中显示到一个默认位置
+  if (markers.value.length === 0) {
+    // 默认到上海
+    baiduMap.value.centerAndZoom(new BMap.Point(121.4737, 31.2304), 12)
+  }
 }
 
 // Show scene info when marker is clicked

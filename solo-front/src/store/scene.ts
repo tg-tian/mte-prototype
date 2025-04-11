@@ -19,8 +19,27 @@ export const useSceneStore = defineStore('scene', {
                 const res: any = await getScenes(domainId);
                     
                 if (res && res.status === 200) {
-                    // 处理真实API返回的数据
-                    this.scenes = res.data || [];
+                    // 处理真实API返回的数据 - 适配后端数据结构
+                    // 后端可能直接返回数据数组，也可能封装在res.data中
+                    const scenesData = Array.isArray(res.data) ? res.data : (res.data?.data || []);
+                    
+                    // 转换后端返回的数据结构为前端模型
+                    this.scenes = scenesData.map((scene: any) => {
+                        return {
+                            id: scene.sceneId || scene.id,
+                            domainId: scene.domainId,
+                            name: scene.sceneName || scene.name,
+                            description: scene.sceneDescription || scene.description,
+                            createTime: scene.createTime || new Date().toISOString().split('T')[0],
+                            updateTime: scene.updateTime || new Date().toISOString().split('T')[0],
+                            deviceCount: scene.deviceCount || 0,
+                            status: scene.status || 'active',
+                            location: scene.location || {
+                                lng: scene.longitude,
+                                lat: scene.latitude
+                            }
+                        };
+                    });
 
                     console.log('Scenes fetched from API:', this.scenes);
                 }
@@ -47,8 +66,23 @@ export const useSceneStore = defineStore('scene', {
                 const res: any = await getSceneById(id);
                     
                 if (res && res.status === 200) {
-                    this.currentScene = res.data;
-                    return res.data;
+                    // 转换后端返回的数据结构为前端模型
+                    const sceneData = res.data;
+                    this.currentScene = {
+                        id: sceneData.sceneId || sceneData.id,
+                        domainId: sceneData.domainId,
+                        name: sceneData.sceneName || sceneData.name,
+                        description: sceneData.sceneDescription || sceneData.description,
+                        createTime: sceneData.createTime || new Date().toISOString().split('T')[0],
+                        updateTime: sceneData.updateTime || new Date().toISOString().split('T')[0],
+                        deviceCount: sceneData.deviceCount || 0,
+                        status: sceneData.status || 'active',
+                        location: sceneData.location || {
+                            lng: sceneData.longitude,
+                            lat: sceneData.latitude
+                        }
+                    };
+                    return this.currentScene;
                 }
             } catch (error) {
                 console.error('Failed to fetch scene by ID:', error);
