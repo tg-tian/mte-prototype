@@ -44,6 +44,14 @@
       <el-table-column prop="id" label="ID" width="80"></el-table-column>
       <el-table-column prop="name" label="场景名称" min-width="150"></el-table-column>
       <el-table-column prop="description" label="描述" min-width="200"></el-table-column>
+      <el-table-column label="坐标" width="180">
+        <template #default="scope">
+          <span v-if="getLocation(scope.row).hasLocation">
+            {{ getLocation(scope.row).lng.toFixed(4) }}, {{ getLocation(scope.row).lat.toFixed(4) }}
+          </span>
+          <span v-else class="location-empty">暂无坐标</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="createTime" label="创建时间" width="120"></el-table-column>
       <el-table-column prop="updateTime" label="更新时间" width="120"></el-table-column>
       <el-table-column prop="deviceCount" label="设备数量" width="100"></el-table-column>
@@ -423,6 +431,17 @@ const handleDelete = (row: any) => {
   .catch(() => {
     // 用户取消操作
   })
+}
+
+// 获取场景位置
+const getLocation = (scene: any) => {
+  const lng = scene.location?.lng || scene.longitude || null
+  const lat = scene.location?.lat || scene.latitude || null
+  return {
+    lng,
+    lat,
+    hasLocation: lng !== null && lat !== null
+  }
 }
 </script>
 
