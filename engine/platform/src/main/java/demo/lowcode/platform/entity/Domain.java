@@ -11,6 +11,8 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 @Entity
 @Data
 @TableName("domain")
@@ -26,8 +28,12 @@ public class Domain {
     @ApiModelProperty(value = "领域类型编号", example = "1")
     private long domainId;
 
+    @Column(name = "domainCode", nullable = false)
+    @ApiModelProperty(value = "领域编码", example = "SmartBuilding")
+    private String domainCode;
+
     @Column(name = "domainName", nullable = false)
-    @ApiModelProperty(value = "领域名称", example = "SmartBuilding")
+    @ApiModelProperty(value = "领域名称", example = "智慧楼宇")
     private String domainName;
 
     @Column(name = "domainDescription", nullable = true)
@@ -37,4 +43,12 @@ public class Domain {
     @Column(name = "status", nullable = false)
     @ApiModelProperty(value = "领域状态", example = "1")
     private String status;
+
+    @Column(name = "createTime", nullable = false)
+    @ApiModelProperty(value = "创建时间", example = "智慧楼宇")
+    private Date createTime;
+
+    @Column(name = "updateTime", nullable = false)
+    @ApiModelProperty(value = "更新时间", example = "智慧楼宇")
+    private Date updateTime;
 }

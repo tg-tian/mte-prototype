@@ -4,8 +4,7 @@ import demo.lowcode.platform.business.DeviceTypeBusiness;
 import demo.lowcode.platform.business.DomainBusiness;
 import demo.lowcode.platform.dto.DomainJson;
 import demo.lowcode.platform.dto.Domain_ComponentJson;
-import demo.lowcode.platform.dto.newDomain;
-import demo.lowcode.platform.entity.DeviceType;
+import demo.lowcode.platform.dto.NewDomain;
 import demo.lowcode.platform.entity.Domain;
 import io.swagger.annotations.Api;
 import jakarta.annotation.Resource;
@@ -15,8 +14,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
 
 @RestController
 @CrossOrigin
@@ -73,7 +70,7 @@ public class DomainController {
     }
 
     @PostMapping(value = "/domains")
-    public ResponseEntity<?> createDomain(@RequestBody newDomain newDomain){
+    public ResponseEntity<?> createDomain(@RequestBody NewDomain newDomain){
         try {
             domainBusiness.createDomain(newDomain);
             return new ResponseEntity<>("创建成功",HttpStatus.OK);
@@ -83,7 +80,7 @@ public class DomainController {
     }
 
     @PutMapping (value = "/domains/{id}")
-    public ResponseEntity<?> changeDomain(@PathVariable Long id ,@RequestBody newDomain newDomain){
+    public ResponseEntity<?> changeDomain(@PathVariable Long id ,@RequestBody NewDomain newDomain){
         try {
             domainBusiness.changeDomainByID(id,newDomain);
             return new ResponseEntity<>("修改成功",HttpStatus.OK);

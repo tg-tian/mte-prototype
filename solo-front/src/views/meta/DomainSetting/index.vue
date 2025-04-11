@@ -17,6 +17,9 @@
             :rules="rules"
             ref="domainFormRef"
             label-width="120px">
+            <el-form-item label="领域编码" prop="code">
+              <el-input v-model="domainForm.code" placeholder="请输入领域名称"></el-input>
+            </el-form-item>
             <el-form-item label="领域名称" prop="name">
               <el-input v-model="domainForm.name" placeholder="请输入领域名称"></el-input>
             </el-form-item>
@@ -24,7 +27,7 @@
               <el-input type="textarea" :rows="3" v-model="domainForm.description" placeholder="请输入领域描述"></el-input>
             </el-form-item>
             <el-form-item label="状态" prop="status">
-              <el-tag :type="domainForm.status==='active' ? 'success':'info'">{{ domainForm.status==='active' ? '已发布':'定制中' }}</el-tag>
+              <el-tag :type="domainForm.status==='1' ? 'success':'info'">{{ domainForm.status==='1' ? '已发布':'定制中' }}</el-tag>
             </el-form-item>
             <el-form-item label="图标">
               <el-upload
@@ -51,7 +54,7 @@ import { ref, reactive, computed, onMounted, watch, toRefs } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import { useDomainStore } from '@/store/domain'
 import { ElMessage, type FormInstance } from 'element-plus'
-import { getMockDomainById } from '@/api/domain'
+import { getDomainById, getMockDomainById } from '@/api/domain'
 
 const router = useRouter()
 const route = useRoute()
@@ -62,9 +65,10 @@ const domainFormRef = ref<FormInstance>()
 const state = reactive({
   activeTab: 'basic',
   domainForm: {
+    code: '',
     name: '',
     description: '',
-    status: 'inactive'
+    status: '0'
   },
   submitting: false
 })
@@ -83,6 +87,10 @@ const domainId = computed(() => {
 
 // Rules for form validation
 const rules = {
+  code: [
+    { required: true, message: '请输入领域编码', trigger: 'blur' },
+    { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+  ],
   name: [
     { required: true, message: '请输入领域名称', trigger: 'blur' },
     { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
@@ -98,9 +106,10 @@ const rules = {
 // Clear form for creation mode
 const resetFormData = () => {
   domainForm.value = {
+    code: '',
     name: '',
     description: '',
-    status: 'inactive'
+    status: '0'
   }
 }
 
@@ -111,9 +120,10 @@ const loadDomainToForm = (domain: any) => {
   
   // Then load the domain data
   if (domain) {
-    domainForm.value.name = domain.name || ''
-    domainForm.value.description = domain.description || ''
-    domainForm.value.status = domain.status || 'inactive'
+    domainForm.value.code = domain.domainCode || ''
+    domainForm.value.name = domain.domainName || ''
+    domainForm.value.description = domain.domainDescription || ''
+    domainForm.value.status = domain.status || '0'
     
     console.log('Domain data loaded to form:', domainForm.value)
   }
@@ -127,10 +137,10 @@ watch([() => route.query.domainId, () => route.query.mode], async ([newDomainId,
   } else if (newMode === 'edit' && newDomainId) {
     // Load domain data when switching to edit mode or changing domain ID
     try {
-      const res: any = await getMockDomainById(parseInt(newDomainId as string))
-      if (res.data && res.data.code === 200 && res.data.data) {
-        domainStore.setCurrentDomain(res.data.data)
-        loadDomainToForm(res.data.data)
+      const res: any = await getDomainById(parseInt(newDomainId as string))
+      if (res.data && res.status === 200) {
+        domainStore.setCurrentDomain(res.data)
+        loadDomainToForm(res.data)
       } else {
         ElMessage.warning('领域数据不存在或获取失败')
         navigateBack()
@@ -152,16 +162,16 @@ onMounted(async () => {
   else if (isEditMode.value && domainId.value) {
     const currentDomain = domainStore.currentDomain
     
-    if (currentDomain && currentDomain.id === domainId.value) {
+    if (currentDomain && currentDomain.domainId === domainId.value) {
       // Load from current domain in store
       loadDomainToForm(currentDomain)
     } else {
       // Try to fetch domain data from API if not in store
       try {
-        const res: any = await getMockDomainById(domainId.value)
-        if (res.data && res.data.code === 200 && res.data.data) {
-          domainStore.setCurrentDomain(res.data.data)
-          loadDomainToForm(res.data.data)
+        const res: any = await getDomainById(domainId.value)
+        if (res.data && res.status === 200) {
+          domainStore.setCurrentDomain(res.data)
+          loadDomainToForm(res.data)
         } else {
           ElMessage.warning('领域数据不存在或获取失败')
           navigateBack()
@@ -198,7 +208,7 @@ const submitForm = async () => {
           ElMessage.success('创建成功')
         }
         // Navigate back to list after successful operation
-        navigateBack()
+        // navigateBack()
       } catch (error) {
         ElMessage.error(isEditMode.value ? '更新失败' : '创建失败')
       } finally {
