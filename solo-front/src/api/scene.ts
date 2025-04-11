@@ -18,23 +18,31 @@ export function getSceneById(id: number) {
 }
 
 export function createScene(data: any) {
+    // 确保位置数据被正确格式化
+    const locationData = data.location ? data.location : 
+                       (data.lng && data.lat ? { lng: data.lng, lat: data.lat } : undefined)
+    
     return request({
         url: '/scenes',
         method: 'post',
         data: {
             ...data,
-            location: data.location // Ensure location is included
+            location: locationData
         }
     })
 }
 
 export function updateScene(id: number, data: any) {
+    // 确保位置数据被正确格式化
+    const locationData = data.location ? data.location : 
+                       (data.lng && data.lat ? { lng: data.lng, lat: data.lat } : undefined)
+    
     return request({
         url: `/scenes/${id}`,
         method: 'put',
         data: {
             ...data,
-            location: data.location // Ensure location is included
+            location: locationData
         }
     })
 }
@@ -46,7 +54,7 @@ export function deleteScene(id: number) {
     })
 }
 
-// Mock API functions
+// Mock API functions for development without backend
 export function getMockScenes(domainId?: number) {
     return new Promise((resolve) => {
         setTimeout(() => {
@@ -91,8 +99,7 @@ export function createMockScene(data: any) {
                 ...data,
                 createTime: new Date().toISOString().split('T')[0],
                 updateTime: new Date().toISOString().split('T')[0],
-                deviceCount: 0,
-                status: 'active'
+                deviceCount: 0
             }
             mockScenes.push(newScene)
             resolve({

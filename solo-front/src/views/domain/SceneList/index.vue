@@ -207,8 +207,13 @@ const addSceneMarkers = () => {
   
   // Add a marker for each scene with location
   filteredScenes.value.forEach((scene: Scene) => {
-    if (scene.location && scene.location.lng && scene.location.lat) {
-      const point = new BMap.Point(scene.location.lng, scene.location.lat)
+    // For backend data: longitude/latitude fields might be used instead of location object
+    const lng = scene.location?.lng || scene.longitude || null;
+    const lat = scene.location?.lat || scene.latitude || null;
+    
+    // Make sure scene has location data before adding marker
+    if (lng !== null && lat !== null) {
+      const point = new BMap.Point(lng, lat)
       const marker = new BMap.Marker(point)
       
       // Add marker to map
