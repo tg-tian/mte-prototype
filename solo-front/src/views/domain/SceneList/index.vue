@@ -127,7 +127,6 @@ onMounted(async () => {
   } else {
     await sceneStore.fetchScenes()
   }
-  
   // Initialize map after data is loaded
   nextTick(() => {
     if (isMapView.value) {
@@ -147,8 +146,10 @@ onUnmounted(() => {
 // Toggle between map view and list view
 const toggleViewMode = () => {
   isMapView.value = !isMapView.value
-  
-  if (isMapView.value && !baiduMap.value) {
+  if (baiduMap.value) {
+    baiduMap.value = null;
+  }
+  if (isMapView.value && !baiduMap.value ) {
     nextTick(() => {
       initMap()
     })
@@ -160,7 +161,7 @@ const initMap = () => {
   if (!mapCanvas.value) return
   
   // Create map instance
-  baiduMap.value = new BMap.Map('map-canvas')
+    baiduMap.value = new BMap.Map('map-canvas')
   
   // Set initial center and zoom
   let centerPoint: BMap.Point
@@ -300,7 +301,7 @@ const showSceneInfo = (scene: Scene, marker: BMap.Marker) => {
   editButton.style.backgroundColor = '#409EFF'
   editButton.style.color = 'white'
   editButton.style.border = 'none'
-  editButton.style.padding = '2px 8px'  // 减小padding
+  editButton.style.padding = '2px 6px'  // 减小padding
   editButton.style.borderRadius = '4px'
   editButton.style.cursor = 'pointer'
   editButton.style.fontSize = '12px'    // 减小字体大小
@@ -317,7 +318,7 @@ const showSceneInfo = (scene: Scene, marker: BMap.Marker) => {
   enterButton.style.backgroundColor = '#67C23A'
   enterButton.style.color = 'white'
   enterButton.style.border = 'none'
-  enterButton.style.padding = '2px 8px'  // 减小padding
+  enterButton.style.padding = '2px 6px'  // 减小padding
   enterButton.style.borderRadius = '4px'
   enterButton.style.cursor = 'pointer'
   enterButton.style.fontSize = '12px'    // 减小字体大小
@@ -334,7 +335,7 @@ const showSceneInfo = (scene: Scene, marker: BMap.Marker) => {
   deleteButton.style.backgroundColor = '#F56C6C'
   deleteButton.style.color = 'white'
   deleteButton.style.border = 'none'
-  deleteButton.style.padding = '2px 8px'  // 减小padding
+  deleteButton.style.padding = '2px 6px'  // 减小padding
   deleteButton.style.borderRadius = '4px'
   deleteButton.style.cursor = 'pointer'
   deleteButton.style.fontSize = '12px'    // 减小字体大小
@@ -344,9 +345,9 @@ const showSceneInfo = (scene: Scene, marker: BMap.Marker) => {
     handleDelete(scene)
   }
   actionsContainer.appendChild(deleteButton)
-  
   content.appendChild(actionsContainer)
-  
+
+
   // Set info window content and open it
   infoWindow.value.setContent(content)
   marker.openInfoWindow(infoWindow.value)
@@ -491,6 +492,7 @@ const getLocation = (scene: any) => {
 
 :deep(.map-info-window) {
   font-family: 'Arial', sans-serif;
-  padding: 5px;
+  max-width: 250px;
+
 }
 </style>
