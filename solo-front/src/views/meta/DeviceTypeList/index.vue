@@ -86,7 +86,7 @@
     if (deviceType) {
       // 编辑设备类型
       deviceTypeStore.setCurrentDeviceType(deviceType)
-      router.push(`/meta/deviceType/setting?domainId=${deviceType.id}&mode=edit`)
+      router.push(`/meta/deviceType/setting?deviceTypeId=${deviceType.id}&mode=edit`)
     } else {
       // 创建设备类型
       router.push('/meta/deviceType/setting?mode=create')

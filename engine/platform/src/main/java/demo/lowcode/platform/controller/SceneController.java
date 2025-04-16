@@ -98,6 +98,7 @@ public class SceneController {
             Scene scene = sceneBusiness.createScene(newScene);
             return new ResponseEntity<>(scene ,HttpStatus.OK);
         }catch (RuntimeException e){
+            e.printStackTrace();
             return new ResponseEntity<>("场景创建失败",HttpStatus.CONFLICT);
         }
     }

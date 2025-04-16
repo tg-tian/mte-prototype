@@ -1,6 +1,6 @@
 package demo.lowcode.platform.business;
 
-import demo.lowcode.platform.mapper.DeviceTypeMapper;
+import demo.lowcode.platform.mapper.DeviceTypeOldMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,12 +10,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class DeviceTypeBusiness {
 
-    private final DeviceTypeMapper deviceTypeMapper;
+    private final DeviceTypeOldMapper deviceTypeOldMapper;
 
     // 使用构造函数注入，推荐的方式
     @Autowired
-    public DeviceTypeBusiness(DeviceTypeMapper deviceTypeMapper) {
-        this.deviceTypeMapper = deviceTypeMapper;
+    public DeviceTypeBusiness(DeviceTypeOldMapper deviceTypeOldMapper) {
+        this.deviceTypeOldMapper = deviceTypeOldMapper;
     }
 
 

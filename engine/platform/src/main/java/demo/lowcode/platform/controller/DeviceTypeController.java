@@ -1,13 +1,9 @@
 package demo.lowcode.platform.controller;
 
-import demo.lowcode.platform.business.DeviceTypeBusiness;
-import demo.lowcode.platform.entity.DeviceType;
+import demo.lowcode.platform.entity.DeviceTypeOld;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
-import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -25,7 +21,7 @@ public class DeviceTypeController {
      */
     @PostMapping("/upload")  //应该改成/info
     @ApiOperation(value = "设备类型数据同步", notes = "上传数据类型到数据库")
-    public ResponseEntity<?> deviceInfoUpload(@RequestBody DeviceType deviceType){
+    public ResponseEntity<?> deviceInfoUpload(@RequestBody DeviceTypeOld deviceType){
         try {
             return new ResponseEntity<>("设备类型同步成功",HttpStatus.OK);
         }catch (RuntimeException e)

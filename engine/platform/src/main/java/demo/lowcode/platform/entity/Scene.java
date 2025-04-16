@@ -12,6 +12,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Date;
+
 /**
  * 场景类，描述场景的基本信息
  */
@@ -27,23 +29,23 @@ public class Scene {
     @Id
     @TableId(type = IdType.AUTO)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "sceneId", nullable = false)
+    @Column(name = "scene_id")
     @ApiModelProperty(value = "场景ID", example = "1")
-    private long sceneId;
+    private Long sceneId;
 
-    @Column(name = "sceneCode")
+    @Column(name = "scene_code")
     @ApiModelProperty(value = "场景代码", example = "The second interdisciplinary building")
     private String sceneCode;
 
-    @Column(name = "sceneName", nullable = false)
+    @Column(name = "scene_name", nullable = false)
     @ApiModelProperty(value = "场景名称", example = "第二学科交叉楼")
     private String sceneName;
 
-    @Column(name = "sceneDescription")
+    @Column(name = "scene_description")
     @ApiModelProperty(value = "场景描述", example = "This is the second interdisciplinary building")
     private String sceneDescription;
 
-    @Column(name = "domainId", nullable = false)
+    @Column(name = "domain_id", nullable = false)
     @ApiModelProperty(value = "领域ID", example = "1")
     private long domainId;
 
@@ -58,6 +60,14 @@ public class Scene {
     @Column(name = "longitude")
     @ApiModelProperty(value = "场景纬度", example = "54.23")
     private Float latitude;
+
+    @Column(name = "create_time", nullable = false)
+    @ApiModelProperty(value = "创建时间")
+    private Date createTime;
+
+    @Column(name = "update_time", nullable = false)
+    @ApiModelProperty(value = "更新时间")
+    private Date updateTime;
 
     @ManyToOne
     @TableField(exist = false)  //设置不管理数据库

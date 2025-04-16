@@ -41,9 +41,9 @@
       style="width: 100%; margin-top: 20px"
       border
     >
-      <el-table-column prop="id" label="ID" width="80"></el-table-column>
-      <el-table-column prop="name" label="场景名称" min-width="150"></el-table-column>
-      <el-table-column prop="description" label="描述" min-width="200"></el-table-column>
+      <el-table-column prop="code" label="场景编码" width="100"></el-table-column>
+      <el-table-column prop="name" label="场景名称" min-width="120"></el-table-column>
+      <el-table-column prop="description" label="描述" min-width="150"></el-table-column>
       <el-table-column label="坐标" width="180">
         <template #default="scope">
           <span v-if="getLocation(scope.row).hasLocation">
@@ -54,11 +54,11 @@
       </el-table-column>
       <el-table-column prop="createTime" label="创建时间" width="120"></el-table-column>
       <el-table-column prop="updateTime" label="更新时间" width="120"></el-table-column>
-      <el-table-column prop="deviceCount" label="设备数量" width="100"></el-table-column>
+      <el-table-column prop="deviceCount" label="设备数量" width="80"></el-table-column>
       <el-table-column prop="status" label="状态" width="100">
         <template #default="scope">
           <el-tag :type="scope.row.status === 'active' ? 'success' : 'info'">
-            {{ scope.row.status === 'active' ? '活跃' : '非活跃' }}
+            {{ scope.row.status === 'active' ? '已发布' : '定制中' }}
           </el-tag>
         </template>
       </el-table-column>
@@ -110,6 +110,7 @@ const currentDomain = computed(() => {
 // 过滤后的场景列表
 const filteredScenes = computed(() => {
   if (!sceneStore.scenes) return []
+  console.log(sceneStore.scenes)
   
   return sceneStore.scenes.filter((scene: any) => {
     const nameMatch = !searchForm.value.name || scene.name.toLowerCase().includes(searchForm.value.name.toLowerCase())

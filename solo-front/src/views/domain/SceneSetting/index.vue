@@ -16,24 +16,19 @@
             :rules="rules"
             ref="sceneFormRef"
             label-width="120px">
+            <el-form-item label="场景编码" prop="code">
+              <el-input v-model="sceneForm.code" placeholder="请输入场景编码"></el-input>
+            </el-form-item>
             <el-form-item label="场景名称" prop="name">
               <el-input v-model="sceneForm.name" placeholder="请输入场景名称"></el-input>
             </el-form-item>
             <el-form-item label="场景描述" prop="description">
-              <el-input type="textarea" rows="3" v-model="sceneForm.description" placeholder="请输入场景描述"></el-input>
+              <el-input type="textarea" :rows="3" v-model="sceneForm.description" placeholder="请输入场景描述"></el-input>
             </el-form-item>
             <el-form-item label="状态" prop="status">
               <el-select v-model="sceneForm.status" placeholder="请选择状态">
                 <el-option label="活跃" value="active"></el-option>
                 <el-option label="非活跃" value="inactive"></el-option>
-              </el-select>
-            </el-form-item>
-            <el-form-item label="场景类型">
-              <el-select placeholder="请选择场景类型">
-                <el-option label="工厂车间" value="factory"></el-option>
-                <el-option label="智慧城市" value="city"></el-option>
-                <el-option label="医疗设施" value="hospital"></el-option>
-                <el-option label="教育场所" value="education"></el-option>
               </el-select>
             </el-form-item>
             
@@ -66,8 +61,8 @@
           </el-form>
         </el-tab-pane>
         
-        <el-tab-pane label="设备类型定义" name="device">
-          <el-empty description="暂无设备类型" />
+        <el-tab-pane label="场景设备" name="device">
+          <el-empty description="暂无设备" />
         </el-tab-pane>
         
         <el-tab-pane label="数据流定义" name="dataflow">
@@ -83,7 +78,7 @@ import { ref, reactive, computed, onMounted, watch, toRefs, nextTick } from 'vue
 import { useSceneStore } from '@/store/scene'
 import { useDomainStore } from '@/store/domain'
 import { ElMessage, type FormInstance } from 'element-plus'
-import { getMockSceneById } from '@/api/scene'
+import { getSceneById } from '@/api/scene'
 
 const router = useRouter()
 const route = useRoute()
@@ -96,6 +91,7 @@ const locationMap = ref<HTMLElement | null>(null)
 const state = reactive({
   activeTab: 'basic',
   sceneForm: {
+    code: '',
     name: '',
     description: '',
     status: 'active',
@@ -132,6 +128,10 @@ const currentDomain = computed(() => {
 
 // Rules for form validation
 const rules = {
+  code: [
+    { required: true, message: '请输入场景编码', trigger: 'blur' },
+    { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+  ],
   name: [
     { required: true, message: '请输入场景名称', trigger: 'blur' },
     { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
@@ -147,6 +147,7 @@ const rules = {
 // Clear form for creation mode
 const resetFormData = () => {
   sceneForm.value = {
+    code: '',
     name: '',
     description: '',
     status: 'active',
@@ -163,6 +164,7 @@ const loadSceneToForm = (scene: any) => {
   
   // Then load the scene data
   if (scene) {
+    sceneForm.value.code = scene.code || scene.sceneCode || ''
     sceneForm.value.name = scene.name || scene.sceneName || ''
     sceneForm.value.description = scene.description || scene.sceneDescription || ''
     sceneForm.value.status = scene.status || 'active'
@@ -272,10 +274,10 @@ watch([() => route.query.sceneId, () => route.query.mode, () => route.query.doma
   } else if (newMode === 'edit' && newSceneId) {
     // Load scene data when switching to edit mode or changing scene ID
     try {
-      const res: any = await getMockSceneById(parseInt(newSceneId as string))
-      if (res.data && res.data.code === 200 && res.data.data) {
-        sceneStore.setCurrentScene(res.data.data)
-        loadSceneToForm(res.data.data)
+      const res: any = await getSceneById(parseInt(newSceneId as string))
+      if (res.data && res.status === 200) {
+        sceneStore.setCurrentScene(res.data)
+        loadSceneToForm(res.data)
         
         // Initialize map after data is loaded
         nextTick(() => {
@@ -317,7 +319,7 @@ onMounted(async () => {
     } else {
       // Try to fetch scene data from API if not in store
       try {
-        const res: any = await getMockSceneById(sceneId.value)
+        const res: any = await getSceneById(sceneId.value)
         if (res.data && res.data.code === 200 && res.data.data) {
           sceneStore.setCurrentScene(res.data.data)
           loadSceneToForm(res.data.data)

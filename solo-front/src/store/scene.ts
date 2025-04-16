@@ -27,6 +27,7 @@ export const useSceneStore = defineStore('scene', {
                     this.scenes = scenesData.map((scene: any) => {
                         return {
                             id: scene.sceneId || scene.id,
+                            code: scene.sceneCode || scene.code,
                             domainId: scene.domainId,
                             name: scene.sceneName || scene.name,
                             description: scene.sceneDescription || scene.description,
@@ -71,6 +72,7 @@ export const useSceneStore = defineStore('scene', {
                     this.currentScene = {
                         id: sceneData.sceneId || sceneData.id,
                         domainId: sceneData.domainId,
+                        code: sceneData.sceneCode || sceneData.code,
                         name: sceneData.sceneName || sceneData.name,
                         description: sceneData.sceneDescription || sceneData.description,
                         createTime: sceneData.createTime || new Date().toISOString().split('T')[0],

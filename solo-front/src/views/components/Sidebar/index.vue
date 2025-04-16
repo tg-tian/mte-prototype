@@ -139,12 +139,12 @@
     const selectedItemData = items.value.find(item => item.index === key);
     if (selectedItemData) {
       let query={}
-      if(selectedItemData.route==='/meta/domain/setting'){
+      if(selectedItemData.route==='/meta/domain/setting' || selectedItemData.route==='/domain/scene/setting'){
         query['mode']='create'
       }
       router.push({
         path: selectedItemData.route,
-        query: query
+        query: {...router.currentRoute.value.query, ...query}
       })
     }
   }
