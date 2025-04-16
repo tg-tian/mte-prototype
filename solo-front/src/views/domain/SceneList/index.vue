@@ -44,6 +44,14 @@
       <el-table-column prop="id" label="ID" width="80"></el-table-column>
       <el-table-column prop="name" label="场景名称" min-width="150"></el-table-column>
       <el-table-column prop="description" label="描述" min-width="200"></el-table-column>
+      <el-table-column label="坐标" width="180">
+        <template #default="scope">
+          <span v-if="getLocation(scope.row).hasLocation">
+            {{ getLocation(scope.row).lng.toFixed(4) }}, {{ getLocation(scope.row).lat.toFixed(4) }}
+          </span>
+          <span v-else class="location-empty">暂无坐标</span>
+        </template>
+      </el-table-column>
       <el-table-column prop="createTime" label="创建时间" width="120"></el-table-column>
       <el-table-column prop="updateTime" label="更新时间" width="120"></el-table-column>
       <el-table-column prop="deviceCount" label="设备数量" width="100"></el-table-column>
@@ -119,7 +127,6 @@ onMounted(async () => {
   } else {
     await sceneStore.fetchScenes()
   }
-  
   // Initialize map after data is loaded
   nextTick(() => {
     if (isMapView.value) {
@@ -139,8 +146,10 @@ onUnmounted(() => {
 // Toggle between map view and list view
 const toggleViewMode = () => {
   isMapView.value = !isMapView.value
-  
-  if (isMapView.value && !baiduMap.value) {
+  if (baiduMap.value) {
+    baiduMap.value = null;
+  }
+  if (isMapView.value && !baiduMap.value ) {
     nextTick(() => {
       initMap()
     })
@@ -152,7 +161,7 @@ const initMap = () => {
   if (!mapCanvas.value) return
   
   // Create map instance
-  baiduMap.value = new BMap.Map('map-canvas')
+    baiduMap.value = new BMap.Map('map-canvas')
   
   // Set initial center and zoom
   let centerPoint: BMap.Point
@@ -205,10 +214,22 @@ const addSceneMarkers = () => {
     enableAutoPan: true
   })
   
+  // 添加调试信息
+  console.log('Adding markers for scenes:', filteredScenes.value)
+  
   // Add a marker for each scene with location
-  filteredScenes.value.forEach((scene: Scene) => {
-    if (scene.location && scene.location.lng && scene.location.lat) {
-      const point = new BMap.Point(scene.location.lng, scene.location.lat)
+  filteredScenes.value.forEach((scene: any) => {
+    // 增强兼容性，处理不同的数据结构
+    // 场景位置可能存在于 location 对象中或分开存储为longitude/latitude
+    const lng = scene.location?.lng || scene.longitude || null;
+    const lat = scene.location?.lat || scene.latitude || null;
+    
+    // 打印每个场景的位置信息以便调试
+    console.log(`Scene ${scene.id || scene.sceneId} (${scene.name || scene.sceneName}) location:`, { lng, lat })
+    
+    // Make sure scene has location data before adding marker
+    if (lng !== null && lat !== null) {
+      const point = new BMap.Point(lng, lat)
       const marker = new BMap.Marker(point)
       
       // Add marker to map
@@ -221,6 +242,12 @@ const addSceneMarkers = () => {
       })
     }
   })
+  
+  // 如果没有场景有位置信息，居中显示到一个默认位置
+  if (markers.value.length === 0) {
+    // 默认到上海
+    baiduMap.value.centerAndZoom(new BMap.Point(121.4737, 31.2304), 12)
+  }
 }
 
 // Show scene info when marker is clicked
@@ -274,7 +301,7 @@ const showSceneInfo = (scene: Scene, marker: BMap.Marker) => {
   editButton.style.backgroundColor = '#409EFF'
   editButton.style.color = 'white'
   editButton.style.border = 'none'
-  editButton.style.padding = '2px 8px'  // 减小padding
+  editButton.style.padding = '2px 6px'  // 减小padding
   editButton.style.borderRadius = '4px'
   editButton.style.cursor = 'pointer'
   editButton.style.fontSize = '12px'    // 减小字体大小
@@ -291,7 +318,7 @@ const showSceneInfo = (scene: Scene, marker: BMap.Marker) => {
   enterButton.style.backgroundColor = '#67C23A'
   enterButton.style.color = 'white'
   enterButton.style.border = 'none'
-  enterButton.style.padding = '2px 8px'  // 减小padding
+  enterButton.style.padding = '2px 6px'  // 减小padding
   enterButton.style.borderRadius = '4px'
   enterButton.style.cursor = 'pointer'
   enterButton.style.fontSize = '12px'    // 减小字体大小
@@ -308,7 +335,7 @@ const showSceneInfo = (scene: Scene, marker: BMap.Marker) => {
   deleteButton.style.backgroundColor = '#F56C6C'
   deleteButton.style.color = 'white'
   deleteButton.style.border = 'none'
-  deleteButton.style.padding = '2px 8px'  // 减小padding
+  deleteButton.style.padding = '2px 6px'  // 减小padding
   deleteButton.style.borderRadius = '4px'
   deleteButton.style.cursor = 'pointer'
   deleteButton.style.fontSize = '12px'    // 减小字体大小
@@ -318,9 +345,9 @@ const showSceneInfo = (scene: Scene, marker: BMap.Marker) => {
     handleDelete(scene)
   }
   actionsContainer.appendChild(deleteButton)
-  
   content.appendChild(actionsContainer)
-  
+
+
   // Set info window content and open it
   infoWindow.value.setContent(content)
   marker.openInfoWindow(infoWindow.value)
@@ -406,6 +433,17 @@ const handleDelete = (row: any) => {
     // 用户取消操作
   })
 }
+
+// 获取场景位置
+const getLocation = (scene: any) => {
+  const lng = scene.location?.lng || scene.longitude || null
+  const lat = scene.location?.lat || scene.latitude || null
+  return {
+    lng,
+    lat,
+    hasLocation: lng !== null && lat !== null
+  }
+}
 </script>
 
 <style scoped>
@@ -454,6 +492,7 @@ const handleDelete = (row: any) => {
 
 :deep(.map-info-window) {
   font-family: 'Arial', sans-serif;
-  padding: 5px;
+  max-width: 250px;
+
 }
 </style>

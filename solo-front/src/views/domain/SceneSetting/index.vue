@@ -163,15 +163,21 @@ const loadSceneToForm = (scene: any) => {
   
   // Then load the scene data
   if (scene) {
-    sceneForm.value.name = scene.name || ''
-    sceneForm.value.description = scene.description || ''
+    sceneForm.value.name = scene.name || scene.sceneName || ''
+    sceneForm.value.description = scene.description || scene.sceneDescription || ''
     sceneForm.value.status = scene.status || 'active'
     sceneForm.value.domainId = scene.domainId || domainId.value
     
     // Load location if available
+    // 首先尝试使用location对象
     if (scene.location) {
       sceneForm.value.lng = scene.location.lng
       sceneForm.value.lat = scene.location.lat
+    } 
+    // 如果没有location对象，尝试使用独立的经纬度字段
+    else if (scene.longitude !== undefined && scene.latitude !== undefined) {
+      sceneForm.value.lng = scene.longitude
+      sceneForm.value.lat = scene.latitude
     }
     
     console.log('Scene data loaded to form:', sceneForm.value)
