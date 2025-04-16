@@ -32,8 +32,10 @@
       <el-table-column prop="domainCode" label="领域编码" width="150"></el-table-column>
       <el-table-column prop="domainName" label="领域名称" min-width="150"></el-table-column>
       <el-table-column prop="domainDescription" label="描述" min-width="200"></el-table-column>
-      <el-table-column prop="createTime" label="创建时间" width="120"></el-table-column>
-      <el-table-column prop="updateTime" label="更新时间" width="120"></el-table-column>
+      <el-table-column prop="createTime" label="创建时间" width="120">
+      </el-table-column>
+      <el-table-column prop="updateTime" label="更新时间" width="120">
+      </el-table-column>
       <el-table-column prop="sceneCount" label="场景数量" width="100"></el-table-column>
       <el-table-column prop="status" label="状态" width="100">
         <template #default="scope">
@@ -75,11 +77,20 @@ const { searchForm } = toRefs(state)
 const filteredDomains = computed(() => {
   if (!domainStore.domains) return []
   
-  return domainStore.domains.filter((domain: any) => {
+  let domains = domainStore.domains.filter((domain: any) => {
     const nameMatch = !searchForm.value.name || domain.domainName.toLowerCase().includes(searchForm.value.name.toLowerCase())
     const statusMatch = !searchForm.value.status || domain.status === searchForm.value.status
     return nameMatch && statusMatch
   })
+  domains = domains.map((domain: any)=>{
+    return {
+      ...domain,
+      updateTime: domain.updateTime?.split('.')[0].replace('T', ' '),
+      createTime: domain.createTime?.split('.')[0].replace('T', ' ')
+    }
+  })
+
+  return domains
 })
 
 // 初始化

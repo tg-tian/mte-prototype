@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-import { Domain, Scene, Device } from '@/types/models'
+import { Domain, Scene, Device, DeviceType } from '@/types/models'
 
 // Mock domain data
 export const mockDomains = reactive<Domain[]>([
@@ -128,6 +128,96 @@ export const mockDevices = reactive<Device[]>([
         properties: {
             openState: false,
             controlMode: 'manual'
+        }
+    }
+])
+
+// Mock deviceTypeData
+export const mockDeviceTypes = reactive<DeviceType[]>([
+    {
+        id: 1,
+        code: "CoffeeMaker",
+        name: "智能咖啡机",
+        description: "智能咖啡机能够自动制作多种咖啡",
+        createTime: "2023-12-20 14:30:45",
+        domainIds: [1],
+        model: {
+            properties: [
+                {
+                    identify: "water",
+                    name: "水量",
+                    accessMode: "rw",
+                    dataType: {
+                        type: "float",
+                        specs: {
+                            "min": 0,
+                            "max": 100
+                        }
+                    }
+                }
+            ],
+            services: [
+                {
+                    identify: "makeCoffee",
+                    name: "制作咖啡",
+                    inputData: [
+                        {
+                            identify: "coffeeType",
+                            name: "咖啡类型",
+                            dataType: {
+                                type: "string",
+                                specs: {
+                                    "length": 200
+                                }
+                            }
+                        }
+                    ],
+                    outputData: []
+                }
+            ],
+            events: [
+                {
+                    identify: "makeCoffeeReply",
+                    name: "咖啡制作完成",
+                    type: "info",
+                    outputData: [
+                        {
+                            identify: "message",
+                            name: "消息",
+                            dataType: {
+                                type: "string",
+                                specs: {
+                                    "length": 200
+                                }
+                            }
+                        }
+                    ]
+                }
+            ]
+        }
+    },
+    {
+        id: 2,
+        code: "SmokeDetector",
+        name: "烟感器",
+        description: "能够检测烟雾浓度",
+        createTime: "2024-12-20 14:30:45",
+        model: {
+            properties: [
+                {
+                    identify: "deviceStatus",
+                    name: "状态",
+                    accessMode: "rw",
+                    dataType: {
+                        type: "string",
+                        specs: {
+                            "length": 200
+                        }
+                    }
+                }
+            ],
+            services: [],
+            events: []
         }
     }
 ])
