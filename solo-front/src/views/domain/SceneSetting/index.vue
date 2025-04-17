@@ -212,6 +212,7 @@ const initLocationMap = () => {
   const navigationControl = new BMap.NavigationControl({
     type: BMAP_NAVIGATION_CONTROL_LARGE
   })
+  //@ts-ignore
   baiduMap.value.addControl(navigationControl)
   
   // Add marker if coordinates are set
@@ -220,6 +221,7 @@ const initLocationMap = () => {
   }
   
   // Allow clicking on map to set location
+  //@ts-ignore
   baiduMap.value.addEventListener('click', (e: any) => {
     const clickPoint = e.point
     sceneForm.value.lng = clickPoint.lng
@@ -368,6 +370,7 @@ const submitForm = async () => {
         const formData = { ...sceneForm.value }
         
         if (formData.lng && formData.lat) {
+          //@ts-ignore
           formData.location = {
             lng: formData.lng,
             lat: formData.lat

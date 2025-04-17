@@ -77,7 +77,7 @@
           <el-input
             v-model="sceneForm.description"
             type="textarea"
-            rows="3"
+            :rows="3"
             placeholder="请输入场景描述"
           ></el-input>
         </el-form-item>

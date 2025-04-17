@@ -190,10 +190,12 @@ const initMap = () => {
   const navigationControl = new BMap.NavigationControl({
     type: BMAP_NAVIGATION_CONTROL_LARGE
   })
+  //@ts-ignore
   baiduMap.value.addControl(navigationControl)
   
   // Add scale control
   const scaleControl = new BMap.ScaleControl()
+  //@ts-ignore
   baiduMap.value.addControl(scaleControl)
   
   // Add markers for each scene
@@ -342,6 +344,7 @@ const showSceneInfo = (scene: Scene, marker: BMap.Marker) => {
   deleteButton.style.fontSize = '12px'    // 减小字体大小
   deleteButton.onclick = (e) => {
     e.preventDefault()
+    //@ts-ignore
     baiduMap.value?.closeInfoWindow() // Close info window first
     handleDelete(scene)
   }
@@ -350,6 +353,7 @@ const showSceneInfo = (scene: Scene, marker: BMap.Marker) => {
 
 
   // Set info window content and open it
+  //@ts-ignore
   infoWindow.value.setContent(content)
   marker.openInfoWindow(infoWindow.value)
 }
