@@ -4,9 +4,6 @@
       <h2>场景列表 <small v-if="currentDomain">- {{ currentDomain.name }}</small></h2>
       <div class="header-actions">
         <el-button type="primary" @click="navigateToSceneSetting()">创建场景</el-button>
-        <el-button @click="toggleViewMode">
-          {{ isMapView ? '切换到列表视图' : '切换到地图视图' }}
-        </el-button>
       </div>
     </div>
     
@@ -28,48 +25,47 @@
       </el-form>
     </el-card>
     
-    <!-- Map View -->
-    <div v-if="isMapView" class="map-container">
-      <div id="map-canvas" ref="mapCanvas"></div>
+    <div class="scene-content">
+      <div class="scene-list">
+        <el-table
+          v-loading="sceneStore.loading"
+          :data="filteredScenes"
+          border
+        >
+          <el-table-column prop="code" label="场景编码" width="100"></el-table-column>
+          <el-table-column prop="name" label="场景名称" min-width="120"></el-table-column>
+          <el-table-column prop="description" label="描述" min-width="150"></el-table-column>
+          <el-table-column label="坐标" width="180">
+            <template #default="scope">
+              <span v-if="getLocation(scope.row).hasLocation">
+                {{ getLocation(scope.row).lng.toFixed(4) }}, {{ getLocation(scope.row).lat.toFixed(4) }}
+              </span>
+              <span v-else class="location-empty">暂无坐标</span>
+            </template>
+          </el-table-column>
+          <el-table-column prop="createTime" label="创建时间" width="120"></el-table-column>
+          <el-table-column prop="updateTime" label="更新时间" width="120"></el-table-column>
+          <el-table-column prop="deviceCount" label="设备数量" width="80"></el-table-column>
+          <el-table-column prop="status" label="状态" width="100">
+            <template #default="scope">
+              <el-tag :type="scope.row.status === 'active' ? 'success' : 'info'">
+                {{ scope.row.status === 'active' ? '已发布' : '定制中' }}
+              </el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" width="220">
+            <template #default="scope">
+              <el-button type="primary" size="small" @click="navigateToSceneSetting(scope.row)">编辑</el-button>
+              <el-button type="success" size="small" @click="handleViewScene(scope.row)">进入场景</el-button>
+              <el-button type="danger" size="small" @click="handleDelete(scope.row)">删除</el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+      </div>
+      <div class="scene-map">
+        <div id="map-canvas" ref="mapCanvas"></div>
+      </div>
     </div>
-    
-    <!-- List View -->
-    <el-table
-      v-else
-      v-loading="sceneStore.loading"
-      :data="filteredScenes"
-      style="width: 100%; margin-top: 20px"
-      border
-    >
-      <el-table-column prop="code" label="场景编码" width="100"></el-table-column>
-      <el-table-column prop="name" label="场景名称" min-width="120"></el-table-column>
-      <el-table-column prop="description" label="描述" min-width="150"></el-table-column>
-      <el-table-column label="坐标" width="180">
-        <template #default="scope">
-          <span v-if="getLocation(scope.row).hasLocation">
-            {{ getLocation(scope.row).lng.toFixed(4) }}, {{ getLocation(scope.row).lat.toFixed(4) }}
-          </span>
-          <span v-else class="location-empty">暂无坐标</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="createTime" label="创建时间" width="120"></el-table-column>
-      <el-table-column prop="updateTime" label="更新时间" width="120"></el-table-column>
-      <el-table-column prop="deviceCount" label="设备数量" width="80"></el-table-column>
-      <el-table-column prop="status" label="状态" width="100">
-        <template #default="scope">
-          <el-tag :type="scope.row.status === 'active' ? 'success' : 'info'">
-            {{ scope.row.status === 'active' ? '已发布' : '定制中' }}
-          </el-tag>
-        </template>
-      </el-table-column>
-      <el-table-column label="操作" width="220">
-        <template #default="scope">
-          <el-button type="primary" size="small" @click="navigateToSceneSetting(scope.row)">编辑</el-button>
-          <el-button type="success" size="small" @click="handleViewScene(scope.row)">进入场景</el-button>
-          <el-button type="danger" size="small" @click="handleDelete(scope.row)">删除</el-button>
-        </template>
-      </el-table-column>
-    </el-table>
   </div>
 </template>
 
@@ -94,13 +90,12 @@ const state = reactive({
   },
   dialogVisible: false,
   currentId: null,
-  isMapView: true, // Default to map view
   baiduMap: null as BMap.Map | null,
   markers: [] as BMap.Marker[],
   infoWindow: null as BMap.InfoWindow | null
 })
 
-const { searchForm, dialogVisible, currentId, isMapView, baiduMap, markers, infoWindow } = toRefs(state)
+const { searchForm, dialogVisible, currentId, baiduMap, markers, infoWindow } = toRefs(state)
 
 // 获取当前域
 const currentDomain = computed(() => {
@@ -130,9 +125,7 @@ onMounted(async () => {
   }
   // Initialize map after data is loaded
   nextTick(() => {
-    if (isMapView.value) {
-      initMap()
-    }
+    initMap()
   })
 })
 
@@ -143,19 +136,6 @@ onUnmounted(() => {
     baiduMap.value.clearOverlays()
   }
 })
-
-// Toggle between map view and list view
-const toggleViewMode = () => {
-  isMapView.value = !isMapView.value
-  if (baiduMap.value) {
-    baiduMap.value = null;
-  }
-  if (isMapView.value && !baiduMap.value ) {
-    nextTick(() => {
-      initMap()
-    })
-  }
-}
 
 // Initialize Baidu Map
 const initMap = () => {
@@ -360,7 +340,7 @@ const showSceneInfo = (scene: Scene, marker: BMap.Marker) => {
 
 // Refresh map markers when search criteria change
 watch([() => searchForm.value.name, () => searchForm.value.status], () => {
-  if (isMapView.value && baiduMap.value) {
+  if (baiduMap.value) {
     nextTick(() => {
       addSceneMarkers()
     })
@@ -369,7 +349,7 @@ watch([() => searchForm.value.name, () => searchForm.value.status], () => {
 
 // 搜索处理
 const handleSearch = () => {
-  if (isMapView.value && baiduMap.value) {
+  if (baiduMap.value) {
     addSceneMarkers()
   }
 }
@@ -379,7 +359,7 @@ const resetSearch = () => {
   searchForm.value.name = ''
   searchForm.value.status = ''
   
-  if (isMapView.value && baiduMap.value) {
+  if (baiduMap.value) {
     addSceneMarkers()
   }
 }
@@ -427,7 +407,7 @@ const handleDelete = (row: any) => {
       ElMessage.success('删除成功')
       
       // Refresh map markers after deletion
-      if (isMapView.value && baiduMap.value) {
+      if (baiduMap.value) {
         addSceneMarkers()
       }
     } catch (error) {
@@ -463,24 +443,23 @@ const getLocation = (scene: any) => {
   margin-bottom: 20px;
 }
 
-.header-actions {
-  display: flex;
-  gap: 10px;
-}
-
 .scene-search {
   margin-bottom: 20px;
 }
 
-.search-form {
+.scene-content {
   display: flex;
-  flex-wrap: wrap;
+  gap: 10px;
+  height: calc(100vh - 260px); /* 根据需求调整高度 */
 }
 
-.map-container {
-  width: 100%;
-  height: 600px;
-  margin-top: 20px;
+.scene-list {
+  flex: 1;
+  overflow: auto;
+}
+
+.scene-map {
+  flex: 1;
   border: 1px solid #dcdfe6;
   border-radius: 4px;
   overflow: hidden;
@@ -489,15 +468,5 @@ const getLocation = (scene: any) => {
 #map-canvas {
   width: 100%;
   height: 100%;
-}
-
-:deep(.BMap_bubble_content) {
-  overflow: hidden;
-}
-
-:deep(.map-info-window) {
-  font-family: 'Arial', sans-serif;
-  max-width: 250px;
-
 }
 </style>

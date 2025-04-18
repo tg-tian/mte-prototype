@@ -36,7 +36,7 @@ const routes: RouteRecordRaw[] = [
                     {
                         path: 'devicetype/setting',
                         name: '设备类型定制',
-                        component: null
+                        component: () => import('@/views/meta/DeviceTypeSetting/index.vue')
                     },
                     {
                         path: 'domain/list',

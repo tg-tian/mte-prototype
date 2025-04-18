@@ -44,6 +44,11 @@
         <el-tab-pane label="领域组件" name="model">
           <el-empty description="暂无组件" />
         </el-tab-pane>
+
+        <!-- 新增设备类型定制 Tab -->
+        <el-tab-pane label="设备类型定制" name="deviceTypeSetting">
+          <DeviceTypeSetting />
+        </el-tab-pane>
       </el-tabs>
     </el-card>
   </div>
@@ -55,6 +60,8 @@ import { Plus } from '@element-plus/icons-vue'
 import { useDomainStore } from '@/store/domain'
 import { ElMessage, type FormInstance } from 'element-plus'
 import { getDomainById, getMockDomainById } from '@/api/domain'
+import { useRouter } from 'vue-router'
+import DeviceTypeSetting from '@/views/meta/DeviceTypeSetting/index.vue'
 
 const router = useRouter()
 const route = useRoute()
