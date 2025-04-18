@@ -64,10 +64,6 @@
         <el-tab-pane label="场景设备" name="device">
           <el-empty description="暂无设备" />
         </el-tab-pane>
-        
-        <el-tab-pane label="数据流定义" name="dataflow">
-          <el-empty description="暂无数据流定义" />
-        </el-tab-pane>
       </el-tabs>
     </el-card>
   </div>
