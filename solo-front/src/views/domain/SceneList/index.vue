@@ -14,8 +14,8 @@
         </el-form-item>
         <el-form-item label="状态">
           <el-select v-model="searchForm.status" placeholder="请选择状态" clearable>
-            <el-option label="活跃" value="active"></el-option>
-            <el-option label="非活跃" value="inactive"></el-option>
+            <el-option label="已发布" value="active"></el-option>
+            <el-option label="定制中" value="inactive"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -263,7 +263,7 @@ const showSceneInfo = (scene: Scene, marker: BMap.Marker) => {
   statusContainer.appendChild(statusLabel)
   
   const statusValue = document.createElement('span')
-  statusValue.textContent = scene.status === 'active' ? '活跃' : '非活跃'
+  statusValue.textContent = scene.status === 'active' ? '已发布' : '定制中'
   statusValue.style.padding = '2px 6px'
   statusValue.style.borderRadius = '4px'
   statusValue.style.backgroundColor = scene.status === 'active' ? '#67C23A' : '#909399'
@@ -448,18 +448,22 @@ const getLocation = (scene: any) => {
 }
 
 .scene-content {
-  display: flex;
+  display: block;
+  /* display: flex; */
   gap: 10px;
   height: calc(100vh - 260px); /* 根据需求调整高度 */
 }
 
 .scene-list {
-  flex: 1;
+  /* flex: 1; */
   overflow: auto;
 }
 
 .scene-map {
-  flex: 1;
+  /* width: 100%; */
+  padding: 50px;
+  height: 500px;
+  margin-top: 20px;
   border: 1px solid #dcdfe6;
   border-radius: 4px;
   overflow: hidden;

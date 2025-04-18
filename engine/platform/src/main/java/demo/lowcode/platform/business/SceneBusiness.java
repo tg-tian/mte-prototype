@@ -82,6 +82,7 @@ public class SceneBusiness {
             scene.setLongitude(newScene.getLocation().getLng());
             scene.setLatitude(newScene.getLocation().getLat());
         }
+        scene.setCreateTime(new Date());
         sceneMapper.insert(scene);
         return scene;
     }
@@ -101,6 +102,7 @@ public class SceneBusiness {
         scene.setStatus(newScene.getStatus());
         scene.setLongitude(newScene.getLocation().getLng());
         scene.setLatitude(newScene.getLocation().getLat());
+        scene.setUpdateTime(new Date());
 
         scene.setDomainId(existingScene.getDomainId());
         sceneMapper.updateById(scene);

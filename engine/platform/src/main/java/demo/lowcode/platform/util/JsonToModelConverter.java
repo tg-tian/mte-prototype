@@ -15,7 +15,9 @@ public class JsonToModelConverter implements AttributeConverter<Model, String> {
     @Override
     public String convertToDatabaseColumn(Model model) {
         try {
-            return objectMapper.writeValueAsString(model);
+            String result = objectMapper.writeValueAsString(model);
+            System.out.println("write"+result);
+            return result;
         } catch (JsonProcessingException e) {
             return null;
         }
@@ -24,6 +26,7 @@ public class JsonToModelConverter implements AttributeConverter<Model, String> {
     @Override
     public Model convertToEntityAttribute(String s) {
         try {
+            System.out.println("read:"+objectMapper.readValue(s, Model.class));
             return s == null ? null : objectMapper.readValue(s, Model.class);
         } catch (IOException e) {
             return null;

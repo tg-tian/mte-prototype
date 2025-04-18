@@ -27,8 +27,8 @@
             </el-form-item>
             <el-form-item label="状态" prop="status">
               <el-select v-model="sceneForm.status" placeholder="请选择状态">
-                <el-option label="活跃" value="active"></el-option>
-                <el-option label="非活跃" value="inactive"></el-option>
+                <el-option label="已发布" value="active"></el-option>
+                <el-option label="定制中" value="inactive"></el-option>
               </el-select>
             </el-form-item>
             
