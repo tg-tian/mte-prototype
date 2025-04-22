@@ -124,7 +124,7 @@ const navigateToDomainSetting = (domain?: any) => {
 // 查看场景
 const handleViewScenes = (row: any) => {
   domainStore.setCurrentDomain(row)
-  router.push(`/domain/scene/list?domainId=${row.domainId}`)
+  window.open(`/#/domain/scene/list?domainId=${row.domainId}`)
 }
 
 // 删除领域

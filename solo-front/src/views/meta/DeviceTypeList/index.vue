@@ -27,6 +27,7 @@
         <el-table-column prop="name" label="设备类型名称" min-width="150"></el-table-column>
         <el-table-column prop="description" label="描述" min-width="200"></el-table-column>
         <el-table-column prop="createTime" label="创建时间" min-width="150"></el-table-column>
+        <el-table-column prop="updateTime" label="更新时间" min-width="150"></el-table-column>
         <el-table-column label="操作" width="220">
           <template #default="scope">
             <el-button type="primary" size="small" @click="navigateToDeviceTypeSetting(scope.row)">编辑</el-button>
@@ -63,7 +64,13 @@
     return deviceTypeStore.deviceTypes.filter((deviceType: DeviceType) => {
       const nameMatch = !searchForm.value.name || deviceType.name.toLowerCase().includes(searchForm.value.name.toLowerCase())
       return nameMatch
-    })
+    }).map((deviceType: any)=>{
+      return {
+        ...deviceType,
+        updateTime: deviceType.updateTime?.split('.')[0].replace('T', ' '),
+        createTime: deviceType.createTime?.split('.')[0].replace('T', ' ')
+      }
+  })
   })
   
   // 初始化

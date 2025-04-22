@@ -387,7 +387,7 @@ const navigateToSceneSetting = (scene?: any) => {
 // 查看场景
 const handleViewScene = (row: any) => {
   sceneStore.setCurrentScene(row)
-  router.push(`/scene/information?sceneId=${row.id}`)
+  window.open(`/#/scene/information?sceneId=${row.id}`)
 }
 
 // 删除场景

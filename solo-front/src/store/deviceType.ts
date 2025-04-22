@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getMockDeviceTypes, createMockDeviceType, updateMockDeviceType, deleteMockDeviceType } from '@/api/deviceType'
+import { getMockDeviceTypes, createMockDeviceType, updateMockDeviceType, deleteMockDeviceType, getDeviceTypes, createDeviceType, updateDeviceType, deleteDeviceType, bindingDeviceType, unbindingDeviceType } from '@/api/deviceType'
 
 export const useDeviceTypeStore = defineStore('deviceType', {
     state: () => ({
@@ -12,7 +12,7 @@ export const useDeviceTypeStore = defineStore('deviceType', {
         async fetchDeviceTypes(domainId?: number) {
             this.loading = true
             try {
-                const res: any = await getMockDeviceTypes(domainId)
+                const res: any = await getDeviceTypes(domainId)
                 if (res.data && res.status === 200) {
                     this.deviceTypes = res.data
                 }
@@ -25,7 +25,7 @@ export const useDeviceTypeStore = defineStore('deviceType', {
 
         async createDeviceType(deviceTypeData: any) {
             try {
-                const res: any = await createMockDeviceType(deviceTypeData)
+                const res: any = await createDeviceType(deviceTypeData)
                 if (res.data && res.status === 200) {
                     await this.fetchDeviceTypes()
                     return res.data
@@ -38,7 +38,7 @@ export const useDeviceTypeStore = defineStore('deviceType', {
 
         async updateDeviceType(id: number, deviceTypeData: any) {
             try {
-                const res: any = await updateMockDeviceType(id, deviceTypeData)
+                const res: any = await updateDeviceType(id, deviceTypeData)
                 if (res.data && res.status === 200) {
                     await this.fetchDeviceTypes()
                     return res.data
@@ -51,13 +51,39 @@ export const useDeviceTypeStore = defineStore('deviceType', {
 
         async deleteDeviceType(id: number) {
             try {
-                const res: any = await deleteMockDeviceType(id)
+                const res: any = await deleteDeviceType(id)
                 if (res.data && res.status === 200) {
                     await this.fetchDeviceTypes()
                     return true
                 }
             } catch (error) {
                 console.error('Failed to delete deviceType:', error)
+                throw error
+            }
+        },
+
+        async bindingDeviceType(id: number, domainId: number) {
+            try {
+                const res: any = await bindingDeviceType(domainId, id)
+                if (res.data && res.status === 200) {
+                    await this.fetchDeviceTypes(domainId)
+                    return true
+                }
+            } catch (error) {
+                console.error('Failed to bind deviceType:', error)
+                throw error
+            }
+        },
+
+        async unbindingDeviceType(id: number, domainId: number) {
+            try {
+                const res: any = await unbindingDeviceType(domainId, id)
+                if (res.data && res.status === 200) {
+                    await this.fetchDeviceTypes(domainId)
+                    return true
+                }
+            } catch (error) {
+                console.error('Failed to unbind deviceType:', error)
                 throw error
             }
         },

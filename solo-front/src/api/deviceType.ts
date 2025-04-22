@@ -5,7 +5,7 @@ import { DeviceType } from '@/types/models'
 // 实际环境下的API接口
 export function getDeviceTypes(domainId?: number) {
     return request({
-        url: '/deviceTypes',
+        url: '/devicetypes',
         method: 'get',
         params: { domainId }
     })
@@ -13,14 +13,14 @@ export function getDeviceTypes(domainId?: number) {
 
 export function getDeviceTypeById(id: number) {
     return request({
-        url: `/deviceTypes/${id}`,
+        url: `/devicetypes/${id}`,
         method: 'get'
     })
 }
 
 export function createDeviceType(data: any) {
     return request({
-        url: '/deviceTypes',
+        url: '/devicetypes',
         method: 'post',
         data
     })
@@ -28,7 +28,7 @@ export function createDeviceType(data: any) {
 
 export function updateDeviceType(id: number, data: any) {
     return request({
-        url: `/deviceTypes/${id}`,
+        url: `/devicetypes/${id}`,
         method: 'put',
         data
     })
@@ -36,8 +36,41 @@ export function updateDeviceType(id: number, data: any) {
 
 export function deleteDeviceType(id: number) {
     return request({
-        url: `/deviceTypes/${id}`,
+        url: `/devicetypes/${id}`,
         method: 'delete'
+    })
+}
+
+export function updateDeviceTypeModel(id: number, model: any) {
+    return request({
+        url: `/devicetypes/model`,
+        method: 'post',
+        data: {
+            deviceTypeId: id,
+            model: model
+        }
+    })
+}
+
+export function bindingDeviceType(domainId: number, deviceTypeId: number) {
+    return request({
+        url: `/domain/devicetype/binding`,
+        method: 'post',
+        data: {
+            domainId: domainId,
+            deviceTypeId: deviceTypeId
+        }
+    })
+}
+
+export function unbindingDeviceType(domainId: number, deviceTypeId: number) {
+    return request({
+        url: `/domain/devicetype/unbinding`,
+        method: 'post',
+        data: {
+            domainId: domainId,
+            deviceTypeId: deviceTypeId
+        }
     })
 }
 
