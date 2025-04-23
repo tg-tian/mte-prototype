@@ -108,7 +108,6 @@ public class DeviceTypeBusiness {
             throw new RuntimeException("该设备类型不存在");
         }
         deviceType.setModel(model);
-        System.out.println(deviceType);
         deviceTypeMapper.updateById(deviceType);
         return deviceType;
     }

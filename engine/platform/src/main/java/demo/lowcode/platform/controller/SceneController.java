@@ -2,6 +2,7 @@ package demo.lowcode.platform.controller;
 
 import demo.lowcode.platform.business.SceneBusiness;
 import demo.lowcode.platform.dto.NewScene;
+import demo.lowcode.platform.dto.ScenePubInfo;
 import demo.lowcode.platform.entity.Scene;
 import demo.lowcode.platform.model.ScenarioJson;
 import io.swagger.annotations.Api;
@@ -133,6 +134,17 @@ public class SceneController {
             return new ResponseEntity<>("删除成功",HttpStatus.OK);
         }catch (RuntimeException e){
             return new ResponseEntity<>("删除失败",HttpStatus.CONFLICT);
+        }
+    }
+
+    @PostMapping(value = "/scenes/publish")
+    @ApiOperation(value = "发布场景")
+    public ResponseEntity<?> publishScene(@RequestBody ScenePubInfo pubInfo){
+        try {
+            sceneBusiness.publishScene(pubInfo);
+            return new ResponseEntity<>("发布成功",HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>("发布失败",HttpStatus.CONFLICT);
         }
     }
 }

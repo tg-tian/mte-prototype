@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="demo.lowcode.platform.mapper.DeviceTypeMapper">
-    <!--获取设备类型列表-->
+    <!--获取领域设备类型列表-->
     <select id="selectByDomainId" resultType="demo.lowcode.platform.entity.DeviceType">
         SELECT * FROM devicetype
         WHERE id IN (
@@ -17,5 +17,17 @@
     <select id="selectByCode" resultType="demo.lowcode.platform.entity.DeviceType">
         SELECT * FROM devicetype
         WHERE code = #{code}
+    </select>
+
+    <!--获取场景设备类型列表-->
+    <select id="selectBySceneId" resultType="demo.lowcode.platform.entity.DeviceType">
+        SELECT * FROM devicetype
+        WHERE id IN (
+            SELECT component_id FROM domain_component
+            WHERE domain_id = (
+                SELECT domain_id FROM scene WHERE scene_id = #{sceneId}
+            )
+            AND component_type = 'devicetype'
+        )
     </select>
 </mapper>

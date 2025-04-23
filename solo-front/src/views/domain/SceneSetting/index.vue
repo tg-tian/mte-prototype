@@ -4,9 +4,25 @@
       <h2>{{ isEditMode ? '编辑场景' : '创建场景' }} <small v-if="currentDomain">- {{ currentDomain.name }}</small></h2>
       <div class="header-actions">
         <el-button @click="navigateBack">返回列表</el-button>
+        <el-button type="primary" @click="dialogVisible=true">发布</el-button>
         <el-button type="primary" @click="submitForm" :loading="submitting">保存</el-button>
       </div>
     </div>
+    <el-dialog
+    v-model="dialogVisible"
+    title="发布场景"
+    width="500"
+    >
+    <el-input v-model="sceneForm.url" placeholder="请输入发布地址"></el-input>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="dialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="publishScene">
+          确定
+        </el-button>
+      </div>
+    </template>
+    </el-dialog>
     
     <el-card class="setting-content">
       <el-tabs v-model="activeTab">
@@ -26,10 +42,10 @@
               <el-input type="textarea" :rows="3" v-model="sceneForm.description" placeholder="请输入场景描述"></el-input>
             </el-form-item>
             <el-form-item label="状态" prop="status">
-              <el-select v-model="sceneForm.status" placeholder="请选择状态">
-                <el-option label="已发布" value="active"></el-option>
-                <el-option label="定制中" value="inactive"></el-option>
-              </el-select>
+              <el-tag :type="sceneForm.status==='active' ? 'success':'info'">{{ sceneForm.status==='active' ? '已发布':'定制中' }}</el-tag>
+            </el-form-item>
+            <el-form-item label="场景地址" prop="url" v-if="sceneForm.status==='active'">
+              <el-input v-model="sceneForm.url" disabled></el-input>
             </el-form-item>
             
             <el-form-item label="地理位置">
@@ -90,17 +106,19 @@ const state = reactive({
     code: '',
     name: '',
     description: '',
-    status: 'active',
+    status: 'inactive',
     domainId: parseInt(route.query.domainId as string) || null,
     lng: undefined as number | undefined,
-    lat: undefined as number | undefined
+    lat: undefined as number | undefined,
+    url: ''
   },
   submitting: false,
   baiduMap: null as BMap.Map | null,
-  locationMarker: null as BMap.Marker | null
+  locationMarker: null as BMap.Marker | null,
+  dialogVisible: false
 })
 
-const { activeTab, sceneForm, submitting, baiduMap, locationMarker } = toRefs(state)
+const { activeTab, sceneForm, submitting, baiduMap, locationMarker, dialogVisible } = toRefs(state)
 
 // Determine if we're in edit mode
 const isEditMode = computed(() => {
@@ -134,9 +152,6 @@ const rules = {
   ],
   description: [
     { required: true, message: '请输入场景描述', trigger: 'blur' }
-  ],
-  status: [
-    { required: true, message: '请选择状态', trigger: 'change' }
   ]
 }
 
@@ -146,10 +161,11 @@ const resetFormData = () => {
     code: '',
     name: '',
     description: '',
-    status: 'active',
+    status: 'inactive',
     domainId: domainId.value,
     lng: undefined,
-    lat: undefined
+    lat: undefined,
+    url: ''
   }
 }
 
@@ -318,9 +334,9 @@ onMounted(async () => {
       // Try to fetch scene data from API if not in store
       try {
         const res: any = await getSceneById(sceneId.value)
-        if (res.data && res.data.code === 200 && res.data.data) {
-          sceneStore.setCurrentScene(res.data.data)
-          loadSceneToForm(res.data.data)
+        if (res.data && res.status === 200) {
+          sceneStore.setCurrentScene(res.data)
+          loadSceneToForm(res.data)
           
           // Initialize map after data is loaded
           nextTick(() => {
@@ -395,6 +411,14 @@ const submitForm = async () => {
       }
     }
   })
+}
+
+const publishScene = () => {
+  if(sceneForm.value.url){
+
+  }else{
+    ElMessage.warning('请输入url')
+  }
 }
 </script>
 

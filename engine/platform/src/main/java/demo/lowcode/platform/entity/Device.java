@@ -1,6 +1,11 @@
 package demo.lowcode.platform.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
+import demo.lowcode.platform.model.device.ProtocolConfig;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import jakarta.annotation.Resource;
@@ -16,10 +21,11 @@ import java.util.Date;
 @NoArgsConstructor
 @AllArgsConstructor
 @Resource
-@TableName("device")
+@TableName(value="device", autoResultMap = true)
 @ApiModel(value = "设备实例类",description = "属于某个设备类型的真实设备实例")
 public class Device {
     @Id
+    @TableId(type = IdType.AUTO)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @ApiModelProperty(value = "设备实例编号", example = "1")
     private Long id;
@@ -34,17 +40,19 @@ public class Device {
 
     @Column(name = "device_type_id")
     @ApiModelProperty(value = "设备类型编号",example = "1")
-    private long deviceTypeId;
+    private Long deviceTypeId;
 
     @ManyToOne  // 多个 device 可以对应一个 DeviceType
+    @TableField(exist = false)  //设置不管理数据库
     @JoinColumn(name = "device_type_id", referencedColumnName = "device_type_id", insertable = false)
     private DeviceType deviceType;  // 引用到 DeviceType 实体
 
     @Column(name = "scene_id")
     @ApiModelProperty(value = "所在场景编号",example = "1")
-    private long sceneId;
+    private Long sceneId;
 
     @ManyToOne  // 多个 device 可以对应一个 Scene
+    @TableField(exist = false)  //设置不管理数据库
     @JoinColumn(name = "scene_id", referencedColumnName = "scene_id", insertable = false)
     private Scene scene;
 
@@ -56,9 +64,9 @@ public class Device {
     @ApiModelProperty(value = "协议类型",example = "HTTP")
     private String protocolType;
 
-    @Column(name = "protocol_config", columnDefinition = "json")
     @ApiModelProperty(value = "协议配置",example = "HTTP")
-    private String protocolConfig;
+    @TableField(value = "protocol_config", typeHandler = JacksonTypeHandler.class)
+    private ProtocolConfig protocolConfig;
 
     @Column(name = "create_time", nullable = false)
     @ApiModelProperty(value = "创建时间")

@@ -11,4 +11,5 @@ import java.util.List;
 public interface DeviceTypeMapper extends BaseMapper<DeviceType> {
     List<DeviceType> selectByDomainId(@Param("domainId") Long domainId);
     DeviceType selectByCode(@Param("code") String code);
+    List<DeviceType> selectBySceneId(@Param("sceneId") Long sceneId);
 }

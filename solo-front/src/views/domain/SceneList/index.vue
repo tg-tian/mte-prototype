@@ -33,19 +33,19 @@
           border
         >
           <el-table-column prop="code" label="场景编码" width="100"></el-table-column>
-          <el-table-column prop="name" label="场景名称" min-width="120"></el-table-column>
-          <el-table-column prop="description" label="描述" min-width="150"></el-table-column>
-          <el-table-column label="坐标" width="180">
+          <el-table-column prop="name" label="场景名称" width="150"></el-table-column>
+          <el-table-column prop="description" label="描述" width="220"></el-table-column>
+          <!-- <el-table-column label="坐标" width="180">
             <template #default="scope">
               <span v-if="getLocation(scope.row).hasLocation">
                 {{ getLocation(scope.row).lng.toFixed(4) }}, {{ getLocation(scope.row).lat.toFixed(4) }}
               </span>
               <span v-else class="location-empty">暂无坐标</span>
             </template>
-          </el-table-column>
+          </el-table-column> -->
           <el-table-column prop="createTime" label="创建时间" width="120"></el-table-column>
           <el-table-column prop="updateTime" label="更新时间" width="120"></el-table-column>
-          <el-table-column prop="deviceCount" label="设备数量" width="80"></el-table-column>
+          <el-table-column prop="deviceCount" label="设备数量" width="100"></el-table-column>
           <el-table-column prop="status" label="状态" width="100">
             <template #default="scope">
               <el-tag :type="scope.row.status === 'active' ? 'success' : 'info'">
@@ -53,9 +53,10 @@
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="操作" width="220">
+          <el-table-column label="操作">
             <template #default="scope">
               <el-button type="primary" size="small" @click="navigateToSceneSetting(scope.row)">编辑</el-button>
+              <el-button type="success" size="small" @click="handleViewScene(scope.row)">详情</el-button>
               <el-button type="success" size="small" @click="handleViewScene(scope.row)">进入场景</el-button>
               <el-button type="danger" size="small" @click="handleDelete(scope.row)">删除</el-button>
             </template>

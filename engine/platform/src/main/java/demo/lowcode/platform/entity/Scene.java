@@ -47,7 +47,7 @@ public class Scene {
 
     @Column(name = "domain_id", nullable = false)
     @ApiModelProperty(value = "领域ID", example = "1")
-    private long domainId;
+    private Long domainId;
 
     @Column(name = "status", nullable = false)
     @ApiModelProperty(value = "场景状态", example = "active")
