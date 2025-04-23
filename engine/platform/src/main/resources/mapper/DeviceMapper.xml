@@ -4,23 +4,21 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="demo.lowcode.platform.mapper.DeviceMapper">
+<!--    <resultMap id="deviceResultMap" type="demo.lowcode.platform.entity.Device">-->
+<!--        &lt;!&ndash; 映射其他字段... &ndash;&gt;-->
+<!--        <result column="protocol_config" property="protocolConfig"-->
+<!--                typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>-->
+<!--    </resultMap>-->
 
-    <!--上传设备信息-->
-    <insert id="insertDevice" keyProperty="deviceId">
-        INSERT IGNORE INTO device(deviceCode,deviceName,deviceTypeId,versionNumber,manufacturer)
-            VALUES (#{deviceCode},#{deviceName},#{deviceTypeId},#{versionNumber},#{manufacturer})
-    </insert>
-
-    <select id="countByDeviceCode" resultType="int">
-        SELECT COUNT(1) FROM device WHERE deviceCode = #{deviceCode}
+    <!--获取场景设备列表-->
+    <select id="selectBySceneId" resultType="demo.lowcode.platform.entity.Device">
+        SELECT * FROM device
+        WHERE scene_id = #{sceneId}
     </select>
 
-    <!--根据code获取id-->
-    <select id="getDeviceId" resultType="java.lang.Long">
-        SELECT deviceId FROM device WHERE deviceCode = #{deviceCode}
-    </select>
-
-    <select id="selectById" resultType="demo.lowcode.platform.entity.Device">
-        SELECT * FROM device WHERE deviceId = #{deviceId}
+    <!--获取场景设备-->
+    <select id="selectByCodeAndScene" resultType="demo.lowcode.platform.entity.Device">
+        SELECT * FROM device
+        WHERE scene_id = #{sceneId} AND device_code = #{code}
     </select>
 </mapper>

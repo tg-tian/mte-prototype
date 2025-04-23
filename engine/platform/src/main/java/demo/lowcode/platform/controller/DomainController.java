@@ -64,7 +64,7 @@ public class DomainController {
     }
 
     @GetMapping(value = "/domains/{id}")
-    public ResponseEntity<?> getDomainListbyId(@PathVariable Long id){
+    public ResponseEntity<?> getDomainListById(@PathVariable Long id){
         Domain response = domainBusiness.getDomainByID(id);
         return new ResponseEntity<>(response,HttpStatus.OK);
     }

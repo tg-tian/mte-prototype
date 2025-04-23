@@ -7,11 +7,11 @@
 
     <!--获取领域id-->
     <select id="getDomainIdByName" resultType="java.lang.Long">
-        SELECT domainId FROM domain WHERE domainName = #{domainName}
+        SELECT domain_id FROM domain WHERE domain_name = #{domainName}
     </select>
 
     <!--获取领域id-->
     <select id="getDomainIdByCode" resultType="java.lang.Long">
-        SELECT domainId FROM domain WHERE domainCode = #{domainCode}
+        SELECT domain_id FROM domain WHERE domain_code = #{domainCode}
     </select>
 </mapper>

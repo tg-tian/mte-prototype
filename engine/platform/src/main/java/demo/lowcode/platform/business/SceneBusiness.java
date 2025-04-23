@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.lowcode.common.CommonConfig;
 import demo.lowcode.platform.dto.NewScene;
+import demo.lowcode.platform.dto.ScenePubInfo;
 import demo.lowcode.platform.entity.Scene;
 import demo.lowcode.platform.mapper.SceneMapper;
 import demo.lowcode.platform.model.*;
@@ -73,12 +74,16 @@ public class SceneBusiness {
 
     public Scene createScene(NewScene newScene){
         Scene scene = new Scene();
+        scene.setSceneCode(newScene.getCode());
         scene.setSceneName(newScene.getName());
         scene.setSceneDescription(newScene.getDescription());
         scene.setStatus(newScene.getStatus());
         scene.setDomainId(newScene.getDomainId());
-        scene.setLongitude(newScene.getLocation().getLng());
-        scene.setLatitude(newScene.getLocation().getLat());
+        if(newScene.getLocation()!=null){
+            scene.setLongitude(newScene.getLocation().getLng());
+            scene.setLatitude(newScene.getLocation().getLat());
+        }
+        scene.setCreateTime(new Date());
         sceneMapper.insert(scene);
         return scene;
     }
@@ -90,20 +95,30 @@ public class SceneBusiness {
             throw new IllegalArgumentException("场景不存在");
         }
 
-        Scene scene = new Scene();
-        scene.setSceneId(id);
-        scene.setSceneName(newScene.getName());
-        scene.setSceneDescription(newScene.getDescription());
-        scene.setStatus(newScene.getStatus());
-        scene.setLongitude(newScene.getLocation().getLng());
-        scene.setLatitude(newScene.getLocation().getLat());
+        existingScene.setSceneId(id);
+        existingScene.setSceneCode(newScene.getCode());
+        existingScene.setSceneName(newScene.getName());
+        existingScene.setSceneDescription(newScene.getDescription());
+        existingScene.setStatus(newScene.getStatus());
+        existingScene.setLongitude(newScene.getLocation().getLng());
+        existingScene.setLatitude(newScene.getLocation().getLat());
+        existingScene.setUpdateTime(new Date());
 
-        scene.setDomainId(existingScene.getDomainId());
-        sceneMapper.updateById(scene);
-        return scene;
+        existingScene.setDomainId(existingScene.getDomainId());
+        sceneMapper.updateById(existingScene);
+        return existingScene;
     }
 
     public void deleteSceneByID(Long id){
         sceneMapper.deleteById(id);
+    }
+
+    public void publishScene(ScenePubInfo pubInfo) {
+        Scene existingScene = sceneMapper.selectById(pubInfo.getSceneId());
+        if (existingScene == null) {
+            throw new RuntimeException("场景不存在");
+        }
+
+
     }
 }

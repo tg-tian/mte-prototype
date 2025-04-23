@@ -7,16 +7,9 @@ import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
-/**
- * 设备类型数据接入接口，实现设备类型数据库操作
- */
 @Mapper
 public interface DeviceTypeMapper extends BaseMapper<DeviceType> {
-     void insertDeviceType(@Param("deviceTypeCode") String deviceTypeCode, @Param("deviceTypeName") String deviceTypeName, @Param("imgPath") String imgPath);
-     int countByDeviceTypeCode(@Param("deviceTypeCode") String deviceTypeCode);
-     long loadDeviceId(@Param("deviceTypeCode") String deviceTypeCode);
-     List<DeviceType> selectBatchIds(@Param("deviceTypeIdList") List<Long> deviceTypeIdList);
-     String getDeviceTypeCode(@Param("deviceTypeId") Long deviceTypeId);
-     DeviceType selectByCode(@Param("deviceTypeCode") String deviceTypeCode);
-     void updatePublish(@Param("deviceTypeCode")String deviceTypeCode);
+    List<DeviceType> selectByDomainId(@Param("domainId") Long domainId);
+    DeviceType selectByCode(@Param("code") String code);
+    List<DeviceType> selectBySceneId(@Param("sceneId") Long sceneId);
 }

@@ -42,6 +42,31 @@
 - `/domains/{id}` (DELETE) - 删除领域
   - 响应: `{ code: number, message: string }`
 
+### 设备类型管理
+- `/devicetypes` (GET) - 获取所有设备类型列表
+  - 参数: `domainId?: number` - 可选，按领域ID筛选
+  - 响应: `{ code: number, message: string, data: DeviceType[] }`
+- `/devicetypes/{id}` (GET) - 获取指定ID的设备类型
+  - 响应: `{ code: number, message: string, data: DeviceType }`
+- `/devicetypes` (POST) - 创建新领域
+  - 请求体: `{ code: string, name: string, description: string}`
+  - 响应: `{ code: number, message: string, data: DeviceType }`
+- `/devicetypes/{id}` (PUT) - 更新设备类型信息
+  - 请求体: `{ code: string, name: string, description: string}`
+  - 响应: `{ code: number, message: string, data: DeviceType }`
+- `/devicetypes/{id}` (DELETE) - 删除设备类型
+  - 响应: `{ code: number, message: string }`
+- `/devicetypes/model` (POST) - 添加/更新设备类型模型
+  - 请求体: `{ deviceTypeId: number, model: Model }`
+  - 响应: `{ code: number, message: string, data: DeviceType }`
+- `/domain/devicetype/binding` (POST) - 领域绑定设备组件
+  - 请求体: `{ domainId: number, deviceTypeId: number}`
+  - 响应: `{ code: number, message: string }`
+- `/domain/devicetype/unbinding` (POST) - 领域取消绑定设备组件
+  - 请求体: `{ domainId: number, deviceTypeId: number}`
+  - 响应: `{ code: number, message: string }`
+
+
 ### 场景管理
 - `/scenes` (GET) - 获取场景列表
   - 参数: `domainId?: number` - 可选，按领域ID筛选
@@ -99,3 +124,6 @@
 打包配置怎么配能和商业版一样让打包制品的每个页面有对应的打包制品
 2、如何获取全局变量（如用户信息
 3、部署到商业版后页面间如何跳转，页面间如何交互
+
+
+场景添加url属性，跳转

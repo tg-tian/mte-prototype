@@ -41,8 +41,13 @@
           </el-form>
         </el-tab-pane>
         
-        <el-tab-pane label="领域组件" name="model">
-          <el-empty description="暂无组件" />
+        <el-tab-pane label="领域模板" name="template" v-if="isEditMode">
+          <!-- 模板库对接 -->
+          <el-empty description="暂无模板"/>
+        </el-tab-pane>
+
+        <el-tab-pane label="设备类型" name="model" v-if="isEditMode">
+          <DomainDeviceType />
         </el-tab-pane>
       </el-tabs>
     </el-card>
@@ -55,6 +60,8 @@ import { Plus } from '@element-plus/icons-vue'
 import { useDomainStore } from '@/store/domain'
 import { ElMessage, type FormInstance } from 'element-plus'
 import { getDomainById, getMockDomainById } from '@/api/domain'
+import { useRouter } from 'vue-router'
+import DomainDeviceType from './component/DomainDeviceType.vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -134,6 +141,7 @@ watch([() => route.query.domainId, () => route.query.mode], async ([newDomainId,
   if (newMode === 'create') {
     // Clear form data when switching to create mode
     resetFormData()
+    activeTab.value='basic'
   } else if (newMode === 'edit' && newDomainId) {
     // Load domain data when switching to edit mode or changing domain ID
     try {

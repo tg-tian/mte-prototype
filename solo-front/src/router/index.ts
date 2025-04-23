@@ -29,6 +29,16 @@ const routes: RouteRecordRaw[] = [
                 component: null,
                 children: [
                     {
+                        path: 'devicetype/list',
+                        name: '设备类型列表',
+                        component: () => import('@/views/meta/DeviceTypeList/index.vue')
+                    },
+                    {
+                        path: 'devicetype/setting',
+                        name: '设备类型定制',
+                        component: () => import('@/views/meta/DeviceTypeSetting/index.vue')
+                    },
+                    {
                         path: 'domain/list',
                         name: '领域列表',
                         component: DomainList

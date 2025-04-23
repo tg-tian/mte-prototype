@@ -25,18 +25,19 @@ public class Domain {
     @Id
     @TableId(type = IdType.AUTO)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "domain_id")
     @ApiModelProperty(value = "领域类型编号", example = "1")
-    private long domainId;
+    private Long domainId;
 
-    @Column(name = "domainCode", nullable = false)
+    @Column(name = "domain_code", nullable = false)
     @ApiModelProperty(value = "领域编码", example = "SmartBuilding")
     private String domainCode;
 
-    @Column(name = "domainName", nullable = false)
+    @Column(name = "domain_name", nullable = false)
     @ApiModelProperty(value = "领域名称", example = "智慧楼宇")
     private String domainName;
 
-    @Column(name = "domainDescription", nullable = true)
+    @Column(name = "domain_description", nullable = true)
     @ApiModelProperty(value = "领域描述", example = "this is a SmartBuilding")
     private String domainDescription;
 
@@ -44,11 +45,11 @@ public class Domain {
     @ApiModelProperty(value = "领域状态", example = "1")
     private String status;
 
-    @Column(name = "createTime", nullable = false)
-    @ApiModelProperty(value = "创建时间", example = "智慧楼宇")
+    @Column(name = "create_time", nullable = false)
+    @ApiModelProperty(value = "创建时间")
     private Date createTime;
 
-    @Column(name = "updateTime", nullable = false)
-    @ApiModelProperty(value = "更新时间", example = "智慧楼宇")
+    @Column(name = "update_time", nullable = false)
+    @ApiModelProperty(value = "更新时间")
     private Date updateTime;
 }

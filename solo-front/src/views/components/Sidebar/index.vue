@@ -16,6 +16,14 @@
         <el-sub-menu index="0" class="nav-item">
           <template #title>
             <el-icon><Monitor /></el-icon>
+            <div class="menu-item">元建模</div>
+          </template>
+          <el-menu-item index="meta-devicetype-list" class="sub-menu-item">设备类型列表</el-menu-item>
+          <el-menu-item index="meta-devicetype-setting" class="sub-menu-item">设备类型定制</el-menu-item>
+        </el-sub-menu>
+        <el-sub-menu index="1" class="nav-item">
+          <template #title>
+            <el-icon><Monitor /></el-icon>
             <div class="menu-item">定制领域</div>
           </template>
           <el-menu-item index="meta-domain-list" class="sub-menu-item">领域平台列表</el-menu-item>
@@ -63,6 +71,16 @@
     selectedItem: '',
     items: [
       // 元工具平台
+      {
+        index: 'meta-devicetype-list',
+        name: '设备类型列表',
+        route: '/meta/devicetype/list'
+      },
+      {
+        index: 'meta-devicetype-setting',
+        name: '设备类型定制',
+        route: '/meta/devicetype/setting'
+      },
       {
         index: 'meta-domain-list',
         name: '领域列表',
@@ -121,8 +139,11 @@
     const selectedItemData = items.value.find(item => item.index === key);
     if (selectedItemData) {
       let query={}
-      if(selectedItemData.route==='/meta/domain/setting'){
+      if(selectedItemData.route.includes('setting')){
         query['mode']='create'
+      }
+      if(!selectedItemData.route.startsWith("/meta")){
+        query={...router.currentRoute.value.query, ...query}
       }
       router.push({
         path: selectedItemData.route,

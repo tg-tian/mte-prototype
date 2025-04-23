@@ -71,12 +71,15 @@ export default defineConfig(({ mode }): UserConfig => {
       })
     ],
     resolve: {
-      alias: [
-        {
-          find: '@',
-          replacement: path.resolve(__dirname, './src')
-        }
-      ]
+      alias: {
+        '@': path.resolve(__dirname, './src')
+      }
+      // alias: [
+      //   {
+      //     find: '@',
+      //     replacement: path.resolve(__dirname, './src')
+      //   }
+      // ]
         // '@': fileURLToPath(new URL('./src', import.meta.url))
     },
     css: {
