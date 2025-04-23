@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getMockScenes, createMockScene, updateMockScene, deleteMockScene, getScenes, createScene, updateScene, deleteScene, getSceneById } from '@/api/scene'
+import { getMockScenes, createMockScene, updateMockScene, deleteMockScene, getScenes, createScene, updateScene, deleteScene, getSceneById, publishScene } from '@/api/scene'
 import { Scene } from '@/types/models'
 
 export const useSceneStore = defineStore('scene', {
@@ -35,6 +35,7 @@ export const useSceneStore = defineStore('scene', {
                             updateTime: scene.updateTime || new Date().toISOString().split('T')[0],
                             deviceCount: scene.deviceCount || 0,
                             status: scene.status || 'active',
+                            url: scene.url || '',
                             location: scene.location || {
                                 lng: scene.longitude,
                                 lat: scene.latitude
@@ -79,10 +80,11 @@ export const useSceneStore = defineStore('scene', {
                         updateTime: sceneData.updateTime || new Date().toISOString().split('T')[0],
                         deviceCount: sceneData.deviceCount || 0,
                         status: sceneData.status || 'active',
+                        url: sceneData.url || '',
                         location: sceneData.location || {
                             lng: sceneData.longitude,
                             lat: sceneData.latitude
-                        }
+                        },
                     };
                     return this.currentScene;
                 }
@@ -145,6 +147,31 @@ export const useSceneStore = defineStore('scene', {
                 }
             } catch (error) {
                 console.error('Failed to delete scene:', error)
+                throw error
+            }
+        },
+
+        async publishScene(domainId: number, sceneId: number, url: string, status: string) {
+            try {
+                let data = {
+                    sceneId: sceneId,
+                    status: status??'active',
+                    url: url
+                }
+                const res: any = await publishScene(data);
+                
+                if (res && res.status === 200) {
+                    // 如果当前场景正在被更新，则同步更新它
+                    if (this.currentScene && this.currentScene.id === sceneId) {
+                        this.currentScene = { ...this.currentScene, ...res.data }
+                    }
+                    
+                    // 刷新场景列表
+                    await this.fetchScenes(domainId)
+                    return res.data
+                }
+            } catch (error) {
+                console.error('Failed to publish scene:', error)
                 throw error
             }
         },

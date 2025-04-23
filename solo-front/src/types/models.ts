@@ -17,6 +17,7 @@ export interface Scene {
     updateTime: string;
     deviceCount: number;
     status: 'active' | 'inactive';
+    url: string;
     location?: {
         lng: number; // longitude
         lat: number; // latitude

@@ -34,7 +34,7 @@
         >
           <el-table-column prop="code" label="场景编码" width="100"></el-table-column>
           <el-table-column prop="name" label="场景名称" width="150"></el-table-column>
-          <el-table-column prop="description" label="描述" width="220"></el-table-column>
+          <el-table-column prop="description" label="描述" min-width="220"></el-table-column>
           <!-- <el-table-column label="坐标" width="180">
             <template #default="scope">
               <span v-if="getLocation(scope.row).hasLocation">
@@ -53,11 +53,11 @@
               </el-tag>
             </template>
           </el-table-column>
-          <el-table-column label="操作">
+          <el-table-column label="操作" width="300">
             <template #default="scope">
               <el-button type="primary" size="small" @click="navigateToSceneSetting(scope.row)">编辑</el-button>
               <el-button type="success" size="small" @click="handleViewScene(scope.row)">详情</el-button>
-              <el-button type="success" size="small" @click="handleViewScene(scope.row)">进入场景</el-button>
+              <el-button type="success" size="small" @click="handleScenePlatform(scope.row)">进入场景</el-button>
               <el-button type="danger" size="small" @click="handleDelete(scope.row)">删除</el-button>
             </template>
           </el-table-column>
@@ -385,10 +385,22 @@ const navigateToSceneSetting = (scene?: any) => {
   }
 }
 
-// 查看场景
+// 查看场景详情
 const handleViewScene = (row: any) => {
   sceneStore.setCurrentScene(row)
   window.open(`/#/scene/information?sceneId=${row.id}`)
+}
+
+// 进入场景平台
+const handleScenePlatform = (row: any) => {
+  sceneStore.setCurrentScene(row)
+  if(row.status !== 'active'){
+    ElMessage.warning('请先发布')
+  }else if(row.url === ''){
+    ElMessage.warning('场景地址不能为空')
+  }else{
+    window.open(row.url)
+  }
 }
 
 // 删除场景
