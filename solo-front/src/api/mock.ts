@@ -92,7 +92,7 @@ export const mockDevices = reactive<Device[]>([
     {
         id: 1,
         sceneId: 1,
-        name: '温度传感器-A1',
+        name: '温度传感器-C2',
         type: '传感器',
         status: 'online',
         lastUpdated: '2023-12-20 14:30:45',

@@ -1,5 +1,11 @@
 import { defineStore } from 'pinia'
-import { getMockDevices, createMockDevice, updateMockDevice, deleteMockDevice } from '@/api/device'
+import {
+    createMockDevice,
+    updateMockDevice,
+    deleteMockDevice,
+    getDeviceById,
+    getDevices
+} from '@/api/device'
 
 export const useDeviceStore = defineStore('device', {
     state: () => ({
@@ -12,9 +18,9 @@ export const useDeviceStore = defineStore('device', {
         async fetchDevices(sceneId?: number) {
             this.loading = true
             try {
-                const res: any = await getMockDevices(sceneId)
-                if (res.data && res.data.code === 200) {
-                    this.devices = res.data.data
+                const res: any = await getDevices(sceneId)
+                if (res.data && res.status === 200) {
+                    this.devices = res.data
                 }
             } catch (error) {
                 console.error('Failed to fetch devices:', error)

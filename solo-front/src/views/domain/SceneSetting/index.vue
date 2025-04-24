@@ -78,10 +78,103 @@
         </el-tab-pane>
         
         <el-tab-pane label="场景设备" name="device">
-          <el-empty description="暂无设备" />
+          <el-card class="device-search">
+            <el-form :inline="true" :model="searchForm" class="search-form">
+              <el-form-item label="设备名称">
+                <el-input v-model="searchForm.name" placeholder="请输入设备名称" clearable></el-input>
+              </el-form-item>
+              <el-form-item label="类型">
+                <el-select v-model="searchForm.type" placeholder="请选择类型" clearable>
+                  <el-option label="传感器" value="传感器"></el-option>
+                  <el-option label="监测器" value="监测器"></el-option>
+                  <el-option label="控制设备" value="控制设备"></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item label="状态">
+                <el-select v-model="searchForm.status" placeholder="请选择状态" clearable>
+                  <el-option label="在线" value="online"></el-option>
+                  <el-option label="离线" value="offline"></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item>
+                <el-button type="primary" @click="handleSearch">搜索</el-button>
+                <el-button @click="resetSearch">重置</el-button>
+              </el-form-item>
+            </el-form>
+          </el-card>
+          <div v-if = "filteredDevices && filteredDevices.length>0">
+            <el-table
+                v-loading="deviceStore.loading"
+                :data="filteredDevices"
+                style="width: 100%; margin-top: 20px"
+                border
+            >
+              <el-table-column prop="id" label="ID" width="80"></el-table-column>
+              <el-table-column prop="deviceName" label="设备名称" min-width="150"></el-table-column>
+              <el-table-column prop="type" label="类型" width="120"></el-table-column>
+              <el-table-column prop="lastUpdated" label="最后更新" width="180"></el-table-column>
+              <el-table-column prop="status" label="状态" width="100">
+                <template #default="scope">
+                  <el-tag :type="scope.row.status === 'online' ? 'success' : 'danger'">
+                    {{ scope.row.status === 'online' ? '在线' : '离线' }}
+                  </el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" width="220">
+                <template #default="scope">
+                  <el-button type="primary" size="small" @click="handleEdit(scope.row)">编辑</el-button>
+                  <el-button type="danger" size="small" @click="handleDelete(scope.row)">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+          </div>
+          <el-empty v-else description="暂无设备" />
         </el-tab-pane>
       </el-tabs>
     </el-card>
+    <el-dialog
+        v-model="deviceDialogVisible"
+        :title="isEdit ? '编辑设备' : '添加设备'"
+        width="50%"
+    >
+      <el-form
+          :model="deviceForm"
+          label-width="120px"
+          :rules="rules"
+          ref="deviceFormRef"
+      >
+        <el-form-item label="设备名称" prop="name">
+          <el-input v-model="deviceForm.name" placeholder="请输入设备名称"></el-input>
+        </el-form-item>
+        <el-form-item label="设备类型" prop="type">
+          <el-select v-model="deviceForm.type" placeholder="请选择设备类型">
+            <el-option label="传感器" value="传感器"></el-option>
+            <el-option label="监测器" value="监测器"></el-option>
+            <el-option label="控制设备" value="控制设备"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="状态" prop="status">
+          <el-select v-model="deviceForm.status" placeholder="请选择状态">
+            <el-option label="在线" value="online"></el-option>
+            <el-option label="离线" value="offline"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="位置X坐标" prop="x">
+          <el-input-number v-model="deviceForm.x" :min="0" :max="500"></el-input-number>
+        </el-form-item>
+        <el-form-item label="位置Y坐标" prop="y">
+          <el-input-number v-model="deviceForm.y" :min="0" :max="500"></el-input-number>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="deviceDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="submitForm" :loading="submitting">
+            确认
+          </el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -89,19 +182,26 @@
 import { ref, reactive, computed, onMounted, watch, toRefs, nextTick } from 'vue'
 import { useSceneStore } from '@/store/scene'
 import { useDomainStore } from '@/store/domain'
-import { ElMessage, type FormInstance } from 'element-plus'
+import {ElMessage, ElMessageBox, type FormInstance} from 'element-plus'
 import { getSceneById } from '@/api/scene'
+import {useDeviceStore} from "@/store/device";
 
 const router = useRouter()
 const route = useRoute()
 const sceneStore = useSceneStore()
 const domainStore = useDomainStore()
+const deviceStore = useDeviceStore()
 const sceneFormRef = ref<FormInstance>()
 const locationMap = ref<HTMLElement | null>(null)
 
 // State
 const state = reactive({
   activeTab: 'basic',
+  searchForm: {
+    name: '',
+    type: '',
+    status: ''
+  },
   sceneForm: {
     code: '',
     name: '',
@@ -112,13 +212,24 @@ const state = reactive({
     lat: undefined as number | undefined,
     url: ''
   },
+  deviceForm: {
+    name: '',
+    type: '传感器',
+    status: 'online',
+    sceneId: parseInt(route.query.sceneId as string) || null,
+    x: 100,
+    y: 100
+  },
   submitting: false,
   baiduMap: null as BMap.Map | null,
   locationMarker: null as BMap.Marker | null,
-  dialogVisible: false
+  dialogVisible: false,
+  deviceDialogVisible:false,
+  isEdit: false,
+  currentId: null,
 })
 
-const { activeTab, sceneForm, submitting, baiduMap, locationMarker, dialogVisible } = toRefs(state)
+const { activeTab, sceneForm, submitting, baiduMap, locationMarker, dialogVisible,searchForm,isEdit,deviceForm,currentId,deviceDialogVisible } = toRefs(state)
 
 // Determine if we're in edit mode
 const isEditMode = computed(() => {
@@ -129,6 +240,35 @@ const isEditMode = computed(() => {
 const sceneId = computed(() => {
   return parseInt(route.query.sceneId as string) || null
 })
+const handleSearch = () => {
+}
+const handleDelete = (row: any) => {
+  ElMessageBox.confirm(
+      `确定要删除设备 "${row.name}" 吗？`,
+      '警告',
+      {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }
+  )
+      .then(async () => {
+        try {
+          await deviceStore.deleteDevice(row.id)
+          ElMessage.success('删除成功')
+        } catch (error) {
+          ElMessage.error('删除失败')
+        }
+      })
+      .catch(() => {
+        // 用户取消操作
+      })
+}
+const resetSearch = () => {
+  searchForm.value.name = ''
+  searchForm.value.type = ''
+  searchForm.value.status = ''
+}
 
 // Get domain ID from query params
 const domainId = computed(() => {
@@ -169,6 +309,18 @@ const resetFormData = () => {
   }
 }
 
+// 过滤后的设备列表
+const filteredDevices = computed(() => {
+  if (!deviceStore.devices) return []
+
+  return deviceStore.devices.filter((device: any) => {
+    const nameMatch = !searchForm.value.name || device.name.toLowerCase().includes(searchForm.value.name.toLowerCase())
+    const typeMatch = !searchForm.value.type || device.type === searchForm.value.type
+    const statusMatch = !searchForm.value.status || device.status === searchForm.value.status
+    return nameMatch && typeMatch && statusMatch
+  })
+})
+
 // Helper function to load scene data to form
 const loadSceneToForm = (scene: any) => {
   // First reset the form to clear any previous data
@@ -196,6 +348,20 @@ const loadSceneToForm = (scene: any) => {
     
     console.log('Scene data loaded to form:', sceneForm.value)
   }
+}
+
+const handleEdit = (row: any) => {
+  isEdit.value = true
+  deviceForm.value = {
+    name: row.name,
+    type: row.type,
+    status: row.status,
+    sceneId: row.sceneId,
+    x: row.location ? row.location.x : 100,
+    y: row.location ? row.location.y : 100
+  }
+  currentId.value = row.id
+  deviceDialogVisible.value = true
 }
 
 // Initialize location map
@@ -243,6 +409,10 @@ const initLocationMap = () => {
     addLocationMarker()
   })
 }
+
+const currentScene = computed(() => {
+  return sceneStore.currentScene
+})
 
 // Add marker for location
 const addLocationMarker = () => {
@@ -313,14 +483,18 @@ watch([() => route.query.sceneId, () => route.query.mode, () => route.query.doma
 
 // Load scene data if in edit mode
 onMounted(async () => {
+
+  // Get scemeId
+  const sceneId = parseInt(route.query.sceneId as string)
+
   // Clear form when in create mode
   if (!isEditMode.value) {
     resetFormData()
   }
-  else if (isEditMode.value && sceneId.value) {
+  else if (isEditMode.value && sceneId) {
     const currentScene = sceneStore.currentScene
     
-    if (currentScene && currentScene.id === sceneId.value) {
+    if (currentScene && currentScene.id === sceneId) {
       // Load from current scene in store
       loadSceneToForm(currentScene)
       
@@ -333,7 +507,7 @@ onMounted(async () => {
     } else {
       // Try to fetch scene data from API if not in store
       try {
-        const res: any = await getSceneById(sceneId.value)
+        const res: any = await getSceneById(sceneId)
         if (res.data && res.status === 200) {
           sceneStore.setCurrentScene(res.data)
           loadSceneToForm(res.data)
@@ -359,6 +533,14 @@ onMounted(async () => {
     ElMessage.warning('请先选择一个领域')
     navigateBack()
   }
+  if (sceneId) {
+    await deviceStore.fetchDevices(sceneId)
+  } else if (currentScene.value && currentScene.value.id) {
+    await deviceStore.fetchDevices(currentScene.value.id)
+  } else {
+    await deviceStore.fetchDevices()
+  }
+
 })
 
 // Navigate back to scene list
@@ -460,5 +642,8 @@ const publishScene = () => {
   margin-top: 10px;
   border: 1px solid #dcdfe6;
   border-radius: 4px;
+}
+.device-search {
+  margin-bottom: 20px;
 }
 </style>
