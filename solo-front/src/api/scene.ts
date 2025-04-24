@@ -1,5 +1,6 @@
 import request from '@/utils/request'
 import { mockScenes } from './mock'
+import { da } from 'element-plus/es/locale'
 
 // 实际环境下的API接口
 export function getScenes(domainId?: number) {
@@ -51,6 +52,14 @@ export function deleteScene(id: number) {
     return request({
         url: `/scenes/${id}`,
         method: 'delete'
+    })
+}
+
+export function publishScene(data: any) {
+    return request({
+        url: `/scenes/publish`,
+        method: 'post',
+        data: data
     })
 }
 

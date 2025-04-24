@@ -4,7 +4,7 @@
       <h2>{{ isEditMode ? '编辑场景' : '创建场景' }} <small v-if="currentDomain">- {{ currentDomain.name }}</small></h2>
       <div class="header-actions">
         <el-button @click="navigateBack">返回列表</el-button>
-        <el-button type="primary" @click="dialogVisible=true">发布</el-button>
+        <el-button type="primary" @click="publishForm">{{sceneForm.status==='active' ? '取消发布':'发布'}}</el-button>
         <el-button type="primary" @click="submitForm" :loading="submitting">保存</el-button>
       </div>
     </div>
@@ -45,7 +45,7 @@
               <el-tag :type="sceneForm.status==='active' ? 'success':'info'">{{ sceneForm.status==='active' ? '已发布':'定制中' }}</el-tag>
             </el-form-item>
             <el-form-item label="场景地址" prop="url" v-if="sceneForm.status==='active'">
-              <el-input v-model="sceneForm.url" disabled></el-input>
+              <el-input v-model="sceneForm.url"></el-input>
             </el-form-item>
             
             <el-form-item label="地理位置">
@@ -92,8 +92,9 @@
               </el-form-item>
               <el-form-item label="状态">
                 <el-select v-model="searchForm.status" placeholder="请选择状态" clearable>
-                  <el-option label="在线" value="online"></el-option>
-                  <el-option label="离线" value="offline"></el-option>
+                  <el-option label="在线" :value="Number(1)"></el-option>
+                  <el-option label="离线" :value="Number(0)"></el-option>
+                  <el-option label="未激活" :value="Number(2)"></el-option>
                 </el-select>
               </el-form-item>
               <el-form-item>
@@ -111,13 +112,14 @@
             >
               <el-table-column prop="id" label="ID" width="80"></el-table-column>
               <el-table-column prop="deviceName" label="设备名称" min-width="150"></el-table-column>
-              <el-table-column prop="type" label="类型" width="120"></el-table-column>
-              <el-table-column prop="lastUpdated" label="最后更新" width="180"></el-table-column>
+              <el-table-column prop="deviceType.name" label="设备类型" width="120"></el-table-column>
+              <el-table-column prop="protocolType" label="协议类型" width="120"></el-table-column>
+              <el-table-column prop="lastOnlineTime" label="最后更新" width="180"></el-table-column>
               <el-table-column prop="status" label="状态" width="100">
                 <template #default="scope">
-                  <el-tag :type="scope.row.status === 'online' ? 'success' : 'danger'">
-                    {{ scope.row.status === 'online' ? '在线' : '离线' }}
-                  </el-tag>
+                  <el-tag v-if="scope.row.status === 1" type="success">在线</el-tag>
+                  <el-tag v-else-if="scope.row.status === 0" type="danger">离线</el-tag>
+                  <el-tag v-else type="info">未激活</el-tag>
                 </template>
               </el-table-column>
               <el-table-column label="操作" width="220">
@@ -215,7 +217,7 @@ const state = reactive({
   deviceForm: {
     name: '',
     type: '传感器',
-    status: 'online',
+    status: 2,
     sceneId: parseInt(route.query.sceneId as string) || null,
     x: 100,
     y: 100
@@ -333,6 +335,7 @@ const loadSceneToForm = (scene: any) => {
     sceneForm.value.description = scene.description || scene.sceneDescription || ''
     sceneForm.value.status = scene.status || 'active'
     sceneForm.value.domainId = scene.domainId || domainId.value
+    sceneForm.value.url = scene.url || ''
     
     // Load location if available
     // 首先尝试使用location对象
@@ -595,9 +598,32 @@ const submitForm = async () => {
   })
 }
 
+const publishForm = ()=>{
+  if(sceneForm.value.status === 'active') {
+    sceneStore.publishScene(domainId.value, sceneId.value, '', 'inactive')
+    .then((res)=>{
+        ElMessage.success('取消发布成功')
+        loadSceneToForm(res)
+      }
+    ).catch((error)=>{
+      ElMessage.error('取消发布失败:', error)
+    })
+  }else{
+    dialogVisible.value=true
+  }
+}
+
 const publishScene = () => {
   if(sceneForm.value.url){
-
+    sceneStore.publishScene(domainId.value, sceneId.value, sceneForm.value.url, 'active')
+    .then((res)=>{
+        ElMessage.success('发布成功')
+        loadSceneToForm(res)
+        dialogVisible.value = false
+      }
+    ).catch((error)=>{
+      ElMessage.error('发布失败:', error)
+    })
   }else{
     ElMessage.warning('请输入url')
   }

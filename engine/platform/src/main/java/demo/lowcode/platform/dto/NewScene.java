@@ -10,6 +10,7 @@ public class NewScene {
     private String name;
     private String description;
     private String status;
+    private String url;
     private Long domainId;
     private Location location;
 }

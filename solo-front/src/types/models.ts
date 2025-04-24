@@ -17,26 +17,33 @@ export interface Scene {
     updateTime: string;
     deviceCount: number;
     status: 'active' | 'inactive';
+    url: string;
     location?: {
         lng: number; // longitude
         lat: number; // latitude
     };
 }
 
-export interface DeviceLocation {
-    x: number;
-    y: number;
-}
-
+// 设备
 export interface Device {
     id: number;
+    deviceCode: string;
+    deviceName: string;
+    deviceTypeId: number;
+    deviceType?: DeviceType;//获取设备时会返回
     sceneId: number;
-    name: string;
-    type: string;
-    status: 'online' | 'offline';
-    lastUpdated: string;
-    location: DeviceLocation;
-    properties?: Record<string, any>;
+    scene?: Scene;//获取设备时会返回
+    status: number;//0-离线，1-在线，2-未激活，初始默认未激活
+    protocolType: string;// MQTT/HTTP
+    protocolConfig: ProtocolConfig;// 协议连接配置参数
+    createTime: string;
+    updateTime: string;
+    lastOnlineTime: string;
+}
+
+export interface ProtocolConfig {
+    type: string;// 连接的物联网平台：none/aliyun/inspur
+    configs: Record<string, string>
 }
 
 //设备类型
@@ -46,6 +53,7 @@ export interface DeviceType {
     name: string;
     description: string;
     createTime: string;
+    updateTime: string;
     domainIds?: Array<number>,
     model?: Model
 }
@@ -64,8 +72,8 @@ export interface Property {
 }
 
 export interface DataType {
-    type: string;//类型
-    specs: any;//对象，number类型包括min\max\step属性，bool类型包括0\1，string类型包括length
+    type: string;//类型：int\float\bool\string
+    specs: any;//对象，int&float类型包括min\max\step属性，bool类型包括0\1，string类型包括length
 }
 
 export interface Service {

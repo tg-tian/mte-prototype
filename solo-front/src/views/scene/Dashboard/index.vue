@@ -113,27 +113,17 @@
     <!-- 设备详情对话框 -->
     <el-dialog v-model="dialogVisible" title="设备详情" width="50%">
       <div v-if="selectedDevice">
-        <h3>{{ selectedDevice.name }}</h3>
+        <h3>{{ selectedDevice.deviceName }}</h3>
         
         <el-descriptions :column="2" border>
-          <el-descriptions-item label="设备ID">{{ selectedDevice.id }}</el-descriptions-item>
-          <el-descriptions-item label="设备类型">{{ selectedDevice.type }}</el-descriptions-item>
+          <el-descriptions-item label="设备编码">{{ selectedDevice.deviceCode }}</el-descriptions-item>
+          <el-descriptions-item label="设备类型">{{ selectedDevice.deviceType?.name }}</el-descriptions-item>
           <el-descriptions-item label="当前状态">
-            <el-tag :type="selectedDevice.status === 'online' ? 'success' : 'danger'">
-              {{ selectedDevice.status === 'online' ? '在线' : '离线' }}
+            <el-tag :type="selectedDevice.status === 1 ? 'success' : 'danger'">
+              {{ selectedDevice.status === 1 ? '在线' : (selectedDevice.status === 2 ? '未激活' : '离线') }}
             </el-tag>
           </el-descriptions-item>
-          <el-descriptions-item label="最后更新">{{ selectedDevice.lastUpdated }}</el-descriptions-item>
-          
-          <template v-if="selectedDevice.properties">
-            <el-descriptions-item 
-              v-for="(value, key) in selectedDevice.properties" 
-              :key="key" 
-              :label="key"
-            >
-              {{ value }}
-            </el-descriptions-item>
-          </template>
+          <el-descriptions-item label="最近上线时间">{{ selectedDevice.lastOnlineTime }}</el-descriptions-item>
         </el-descriptions>
         
         <!-- 模拟历史数据图表 -->

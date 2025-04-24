@@ -32,7 +32,10 @@ public class DeviceBusiness extends ServiceImpl<DeviceOldMapper, DeviceOld> impl
 
     public List<Device> getDeviceListByScene(Long sceneId) {
         List<Device> deviceList = deviceMapper.selectBySceneId(sceneId);
-        System.out.println(deviceList.get(0));
+        for (Device device : deviceList) {
+            device.setDeviceType(deviceTypeMapper.selectById(device.getDeviceTypeId()));
+            device.setScene(sceneMapper.selectById(device.getSceneId()));
+        }
         return deviceList;
     }
 
@@ -43,7 +46,7 @@ public class DeviceBusiness extends ServiceImpl<DeviceOldMapper, DeviceOld> impl
             if (deviceType==null){
                 throw new RuntimeException("该设备类型不存在");
             }
-//            device.setDeviceType(deviceType);
+            device.setDeviceType(deviceType);
             device.setDeviceTypeId(newDevice.getDeviceTypeId());
         }else{
             throw new RuntimeException("请选择设备类型");
@@ -54,7 +57,7 @@ public class DeviceBusiness extends ServiceImpl<DeviceOldMapper, DeviceOld> impl
             if (scene==null){
                 throw new RuntimeException("该领域不存在");
             }
-//            device.setScene(scene);
+            device.setScene(scene);
             device.setSceneId(scene.getSceneId());
         }else{
             throw new RuntimeException("请选择设备类型");

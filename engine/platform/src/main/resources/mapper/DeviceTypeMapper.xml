@@ -4,8 +4,18 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="demo.lowcode.platform.mapper.DeviceTypeMapper">
+    <resultMap id="deviceTypeResultMap" type="demo.lowcode.platform.entity.DeviceType">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="description" property="description"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="model" property="model" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+    </resultMap>
+
     <!--获取领域设备类型列表-->
-    <select id="selectByDomainId" resultType="demo.lowcode.platform.entity.DeviceType">
+    <select id="selectByDomainId" resultMap="deviceTypeResultMap">
         SELECT * FROM devicetype
         WHERE id IN (
             SELECT component_id FROM domain_component
@@ -14,13 +24,13 @@
     </select>
 
     <!--根据code获取设备类型-->
-    <select id="selectByCode" resultType="demo.lowcode.platform.entity.DeviceType">
+    <select id="selectByCode" resultMap="deviceTypeResultMap">
         SELECT * FROM devicetype
         WHERE code = #{code}
     </select>
 
     <!--获取场景设备类型列表-->
-    <select id="selectBySceneId" resultType="demo.lowcode.platform.entity.DeviceType">
+    <select id="selectBySceneId" resultMap="deviceTypeResultMap">
         SELECT * FROM devicetype
         WHERE id IN (
             SELECT component_id FROM domain_component
