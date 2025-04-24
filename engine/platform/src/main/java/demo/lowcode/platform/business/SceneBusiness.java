@@ -100,6 +100,7 @@ public class SceneBusiness {
         existingScene.setSceneName(newScene.getName());
         existingScene.setSceneDescription(newScene.getDescription());
         existingScene.setStatus(newScene.getStatus());
+        existingScene.setUrl(newScene.getUrl());
         existingScene.setLongitude(newScene.getLocation().getLng());
         existingScene.setLatitude(newScene.getLocation().getLat());
         existingScene.setUpdateTime(new Date());
@@ -113,12 +114,16 @@ public class SceneBusiness {
         sceneMapper.deleteById(id);
     }
 
-    public void publishScene(ScenePubInfo pubInfo) {
+    public Scene publishScene(ScenePubInfo pubInfo) {
         Scene existingScene = sceneMapper.selectById(pubInfo.getSceneId());
         if (existingScene == null) {
             throw new RuntimeException("场景不存在");
         }
 
+        existingScene.setStatus(pubInfo.getStatus());
+        existingScene.setUrl(pubInfo.getUrl());
+        sceneMapper.updateById(existingScene);
 
+        return existingScene;
     }
 }

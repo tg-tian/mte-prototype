@@ -48,7 +48,7 @@
   - 响应: `{ code: number, message: string, data: DeviceType[] }`
 - `/devicetypes/{id}` (GET) - 获取指定ID的设备类型
   - 响应: `{ code: number, message: string, data: DeviceType }`
-- `/devicetypes` (POST) - 创建新领域
+- `/devicetypes` (POST) - 创建新设备类型
   - 请求体: `{ code: string, name: string, description: string}`
   - 响应: `{ code: number, message: string, data: DeviceType }`
 - `/devicetypes/{id}` (PUT) - 更新设备类型信息
@@ -57,12 +57,12 @@
 - `/devicetypes/{id}` (DELETE) - 删除设备类型
   - 响应: `{ code: number, message: string }`
 - `/devicetypes/model` (POST) - 添加/更新设备类型模型
-  - 请求体: `{ deviceTypeId: number, model: Model }`
+  - 请求体: `{ deviceTypeId: number, model: Model }`// Model详情参照@/types/models.ts
   - 响应: `{ code: number, message: string, data: DeviceType }`
-- `/domain/devicetype/binding` (POST) - 领域绑定设备组件
+- `/domain/devicetype/binding` (POST) - 领域绑定设备类型组件
   - 请求体: `{ domainId: number, deviceTypeId: number}`
   - 响应: `{ code: number, message: string }`
-- `/domain/devicetype/unbinding` (POST) - 领域取消绑定设备组件
+- `/domain/devicetype/unbinding` (POST) - 领域取消绑定设备类型组件
   - 请求体: `{ domainId: number, deviceTypeId: number}`
   - 响应: `{ code: number, message: string }`
 

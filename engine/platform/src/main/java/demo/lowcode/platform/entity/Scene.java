@@ -53,6 +53,10 @@ public class Scene {
     @ApiModelProperty(value = "场景状态", example = "active")
     private String status;
 
+    @Column(name = "url")
+    @ApiModelProperty(value = "场景发布地址")
+    private String url;
+
     @Column(name = "longitude")
     @ApiModelProperty(value = "场景经度", example = "121.1")
     private Float longitude;

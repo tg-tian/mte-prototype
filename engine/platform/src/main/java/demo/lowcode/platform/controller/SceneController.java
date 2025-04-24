@@ -141,8 +141,8 @@ public class SceneController {
     @ApiOperation(value = "发布场景")
     public ResponseEntity<?> publishScene(@RequestBody ScenePubInfo pubInfo){
         try {
-            sceneBusiness.publishScene(pubInfo);
-            return new ResponseEntity<>("发布成功",HttpStatus.OK);
+            Scene scene = sceneBusiness.publishScene(pubInfo);
+            return new ResponseEntity<>(scene,HttpStatus.OK);
         }catch (RuntimeException e){
             return new ResponseEntity<>("发布失败",HttpStatus.CONFLICT);
         }

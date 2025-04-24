@@ -52,6 +52,7 @@ export const mockScenes = reactive<Scene[]>([
         updateTime: '2023-12-01',
         deviceCount: 12,
         status: 'active',
+        url: '',
         location: {
             lng: 121.4737, // Shanghai coordinates
             lat: 31.2304
@@ -66,6 +67,7 @@ export const mockScenes = reactive<Scene[]>([
         updateTime: '2023-11-30',
         deviceCount: 8,
         status: 'active',
+        url: '',
         location: {
             lng: 121.5012,
             lat: 31.2352
@@ -80,6 +82,7 @@ export const mockScenes = reactive<Scene[]>([
         updateTime: '2023-12-10',
         deviceCount: 24,
         status: 'active',
+        url: '',
         location: {
             lng: 116.4074, // Beijing coordinates
             lat: 39.9042
@@ -92,42 +95,33 @@ export const mockDevices = reactive<Device[]>([
     {
         id: 1,
         sceneId: 1,
-        name: '温度传感器-A1',
-        type: '传感器',
-        status: 'online',
-        lastUpdated: '2023-12-20 14:30:45',
-        location: { x: 120, y: 85 },
-        properties: {
-            unit: '°C',
-            range: [-30, 80],
-            currentValue: 24.5
+        deviceCode: 'TemperatureA1',
+        deviceName: '温度传感器-A1',
+        deviceTypeId: 1,
+        status: 1,
+        lastOnlineTime: '2023-12-20 14:30:45',
+        createTime: '',
+        updateTime: '',
+        protocolType: 'MQTT',
+        protocolConfig: {
+            type: "aliyun",
+            configs: {}
         }
     },
     {
         id: 2,
         sceneId: 1,
-        name: '压力监测器-P2',
-        type: '监测器',
-        status: 'online',
-        lastUpdated: '2023-12-20 14:35:22',
-        location: { x: 180, y: 120 },
-        properties: {
-            unit: 'kPa',
-            range: [0, 1000],
-            currentValue: 320
-        }
-    },
-    {
-        id: 3,
-        sceneId: 1,
-        name: '控制阀门-V3',
-        type: '控制设备',
-        status: 'offline',
-        lastUpdated: '2023-12-19 09:15:10',
-        location: { x: 210, y: 160 },
-        properties: {
-            openState: false,
-            controlMode: 'manual'
+        deviceCode: 'PressureP1',
+        deviceName: '压力监测器-P2',
+        deviceTypeId: 1,
+        status: 1,
+        lastOnlineTime: '2023-12-20 14:35:22',
+        createTime: '',
+        updateTime: '',
+        protocolType: 'MQTT',
+        protocolConfig: {
+            type: "none",
+            configs: {}
         }
     }
 ])
@@ -140,6 +134,7 @@ export const mockDeviceTypes = reactive<DeviceType[]>([
         name: "智能咖啡机",
         description: "智能咖啡机能够自动制作多种咖啡",
         createTime: "2023-12-20 14:30:45",
+        updateTime: null,
         domainIds: [1],
         model: {
             properties: [
@@ -202,6 +197,7 @@ export const mockDeviceTypes = reactive<DeviceType[]>([
         name: "烟感器",
         description: "能够检测烟雾浓度",
         createTime: "2024-12-20 14:30:45",
+        updateTime: null,
         model: {
             properties: [
                 {
