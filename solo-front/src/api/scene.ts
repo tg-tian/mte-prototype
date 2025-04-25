@@ -63,6 +63,13 @@ export function publishScene(data: any) {
     })
 }
 
+export function getSceneDeviceTypes(sceneId: number) {
+    return request({
+        url: `/devices/devicetype-list?sceneId=${sceneId}`,
+        method: 'get'
+    })
+}
+
 // Mock API functions for development without backend
 export function getMockScenes(domainId?: number) {
     return new Promise((resolve) => {

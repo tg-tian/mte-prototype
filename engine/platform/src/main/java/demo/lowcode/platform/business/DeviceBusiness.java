@@ -3,10 +3,7 @@ package demo.lowcode.platform.business;
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import demo.lowcode.platform.dto.NewDevice;
-import demo.lowcode.platform.entity.Device;
-import demo.lowcode.platform.entity.DeviceOld;
-import demo.lowcode.platform.entity.DeviceType;
-import demo.lowcode.platform.entity.Scene;
+import demo.lowcode.platform.entity.*;
 import demo.lowcode.platform.mapper.DeviceMapper;
 import demo.lowcode.platform.mapper.DeviceOldMapper;
 import demo.lowcode.platform.mapper.DeviceTypeMapper;
@@ -60,7 +57,7 @@ public class DeviceBusiness extends ServiceImpl<DeviceOldMapper, DeviceOld> impl
             device.setScene(scene);
             device.setSceneId(scene.getSceneId());
         }else{
-            throw new RuntimeException("请选择设备类型");
+            throw new RuntimeException("请选择领域");
         }
         if(deviceMapper.selectByCodeAndScene(newDevice.getCode(), newDevice.getSceneId()) != null){
             throw new RuntimeException("对应设备编码已存在");
@@ -79,5 +76,40 @@ public class DeviceBusiness extends ServiceImpl<DeviceOldMapper, DeviceOld> impl
 
     public List<DeviceType> getDeviceTypeListByScene(Long sceneId) {
         return deviceTypeMapper.selectBySceneId(sceneId);
+    }
+
+    public Device updateDevice(Long id, NewDevice newDevice) {
+        Device device = deviceMapper.selectById(id);
+        if(device == null){
+            throw new RuntimeException("设备不存在");
+        }
+
+        if (newDevice.getDeviceTypeId()!=null){
+            DeviceType deviceType = deviceTypeMapper.selectById(newDevice.getDeviceTypeId());
+            if (deviceType==null){
+                throw new RuntimeException("该设备类型不存在");
+            }
+            device.setDeviceType(deviceType);
+            device.setDeviceTypeId(newDevice.getDeviceTypeId());
+        }else{
+            throw new RuntimeException("请选择设备类型");
+        }
+
+        device.setDeviceName(newDevice.getName());
+        device.setDeviceCode(newDevice.getCode());
+        device.setProtocolType(newDevice.getProtocolType());
+        device.setProtocolConfig(newDevice.getProtocolConfig());
+        deviceMapper.updateById(device);
+
+        return device;
+    }
+
+    public void deleteDeviceByID(Long id) {
+        Device device = deviceMapper.selectById(id);
+        if(device == null){
+            throw new RuntimeException("该设备不存在");
+        }
+
+        deviceMapper.deleteById(device.getId());
     }
 }

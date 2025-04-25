@@ -8,6 +8,18 @@ export interface Domain {
     status: 'active' | 'inactive';
 }
 
+// 模板
+export interface Template {
+    name: string;
+    identifier: string;
+    appKind: string;
+    creator: string;
+    price: string;
+    description: string;
+    tags: string[];
+    uuid: string;//模板id
+}
+
 export interface Scene {
     id: number;
     domainId: number;

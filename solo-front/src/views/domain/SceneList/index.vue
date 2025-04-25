@@ -106,12 +106,17 @@ const currentDomain = computed(() => {
 // 过滤后的场景列表
 const filteredScenes = computed(() => {
   if (!sceneStore.scenes) return []
-  console.log(sceneStore.scenes)
   
   return sceneStore.scenes.filter((scene: any) => {
     const nameMatch = !searchForm.value.name || scene.name.toLowerCase().includes(searchForm.value.name.toLowerCase())
     const statusMatch = !searchForm.value.status || scene.status === searchForm.value.status
     return nameMatch && statusMatch
+  }).map((scene)=>{
+    return {
+      ...scene,
+      createTime: scene.createTime?.split('.')[0].replace('T', ' '),
+      updateTime: scene.updateTime?.split('.')[0].replace('T', ' ')
+    }
   })
 })
 

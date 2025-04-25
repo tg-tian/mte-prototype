@@ -43,7 +43,7 @@
         
         <el-tab-pane label="领域模板" name="template" v-if="isEditMode">
           <!-- 模板库对接 -->
-          <el-empty description="暂无模板"/>
+          <DomainTemplate />
         </el-tab-pane>
 
         <el-tab-pane label="设备类型" name="model" v-if="isEditMode">
@@ -62,6 +62,7 @@ import { ElMessage, type FormInstance } from 'element-plus'
 import { getDomainById, getMockDomainById } from '@/api/domain'
 import { useRouter } from 'vue-router'
 import DomainDeviceType from './component/DomainDeviceType.vue'
+import DomainTemplate from './component/DomainTemplate.vue'
 
 const router = useRouter()
 const route = useRoute()

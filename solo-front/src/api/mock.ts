@@ -1,5 +1,5 @@
 import { reactive } from 'vue'
-import { Domain, Scene, Device, DeviceType } from '@/types/models'
+import { Domain, Scene, Device, DeviceType, Template } from '@/types/models'
 
 // Mock domain data
 export const mockDomains = reactive<Domain[]>([
@@ -235,5 +235,29 @@ export const mockUsers = reactive([
         displayName: '普通用户',
         role: 'user',
         avatar: 'https://cube.elemecdn.com/0/88/03b0d39583f48206768a7534e55bcpng.png'
+    }
+])
+
+// Mock templates
+export const mockTemplates = reactive<Template[]>([
+    {
+        name: '模板1',
+        identifier: 'Personal-UIX',
+        appKind: '',
+        creator: 'xxx',
+        price: '',
+        description: '这是一个页面模板',
+        tags: ['页面'],
+        uuid: '1234567'
+    },
+    {
+        name: '模板2',
+        identifier: 'Template2',
+        appKind: '',
+        creator: 'xxx',
+        price: '',
+        description: '这是一个组件模板',
+        tags: ['组件'],
+        uuid: '54625552'
     }
 ])

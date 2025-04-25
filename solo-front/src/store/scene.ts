@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getMockScenes, createMockScene, updateMockScene, deleteMockScene, getScenes, createScene, updateScene, deleteScene, getSceneById, publishScene } from '@/api/scene'
+import { getMockScenes, createMockScene, updateMockScene, deleteMockScene, getScenes, createScene, updateScene, deleteScene, getSceneById, publishScene, getSceneDeviceTypes } from '@/api/scene'
 import { Scene } from '@/types/models'
 
 export const useSceneStore = defineStore('scene', {
@@ -172,6 +172,18 @@ export const useSceneStore = defineStore('scene', {
                 }
             } catch (error) {
                 console.error('Failed to publish scene:', error)
+                throw error
+            }
+        },
+
+        async getSceneDeviceTypes(sceneId: number) {
+            try {
+                const res: any = await getSceneDeviceTypes(sceneId)
+                if(res && res.status===200) {
+                    return res.data
+                } 
+            } catch (error) {
+                console.error('Failed to get scene deviceType list:', error)
                 throw error
             }
         },

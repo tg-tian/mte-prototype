@@ -55,6 +55,27 @@ public class DeviceController {
         }catch (RuntimeException e){
             return new ResponseEntity<>(e.getMessage(),HttpStatus.CONFLICT);
         }
+    }
 
+    @PutMapping("/devices/{id}")
+    @ApiOperation(value = "修改设备信息")
+    public ResponseEntity<?> updateDevice(@PathVariable("id") Long id, @RequestBody NewDevice newDevice){
+        try {
+            Device device = deviceBusiness.updateDevice(id, newDevice);
+            return new ResponseEntity<>(device,HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.CONFLICT);
+        }
+    }
+
+    @DeleteMapping("/devices/{id}")
+    @ApiOperation(value = "删除设备")
+    public ResponseEntity<?> deleteDevice(@PathVariable("id") Long id){
+        try {
+            deviceBusiness.deleteDeviceByID(id);
+            return new ResponseEntity<>("删除成功",HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>(e.getMessage(),HttpStatus.CONFLICT);
+        }
     }
 }

@@ -83,13 +83,6 @@
               <el-form-item label="设备名称">
                 <el-input v-model="searchForm.name" placeholder="请输入设备名称" clearable></el-input>
               </el-form-item>
-              <el-form-item label="类型">
-                <el-select v-model="searchForm.type" placeholder="请选择类型" clearable>
-                  <el-option label="传感器" value="传感器"></el-option>
-                  <el-option label="监测器" value="监测器"></el-option>
-                  <el-option label="控制设备" value="控制设备"></el-option>
-                </el-select>
-              </el-form-item>
               <el-form-item label="状态">
                 <el-select v-model="searchForm.status" placeholder="请选择状态" clearable>
                   <el-option label="在线" :value="Number(1)"></el-option>
@@ -110,11 +103,12 @@
                 style="width: 100%; margin-top: 20px"
                 border
             >
-              <el-table-column prop="id" label="ID" width="80"></el-table-column>
+              <el-table-column prop="deviceCode" label="设备编码" width="150"></el-table-column>
               <el-table-column prop="deviceName" label="设备名称" min-width="150"></el-table-column>
               <el-table-column prop="deviceType.name" label="设备类型" width="120"></el-table-column>
               <el-table-column prop="protocolType" label="协议类型" width="120"></el-table-column>
-              <el-table-column prop="lastOnlineTime" label="最后更新" width="180"></el-table-column>
+              <el-table-column prop="createTime" label="创建时间" width="150"></el-table-column>
+              <el-table-column prop="lastOnlineTime" label="最后上线时间" width="150"></el-table-column>
               <el-table-column prop="status" label="状态" width="100">
                 <template #default="scope">
                   <el-tag v-if="scope.row.status === 1" type="success">在线</el-tag>
@@ -145,27 +139,22 @@
           :rules="rules"
           ref="deviceFormRef"
       >
+        <el-form-item label="设备编码" prop="code">
+          <el-input v-model="deviceForm.code" placeholder="请输入设备编码"></el-input>
+        </el-form-item>
         <el-form-item label="设备名称" prop="name">
           <el-input v-model="deviceForm.name" placeholder="请输入设备名称"></el-input>
         </el-form-item>
-        <el-form-item label="设备类型" prop="type">
-          <el-select v-model="deviceForm.type" placeholder="请选择设备类型">
-            <el-option label="传感器" value="传感器"></el-option>
-            <el-option label="监测器" value="监测器"></el-option>
-            <el-option label="控制设备" value="控制设备"></el-option>
+        <el-form-item label="设备类型" prop="deviceType">
+          <el-select v-model="deviceForm.deviceTypeId" placeholder="请选择设备类型" >
+            <el-option v-for="(item, index) in deviceTypeList" :value="item.id" :label="item.name" :key="item.code"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="状态" prop="status">
-          <el-select v-model="deviceForm.status" placeholder="请选择状态">
-            <el-option label="在线" value="online"></el-option>
-            <el-option label="离线" value="offline"></el-option>
+        <el-form-item label="协议类型" prop="protocolType">
+          <el-select v-model="deviceForm.protocolType" placeholder="请选择协议类型" >
+            <el-option label="MQTT" value="MQTT"></el-option>
+            <el-option label="HTTP" value="HTTP"></el-option>
           </el-select>
-        </el-form-item>
-        <el-form-item label="位置X坐标" prop="x">
-          <el-input-number v-model="deviceForm.x" :min="0" :max="500"></el-input-number>
-        </el-form-item>
-        <el-form-item label="位置Y坐标" prop="y">
-          <el-input-number v-model="deviceForm.y" :min="0" :max="500"></el-input-number>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -187,6 +176,7 @@ import { useDomainStore } from '@/store/domain'
 import {ElMessage, ElMessageBox, type FormInstance} from 'element-plus'
 import { getSceneById } from '@/api/scene'
 import {useDeviceStore} from "@/store/device";
+import { Device } from '@/types/models'
 
 const router = useRouter()
 const route = useRoute()
@@ -201,7 +191,6 @@ const state = reactive({
   activeTab: 'basic',
   searchForm: {
     name: '',
-    type: '',
     status: ''
   },
   sceneForm: {
@@ -215,12 +204,11 @@ const state = reactive({
     url: ''
   },
   deviceForm: {
+    code: '',
     name: '',
-    type: '传感器',
-    status: 2,
+    deviceTypeId: 0,
+    protocolType: 'MQTT',
     sceneId: parseInt(route.query.sceneId as string) || null,
-    x: 100,
-    y: 100
   },
   submitting: false,
   baiduMap: null as BMap.Map | null,
@@ -229,9 +217,10 @@ const state = reactive({
   deviceDialogVisible:false,
   isEdit: false,
   currentId: null,
+  deviceTypeList: []
 })
 
-const { activeTab, sceneForm, submitting, baiduMap, locationMarker, dialogVisible,searchForm,isEdit,deviceForm,currentId,deviceDialogVisible } = toRefs(state)
+const { activeTab, sceneForm, submitting, baiduMap, locationMarker, dialogVisible,searchForm,isEdit,deviceForm,currentId,deviceDialogVisible, deviceTypeList } = toRefs(state)
 
 // Determine if we're in edit mode
 const isEditMode = computed(() => {
@@ -268,7 +257,6 @@ const handleDelete = (row: any) => {
 }
 const resetSearch = () => {
   searchForm.value.name = ''
-  searchForm.value.type = ''
   searchForm.value.status = ''
 }
 
@@ -316,10 +304,16 @@ const filteredDevices = computed(() => {
   if (!deviceStore.devices) return []
 
   return deviceStore.devices.filter((device: any) => {
-    const nameMatch = !searchForm.value.name || device.name.toLowerCase().includes(searchForm.value.name.toLowerCase())
-    const typeMatch = !searchForm.value.type || device.type === searchForm.value.type
+    const nameMatch = !searchForm.value.name || device.deviceName.toLowerCase().includes(searchForm.value.name.toLowerCase())
     const statusMatch = !searchForm.value.status || device.status === searchForm.value.status
-    return nameMatch && typeMatch && statusMatch
+    return nameMatch && statusMatch
+  }).map((device)=>{
+    return {
+      ...device,
+      createTime: device.createTime?.split('.')[0].replace('T', ' '),
+      updateTime: device.updateTime?.split('.')[0].replace('T', ' '),
+      lastOnlineTime: device.lastOnlineTime?.split('.')[0].replace('T', ' ')
+    }
   })
 })
 
@@ -353,15 +347,14 @@ const loadSceneToForm = (scene: any) => {
   }
 }
 
-const handleEdit = (row: any) => {
+const handleEdit = (row: Device) => {
   isEdit.value = true
   deviceForm.value = {
-    name: row.name,
-    type: row.type,
-    status: row.status,
-    sceneId: row.sceneId,
-    x: row.location ? row.location.x : 100,
-    y: row.location ? row.location.y : 100
+    code: row.deviceCode,
+    name: row.deviceName,
+    deviceTypeId: row.deviceType.id,
+    protocolType: row.protocolType,
+    sceneId: row.sceneId
   }
   currentId.value = row.id
   deviceDialogVisible.value = true
@@ -465,6 +458,7 @@ watch([() => route.query.sceneId, () => route.query.mode, () => route.query.doma
       if (res.data && res.status === 200) {
         sceneStore.setCurrentScene(res.data)
         loadSceneToForm(res.data)
+        deviceTypeList.value = await sceneStore.getSceneDeviceTypes(res.data.sceneId)
         
         // Initialize map after data is loaded
         nextTick(() => {
@@ -496,6 +490,8 @@ onMounted(async () => {
   }
   else if (isEditMode.value && sceneId) {
     const currentScene = sceneStore.currentScene
+
+    deviceTypeList.value = await sceneStore.getSceneDeviceTypes(sceneId)
     
     if (currentScene && currentScene.id === sceneId) {
       // Load from current scene in store
