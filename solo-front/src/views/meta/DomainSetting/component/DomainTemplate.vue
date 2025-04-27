@@ -8,8 +8,8 @@
       border
       v-else
     >
-      <el-table-column prop="code" label="模板编码" width="150"></el-table-column>
-      <el-table-column prop="name" label="模板名称" min-width="150"></el-table-column>
+      <el-table-column prop="name" label="模板名称" width="150"></el-table-column>
+      <el-table-column prop="category" label="模板类型" width="150"></el-table-column>
       <el-table-column prop="description" label="模板描述" min-width="200"></el-table-column>
       <el-table-column label="操作" width="220">
         <template #default="scope">
@@ -19,14 +19,62 @@
       </el-table-column>
     </el-table>
 
+    <el-dialog v-model="dialogDetailVisible"
+    title="模板详情"
+    width="50%"
+    >
+        <div>
+            <div class="template_item">
+                <div class="template_key">模板ID：</div>
+                <div class="template_value">{{ domainTemplateStore.currentTemplate.template_id }}</div>
+            </div>
+            <div class="template_item">
+                <div class="template_key">模板名：</div>
+                <div class="template_value">{{ domainTemplateStore.currentTemplate.name }}</div>
+            </div>
+            <div class="template_item">
+                <div class="template_key">模板描述：</div>
+                <div class="template_value">{{ domainTemplateStore.currentTemplate.description }}</div>
+            </div>
+            <div class="template_item">
+                <div class="template_key">模板类别：</div>
+                <div class="template_value">{{ domainTemplateStore.currentTemplate.category }}</div>
+            </div>
+            <div class="template_item">
+                <div class="template_key">模板标签：</div>
+                <div class="template_value">{{ domainTemplateStore.currentTemplate.tags }}</div>
+            </div>
+            <div class="template_item">
+                <div class="template_key">业务标签：</div>
+                <div class="template_value">{{ domainTemplateStore.currentTemplate.domain }}</div>
+            </div>
+            <div class="template_item">
+                <div class="template_key">DSL/平台：</div>
+                <div class="template_value">{{ domainTemplateStore.currentTemplate.describing_the_model }}</div>
+            </div>
+            <div class="template_item">
+                <div class="template_key">描述详情：</div>
+                <div class="template_value">
+                  <a :href="domainTemplateStore.currentTemplate.url.substring(0, domainTemplateStore.currentTemplate.url.length-5)" target="_blank">
+                    {{ domainTemplateStore.currentTemplate.url }}
+                  </a>
+                </div>
+            </div>
+            <el-image :src="domainTemplateStore.currentTemplate.image_url" />
+        </div>
+    </el-dialog>
+
     <el-dialog v-model="dialogVisible"
     title="模板列表"
     width="50%"
     >
-    <div>
-        <div v-for="(item, index) in filteredTemplates">
+    <div style="max-height: 400px; overflow-y: scroll;">
+        <div v-for="(item, index) in filteredTemplates" :key="item.id">
             <TemplateCard :template="item" @template-click="handleSelectTemplate"/>
         </div>
+    </div>
+    <div style="display: flex;justify-content: center;">
+      <el-pagination :page-size="10" layout="prev, pager, next" :total="totalSize" @current-change="handlePageChange"/>
     </div>
       <template #footer>
         <span class="dialog-footer">
@@ -52,9 +100,10 @@ const domainId = computed(() => {
 
 const state = reactive({
     dialogVisible: false,
+    dialogDetailVisible: false,
     selectedTemplates: []
 })
-const { dialogVisible, selectedTemplates } = toRefs(state)
+const { dialogVisible, selectedTemplates, dialogDetailVisible } = toRefs(state)
 
 // 初始化
 onMounted(async () => {
@@ -79,18 +128,19 @@ watch([() => route.query.domainId], async ([newDomainId]) => {
 
 const openDialog = async ()=>{
     dialogVisible.value=true
+    selectedTemplates.value = []
     try {
-        await domainTemplateStore.fetchAllTemplates()
+        await domainTemplateStore.fetchAllTemplates(1)
     }catch(error) {
         ElMessage.error("模板库模板获取失败")
     }
 }
 
-const handleSelectTemplate = (uuid: string, isSelected: boolean)=>{
-    if(isSelected){
-        selectedTemplates.value.push(uuid)
+const handleSelectTemplate = (id: number, isSelected: boolean)=>{
+    if(isSelected && !selectedTemplates.value.includes(id)){
+        selectedTemplates.value.push(id)
     }else{
-        selectedTemplates.value = selectedTemplates.value.filter((templateId) => templateId!==uuid)
+        selectedTemplates.value = selectedTemplates.value.filter((templateId) => templateId!==id)
     }
 }
 
@@ -99,11 +149,22 @@ const addTemplate = async () => {
         ElMessage.warning("请选择要添加的模板")
     } else {
         try {
-            await domainTemplateStore.bindingTemplates(domainId.value, selectedTemplates.value)
-            ElMessage.success("添加成功")
+          const selectedData = domainTemplateStore.allTemplates.filter((item)=>selectedTemplates.value.includes(item.id))
+          await domainTemplateStore.bindingTemplates(domainId.value, selectedData)
+          ElMessage.success("添加成功")
+          dialogVisible.value = false
         }catch(error) {
-            ElMessage.error("添加失败")
+          ElMessage.error("添加失败")
         }
+    }
+}
+
+const handlePageChange = async (currentPage: number)=>{
+  selectedTemplates.value = []
+  try {
+        await domainTemplateStore.fetchAllTemplates(currentPage)
+    }catch(error) {
+        ElMessage.error("模板库模板获取失败")
     }
 }
 
@@ -120,18 +181,21 @@ const filteredDomainTemplates = computed(() => {
 const filteredTemplates = computed(() => {
   if (!domainTemplateStore.allTemplates) return []
 
-  const domainTemplateIds = filteredDomainTemplates.value.map((template)=>template.uuid)
+  const domainTemplateIds = filteredDomainTemplates.value.map((template)=>template.template_id)
   
-  let templateList = domainTemplateStore.allTemplates.filter((template)=>!domainTemplateIds.includes(template.uuid))
+  let templateList = domainTemplateStore.allTemplates.filter((template)=>!domainTemplateIds.includes(template.id))
 
   return templateList
 })
 
+const totalSize = computed(()=>{
+  return domainTemplateStore.allTemplatesPageSize
+})
+
 //查看模板详情
-const navigateToTemplate = (template?: any) => {
-  if (template) {
-    //TODO: 模板详情（弹窗展示详细信息or跳转到模板库详情页面
-  }
+const navigateToTemplate = (template: any) => {
+  domainTemplateStore.setCurrentTemplate(template)
+  dialogDetailVisible.value = true
 }
 
 // 删除领域绑定信息

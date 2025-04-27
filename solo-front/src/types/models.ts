@@ -10,14 +10,16 @@ export interface Domain {
 
 // 模板
 export interface Template {
+    id: number;
+    template_id?: number;
     name: string;
-    identifier: string;
-    appKind: string;
-    creator: string;
-    price: string;
+    category: string;
     description: string;
-    tags: string[];
-    uuid: string;//模板id
+    tags: string;//模板标签
+    domain: string;//业务标签
+    image_url: string;
+    describing_the_model: string;//DSL/平台
+    url: string;
 }
 
 export interface Scene {

@@ -241,23 +241,27 @@ export const mockUsers = reactive([
 // Mock templates
 export const mockTemplates = reactive<Template[]>([
     {
-        name: '模板1',
-        identifier: 'Personal-UIX',
-        appKind: '',
-        creator: 'xxx',
-        price: '',
-        description: '这是一个页面模板',
-        tags: ['页面'],
-        uuid: '1234567'
+        id: 1746,
+        template_id: 1746,
+        name: "b-grid-equal-width-multiple-lines",
+        category: "组件模板",
+        description: "此Vue组件使用了BootstrapVue库中的b-container和b-row元素来创建一个具有响应式布局的页面容器。它通过嵌套的b-col元素实现了多行等宽列布局，每一行内的所有列宽度相等。\n该模板适用于需要实现网页内容合理分栏展示、特别是当屏幕尺寸变化时能够自动调整布局的应用场景中。例如，在开发新闻网站、博客平台或是任何其他类型的需要动态适应不同设备显示效果的Web应用时都非常有用。\n",
+        tags: "BootstrapVue,响应式布局,栅格系统",
+        domain: "Web开发,前端UI设计,项目布局规划",
+        describing_the_model: "Vue",
+        image_url: "https://ddst.sjtu.edu.cn/lctemplate/vue/screenshots/bgridequalwidthmultiplelinesvue.png",
+        url: "http://lctemplates.gitlink.org.cn/templates/1746.json",
     },
     {
-        name: '模板2',
-        identifier: 'Template2',
-        appKind: '',
-        creator: 'xxx',
-        price: '',
-        description: '这是一个组件模板',
-        tags: ['组件'],
-        uuid: '54625552'
-    }
+        id: 1627,
+        template_id: 1627,
+        name: "b-grid-align-self",
+        category: "组件模板",
+        description: "- 使用Bootstrap的响应式网格系统来布局页面元素。\n- 包含多行多列的布局，展示不同对齐属性（start, center, end, baseline, stretch）的效果。\n- 适用于需要灵活调整内容对齐方式和布局需求的应用场景。\n",
+        tags: "Vue组件,响应式布局,网格系统,对齐方式",
+        domain: "网页设计, 用户界面开发, 前端开发",
+        describing_the_model: "Vue",
+        image_url: "https://ddst.sjtu.edu.cn/lctemplate/vue/screenshots/bgridalignselfvue.png",
+        url: "http://lctemplates.gitlink.org.cn/templates/1627.json",
+    },
 ])
