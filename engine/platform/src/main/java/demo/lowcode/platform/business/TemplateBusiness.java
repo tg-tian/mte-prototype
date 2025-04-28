@@ -6,6 +6,8 @@ import demo.lowcode.platform.mapper.TemplateMapper;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+@Service
 public class TemplateBusiness {
     private final TemplateMapper templateMapper;
 
