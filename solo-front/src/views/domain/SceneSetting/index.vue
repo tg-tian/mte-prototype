@@ -1,7 +1,7 @@
 <template>
   <div class="scene-setting-container">
     <div class="scene-header">
-      <h2>{{ isEditMode ? '编辑场景' : '创建场景' }} <small v-if="currentDomain">- {{ currentDomain.name }}</small></h2>
+      <h2>{{ isEditMode ? '编辑场景-'+sceneForm.name : '创建场景' }} </h2>
       <div class="header-actions">
         <el-button @click="navigateBack">返回列表</el-button>
         <el-button type="primary" @click="publishForm">{{sceneForm.status==='active' ? '取消发布':'发布'}}</el-button>

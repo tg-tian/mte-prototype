@@ -68,13 +68,92 @@
     title="模板列表"
     width="50%"
     >
+    <div class="search-container" style="margin-bottom: 20px;">
+        <el-form :inline="true">
+            <el-form-item style="width: 400px;">
+                <el-input
+                    v-model="state.searchQuery.name_or_category_or_description_or_domain_or_tags_or_code_key_word_string_cont"
+                    placeholder="请输入搜索内容"
+                    clearable
+                    @clear="handleSearch"
+                >
+                    <template #prefix>
+                        <el-icon><Search /></el-icon>
+                    </template>
+                </el-input>
+            </el-form-item>
+            <el-form-item>
+                <el-button type="primary" @click="handleSearch">搜索</el-button>
+                <el-button @click="resetSearch">重置</el-button>
+                <el-button link @click="state.showAdvanced = !state.showAdvanced">
+                    {{ state.showAdvanced ? '收起' : '展开' }}高级搜索
+                </el-button>
+            </el-form-item>
+            <el-form-item>
+                <el-collapse-transition>
+                    <div v-show="state.showAdvanced" style="display: flex; flex-wrap: wrap; gap: 20px;">
+                        <el-form-item label="模板名称" style="width: 400px;">
+                            <el-input
+                                v-model="state.searchQuery.name_cont"
+                                placeholder="请输入模板名称"
+                                clearable
+                                @clear="handleSearch"
+                            >
+                                <template #prefix>
+                                    <el-icon><Document /></el-icon>
+                                </template>
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item label="模板描述" style="width: 400px;">
+                            <el-input
+                                v-model="state.searchQuery.description_cont"
+                                placeholder="请输入模板描述"
+                                clearable
+                                @clear="handleSearch"
+                            >
+                                <template #prefix>
+                                    <el-icon><Document /></el-icon>
+                                </template>
+                            </el-input>
+                        </el-form-item>
+                        <el-form-item label="模板标签" style="width: 400px;">
+                            <el-input
+                                v-model="state.searchQuery.tags_cont"
+                                placeholder="请输入模板标签"
+                                clearable
+                                @clear="handleSearch"
+                            >
+                                <template #prefix>
+                                    <el-icon><Collection /></el-icon>
+                                </template>
+                            </el-input>
+                        </el-form-item>
+                    </div>
+                </el-collapse-transition>
+            </el-form-item>
+        </el-form>
+    </div>
     <div style="max-height: 400px; overflow-y: scroll;">
         <div v-for="(item, index) in filteredTemplates" :key="item.id">
-            <TemplateCard :template="item" @template-click="handleSelectTemplate"/>
+            <TemplateCard 
+                :template="item" 
+                :reset-selected="resetSelected"
+                @template-click="handleSelectTemplate"
+            />
         </div>
     </div>
-    <div style="display: flex;justify-content: center;">
-      <el-pagination :page-size="10" layout="prev, pager, next" :total="totalSize" @current-change="handlePageChange"/>
+    <div style="display: flex;justify-content: center; margin-top: 20px;">
+        <el-button 
+            link 
+            :loading="domainTemplateStore.loading"
+            @click="loadMore"
+            v-if="domainTemplateStore.allTemplates.length > 0 && domainTemplateStore.hasMore"
+        >
+            加载更多
+        </el-button>
+        <div v-else-if="domainTemplateStore.allTemplates.length > 0" style="color: #909399;">
+            没有更多数据了
+        </div>
     </div>
       <template #footer>
         <span class="dialog-footer">
@@ -90,6 +169,7 @@
 <script setup lang="ts">
 import { useDomainTemplateStore } from '@/store/domainTemplate'
 import TemplateCard from './TemplateCard.vue';
+import { Search, Document, Collection } from '@element-plus/icons-vue'
 const route = useRoute()
 const router = useRouter()
 const domainTemplateStore = useDomainTemplateStore()
@@ -101,9 +181,19 @@ const domainId = computed(() => {
 const state = reactive({
     dialogVisible: false,
     dialogDetailVisible: false,
-    selectedTemplates: []
+    selectedTemplates: [],
+    showAdvanced: false,
+    searchQuery: {
+        name_or_category_or_description_or_domain_or_tags_or_code_key_word_string_cont: '',
+        name_cont: '',
+        description_cont: '',
+        tags_cont: ''
+    },
+    resetSelected: false
 })
-const { dialogVisible, selectedTemplates, dialogDetailVisible } = toRefs(state)
+const { dialogVisible, selectedTemplates, dialogDetailVisible, showAdvanced, searchQuery, resetSelected } = toRefs(state)
+
+const currentPage = ref(1)
 
 // 初始化
 onMounted(async () => {
@@ -129,11 +219,18 @@ watch([() => route.query.domainId], async ([newDomainId]) => {
 const openDialog = async ()=>{
     dialogVisible.value=true
     selectedTemplates.value = []
+    resetSelected.value = true
+    currentPage.value = 1
+    resetSearch()
     try {
         await domainTemplateStore.fetchAllTemplates(1)
     }catch(error) {
         ElMessage.error("模板库模板获取失败")
     }
+    // 重置后立即设置回 false，避免影响后续的选择
+    nextTick(() => {
+        resetSelected.value = false
+    })
 }
 
 const handleSelectTemplate = (id: number, isSelected: boolean)=>{
@@ -159,12 +256,13 @@ const addTemplate = async () => {
     }
 }
 
-const handlePageChange = async (currentPage: number)=>{
-  selectedTemplates.value = []
-  try {
-        await domainTemplateStore.fetchAllTemplates(currentPage)
-    }catch(error) {
-        ElMessage.error("模板库模板获取失败")
+const loadMore = async () => {
+    currentPage.value++
+    try {
+        await domainTemplateStore.fetchAllTemplates(currentPage.value, searchQuery.value)
+    } catch (error) {
+        ElMessage.error("加载更多失败")
+        currentPage.value--
     }
 }
 
@@ -186,10 +284,6 @@ const filteredTemplates = computed(() => {
   let templateList = domainTemplateStore.allTemplates.filter((template)=>!domainTemplateIds.includes(template.id))
 
   return templateList
-})
-
-const totalSize = computed(()=>{
-  return domainTemplateStore.allTemplatesPageSize
 })
 
 //查看模板详情
@@ -220,5 +314,25 @@ const handleDelete = (row: any) => {
   .catch(() => {
     // 用户取消操作
   })
+}
+
+const handleSearch = async () => {
+    currentPage.value = 1
+    try {
+        await domainTemplateStore.fetchAllTemplates(1, searchQuery.value)
+    } catch (error) {
+        ElMessage.error("搜索失败")
+    }
+}
+
+const resetSearch = () => {
+    currentPage.value = 1
+    searchQuery.value = {
+        name_or_category_or_description_or_domain_or_tags_or_code_key_word_string_cont: '',
+        name_cont: '',
+        description_cont: '',
+        tags_cont: ''
+    }
+    handleSearch()
 }
 </script>

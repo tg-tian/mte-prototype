@@ -10,7 +10,8 @@ export const useDomainTemplateStore = defineStore('domainTemplate', {
         loading: false,
         currentTemplate: null,
         currentDomainId: null,
-        allTemplatesPageSize: 0
+        allTemplatesPageSize: 0,
+        hasMore: true
     }),
 
     actions: {
@@ -47,10 +48,12 @@ export const useDomainTemplateStore = defineStore('domainTemplate', {
                 }
                 const res: any = await getTemplates(queryData, page)
                 if (res.data && res.status === 200) {
-                    this.allTemplates = res.data
-                    if(page===1){
-                        this.allTemplatesPageSize = res.data[0].id
+                    if(page === 1) {
+                        this.allTemplates = res.data
+                    } else {
+                        this.allTemplates = [...this.allTemplates, ...res.data]
                     }
+                    this.hasMore = res.data.length > 0
                 }
             } catch (error) {
                 console.error('Failed to fetch domains:', error)
@@ -111,6 +114,10 @@ export const useDomainTemplateStore = defineStore('domainTemplate', {
 
         setCurrentTemplate(template: any) {
             this.currentTemplate = template
+        },
+
+        setAllTemplatesPageSize(pageSize: number) {
+            this.allTemplatesPageSize = pageSize
         }
     },
 

@@ -1,7 +1,7 @@
 <template>
   <div class="scene-list-container">
     <div class="scene-header">
-      <h2>场景列表 <small v-if="currentDomain">- {{ currentDomain.name }}</small></h2>
+      <h2>场景列表 <small v-if="currentDomain"> {{ currentDomain.name }}</small></h2>
       <div class="header-actions">
         <el-button type="primary" @click="navigateToSceneSetting()">创建场景</el-button>
       </div>
@@ -383,10 +383,10 @@ const navigateToSceneSetting = (scene?: any) => {
   if (scene) {
     // For editing, set the current scene and navigate with scene ID
     sceneStore.setCurrentScene(scene)
-    router.push(`/domain/scene/setting?sceneId=${scene.id}&domainId=${domainId}&mode=edit`)
+    router.push(`/domain/scene/setting?mode=edit&sceneId=${scene.id}&domainId=${domainId}`)
   } else {
     // For creation, navigate to setting page with domain ID
-    router.push(`/domain/scene/setting?domainId=${domainId}&mode=create`)
+    router.push(`/domain/scene/setting?mode=create&domainId=${domainId}`)
   }
 }
 

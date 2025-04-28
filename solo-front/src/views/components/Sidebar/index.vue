@@ -27,7 +27,7 @@
             <div class="menu-item">定制领域</div>
           </template>
           <el-menu-item index="meta-domain-list" class="sub-menu-item">领域平台列表</el-menu-item>
-          <el-menu-item index="meta-domain-setting" class="sub-menu-item">领域平台定制</el-menu-item>
+          <el-menu-item index="meta-domain-setting" class="sub-menu-item">创建领域平台</el-menu-item>
         </el-sub-menu>
       </div>
       <!-- 领域平台 -->
@@ -38,7 +38,7 @@
             <div class="menu-item">场景管理</div>
           </template>
           <el-menu-item index="domain-scene-list" class="sub-menu-item">场景平台列表</el-menu-item>
-          <el-menu-item index="domain-scene-setting" class="sub-menu-item">场景平台定制</el-menu-item>
+          <el-menu-item index="domain-scene-setting" class="sub-menu-item">创建场景平台</el-menu-item>
         </el-sub-menu>
       </div>
       <!-- 场景平台 -->
@@ -78,7 +78,7 @@
       },
       {
         index: 'meta-devicetype-setting',
-        name: '设备类型定制',
+        name: '创建设备类型',
         route: '/meta/devicetype/setting'
       },
       {
@@ -88,7 +88,7 @@
       },
       {
         index: 'meta-domain-setting',
-        name: '领域定制',
+        name: '创建领域',
         route: '/meta/domain/setting'
       },
       // 领域平台
@@ -99,7 +99,7 @@
       },
       {
         index: 'domain-scene-setting',
-        name: '场景定制',
+        name: '创建场景',
         route: '/domain/scene/setting'
       },
       // 场景平台
@@ -124,10 +124,15 @@
   const { selectedItem, items, routerPath } = toRefs(state)
   
   watchEffect(() => {
+    const fullPath = router.currentRoute.value.fullPath
     const path = router.currentRoute.value.path
     routerPath.value=path
-    const matchingItemData = items.value.find(item => item.route === path);
-    if (matchingItemData) {
+
+    const matchingItemData = items.value.find(item => item.route.includes(path.toLocaleLowerCase())||item.route.includes(fullPath.toLocaleLowerCase()));
+    if(fullPath.includes('mode=edit')){
+      const index = items.value.findIndex(item => item.route.includes(path.toLocaleLowerCase()))
+      selectedItem.value = (items.value[index-1])?.index
+    }else if (matchingItemData) {
       selectedItem.value = matchingItemData.index;
     } else {
       selectedItem.value = '';
@@ -139,11 +144,11 @@
     const selectedItemData = items.value.find(item => item.index === key);
     if (selectedItemData) {
       let query={}
+      if(!selectedItemData.route.startsWith("/meta")){
+        query={...router.currentRoute.value.query}
+      }
       if(selectedItemData.route.includes('setting')){
         query['mode']='create'
-      }
-      if(!selectedItemData.route.startsWith("/meta")){
-        query={...router.currentRoute.value.query, ...query}
       }
       router.push({
         path: selectedItemData.route,

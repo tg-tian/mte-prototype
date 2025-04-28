@@ -1,7 +1,7 @@
 <template>
   <div class="domain-setting-container">
     <div class="domain-header">
-      <h2>{{ isEditMode ? '编辑领域' : '创建领域' }}</h2>
+      <h2>{{ isEditMode ? '编辑领域-'+domainForm.name : '创建领域' }}</h2>
       <div class="header-actions">
         <el-button @click="navigateBack">返回列表</el-button>
         <el-button type="primary" >发布</el-button>

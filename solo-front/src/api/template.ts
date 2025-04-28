@@ -4,9 +4,12 @@ import request from '@/utils/request'
 
 export function getTemplates(data: any, page: number) {
     return templateRequest({
-        url: `/templates.json?page=${page}`,
+        url: `/templates.json`,
         method: 'get',
-        data: data
+        params: {
+            page,
+            ...data
+        }
     })
 }
 

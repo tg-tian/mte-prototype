@@ -114,7 +114,7 @@ const navigateToDomainSetting = (domain?: any) => {
   if (domain) {
     // 编辑领域
     domainStore.setCurrentDomain(domain)
-    router.push(`/meta/domain/setting?domainId=${domain.domainId}&mode=edit`)
+    router.push(`/meta/domain/setting?mode=edit&domainId=${domain.domainId}`)
   } else {
     // 创建领域
     router.push('/meta/domain/setting?mode=create')
