@@ -30,6 +30,8 @@
 import { ArrowDown } from '@element-plus/icons-vue'
 import { ElMessageBox } from 'element-plus'
 import { useUserStore } from '@/store/user'
+import { useDomainStore } from '@/store/domain' // added import
+import { computed } from 'vue'
 
 interface State {
   title: string
@@ -38,14 +40,23 @@ interface State {
 const state = reactive<State>({
   title: '面向场景计算的低代码平台'
 })
-const {title} = toRefs(state)
+const { title } = toRefs(state)
 
 const router = useRouter()
 const userStore = useUserStore()
+const domainStore = useDomainStore()  // new
+const currentDomain = computed(() => domainStore.currentDomain)  // new
 
 watchEffect(() => {
   const path = router.currentRoute.value.path
-  if (path.startsWith('/domain')) {
+  if (path.startsWith('/domain/scene')) {  // new branch for domain scene pages
+    if (currentDomain.value) {
+      // Use domainName or fallback
+      title.value = `${currentDomain.value.domainName || currentDomain.value.name}-详情`
+    } else {
+      title.value = '领域低代码开发平台'
+    }
+  } else if (path.startsWith('/domain')) {
     title.value = '领域低代码开发平台'
   } else if (path.startsWith('/scene')) {
     title.value = '场景低代码开发平台'
