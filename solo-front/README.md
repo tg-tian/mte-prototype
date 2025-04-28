@@ -98,15 +98,16 @@
 
 ### 设备管理
 - `/devices` (GET) - 获取设备列表
-  - 参数: `sceneId?: number` - 可选，按场景ID筛选
+  - 参数: `sceneId: number` - 按场景ID筛选
   - 响应: `{ code: number, message: string, data: Device[] }`
-- `/devices/{id}` (GET) - 获取指定ID的设备
-  - 响应: `{ code: number, message: string, data: Device }`
+- `/devices/devicetype-list` (GET) - 获取设备列表
+  - 参数: `sceneId: number` - 按场景ID筛选
+  - 响应: `{ code: number, message: string, data: DeviceType[] }`
 - `/devices` (POST) - 创建新设备
-  - 请求体: `{ name: string, type: string, status: string, sceneId: number, location: { x: number, y: number }, properties?: Record<string, any> }`
+  - 请求体: `{ code:string, name: string, deviceTypeId: number, sceneId: number, protocolType: string, protocolConfig: {type: string, configs: Record<String, String>} }`// protocolType协议类型包括MQTT和HTTP，protocolConfig中type指要连接的物联网平台（none/aliyun），configs指连接的参数
   - 响应: `{ code: number, message: string, data: Device }`
 - `/devices/{id}` (PUT) - 更新设备信息
-  - 请求体: `{ name?: string, type?: string, status?: string, location?: { x: number, y: number }, properties?: Record<string, any> }`
+  - 请求体: `{ code:string, name: string, deviceTypeId: number, sceneId: number, protocolType: string, protocolConfig: {type: string, configs: Record<String, String>} }`
   - 响应: `{ code: number, message: string, data: Device }`
 - `/devices/{id}` (DELETE) - 删除设备
   - 响应: `{ code: number, message: string }`
@@ -126,4 +127,3 @@
 3、部署到商业版后页面间如何跳转，页面间如何交互
 
 
-场景添加url属性，跳转
