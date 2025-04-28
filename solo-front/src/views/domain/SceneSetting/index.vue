@@ -96,7 +96,11 @@
               </el-form-item>
             </el-form>
           </el-card>
-          <div v-if = "filteredDevices && filteredDevices.length>0">
+          <!-- 新增：添加设备按钮 -->
+          <div class="device-actions" style="margin:10px 0;">
+            <el-button type="primary" @click="handleAddDevice">添加设备</el-button>
+          </div>
+          <div v-if="filteredDevices && filteredDevices.length>0">
             <el-table
                 v-loading="deviceStore.loading"
                 :data="filteredDevices"
@@ -160,9 +164,8 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button @click="deviceDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitForm" :loading="submitting">
-            确认
-          </el-button>
+          <!-- 调整为调用 submitDeviceForm -->
+          <el-button type="primary" @click="submitDeviceForm" :loading="submitting">确认</el-button>
         </span>
       </template>
     </el-dialog>
@@ -173,10 +176,10 @@
 import { ref, reactive, computed, onMounted, watch, toRefs, nextTick } from 'vue'
 import { useSceneStore } from '@/store/scene'
 import { useDomainStore } from '@/store/domain'
-import {ElMessage, ElMessageBox, type FormInstance} from 'element-plus'
+import { useDeviceStore } from '@/store/device'
+import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
 import { getSceneById } from '@/api/scene'
-import {useDeviceStore} from "@/store/device";
-import { Device } from '@/types/models'
+import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()
@@ -184,7 +187,7 @@ const sceneStore = useSceneStore()
 const domainStore = useDomainStore()
 const deviceStore = useDeviceStore()
 const sceneFormRef = ref<FormInstance>()
-const locationMap = ref<HTMLElement | null>(null)
+const deviceFormRef = ref<FormInstance>()           // 新增：设备对话框表单引用
 
 // State
 const state = reactive({
@@ -231,8 +234,24 @@ const isEditMode = computed(() => {
 const sceneId = computed(() => {
   return parseInt(route.query.sceneId as string) || null
 })
+
+// 新增方法：打开新增设备对话框
+const handleAddDevice = () => {
+  isEdit.value = false
+  currentId.value = null
+  deviceForm.value = {
+    code: '',
+    name: '',
+    deviceTypeId: 0,
+    protocolType: 'MQTT',
+    sceneId: sceneId.value
+  }
+  deviceDialogVisible.value = true
+}
+
 const handleSearch = () => {
 }
+
 const handleDelete = (row: any) => {
   ElMessageBox.confirm(
       `确定要删除设备 "${row.name}" 吗？`,
@@ -255,6 +274,7 @@ const handleDelete = (row: any) => {
         // 用户取消操作
       })
 }
+
 const resetSearch = () => {
   searchForm.value.name = ''
   searchForm.value.status = ''
@@ -358,6 +378,32 @@ const handleEdit = (row: Device) => {
   }
   currentId.value = row.id
   deviceDialogVisible.value = true
+}
+
+// 新增方法：提交设备表单
+const submitDeviceForm = async () => {
+  if (!deviceFormRef.value) return        // 现在可以访问到正确的 ref
+  await deviceFormRef.value.validate(async (valid) => {
+    if (valid) {
+      submitting.value = true
+      try {
+        if (isEdit.value && currentId.value !== null) {
+          await deviceStore.updateDevice(currentId.value, { ...deviceForm.value })
+          ElMessage.success('更新设备成功')
+        } else {
+          await deviceStore.createDevice({ ...deviceForm.value })
+          ElMessage.success('创建设备成功')
+        }
+        // 刷新列表
+        await deviceStore.fetchDevices(sceneId.value || undefined)
+        deviceDialogVisible.value = false
+      } catch {
+        ElMessage.error(isEdit.value ? '更新设备失败' : '创建设备失败')
+      } finally {
+        submitting.value = false
+      }
+    }
+  })
 }
 
 // Initialize location map
