@@ -34,7 +34,10 @@
             <div class="model-section">
               <div class="section-header">
                 <h3>属性</h3>
-                <el-button type="primary" size="small" @click="addProperty">添加属性</el-button>
+                <div class="section-actions">
+                  <el-button type="primary" size="small" @click="addProperty">添加属性</el-button>
+                  <el-button type="primary" size="small" @click="showModelJson">查看JSON</el-button>
+                </div>
               </div>
               
               <el-table :data="modelForm.properties" border style="width: 100%; margin-top: 10px;">
@@ -68,7 +71,6 @@
                 <h3>服务</h3>
                 <el-button type="primary" size="small" @click="addService">添加服务</el-button>
               </div>
-              
               <el-table :data="modelForm.services" border style="width: 100%; margin-top: 10px;">
                 <el-table-column prop="identify" label="标识符" width="180"></el-table-column>
                 <el-table-column prop="name" label="名称" width="180"></el-table-column>
@@ -99,7 +101,6 @@
                 <h3>事件</h3>
                 <el-button type="primary" size="small" @click="addEvent">添加事件</el-button>
               </div>
-              
               <el-table :data="modelForm.events" border style="width: 100%; margin-top: 10px;">
                 <el-table-column prop="identify" label="标识符" width="180"></el-table-column>
                 <el-table-column prop="name" label="名称" width="180"></el-table-column>
@@ -153,7 +154,6 @@
             <el-option label="枚举" value="enum"></el-option>
           </el-select>
         </el-form-item>
-        
         <!-- 整数和浮点数的规格 -->
         <template v-if="propertyForm.dataType.type === 'int' || propertyForm.dataType.type === 'float'">
           <el-form-item label="最小值" prop="dataType.specs.min">
@@ -169,14 +169,12 @@
             <el-input v-model="propertyForm.dataType.specs.unit" placeholder="例如：℃、kg"></el-input>
           </el-form-item>
         </template>
-        
         <!-- 字符串规格 -->
         <template v-if="propertyForm.dataType.type === 'string'">
           <el-form-item label="最大长度" prop="dataType.specs.length">
             <el-input-number v-model="propertyForm.dataType.specs.length" :min="1"></el-input-number>
           </el-form-item>
         </template>
-        
         <!-- 枚举规格 -->
         <template v-if="propertyForm.dataType.type === 'enum'">
           <el-form-item label="枚举值">
@@ -206,7 +204,6 @@
         <el-form-item label="名称" prop="name">
           <el-input v-model="serviceForm.name" placeholder="请输入服务名称"></el-input>
         </el-form-item>
-        
         <el-divider content-position="left">输入参数</el-divider>
         <div class="params-section">
           <el-button type="primary" size="small" @click="addServiceParam('input')">添加输入参数</el-button>
@@ -228,7 +225,6 @@
           </el-table>
           <el-empty v-if="serviceForm.inputData.length === 0" description="暂无输入参数"></el-empty>
         </div>
-        
         <el-divider content-position="left">输出参数</el-divider>
         <div class="params-section">
           <el-button type="primary" size="small" @click="addServiceParam('output')">添加输出参数</el-button>
@@ -275,7 +271,6 @@
             <el-option label="故障" value="error"></el-option>
           </el-select>
         </el-form-item>
-        
         <el-divider content-position="left">输出参数</el-divider>
         <div class="params-section">
           <el-button type="primary" size="small" @click="addEventParam">添加输出参数</el-button>
@@ -324,7 +319,6 @@
             <el-option label="枚举" value="enum"></el-option>
           </el-select>
         </el-form-item>
-        
         <!-- 整数和浮点数的规格 -->
         <template v-if="paramForm.dataType.type === 'int' || paramForm.dataType.type === 'float'">
           <el-form-item label="最小值" prop="dataType.specs.min">
@@ -340,14 +334,12 @@
             <el-input v-model="paramForm.dataType.specs.unit" placeholder="例如：℃、kg"></el-input>
           </el-form-item>
         </template>
-        
         <!-- 字符串规格 -->
         <template v-if="paramForm.dataType.type === 'string'">
           <el-form-item label="最大长度" prop="dataType.specs.length">
             <el-input-number v-model="paramForm.dataType.specs.length" :min="1"></el-input-number>
           </el-form-item>
         </template>
-        
         <!-- 枚举规格 -->
         <template v-if="paramForm.dataType.type === 'enum'">
           <el-form-item label="枚举值">
@@ -367,6 +359,17 @@
         </span>
       </template>
     </el-dialog>
+
+    <!-- JSON查看对话框 -->
+    <el-dialog v-model="jsonDialogVisible" title="模型JSON" width="60%">
+      <pre class="json-viewer">{{ formattedModelJson }}</pre>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button type="primary" @click="copyModelJson">复制</el-button>
+          <el-button @click="jsonDialogVisible = false">关闭</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -376,6 +379,7 @@ import { useDeviceTypeStore } from '@/store/deviceType'
 import { ElMessage, type FormInstance } from 'element-plus'
 import { getDeviceTypeById, updateDeviceTypeModel } from '@/api/deviceType'
 import type { DeviceType, Model, Property, Service, Event, DataType } from '@/types/models'
+import { useRouter, useRoute } from 'vue-router'
 
 const router = useRouter()
 const route = useRoute()
@@ -457,7 +461,8 @@ const state = reactive({
   tempId: null as number | null // 临时ID，用于在创建设备类型后添加模型
 })
 
-const { 
+// 计算属性
+const {
   activeTab, deviceTypeForm, modelForm, propertyForm, serviceForm, eventForm, paramForm,
   submitting, propertyDialogVisible, serviceDialogVisible, eventDialogVisible, paramDialogVisible,
   isPropertyEdit, isServiceEdit, isEventEdit, isParamEdit, editingPropertyIndex, editingServiceIndex,
@@ -489,6 +494,7 @@ const basicRules = {
   ]
 }
 
+// 验证规则
 const propertyRules = {
   identify: [
     { required: true, message: '请输入属性标识符', trigger: 'blur' },
@@ -511,7 +517,7 @@ const serviceRules = {
   name: [
     { required: true, message: '请输入服务名称', trigger: 'blur' },
     { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
-  ]
+  ],
 }
 
 const eventRules = {
@@ -560,9 +566,12 @@ const handleDataTypeChange = (type: string) => {
     case 'enum':
       propertyForm.value.dataType.specs = { values: [{ value: '0', label: '选项1' }] }
       break
+    default:
+      propertyForm.value.dataType.specs = { min: 0, max: 100, step: 1, unit: '' }
   }
 }
 
+// 处理数据类型变化
 const handleParamDataTypeChange = (type: string) => {
   switch(type) {
     case 'int':
@@ -580,6 +589,8 @@ const handleParamDataTypeChange = (type: string) => {
     case 'enum':
       paramForm.value.dataType.specs = { values: [{ value: '0', label: '选项1' }] }
       break
+    default:
+      paramForm.value.dataType.specs = { min: 0, max: 100, step: 1, unit: '' }
   }
 }
 
@@ -609,9 +620,9 @@ const removeParamEnumValue = (index: number) => {
 // 格式化数据类型规格
 const formatDataTypeSpecs = (dataType: DataType) => {
   if (!dataType || !dataType.specs) return ''
-  
   switch (dataType.type) {
     case 'int':
+      return `范围: ${dataType.specs.min} - ${dataType.specs.max}${dataType.specs.unit ? ', 单位: ' + dataType.specs.unit : ''}`
     case 'float':
       return `范围: ${dataType.specs.min} - ${dataType.specs.max}${dataType.specs.unit ? ', 单位: ' + dataType.specs.unit : ''}`
     case 'bool':
@@ -663,6 +674,7 @@ const resetDeviceTypeForm = () => {
   }
 }
 
+// 初始化表单数据
 const resetModelForm = () => {
   modelForm.value = {
     properties: [],
@@ -733,8 +745,7 @@ const loadDeviceTypeData = async (id: number) => {
     const res: any = await getDeviceTypeById(id)
     if (res.data) {
       const deviceType = res.data
-      
-      // 加载基本信息
+      // 加载基本信息'
       deviceTypeForm.value.code = deviceType.code || ''
       deviceTypeForm.value.name = deviceType.name || ''
       deviceTypeForm.value.description = deviceType.description || ''
@@ -762,7 +773,6 @@ watch([() => route.query.deviceTypeId, () => route.query.mode], async ([newId, n
   }
 }, { immediate: true })
 
-// 初始化
 onMounted(async () => {
   if (isEditMode.value && deviceTypeId.value) {
     await loadDeviceTypeData(deviceTypeId.value)
@@ -780,7 +790,6 @@ const navigateBack = () => {
 // 提交表单
 const submitForm = async () => {
   if (!deviceTypeFormRef.value) return
-  
   await deviceTypeFormRef.value.validate(async (valid) => {
     if (valid) {
       submitting.value = true
@@ -788,7 +797,6 @@ const submitForm = async () => {
         if (isEditMode.value && deviceTypeId.value) {
           // 更新设备类型
           await deviceTypeStore.updateDeviceType(deviceTypeId.value, deviceTypeForm.value)
-          
           // 更新设备类型模型
           await updateDeviceTypeModel(deviceTypeId.value, modelForm.value)
           
@@ -797,10 +805,8 @@ const submitForm = async () => {
           // 创建设备类型
           const result = await deviceTypeStore.createDeviceType(deviceTypeForm.value)
           tempId.value = result.id
-          
           // 激活模型选项卡
           activeTab.value = 'model'
-          
           ElMessage.success('创建成功，请继续定义设备类型模型')
         }
       } catch (error) {
@@ -836,6 +842,7 @@ const submitPropertyForm = async () => {
   
   await propertyFormRef.value.validate(async (valid) => {
     if (valid) {
+      const property = JSON.parse(JSON.stringify(propertyForm.value))
       if (isPropertyEdit.value) {
         // 更新现有属性
         modelForm.value.properties[editingPropertyIndex.value] = JSON.parse(JSON.stringify(propertyForm.value))
@@ -871,6 +878,7 @@ const submitServiceForm = async () => {
   
   await serviceFormRef.value.validate(async (valid) => {
     if (valid) {
+      const service = JSON.parse(JSON.stringify(serviceForm.value))
       if (isServiceEdit.value) {
         // 更新现有服务
         modelForm.value.services[editingServiceIndex.value] = JSON.parse(JSON.stringify(serviceForm.value))
@@ -888,7 +896,7 @@ const addServiceParam = (type: 'input' | 'output') => {
   initParamForm()
   isParamEdit.value = false
   editingParamType.value = type
-  paramDialogVisible.value = true
+  serviceDialogVisible.value = true
 }
 
 const editServiceParam = (type: 'input' | 'output', param: Property, index: number) => {
@@ -930,6 +938,7 @@ const submitEventForm = async () => {
   
   await eventFormRef.value.validate(async (valid) => {
     if (valid) {
+      const event = JSON.parse(JSON.stringify(eventForm.value))
       if (isEventEdit.value) {
         // 更新现有事件
         modelForm.value.events[editingEventIndex.value] = JSON.parse(JSON.stringify(eventForm.value))
@@ -947,7 +956,7 @@ const addEventParam = () => {
   initParamForm()
   isParamEdit.value = false
   editingParamType.value = 'event'
-  paramDialogVisible.value = true
+  eventDialogVisible.value = true
 }
 
 const editEventParam = (param: Property, index: number) => {
@@ -965,11 +974,9 @@ const removeEventParam = (index: number) => {
 // 提交参数表单
 const submitParamForm = async () => {
   if (!paramFormRef.value) return
-  
   await paramFormRef.value.validate(async (valid) => {
     if (valid) {
       const param = JSON.parse(JSON.stringify(paramForm.value))
-      
       if (editingParamType.value === 'input') {
         if (isParamEdit.value) {
           serviceForm.value.inputData[editingParamIndex.value] = param
@@ -989,7 +996,6 @@ const submitParamForm = async () => {
           eventForm.value.outputData.push(param)
         }
       }
-      
       paramDialogVisible.value = false
     }
   })
@@ -1008,6 +1014,31 @@ watch(() => tempId.value, async (newId) => {
     }
   }
 })
+
+// JSON对话框相关状态
+const jsonDialogVisible = ref(false)
+
+// 格式化JSON
+const formattedModelJson = computed(() => {
+  return JSON.stringify(modelForm.value, null, 2)
+})
+
+// 显示模型JSON
+const showModelJson = () => {
+  jsonDialogVisible.value = true
+}
+
+// 复制JSON内容
+const copyModelJson = () => {
+  navigator.clipboard.writeText(formattedModelJson.value)
+    .then(() => {
+      ElMessage.success('JSON已复制到剪贴板')
+    })
+    .catch(err => {
+      console.error('复制失败:', err)
+      ElMessage.error('复制失败')
+    })
+}
 </script>
 
 <style scoped>
@@ -1027,13 +1058,6 @@ watch(() => tempId.value, async (newId) => {
   gap: 10px;
 }
 
-.setting-content {
-  background: #fff;
-  padding: 20px;
-  border-radius: 4px;
-  margin-bottom: 20px;
-}
-
 .model-section {
   margin-bottom: 30px;
 }
@@ -1050,6 +1074,11 @@ watch(() => tempId.value, async (newId) => {
   font-size: 16px;
 }
 
+.section-actions {
+  display: flex;
+  gap: 10px;
+}
+
 .enum-item {
   display: flex;
   align-items: center;
@@ -1063,5 +1092,19 @@ watch(() => tempId.value, async (newId) => {
 
 .params-section {
   margin-bottom: 20px;
+}
+
+.json-viewer {
+  background-color: #f5f7fa;
+  color: #606266;
+  padding: 16px;
+  border-radius: 4px;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: auto;
+  max-height: 60vh;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 </style>
