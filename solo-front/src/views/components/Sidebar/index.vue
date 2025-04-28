@@ -1,6 +1,9 @@
 <template>
     <div class="nav">
-      <div class="logo">LOGO</div>
+      <!-- Replace LOGO text with an image -->
+      <div class="logo">
+        <img src="@/assets/words.jpg" alt="Logo" style="max-width:100%;"/>
+      </div>
       <el-menu
       :default-active="selectedItem"
       class="nav-menu"
@@ -203,4 +206,3 @@
     color: #0464e4;
   }
   </style>
-  
