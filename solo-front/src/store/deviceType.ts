@@ -29,6 +29,8 @@ export const useDeviceTypeStore = defineStore('deviceType', {
                 if (res.data && res.status === 200) {
                     await this.fetchDeviceTypes()
                     return res.data
+                } else {
+                    throw new Error(res.message || '创建设备类型失败')
                 }
             } catch (error) {
                 console.error('Failed to create deviceType:', error)
@@ -42,6 +44,8 @@ export const useDeviceTypeStore = defineStore('deviceType', {
                 if (res.data && res.status === 200) {
                     await this.fetchDeviceTypes()
                     return res.data
+                } else {
+                    throw new Error(res.message || '更新设备类型失败')
                 }
             } catch (error) {
                 console.error('Failed to update device:', error)

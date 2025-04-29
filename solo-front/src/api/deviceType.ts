@@ -18,6 +18,7 @@ export function getDeviceTypeById(id: number) {
     })
 }
 
+// 确保创建设备类型接口与文档一致
 export function createDeviceType(data: any) {
     return request({
         url: '/devicetypes',
@@ -26,6 +27,7 @@ export function createDeviceType(data: any) {
     })
 }
 
+// 添加更新设备类型接口
 export function updateDeviceType(id: number, data: any) {
     return request({
         url: `/devicetypes/${id}`,
@@ -34,13 +36,7 @@ export function updateDeviceType(id: number, data: any) {
     })
 }
 
-export function deleteDeviceType(id: number) {
-    return request({
-        url: `/devicetypes/${id}`,
-        method: 'delete'
-    })
-}
-
+// 确保更新设备类型模型接口与文档一致
 export function updateDeviceTypeModel(id: number, model: any) {
     return request({
         url: `/devicetypes/model`,
@@ -49,6 +45,13 @@ export function updateDeviceTypeModel(id: number, model: any) {
             deviceTypeId: id,
             model: model
         }
+    })
+}
+
+export function deleteDeviceType(id: number) {
+    return request({
+        url: `/devicetypes/${id}`,
+        method: 'delete'
     })
 }
 

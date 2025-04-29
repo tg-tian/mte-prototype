@@ -796,18 +796,28 @@ const submitForm = async () => {
       try {
         if (isEditMode.value && deviceTypeId.value) {
           // 更新设备类型
-          await deviceTypeStore.updateDeviceType(deviceTypeId.value, deviceTypeForm.value)
+          const result = await deviceTypeStore.updateDeviceType(deviceTypeId.value, deviceTypeForm.value)
           // 更新设备类型模型
           await updateDeviceTypeModel(deviceTypeId.value, modelForm.value)
           
           ElMessage.success('更新成功')
         } else {
-          // 创建设备类型
-          const result = await deviceTypeStore.createDeviceType(deviceTypeForm.value)
-          tempId.value = result.id
-          // 激活模型选项卡
-          activeTab.value = 'model'
-          ElMessage.success('创建成功，请继续定义设备类型模型')
+          // 创建设备类型 - 符合接口文档格式
+          const createData = {
+            code: deviceTypeForm.value.code,
+            name: deviceTypeForm.value.name,
+            description: deviceTypeForm.value.description
+          }
+          
+          const result = await deviceTypeStore.createDeviceType(createData)
+          if (result && result.id) {
+            tempId.value = result.id
+            // 激活模型选项卡
+            activeTab.value = 'model'
+            ElMessage.success('创建成功，请继续定义设备类型模型')
+          } else {
+            throw new Error('创建设备类型失败，未返回有效ID')
+          }
         }
       } catch (error) {
         console.error(error)
@@ -1003,10 +1013,17 @@ const submitParamForm = async () => {
 
 // 在保存临时设备类型后，更新设备类型模型
 watch(() => tempId.value, async (newId) => {
-  if (newId && activeTab.value === 'model') {
+  if (newId && activeTab.value === 'model' && modelForm.value.properties.length > 0) {
     try {
+      // 确保模型数据结构符合接口要求
+      const modelData = {
+        properties: modelForm.value.properties || [],
+        services: modelForm.value.services || [],
+        events: modelForm.value.events || []
+      }
+      
       // 更新新创建的设备类型的模型
-      await updateDeviceTypeModel(newId, modelForm.value)
+      await updateDeviceTypeModel(newId, modelData)
       ElMessage.success('模型已保存')
     } catch (error) {
       console.error('保存模型失败:', error)

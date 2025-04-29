@@ -1,5 +1,6 @@
 <template>
-    <el-button type="primary" style="float: right;margin-bottom: 10px">绑定设备类型</el-button>
+    <!-- 添加设备类型绑定功能 -->
+    <el-button type="primary" style="float: right;margin-bottom: 10px" @click="showBindDeviceTypeDialog">绑定设备类型</el-button>
     <el-empty description="暂无组件" v-if="filteredDeviceTypes.length===0"/>
     <el-table
       v-loading="deviceTypeStore.loading"
@@ -93,5 +94,49 @@ const handleDelete = (row: any) => {
   .catch(() => {
     // 用户取消操作
   })
+}
+
+// 添加绑定设备类型对话框
+const bindingDialogVisible = ref(false)
+const availableDeviceTypes = ref([])
+const selectedDeviceTypeId = ref(null)
+
+// 显示绑定设备类型对话框
+const showBindDeviceTypeDialog = async () => {
+  try {
+    // 获取可用的设备类型列表（未绑定到当前领域的）
+    const res = await request({
+      url: '/devicetypes',
+      method: 'get'
+    })
+    
+    if (res.data && res.status === 200) {
+      // 过滤掉已经绑定的设备类型
+      availableDeviceTypes.value = res.data.filter((dt: any) => {
+        return !filteredDeviceTypes.value.some((bound: any) => bound.id === dt.id)
+      })
+      bindingDialogVisible.value = true
+    }
+  } catch (error) {
+    console.error('加载可用设备类型失败:', error)
+    ElMessage.error('加载可用设备类型失败')
+  }
+}
+
+// 绑定设备类型
+const bindDeviceType = async () => {
+  if (!selectedDeviceTypeId.value) {
+    ElMessage.warning('请选择设备类型')
+    return
+  }
+  
+  try {
+    await deviceTypeStore.bindingDeviceType(selectedDeviceTypeId.value, domainId.value)
+    ElMessage.success('绑定成功')
+    bindingDialogVisible.value = false
+    selectedDeviceTypeId.value = null
+  } catch (error) {
+    ElMessage.error('绑定失败')
+  }
 }
 </script>
