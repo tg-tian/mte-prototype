@@ -19,11 +19,11 @@ export const useDomainTemplateStore = defineStore('domainTemplate', {
             // 获取领域绑定的模板列表
             this.loading = true
             try{
-                // const res:any = await getDomainTemplates(domainId)
-                // if(res.data && res.status===200){
-                //     this.templates = res.data
-                // }
-                this.templates = mockTemplates
+                const res:any = await getDomainTemplates(domainId)
+                if(res.data && res.status===200){
+                    this.templates = res.data
+                }
+                // this.templates = mockTemplates
             } catch(error) {
                 console.error('Failed to fetch domain templates:', error)
             } finally {

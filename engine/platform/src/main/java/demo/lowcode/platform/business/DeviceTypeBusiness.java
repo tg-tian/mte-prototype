@@ -8,6 +8,7 @@ import demo.lowcode.platform.mapper.DomainComponentMapper;
 import demo.lowcode.platform.model.device.Model;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Date;
 import java.util.List;
@@ -50,17 +51,22 @@ public class DeviceTypeBusiness {
         return deviceTypeMapper.selectById(id);
     }
 
-    public DeviceType createDeviceType(String code, String name, String description) {
-        if(deviceTypeMapper.selectByCode(code) != null){
+    @Transactional
+    public DeviceType createDeviceType(String code, String name, String description, Model model) {
+        // 检查设备类型编码是否已存在
+        DeviceType existingDeviceType = deviceTypeMapper.selectByCode(code);
+        if (existingDeviceType != null) {
             throw new RuntimeException("对应设备类型编码已存在");
         }
 
+        // 创建新的设备类型
         DeviceType deviceType = new DeviceType();
         deviceType.setId(null);
         deviceType.setCode(code);
         deviceType.setName(name);
         deviceType.setDescription(description);
         deviceType.setCreateTime(new Date());
+        deviceType.setModel(model);
         deviceTypeMapper.insert(deviceType);
 
         return deviceType;
