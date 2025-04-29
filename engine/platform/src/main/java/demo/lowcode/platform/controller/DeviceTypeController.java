@@ -126,10 +126,15 @@ public class DeviceTypeController {
     @ApiOperation(value = "创建设备类型")
     public ResponseEntity<?> createDeviceType(@RequestBody NewDeviceType newDeviceType){
         try {
-            DeviceType deviceType=deviceTypeBusiness.createDeviceType(newDeviceType.getCode(), newDeviceType.getName(), newDeviceType.getDescription());
-            return new ResponseEntity<>(deviceType,HttpStatus.OK);
+            DeviceType deviceType = deviceTypeBusiness.createDeviceType(
+                newDeviceType.getCode(),
+                newDeviceType.getName(),
+                newDeviceType.getDescription(),
+                newDeviceType.getModel()
+            );
+            return new ResponseEntity<>(deviceType, HttpStatus.OK);
         }catch (RuntimeException e){
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.CONFLICT);
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
         }
     }
 

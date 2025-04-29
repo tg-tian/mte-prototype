@@ -49,7 +49,7 @@
 - `/devicetypes/{id}` (GET) - 获取指定ID的设备类型
   - 响应: `{ code: number, message: string, data: DeviceType }`
 - `/devicetypes` (POST) - 创建新设备类型
-  - 请求体: `{ code: string, name: string, description: string}`
+  - 请求体: `{ code: string, name: string, description: string, model?:Model}`
   - 响应: `{ code: number, message: string, data: DeviceType }`
 - `/devicetypes/{id}` (PUT) - 更新设备类型信息
   - 请求体: `{ code: string, name: string, description: string}`

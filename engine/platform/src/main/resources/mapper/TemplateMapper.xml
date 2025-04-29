@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="demo.lowcode.platform.mapper.TemplateMapper">
+
+    <resultMap id="templateResultMap" type="demo.lowcode.platform.entity.Template">
+        <id property="id" column="id"/>
+        <result property="template_id" column="template_id"/>
+        <result property="name" column="name"/>
+        <result property="description" column="description"/>
+        <result property="category" column="category"/>
+        <result property="tags" column="tags"/>
+        <result property="domain" column="domain"/>
+        <result property="image_url" column="image_url"/>
+        <result property="describing_the_model" column="describing_the_model"/>
+        <result property="url" column="url"/>
+    </resultMap>
+
+    <!--获取领域模板列表-->
+    <select id="getDomainTemplate" resultMap="templateResultMap">
+        SELECT * FROM template
+        WHERE id IN (
+            SELECT component_id FROM domain_component
+            WHERE domain_id = #{domainId} AND component_type = 'template'
+        )
+    </select>
+
+    <!--插入领域模板关系-->
+    <insert id="insertDomainTemplateRelation">
+        INSERT INTO domain_component (domain_id, component_id, component_type)
+        VALUES (#{domainId}, #{templateId}, 'template')
+    </insert>
+
+    <!--根据template_id查询模板-->
+    <select id="selectByTemplateId" resultMap="templateResultMap">
+        SELECT * FROM template WHERE template_id = #{templateId}
+    </select>
+
+    <!--删除领域模板关系-->
+    <delete id="deleteDomainTemplateRelation">
+        DELETE FROM domain_component 
+        WHERE domain_id = #{domainId} 
+        AND component_id = #{templateId} 
+        AND component_type = 'template'
+    </delete>
+</mapper>
