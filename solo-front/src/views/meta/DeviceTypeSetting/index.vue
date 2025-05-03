@@ -172,13 +172,13 @@
         <!-- 字符串规格 -->
         <template v-if="propertyForm.dataType.type === 'string'">
           <el-form-item label="最大长度" prop="dataType.specs.length">
-            <el-input-number v-model="propertyForm.dataType.specs.length" :min="1"></el-input-number>
+            <el-input-number v-model="propertyForm.dataType.specs['length']" :min="1"></el-input-number>
           </el-form-item>
         </template>
         <!-- 枚举规格 -->
         <template v-if="propertyForm.dataType.type === 'enum'">
           <el-form-item label="枚举值">
-            <div v-for="(item, index) in propertyForm.dataType.specs.values" :key="index" class="enum-item">
+            <div v-for="(item, index) in propertyForm.dataType.specs['values']" :key="index" class="enum-item">
               <el-input v-model="item.value" placeholder="值" class="enum-value"></el-input>
               <el-input v-model="item.label" placeholder="标签" class="enum-label"></el-input>
               <el-button type="danger" icon="Delete" circle @click="removeEnumValue(index)"></el-button>
@@ -337,13 +337,13 @@
         <!-- 字符串规格 -->
         <template v-if="paramForm.dataType.type === 'string'">
           <el-form-item label="最大长度" prop="dataType.specs.length">
-            <el-input-number v-model="paramForm.dataType.specs.length" :min="1"></el-input-number>
+            <el-input-number v-model="paramForm.dataType.specs['length']" :min="1"></el-input-number>
           </el-form-item>
         </template>
         <!-- 枚举规格 -->
         <template v-if="paramForm.dataType.type === 'enum'">
           <el-form-item label="枚举值">
-            <div v-for="(item, index) in paramForm.dataType.specs.values" :key="index" class="enum-item">
+            <div v-for="(item, index) in paramForm.dataType.specs['values']" :key="index" class="enum-item">
               <el-input v-model="item.value" placeholder="值" class="enum-value"></el-input>
               <el-input v-model="item.label" placeholder="标签" class="enum-label"></el-input>
               <el-button type="danger" icon="Delete" circle @click="removeParamEnumValue(index)"></el-button>
@@ -416,7 +416,7 @@ const state = reactive({
         max: 100,
         step: 1,
         unit: ''
-      }
+      } as Record<string, any>
     }
   },
   serviceForm: {
@@ -441,7 +441,7 @@ const state = reactive({
         max: 100,
         step: 1,
         unit: ''
-      }
+      } as Record<string, any>
     }
   },
   submitting: false,
@@ -648,10 +648,10 @@ const getEventTypeText = (type: string) => {
 
 const getEventTypeTag = (type: string) => {
   switch(type) {
-    case 'info': return ''
+    case 'info': return 'info'
     case 'warning': return 'warning'
     case 'error': return 'danger'
-    default: return ''
+    default: return 'info'
   }
 }
 
@@ -696,7 +696,7 @@ const initPropertyForm = () => {
         max: 100,
         step: 1,
         unit: ''
-      }
+      } as Record<string, any>
     }
   }
 }
@@ -733,7 +733,7 @@ const initParamForm = () => {
         max: 100,
         step: 1,
         unit: ''
-      }
+      } as Record<string, any>
     }
   }
 }

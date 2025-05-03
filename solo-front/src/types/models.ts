@@ -87,7 +87,7 @@ export interface Property {
 
 export interface DataType {
     type: string;//类型：int\float\bool\string
-    specs: any;//对象，int&float类型包括min\max\step属性，bool类型包括0\1，string类型包括length
+    specs: Record<string, any>;//对象，int&float类型包括min\max\step属性，bool类型包括0\1，string类型包括length
 }
 
 export interface Service {

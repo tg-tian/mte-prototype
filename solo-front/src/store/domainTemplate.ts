@@ -49,11 +49,11 @@ export const useDomainTemplateStore = defineStore('domainTemplate', {
                 const res: any = await getTemplates(queryData, page)
                 if (res.data && res.status === 200) {
                     if(page === 1) {
-                        this.allTemplates = res.data
+                        this.allTemplates = res.data.data
                     } else {
-                        this.allTemplates = [...this.allTemplates, ...res.data]
+                        this.allTemplates = [...this.allTemplates, ...res.data.data]
                     }
-                    this.hasMore = res.data.length > 0
+                    this.hasMore = res.data.data.length > 0
                 }
             } catch (error) {
                 console.error('Failed to fetch domains:', error)

@@ -1,17 +1,15 @@
 <template>
     <div class="nav">
       <!-- Replace LOGO text with an image -->
-      <div class="logo">
-        <img src="@/assets/words.jpg" alt="Logo" style="max-width:100%;"/>
-      </div>
+      <el-image :src="logoImage" alt="Logo" style="max-width:95%;"/>
       <el-menu
       :default-active="selectedItem"
       class="nav-menu"
       @select="handleMenuSelect"
       :style="{
-        '--el-menu-bg-color': '#0464e4',
+        '--el-menu-bg-color': '#0454c4',
         '--el-menu-text-color': 'rgba(255, 255, 255, 0.65)',
-        '--el-menu-active-color': '#0464e4'
+        '--el-menu-active-color': '#0454c4'
       }"
       >
       <!-- 元工具平台 -->
@@ -63,6 +61,7 @@
   <script setup lang="ts">
   import { Monitor } from '@element-plus/icons-vue'
   import router from '@/router/index.ts'
+  import logoImage from '@/assets/LOGO_dark.jpg'
   
   interface State {
     selectedItem: string
@@ -164,13 +163,13 @@
   .nav {
     width: 200px;
     height: 100%;
-    background-color: #0464e4;
+    background-color: #0454c4;
     color: white;
   }
   .logo{
     font-size: 20px;
-    padding-top: 10px;
-    margin-left: 10px;
+    /* padding-top: 10px;
+    margin-left: 10px; */
   }
   .nav-menu {
     display: flex;
@@ -199,10 +198,10 @@
   }
 
   :deep(.nav-item .el-menu-item:hover) {
-    color: #0464e4;
+    color: #0454c4;
   }
 
   :deep(.nav-item .el-sub-menu__title:hover) {
-    color: #0464e4;
+    color: #0454c4;
   }
   </style>
