@@ -175,6 +175,8 @@ public class DomainBusiness {
             throw new RuntimeException("领域不存在");
         }
 
+        //生成领域中间表示DSL
+
         existDomain.setStatus(pubInfo.getStatus());
         existDomain.setUrl(pubInfo.getUrl());
         existDomain.setUpdateTime(new Date());

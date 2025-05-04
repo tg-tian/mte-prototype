@@ -7,16 +7,19 @@
         <el-button 
           type="primary" 
           @click="handlePublish"
+          v-if="isEditMode"
         >{{domainForm.status==='1' ? '取消发布':'发布'}}</el-button>
-        <el-button type="primary" @click="submitForm" :loading="submitting">保存</el-button>
+        <el-button type="primary" @click="submitForm" :loading="submitting">{{ isEditMode ? '保存' : '创建' }}</el-button>
         <el-button 
           type="primary" 
-          plain 
+          plain
+          v-if="!isEditMode"
           @click="importTemplate"
         >从模板导入</el-button>
         <el-button 
           type="primary" 
-          plain 
+          plain
+          v-if="!isEditMode"
           @click="saveTemplate"
         >保存为模板</el-button>
       </div>

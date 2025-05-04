@@ -30,8 +30,8 @@
       border
     >
       <el-table-column prop="domainCode" label="领域编码" width="150"></el-table-column>
-      <el-table-column prop="domainName" label="领域名称" min-width="150"></el-table-column>
-      <el-table-column prop="domainDescription" label="描述" min-width="200"></el-table-column>
+      <el-table-column prop="domainName" label="领域名称" min-width="100"></el-table-column>
+      <el-table-column prop="domainDescription" label="描述" min-width="150"></el-table-column>
       <el-table-column prop="createTime" label="创建时间" width="120">
       </el-table-column>
       <el-table-column prop="updateTime" label="更新时间" width="120">
@@ -44,7 +44,7 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="300">
+      <el-table-column label="操作" width="350">
         <template #default="scope">
           <el-button type="primary" size="small" @click="navigateToDomainSetting(scope.row)">编辑</el-button>
           <el-button type="success" size="small" @click="navigateToDomainPlatform(scope.row)">进入领域</el-button>
