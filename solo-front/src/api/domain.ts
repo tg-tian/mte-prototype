@@ -39,6 +39,14 @@ export function deleteDomain(id: number) {
     })
 }
 
+export function publishDomain(data: any) {
+    return request({
+        url: `/domains/publish`,
+        method: 'post',
+        data: data
+    })
+}
+
 // Mock API functions
 export function getMockDomains() {
     return new Promise((resolve) => {

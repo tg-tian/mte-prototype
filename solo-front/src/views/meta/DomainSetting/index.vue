@@ -4,8 +4,21 @@
       <h2>{{ isEditMode ? '编辑领域-'+domainForm.name : '创建领域' }}</h2>
       <div class="header-actions">
         <el-button @click="navigateBack">返回列表</el-button>
-        <el-button type="primary" >发布</el-button>
+        <el-button 
+          type="primary" 
+          @click="handlePublish"
+        >{{domainForm.status==='1' ? '取消发布':'发布'}}</el-button>
         <el-button type="primary" @click="submitForm" :loading="submitting">保存</el-button>
+        <el-button 
+          type="primary" 
+          plain 
+          @click="importTemplate"
+        >从模板导入</el-button>
+        <el-button 
+          type="primary" 
+          plain 
+          @click="saveTemplate"
+        >保存为模板</el-button>
       </div>
     </div>
     
@@ -26,8 +39,33 @@
             <el-form-item label="领域描述" prop="description">
               <el-input type="textarea" :rows="3" v-model="domainForm.description" placeholder="请输入领域描述"></el-input>
             </el-form-item>
+            <el-form-item label="代码编辑器" prop="codeEditor" class="half-width">
+              <el-select v-model="domainForm.codeEditor" placeholder="请选择代码编辑器">
+                <el-option label="默认" value="default" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="模型编辑器" prop="modelEditor" class="half-width">
+              <el-select v-model="domainForm.modelEditor" placeholder="请选择模型编辑器">
+                <el-option label="默认" value="default" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="基础运行框架" prop="baseFramework" class="half-width">
+              <el-select v-model="domainForm.baseFramework" placeholder="请选择基础运行框架">
+                <el-option label="Spring Boot" value="springboot" />
+                <el-option label="Node.js" value="nodejs" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="DSL标准" prop="dslStandard" class="half-width">
+              <el-select v-model="domainForm.dslStandard" placeholder="请选择DSL标准">
+                <el-option label="默认" value="default" />
+                <el-option label="UBML" value="UBML" />
+              </el-select>
+            </el-form-item>
             <el-form-item label="状态" prop="status">
               <el-tag :type="domainForm.status==='1' ? 'success':'info'">{{ domainForm.status==='1' ? '已发布':'定制中' }}</el-tag>
+            </el-form-item>
+            <el-form-item label="领域地址" prop="url" v-if="domainForm.status==='1'">
+              <el-input v-model="domainForm.url"></el-input>
             </el-form-item>
             <el-form-item label="图标">
               <el-upload
@@ -49,8 +87,29 @@
         <el-tab-pane label="设备类型" name="model" v-if="isEditMode">
           <DomainDeviceType />
         </el-tab-pane>
+
+        <el-tab-pane label="领域组件" name="component" v-if="isEditMode">
+          <DomainComponent />
+        </el-tab-pane>
       </el-tabs>
     </el-card>
+
+    <!-- Publish Dialog -->
+    <el-dialog
+    v-model="publishDialogVisible"
+    title="发布领域"
+    width="500"
+    >
+    <el-input v-model="domainForm.url" placeholder="请输入发布地址"></el-input>
+    <template #footer>
+      <div class="dialog-footer">
+        <el-button @click="publishDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="publishDomain">
+          确定
+        </el-button>
+      </div>
+    </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -58,11 +117,24 @@
 import { ref, reactive, computed, onMounted, watch, toRefs } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import { useDomainStore } from '@/store/domain'
-import { ElMessage, type FormInstance } from 'element-plus'
+import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { getDomainById, getMockDomainById } from '@/api/domain'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import DomainDeviceType from './component/DomainDeviceType.vue'
 import DomainTemplate from './component/DomainTemplate.vue'
+import DomainComponent from './component/DomainComponent.vue'
+
+interface DomainForm {
+  code: string
+  name: string
+  description: string
+  status: string
+  codeEditor: string
+  modelEditor: string
+  baseFramework: string
+  dslStandard: string
+  url: string
+}
 
 const router = useRouter()
 const route = useRoute()
@@ -76,12 +148,18 @@ const state = reactive({
     code: '',
     name: '',
     description: '',
-    status: '0'
-  },
-  submitting: false
+    status: '0',
+    codeEditor: '',
+    modelEditor: '',
+    baseFramework: '',
+    dslStandard: '',
+    url: ''
+  } as DomainForm,
+  submitting: false,
+  publishDialogVisible: false
 })
 
-const { activeTab, domainForm, submitting } = toRefs(state)
+const { activeTab, domainForm, submitting, publishDialogVisible } = toRefs(state)
 
 // Determine if we're in edit mode
 const isEditMode = computed(() => {
@@ -94,7 +172,7 @@ const domainId = computed(() => {
 })
 
 // Rules for form validation
-const rules = {
+const rules: FormRules = {
   code: [
     { required: true, message: '请输入领域编码', trigger: 'blur' },
     { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
@@ -106,8 +184,17 @@ const rules = {
   description: [
     { required: true, message: '请输入领域描述', trigger: 'blur' }
   ],
-  status: [
-    { required: true, message: '请选择状态', trigger: 'change' }
+  codeEditor: [
+    { required: true, message: '请选择代码编辑器', trigger: 'change' }
+  ],
+  modelEditor: [
+    { required: true, message: '请选择模型编辑器', trigger: 'change' }
+  ],
+  baseFramework: [
+    { required: true, message: '请选择基础运行框架', trigger: 'change' }
+  ],
+  dslStandard: [
+    { required: true, message: '请选择DSL标准', trigger: 'change' }
   ]
 }
 
@@ -117,7 +204,12 @@ const resetFormData = () => {
     code: '',
     name: '',
     description: '',
-    status: '0'
+    status: '0',
+    codeEditor: '',
+    modelEditor: '',
+    baseFramework: '',
+    dslStandard: '',
+    url: ''
   }
 }
 
@@ -132,6 +224,11 @@ const loadDomainToForm = (domain: any) => {
     domainForm.value.name = domain.domainName || ''
     domainForm.value.description = domain.domainDescription || ''
     domainForm.value.status = domain.status || '0'
+    domainForm.value.url = domain.url || ''
+    domainForm.value.codeEditor = domain.codeEditor || ''
+    domainForm.value.modelEditor = domain.modelEditor || ''
+    domainForm.value.baseFramework = domain.framework || ''
+    domainForm.value.dslStandard = domain.dsl || ''
     
     console.log('Domain data loaded to form:', domainForm.value)
   }
@@ -226,6 +323,52 @@ const submitForm = async () => {
     }
   })
 }
+
+// Handle publish
+const handlePublish = async () => {
+  if (!domainFormRef.value) return
+  
+  await domainFormRef.value.validate(async (valid) => {
+    if (valid) {
+      if(domainForm.value.status === '1') {
+        domainStore.publishDomain(domainId.value, '', '0')
+        .then((res)=>{
+          ElMessage.success('取消发布成功')
+          loadDomainToForm(res)
+        }
+        ).catch((error)=>{
+          ElMessage.error('取消发布失败:', error)
+        })
+      }else{
+        publishDialogVisible.value=true
+      }
+    }
+  })
+}
+
+const publishDomain = async () => {
+  if(domainForm.value.url){
+    domainStore.publishDomain(domainId.value, domainForm.value.url, '1')
+    .then((res)=>{
+        ElMessage.success('发布成功')
+        loadDomainToForm(res)
+        publishDialogVisible.value = false
+      }
+    ).catch((error)=>{
+      ElMessage.error('发布失败:', error)
+    })
+  }else{
+    ElMessage.warning('请输入url')
+  }
+}
+
+const importTemplate = () => {
+  console.log('importTemplate')
+}
+
+const saveTemplate = () => {
+  console.log('saveTemplate')
+}
 </script>
 
 <style scoped>
@@ -249,5 +392,14 @@ const submitForm = async () => {
   background: #fff;
   padding: 20px;
   border-radius: 4px;
+}
+
+.publish-url {
+  margin-top: 10px;
+  width: 100%;
+}
+
+:deep(.half-width) {
+  width: 50%;
 }
 </style>

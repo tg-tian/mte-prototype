@@ -10,4 +10,9 @@ public class NewDomain {
     private String name;
     private String description;
     private String status;
+    private String url;
+    private String codeEditor;
+    private String modelEditor;
+    private String baseFramework;
+    private String dslStandard;
 }

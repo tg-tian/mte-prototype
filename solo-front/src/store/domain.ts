@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getMockDomains, createMockDomain, updateMockDomain, deleteMockDomain, getDomains, updateDomain, deleteDomain, createDomain } from '@/api/domain'
+import { getMockDomains, createMockDomain, updateMockDomain, deleteMockDomain, getDomains, updateDomain, deleteDomain, createDomain, publishDomain } from '@/api/domain'
 
 export const useDomainStore = defineStore('domain', {
     state: () => ({
@@ -58,6 +58,31 @@ export const useDomainStore = defineStore('domain', {
                 }
             } catch (error) {
                 console.error('Failed to delete domain:', error)
+                throw error
+            }
+        },
+
+        async publishDomain(domainId: number, url: string, status: string) {
+            try {
+                let data = {
+                    domainId: domainId,
+                    status: status??'1',
+                    url: url
+                }
+                const res: any = await publishDomain(data);
+                
+                if (res && res.status === 200) {
+                    // 如果当前场景正在被更新，则同步更新它
+                    if (this.currentDomain && this.currentDomain.id === domainId) {
+                        this.currentDomain = { ...this.currentDomain, ...res.data }
+                    }
+                    
+                    // 刷新场景列表
+                    await this.fetchDomains()
+                    return res.data
+                }
+            } catch (error) {
+                console.error('Failed to publish scene:', error)
                 throw error
             }
         },

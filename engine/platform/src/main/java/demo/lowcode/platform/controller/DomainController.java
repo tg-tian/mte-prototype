@@ -2,11 +2,11 @@ package demo.lowcode.platform.controller;
 
 import demo.lowcode.platform.business.DeviceTypeBusiness;
 import demo.lowcode.platform.business.DomainBusiness;
-import demo.lowcode.platform.dto.DomainJson;
-import demo.lowcode.platform.dto.Domain_ComponentJson;
-import demo.lowcode.platform.dto.NewDomain;
+import demo.lowcode.platform.dto.*;
 import demo.lowcode.platform.entity.Domain;
+import demo.lowcode.platform.entity.Scene;
 import io.swagger.annotations.Api;
+import io.swagger.annotations.ApiOperation;
 import jakarta.annotation.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -96,6 +96,17 @@ public class DomainController {
             return new ResponseEntity<>("删除成功",HttpStatus.OK);
         }catch (RuntimeException e){
             return new ResponseEntity<>("删除失败",HttpStatus.CONFLICT);
+        }
+    }
+
+    @PostMapping(value = "/domains/publish")
+    @ApiOperation(value = "发布领域")
+    public ResponseEntity<?> publishDomain(@RequestBody DomainPubInfo pubInfo){
+        try {
+            Domain domain = domainBusiness.publishDomain(pubInfo);
+            return new ResponseEntity<>(domain,HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>("发布失败",HttpStatus.CONFLICT);
         }
     }
 }

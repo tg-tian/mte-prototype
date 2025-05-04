@@ -180,6 +180,7 @@ import { useDeviceStore } from '@/store/device'
 import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
 import { getSceneById } from '@/api/scene'
 import { useRouter, useRoute } from 'vue-router'
+import { Device } from '@/types/models'
 
 const router = useRouter()
 const route = useRoute()
@@ -408,7 +409,7 @@ const submitDeviceForm = async () => {
 
 // Initialize location map
 const initLocationMap = () => {
-  if (!locationMap.value) return
+  if (!baiduMap.value) return
   
   // Create map instance
   baiduMap.value = new BMap.Map('location-map')
@@ -477,7 +478,7 @@ const addLocationMarker = () => {
 // Watch for changes in coordinates to update marker
 watch([() => sceneForm.value.lng, () => sceneForm.value.lat], () => {
   if (sceneForm.value.lng && sceneForm.value.lat) {
-    if (!baiduMap.value && locationMap.value) {
+    if (!baiduMap.value) {
       nextTick(() => {
         initLocationMap()
       })
@@ -640,19 +641,25 @@ const submitForm = async () => {
   })
 }
 
-const publishForm = ()=>{
-  if(sceneForm.value.status === 'active') {
-    sceneStore.publishScene(domainId.value, sceneId.value, '', 'inactive')
-    .then((res)=>{
-        ElMessage.success('取消发布成功')
-        loadSceneToForm(res)
+const publishForm = async()=>{
+  if (!sceneFormRef.value) return
+  
+  await sceneFormRef.value.validate(async (valid) => {
+    if (valid) {
+      if(sceneForm.value.status === 'active') {
+        sceneStore.publishScene(domainId.value, sceneId.value, '', 'inactive')
+        .then((res)=>{
+          ElMessage.success('取消发布成功')
+          loadSceneToForm(res)
+        }) 
+        .catch((error)=>{
+          ElMessage.error('取消发布失败:', error)
+        }) 
+      }else{
+        dialogVisible.value=true
       }
-    ).catch((error)=>{
-      ElMessage.error('取消发布失败:', error)
-    })
-  }else{
-    dialogVisible.value=true
-  }
+    }
+  })
 }
 
 const publishScene = () => {

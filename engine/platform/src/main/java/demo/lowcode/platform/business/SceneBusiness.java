@@ -122,6 +122,7 @@ public class SceneBusiness {
 
         existingScene.setStatus(pubInfo.getStatus());
         existingScene.setUrl(pubInfo.getUrl());
+        existingScene.setUpdateTime(new Date());
         sceneMapper.updateById(existingScene);
 
         return existingScene;

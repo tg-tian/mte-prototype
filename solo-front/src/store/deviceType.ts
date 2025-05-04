@@ -10,6 +10,10 @@ export const useDeviceTypeStore = defineStore('deviceType', {
 
     actions: {
         async fetchDeviceTypes(domainId?: number) {
+            if(!domainId){
+                this.deviceTypes = []
+                return
+            }
             this.loading = true
             try {
                 const res: any = await getDeviceTypes(domainId)

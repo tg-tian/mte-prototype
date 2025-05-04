@@ -5,6 +5,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.lowcode.common.CommonConfig;
 import demo.lowcode.common.Property;
 import demo.lowcode.platform.dto.DomainJson;
+import demo.lowcode.platform.dto.DomainPubInfo;
 import demo.lowcode.platform.dto.Domain_ComponentJson;
 import demo.lowcode.platform.dto.NewDomain;
 import demo.lowcode.platform.entity.ComponentAbout;
@@ -139,6 +140,10 @@ public class DomainBusiness {
         domain.setDomainDescription(newDomain.getDescription());
         domain.setStatus(newDomain.getStatus());
         domain.setCreateTime(new Date());
+        domain.setCodeEditor(newDomain.getCodeEditor());
+        domain.setModelEditor(newDomain.getModelEditor());
+        domain.setFramework(newDomain.getBaseFramework());
+        domain.setDsl(newDomain.getDslStandard());
         domainMapper.insert(domain);
         return domain;
     }
@@ -151,11 +156,30 @@ public class DomainBusiness {
         domain.setDomainDescription(newDomain.getDescription());
         domain.setStatus(newDomain.getStatus());
         domain.setUpdateTime(new Date());
+        domain.setUrl(newDomain.getUrl());
+        domain.setCodeEditor(newDomain.getCodeEditor());
+        domain.setModelEditor(newDomain.getModelEditor());
+        domain.setFramework(newDomain.getBaseFramework());
+        domain.setDsl(newDomain.getDslStandard());
         domainMapper.updateById(domain); // 第一个参数传 null
         return domain;
     }
 
     public void deleteDomainByID(Long id){
         domainMapper.deleteById(id);
+    }
+
+    public Domain publishDomain(DomainPubInfo pubInfo) {
+        Domain existDomain = domainMapper.selectById(pubInfo.getDomainId());
+        if (existDomain == null) {
+            throw new RuntimeException("领域不存在");
+        }
+
+        existDomain.setStatus(pubInfo.getStatus());
+        existDomain.setUrl(pubInfo.getUrl());
+        existDomain.setUpdateTime(new Date());
+        domainMapper.updateById(existDomain);
+
+        return existDomain;
     }
 }

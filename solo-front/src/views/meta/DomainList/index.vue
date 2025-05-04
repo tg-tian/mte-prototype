@@ -36,7 +36,7 @@
       </el-table-column>
       <el-table-column prop="updateTime" label="更新时间" width="120">
       </el-table-column>
-      <el-table-column prop="sceneCount" label="场景数量" width="100"></el-table-column>
+      <!-- <el-table-column prop="sceneCount" label="场景数量" width="100"></el-table-column> -->
       <el-table-column prop="status" label="状态" width="100">
         <template #default="scope">
           <el-tag :type="scope.row.status === '1' ? 'success' : 'info'">
@@ -44,9 +44,10 @@
           </el-tag>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="220">
+      <el-table-column label="操作" width="300">
         <template #default="scope">
           <el-button type="primary" size="small" @click="navigateToDomainSetting(scope.row)">编辑</el-button>
+          <el-button type="success" size="small" @click="navigateToDomainPlatform(scope.row)">进入领域</el-button>
           <el-button type="success" size="small" @click="handleViewScenes(scope.row)">查看场景</el-button>
           <el-button type="danger" size="small" @click="handleDelete(scope.row)">删除</el-button>
         </template>
@@ -118,6 +119,18 @@ const navigateToDomainSetting = (domain?: any) => {
   } else {
     // 创建领域
     router.push('/meta/domain/setting?mode=create')
+  }
+}
+
+// 进入领域平台
+const navigateToDomainPlatform = (row: any) => {
+  domainStore.setCurrentDomain(row)
+  if(row.status !== '1'){
+    ElMessage.warning('请先发布')
+  }else if(row.url === ''){
+    ElMessage.warning('领域地址不能为空')
+  }else{
+    window.open(row.url)
   }
 }
 

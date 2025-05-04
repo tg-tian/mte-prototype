@@ -16,6 +16,10 @@ export const useDomainTemplateStore = defineStore('domainTemplate', {
 
     actions: {
         async fetchTemplates(domainId: number) {
+            if(!domainId){
+                this.templates = []
+                return
+            }
             // 获取领域绑定的模板列表
             this.loading = true
             try{

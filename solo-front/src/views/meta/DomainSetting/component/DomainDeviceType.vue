@@ -23,6 +23,7 @@
 
 <script setup lang="ts">
 import { useDeviceTypeStore } from '@/store/deviceType'
+import request from '@/utils/request'
 const route = useRoute()
 const router = useRouter()
 const deviceTypeStore = useDeviceTypeStore()
@@ -34,7 +35,8 @@ const domainId = computed(() => {
 // 初始化
 onMounted(async () => {
     try {
-        await deviceTypeStore.fetchDeviceTypes(parseInt(route.query.domainId as string))
+        const domain = route.query.domainId ? parseInt(route.query.domainId as string) : null
+        await deviceTypeStore.fetchDeviceTypes(domain)
     } catch (error) {
         console.error('加载设备类型失败:', error)
     }

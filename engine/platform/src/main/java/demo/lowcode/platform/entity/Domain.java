@@ -52,4 +52,25 @@ public class Domain {
     @Column(name = "update_time", nullable = false)
     @ApiModelProperty(value = "更新时间")
     private Date updateTime;
+
+    @Column(name = "code_editor")
+    @ApiModelProperty(value = "代码编辑器")
+    private String codeEditor;
+
+    @Column(name = "model_editor")
+    @ApiModelProperty(value = "模型编辑器")
+    private String modelEditor;
+
+    @Column(name = "framework")
+    @ApiModelProperty(value = "基础运行框架")
+    private String framework;
+
+    @Column(name = "dsl")
+    @ApiModelProperty(value = "DSL标准")
+    private String dsl;
+
+    @Column(name = "url")
+    @ApiModelProperty(value = "发布url")
+    private String url;
+
 }
