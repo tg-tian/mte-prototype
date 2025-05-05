@@ -281,8 +281,8 @@ watch([() => route.query.domainId, () => route.query.mode , () => route.query.do
   if (newMode === 'create' || newMode === 'template') {
     // Clear form data when switching to create mode
     resetFormData()
-    domainForm.value.code = newDomainCode;
-    domainForm.value.name = newDomainName;
+    domainForm.value.code = newDomainCode as string;
+    domainForm.value.name = newDomainName as string;
     activeTab.value='basic'
   } else if (newMode === 'edit' && newDomainId) {
     // Load domain data when switching to edit mode or changing domain ID

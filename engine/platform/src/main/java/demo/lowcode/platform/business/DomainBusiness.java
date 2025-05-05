@@ -192,7 +192,14 @@ public class DomainBusiness {
             // 计算目标路径
             String projectRoot = System.getProperty("user.dir"); // 获取项目根目录
             String targetDir = Paths.get(projectRoot,  "template", "domain").toString();
+            // 确保目录存在
+            File dir = new File(targetDir);
+            if (!dir.exists()) {
+                dir.mkdirs(); // 创建所有不存在的父目录
+            }
+
             File file = new File(targetDir, temInfo.getDomainData().get("code")+".json");
+
             //写文件
             mapper.writeValue(file, temInfo);
         } catch (IOException e) {
