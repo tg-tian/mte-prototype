@@ -184,7 +184,7 @@ public class DomainBusiness {
         return existDomain;
     }
 
-    public void convertDomain(DomainTemInfo temInfo){
+    public void createDomainTemplate(DomainTemInfo temInfo){
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.enable(SerializationFeature.INDENT_OUTPUT); // 格式化 JSON
@@ -192,13 +192,43 @@ public class DomainBusiness {
             // 计算目标路径
             String projectRoot = System.getProperty("user.dir"); // 获取项目根目录
             String targetDir = Paths.get(projectRoot,  "template", "domain").toString();
-            File file = new File(targetDir, "domain.json");
+            File file = new File(targetDir, temInfo.getDomainData().get("code")+".json");
             //写文件
             mapper.writeValue(file, temInfo);
-            System.out.println("保存模版成功 " + file.getAbsolutePath());
         } catch (IOException e) {
             System.err.println("保存模版失败 " + e.getMessage());
             e.printStackTrace();
         }
+    }
+
+    public List<DomainTemInfo> getDomainTemplates(){
+        List<DomainTemInfo> domainTemInfoList = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
+
+        try {
+            // 获取模板目录路径
+            String projectRoot = System.getProperty("user.dir");
+            String targetDir = Paths.get(projectRoot, "template", "domain").toString();
+            File directory = new File(targetDir);
+            if (!directory.exists() || !directory.isDirectory()) {
+                return domainTemInfoList;
+            }
+
+            //构建json列表
+            File[] files = directory.listFiles((dir, name) -> name.toLowerCase().endsWith(".json"));
+            if (files == null || files.length == 0) {
+                return domainTemInfoList;
+            }
+
+            //解析JSON文件
+            for (File file : files) {
+                DomainTemInfo template = mapper.readValue(file, DomainTemInfo.class);
+                domainTemInfoList.add(template);
+            }
+        } catch (Exception e) {
+            System.err.println("获取模板列表失败: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return  domainTemInfoList;
     }
 }

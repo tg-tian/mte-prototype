@@ -52,9 +52,16 @@ export function publishDomain(data: any) {
 
 export function convertDomain(data: any) {
     return request({
-        url: `/domains/convert`,
+        url: `/domains/templates`,
         method: 'post',
         data: data
+    })
+}
+
+export function importDomain() {
+    return request({
+        url: `/domains/templates`,
+        method: 'get',
     })
 }
 // Mock API functions

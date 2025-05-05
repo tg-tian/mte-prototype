@@ -113,6 +113,34 @@
       </div>
     </template>
     </el-dialog>
+
+    <!-- Import Dialog-->
+    <el-dialog
+        v-model="importDialogVisible"
+        title="选择导入模版"
+        width="500"
+    >
+      <el-carousel
+          v-if="domainTemplates.length > 0"
+          indicator-position="outside"
+          type="card"
+          class="template-carousel"
+      >
+        <el-carousel-item v-for="(item, index) in domainTemplates" :key="index">
+          <div class="carousel-item" >
+            {{ item.domainData.name || '未命名模板' }}
+          </div>
+        </el-carousel-item>
+      </el-carousel>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="importDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="">
+            确定
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -164,10 +192,12 @@ const state = reactive({
     url: ''
   } as DomainForm,
   submitting: false,
-  publishDialogVisible: false
+  publishDialogVisible: false,
+  importDialogVisible:false,
+  domainTemplates:[]
 })
 
-const { activeTab, domainForm, submitting, publishDialogVisible } = toRefs(state)
+const { activeTab, domainForm, submitting, publishDialogVisible,importDialogVisible,domainTemplates } = toRefs(state)
 
 // Determine if we're in edit mode
 const isEditMode = computed(() => {
@@ -275,6 +305,9 @@ watch([() => route.query.domainId, () => route.query.mode , () => route.query.do
 
 // Load domain data if in edit mode
 onMounted(async () => {
+  // Get domain templates
+  domainTemplates.value = await domainStore.importDomain()
+  console.log(domainTemplates.value)
   // Clear form when in create mode
   if (!isEditMode.value) {
     resetFormData()
@@ -377,7 +410,7 @@ const publishDomain = async () => {
 }
 
 const importTemplate = () => {
-  console.log('importTemplate')
+  importDialogVisible.value = true
 }
 
 const saveTemplate = async () => {
@@ -385,7 +418,7 @@ const saveTemplate = async () => {
   await domainFormRef.value.validate(async (valid) => {
     if (valid) {
       try {
-        await domainStore.convertDoamin(domainForm.value , domainTemplateStore.templates,deviceTypeStore.deviceTypes,"[]")
+        await domainStore.convertDomain(domainForm.value,domainTemplateStore.templates,deviceTypeStore.deviceTypes,null)
             .then((res)=>{
               if (res) ElMessage.success('保存模版成功')
             })
@@ -428,5 +461,28 @@ const saveTemplate = async () => {
 
 :deep(.half-width) {
   width: 50%;
+}
+
+.template-carousel {
+  height:200px;
+  border: 2px solid #ebeef5;
+  border-radius: 4px;
+  margin: 0 auto 30px;
+}
+
+.carousel-item {
+  margin-top: 15%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 40%;
+  background: beige;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+  padding: 20px;
+  border: 1px solid gray;
+  box-sizing: border-box;
 }
 </style>

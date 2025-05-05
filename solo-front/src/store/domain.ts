@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getMockDomains, createMockDomain, updateMockDomain, deleteMockDomain, getDomains, updateDomain, deleteDomain, createDomain, publishDomain ,convertDomain } from '@/api/domain'
+import { getMockDomains, createMockDomain, updateMockDomain, deleteMockDomain, getDomains, updateDomain, deleteDomain, createDomain, publishDomain ,convertDomain,importDomain } from '@/api/domain'
 
 export const useDomainStore = defineStore('domain', {
     state: () => ({
@@ -91,16 +91,16 @@ export const useDomainStore = defineStore('domain', {
             this.currentDomain = domain
         },
 
+        //todo:待重构为单独使用一个存储空间存储领域模版内容
         //将领域本身保存为模版
-        async convertDoamin(domainData:any , templates:any , deviceTypes:any,components:any){
+        async convertDomain(domainData:any , templates:any , deviceTypes:any,components:any){
             try {
                 let data = {
                     domainData: domainData,
                     templates: templates,
-                    deviceTypes:deviceTypes,
-                    components:components
+                    deviceTypes: deviceTypes,
+                    components: components
                 }
-                console.log(data)
                 const res: any = await convertDomain(data);
                 if (res && res.status === 200) {
                     return true
@@ -111,6 +111,18 @@ export const useDomainStore = defineStore('domain', {
             }
         },
 
+        //导入领域模版列表
+        async importDomain(){
+            try {
+                const res: any = await importDomain();
+                if (res.data && res.status === 200) {
+                    return res.data;
+                }
+            }catch (error){
+                console.error('Failed to import template:', error)
+                throw error
+            }
+        },
     },
 
     persist: true

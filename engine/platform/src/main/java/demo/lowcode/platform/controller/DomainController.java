@@ -110,14 +110,27 @@ public class DomainController {
         }
     }
 
-    @PostMapping(value = "/domains/convert")
-    @ApiOperation(value = "保存领域模版")
-    public ResponseEntity<?> convertDomain(@RequestBody DomainTemInfo domainTemInfo ){
+    @PostMapping(value = "/domains/templates")
+    @ApiOperation(value = "新增领域模版")
+    public ResponseEntity<?> createDomainTemplate(@RequestBody DomainTemInfo domainTemInfo ){
         try {
-            domainBusiness.convertDomain(domainTemInfo);
+            // todo:此处接入模板库
+            domainBusiness.createDomainTemplate(domainTemInfo);
             return new ResponseEntity<>("保存成功",HttpStatus.OK);
         }catch (RuntimeException e){
             return new ResponseEntity<>("保存失败",HttpStatus.CONFLICT);
+        }
+    }
+
+    @GetMapping(value = "/domains/templates")
+    @ApiOperation(value = "获取领域模版列表")
+    public ResponseEntity<?> getDomainTemplate(){
+        try {
+            // todo:此处接入模板库
+            List<DomainTemInfo> domainTemInfoList = domainBusiness.getDomainTemplates();
+            return new ResponseEntity<>(domainTemInfoList,HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>("领域模版获取失败",HttpStatus.CONFLICT);
         }
     }
 }
