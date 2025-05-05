@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getMockDomains, createMockDomain, updateMockDomain, deleteMockDomain, getDomains, updateDomain, deleteDomain, createDomain, publishDomain } from '@/api/domain'
+import { getMockDomains, createMockDomain, updateMockDomain, deleteMockDomain, getDomains, updateDomain, deleteDomain, createDomain, publishDomain ,convertDomain } from '@/api/domain'
 
 export const useDomainStore = defineStore('domain', {
     state: () => ({
@@ -82,14 +82,35 @@ export const useDomainStore = defineStore('domain', {
                     return res.data
                 }
             } catch (error) {
-                console.error('Failed to publish scene:', error)
+                console.error('Failed to publish domain:', error)
                 throw error
             }
         },
 
         setCurrentDomain(domain: any) {
             this.currentDomain = domain
-        }
+        },
+
+        //将领域本身保存为模版
+        async convertDoamin(domainData:any , templates:any , deviceTypes:any,components:any){
+            try {
+                let data = {
+                    domainData: domainData,
+                    templates: templates,
+                    deviceTypes:deviceTypes,
+                    components:components
+                }
+                console.log(data)
+                const res: any = await convertDomain(data);
+                if (res && res.status === 200) {
+                    return true
+                }
+            }catch (error){
+                console.error('Failed to save template:', error)
+                throw error
+            }
+        },
+
     },
 
     persist: true

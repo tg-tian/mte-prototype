@@ -109,4 +109,15 @@ public class DomainController {
             return new ResponseEntity<>("发布失败",HttpStatus.CONFLICT);
         }
     }
+
+    @PostMapping(value = "/domains/convert")
+    @ApiOperation(value = "保存领域模版")
+    public ResponseEntity<?> convertDomain(@RequestBody DomainTemInfo domainTemInfo ){
+        try {
+            domainBusiness.convertDomain(domainTemInfo);
+            return new ResponseEntity<>("保存成功",HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>("保存失败",HttpStatus.CONFLICT);
+        }
+    }
 }

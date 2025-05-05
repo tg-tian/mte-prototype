@@ -2,18 +2,17 @@ package demo.lowcode.platform.business;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import demo.lowcode.common.CommonConfig;
 import demo.lowcode.common.Property;
-import demo.lowcode.platform.dto.DomainJson;
-import demo.lowcode.platform.dto.DomainPubInfo;
-import demo.lowcode.platform.dto.Domain_ComponentJson;
-import demo.lowcode.platform.dto.NewDomain;
+import demo.lowcode.platform.dto.*;
 import demo.lowcode.platform.entity.ComponentAbout;
 import demo.lowcode.platform.entity.Domain;
 import demo.lowcode.platform.mapper.DomainMapper;
 import demo.lowcode.platform.model.DomainMeta;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import java.nio.file.Paths;
 
 import java.io.File;
 import java.io.IOException;
@@ -183,5 +182,23 @@ public class DomainBusiness {
         domainMapper.updateById(existDomain);
 
         return existDomain;
+    }
+
+    public void convertDomain(DomainTemInfo temInfo){
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.enable(SerializationFeature.INDENT_OUTPUT); // 格式化 JSON
+
+            // 计算目标路径
+            String projectRoot = System.getProperty("user.dir"); // 获取项目根目录
+            String targetDir = Paths.get(projectRoot,  "template", "domain").toString();
+            File file = new File(targetDir, "domain.json");
+            //写文件
+            mapper.writeValue(file, temInfo);
+            System.out.println("保存模版成功 " + file.getAbsolutePath());
+        } catch (IOException e) {
+            System.err.println("保存模版失败 " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 }

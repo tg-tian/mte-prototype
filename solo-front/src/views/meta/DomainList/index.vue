@@ -2,7 +2,7 @@
   <div class="domain-list-container">
     <div class="domain-header">
       <h2>领域平台列表</h2>
-      <el-button type="primary" @click="navigateToDomainSetting()">创建领域</el-button>
+      <el-button type="primary" @click="createDialogVisible = true">创建领域</el-button>
     </div>
     
     <el-card class="domain-search">
@@ -53,6 +53,33 @@
         </template>
       </el-table-column>
     </el-table>
+    <el-dialog
+        v-model="createDialogVisible"
+        title="创建领域"
+        width="50%"
+    >
+        <el-form :model="createForm" label-width="100px">
+          <el-form-item label="领域名称">
+            <el-input v-model="createForm.name" placeholder="请输入场景名称" />
+            <div style="color: #999;">支持中文、大小写字母、数字，不超过40个字符</div>
+          </el-form-item>
+          <el-form-item label="领域编码">
+            <el-input v-model="createForm.code"  />
+          </el-form-item>
+          <el-form-item label="选择创建方式" >
+            <el-radio-group v-model="createModel">
+              <el-radio value='1' size="large">自定义创建</el-radio>
+              <el-radio value='2' size="large">从模版创建</el-radio>
+            </el-radio-group>
+          </el-form-item>
+        </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+        <el-button @click="resetCreate()">取消</el-button>
+        <el-button type="primary" @click="navigateToDomainSetting()">确定</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -66,13 +93,19 @@ const domainStore = useDomainStore()
 
 // 状态
 const state = reactive({
+  createDialogVisible: false,
   searchForm: {
     name: '',
     status: ''
-  }
+  },
+  createForm:{
+    name:'',
+    code:'',
+  },
+  createModel: '1',
 })
 
-const { searchForm } = toRefs(state)
+const { searchForm,createDialogVisible,createForm,createModel} = toRefs(state)
 
 // 过滤后的领域列表
 const filteredDomains = computed(() => {
@@ -94,11 +127,18 @@ const filteredDomains = computed(() => {
   return domains
 })
 
+
 // 初始化
 onMounted(async () => {
   await domainStore.fetchDomains()
 })
 
+//重置创建
+const resetCreate = () => {
+  createForm.value.code = ''
+  createForm.value.name = ''
+  createDialogVisible.value = false
+}
 // 搜索处理
 const handleSearch = () => {
   // 过滤是在计算属性中完成的
@@ -118,7 +158,24 @@ const navigateToDomainSetting = (domain?: any) => {
     router.push(`/meta/domain/setting?mode=edit&domainId=${domain.domainId}`)
   } else {
     // 创建领域
-    router.push('/meta/domain/setting?mode=create')
+    if(createModel.value === '1'){
+      router.push({
+        path: '/meta/domain/setting',
+        query: {
+          mode:'create',
+          domainName:createForm.value.name,
+          domainCode:createForm.value.code,
+        }
+      })
+    }else if(createModel.value === '2')
+      router.push({
+        path: '/meta/domain/setting',
+        query: {
+          mode: 'template',
+          domainName:createForm.value.name,
+          domainCode:createForm.value.code,
+        }
+      })
   }
 }
 
@@ -166,6 +223,7 @@ const handleDelete = (row: any) => {
 </script>
 
 <style scoped>
+
 .domain-list-container {
   padding: 20px;
 }
@@ -185,4 +243,5 @@ const handleDelete = (row: any) => {
   display: flex;
   flex-wrap: wrap;
 }
+
 </style>

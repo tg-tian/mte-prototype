@@ -28,7 +28,7 @@
             <div class="menu-item">定制领域</div>
           </template>
           <el-menu-item index="meta-domain-list" class="sub-menu-item">领域平台列表</el-menu-item>
-          <el-menu-item index="meta-domain-setting" class="sub-menu-item">创建领域平台</el-menu-item>
+          <!--el-menu-item index="meta-domain-setting" class="sub-menu-item">创建领域平台</el-menu-item-->
         </el-sub-menu>
       </div>
       <!-- 领域平台 -->

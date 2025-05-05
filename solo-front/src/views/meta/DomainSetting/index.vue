@@ -13,13 +13,13 @@
         <el-button 
           type="primary" 
           plain
-          v-if="!isEditMode"
+          v-if="isFromTem"
           @click="importTemplate"
         >从模板导入</el-button>
         <el-button 
           type="primary" 
           plain
-          v-if="!isEditMode"
+          v-if="isEditMode || isFromTem"
           @click="saveTemplate"
         >保存为模板</el-button>
       </div>
@@ -82,16 +82,16 @@
           </el-form>
         </el-tab-pane>
         
-        <el-tab-pane label="领域模板" name="template" v-if="isEditMode">
+        <el-tab-pane label="领域模板" name="template" v-if="isEditMode || isFromTem">
           <!-- 模板库对接 -->
           <DomainTemplate />
         </el-tab-pane>
 
-        <el-tab-pane label="设备类型" name="model" v-if="isEditMode">
+        <el-tab-pane label="设备类型" name="model" v-if="isEditMode || isFromTem">
           <DomainDeviceType />
         </el-tab-pane>
 
-        <el-tab-pane label="领域组件" name="component" v-if="isEditMode">
+        <el-tab-pane label="领域组件" name="component" v-if="isEditMode || isFromTem">
           <DomainComponent />
         </el-tab-pane>
       </el-tabs>
@@ -120,12 +120,15 @@
 import { ref, reactive, computed, onMounted, watch, toRefs } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import { useDomainStore } from '@/store/domain'
+import {useDomainTemplateStore} from "@/store/domainTemplate";
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { getDomainById, getMockDomainById } from '@/api/domain'
 import { useRouter, useRoute } from 'vue-router'
 import DomainDeviceType from './component/DomainDeviceType.vue'
 import DomainTemplate from './component/DomainTemplate.vue'
 import DomainComponent from './component/DomainComponent.vue'
+import {useDeviceTypeStore} from "@/store/deviceType";
+
 
 interface DomainForm {
   code: string
@@ -142,6 +145,8 @@ interface DomainForm {
 const router = useRouter()
 const route = useRoute()
 const domainStore = useDomainStore()
+const domainTemplateStore = useDomainTemplateStore()
+const deviceTypeStore = useDeviceTypeStore()
 const domainFormRef = ref<FormInstance>()
 
 // State
@@ -167,6 +172,10 @@ const { activeTab, domainForm, submitting, publishDialogVisible } = toRefs(state
 // Determine if we're in edit mode
 const isEditMode = computed(() => {
   return route.query.mode === 'edit'
+})
+
+const isFromTem = computed(() => {
+  return route.query.mode === 'template'
 })
 
 // Get current domain ID from query params
@@ -238,10 +247,12 @@ const loadDomainToForm = (domain: any) => {
 }
 
 // Watch for changes in route params to update form data accordingly
-watch([() => route.query.domainId, () => route.query.mode], async ([newDomainId, newMode]) => {
-  if (newMode === 'create') {
+watch([() => route.query.domainId, () => route.query.mode , () => route.query.domainName ,() => route.query.domainCode], async ([newDomainId, newMode,newDomainName,newDomainCode]) => {
+  if (newMode === 'create' || newMode === 'template') {
     // Clear form data when switching to create mode
     resetFormData()
+    domainForm.value.code = newDomainCode;
+    domainForm.value.name = newDomainName;
     activeTab.value='basic'
   } else if (newMode === 'edit' && newDomainId) {
     // Load domain data when switching to edit mode or changing domain ID
@@ -369,8 +380,21 @@ const importTemplate = () => {
   console.log('importTemplate')
 }
 
-const saveTemplate = () => {
-  console.log('saveTemplate')
+const saveTemplate = async () => {
+  if (!domainFormRef.value) return
+  await domainFormRef.value.validate(async (valid) => {
+    if (valid) {
+      try {
+        await domainStore.convertDoamin(domainForm.value , domainTemplateStore.templates,deviceTypeStore.deviceTypes,"[]")
+            .then((res)=>{
+              if (res) ElMessage.success('保存模版成功')
+            })
+      } catch (error) {
+        ElMessage.error("保存模版失败",error)
+      }
+    }
+  })
+
 }
 </script>
 

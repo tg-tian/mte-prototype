@@ -2,6 +2,9 @@ import request from '@/utils/request'
 import { mockDomains } from './mock'
 
 // 实际环境下的API接口
+
+
+
 export function getDomains() {
     return request({
         url: '/domains',
@@ -47,6 +50,13 @@ export function publishDomain(data: any) {
     })
 }
 
+export function convertDomain(data: any) {
+    return request({
+        url: `/domains/convert`,
+        method: 'post',
+        data: data
+    })
+}
 // Mock API functions
 export function getMockDomains() {
     return new Promise((resolve) => {
