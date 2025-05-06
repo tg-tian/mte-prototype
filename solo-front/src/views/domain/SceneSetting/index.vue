@@ -140,7 +140,7 @@
       <el-form
           :model="deviceForm"
           label-width="120px"
-          :rules="rules"
+          :rules="deviceRules"
           ref="deviceFormRef"
       >
         <el-form-item label="设备编码" prop="code">
@@ -149,7 +149,7 @@
         <el-form-item label="设备名称" prop="name">
           <el-input v-model="deviceForm.name" placeholder="请输入设备名称"></el-input>
         </el-form-item>
-        <el-form-item label="设备类型" prop="deviceType">
+        <el-form-item label="设备类型" prop="deviceTypeId">
           <el-select v-model="deviceForm.deviceTypeId" placeholder="请选择设备类型" >
             <el-option v-for="(item, index) in deviceTypeList" :value="item.id" :label="item.name" :key="item.code"></el-option>
           </el-select>
@@ -210,7 +210,7 @@ const state = reactive({
   deviceForm: {
     code: '',
     name: '',
-    deviceTypeId: 0,
+    deviceTypeId: null,
     protocolType: 'MQTT',
     sceneId: parseInt(route.query.sceneId as string) || null,
   },
@@ -243,7 +243,7 @@ const handleAddDevice = () => {
   deviceForm.value = {
     code: '',
     name: '',
-    deviceTypeId: 0,
+    deviceTypeId: null,
     protocolType: 'MQTT',
     sceneId: sceneId.value
   }
@@ -303,6 +303,23 @@ const rules = {
   ],
   description: [
     { required: true, message: '请输入场景描述', trigger: 'blur' }
+  ]
+}
+
+const deviceRules = {
+  code: [
+    { required: true, message: '请输入设备编码', trigger: 'blur' },
+    { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+  ],
+  name: [
+    { required: true, message: '请输入设备名称', trigger: 'blur' },
+    { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
+  ],
+  deviceTypeId: [
+    { required: true, message: '请输入设备类型', trigger: 'blur' }
+  ],
+  protocolType: [
+    { required: true, message: '请输入协议类型', trigger: 'blur' }
   ]
 }
 
@@ -396,7 +413,7 @@ const submitDeviceForm = async () => {
           ElMessage.success('创建设备成功')
         }
         // 刷新列表
-        await deviceStore.fetchDevices(sceneId.value || undefined)
+        await deviceStore.fetchDevices(sceneId.value)
         deviceDialogVisible.value = false
       } catch {
         ElMessage.error(isEdit.value ? '更新设备失败' : '创建设备失败')

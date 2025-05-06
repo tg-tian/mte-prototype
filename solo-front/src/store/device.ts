@@ -4,7 +4,10 @@ import {
     updateMockDevice,
     deleteMockDevice,
     getDeviceById,
-    getDevices
+    getDevices,
+    createDevice,
+    updateDevice,
+    deleteDevice
 } from '@/api/device'
 
 export const useDeviceStore = defineStore('device', {
@@ -16,6 +19,10 @@ export const useDeviceStore = defineStore('device', {
 
     actions: {
         async fetchDevices(sceneId?: number) {
+            if(!sceneId){
+                this.devices = []
+                return
+            }
             this.loading = true
             try {
                 const res: any = await getDevices(sceneId)
@@ -31,7 +38,7 @@ export const useDeviceStore = defineStore('device', {
 
         async createDevice(deviceData: any) {
             try {
-                const res: any = await createMockDevice(deviceData)
+                const res: any = await createDevice(deviceData)
                 if (res.data && res.data.code === 200) {
                     await this.fetchDevices(deviceData.sceneId)
                     return res.data.data
@@ -44,7 +51,7 @@ export const useDeviceStore = defineStore('device', {
 
         async updateDevice(id: number, deviceData: any) {
             try {
-                const res: any = await updateMockDevice(id, deviceData)
+                const res: any = await updateDevice(id, deviceData)
                 if (res.data && res.data.code === 200) {
                     await this.fetchDevices()
                     return res.data.data
@@ -57,7 +64,7 @@ export const useDeviceStore = defineStore('device', {
 
         async deleteDevice(id: number) {
             try {
-                const res: any = await deleteMockDevice(id)
+                const res: any = await deleteDevice(id)
                 if (res.data && res.data.code === 200) {
                     await this.fetchDevices()
                     return true

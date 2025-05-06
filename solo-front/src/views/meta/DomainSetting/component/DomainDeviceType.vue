@@ -44,7 +44,7 @@ onMounted(async () => {
 
 watch([() => route.query.domainId], async ([newDomainId]) => {
     try {
-        await deviceTypeStore.fetchDeviceTypes(newDomainId ? parseInt(newDomainId as string) : undefined)
+        await deviceTypeStore.fetchDeviceTypes(newDomainId ? parseInt(newDomainId as string) : null)
     } catch (error) {
         console.error('加载设备类型失败:', error)
     }
