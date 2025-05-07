@@ -1,127 +1,80 @@
-import { mockTemplates } from '@/api/mock'
-import { bindingTemplates, getDomainTemplates, getTemplates, unbindingTemplates } from '@/api/template'
-import { id } from 'element-plus/es/locale'
+import { getDomainTemplate, saveTemplate, saveTemplateId, updateTemplate } from '@/api/template'
 import { defineStore } from 'pinia'
 
 export const useDomainTemplateStore = defineStore('domainTemplate', {
     state: () => ({
-        allTemplates: [],
-        templates: [],
+        domainTemplates: [],
+        currentDomainTemplate: null,
         loading: false,
-        currentTemplate: null,
-        currentDomainId: null,
-        allTemplatesPageSize: 0,
-        hasMore: true
+        total: 0
     }),
 
     actions: {
-        async fetchTemplates(domainId: number) {
-            if(!domainId){
-                this.templates = []
-                return
-            }
-            // 获取领域绑定的模板列表
+        async fetchDomainTemplates(page = 1) {
             this.loading = true
-            try{
-                const res:any = await getDomainTemplates(domainId)
-                if(res.data && res.status===200){
-                    this.templates = res.data
+            try {
+                const res: any = await getDomainTemplate(page)
+                if (res.data && res.status === 200) {
+                    this.domainTemplates = res.data.data
+                    this.total = res.data.page_info.total_count
                 }
-                // this.templates = mockTemplates
-            } catch(error) {
+            } catch (error) {
                 console.error('Failed to fetch domain templates:', error)
             } finally {
                 this.loading = false
             }
         },
 
-        async fetchAllTemplates(page: number, query?: any) {
-            // 获取模板库的模板列表
-            this.loading = true
-            try {
-                const queryData = {
-                    query: {
-                        name_or_category_or_description_or_domain_or_tags_or_code_key_word_string_cont: query?.name_or_category_or_description_or_domain_or_tags_or_code_key_word_string_cont || '',
-                        name_cont: query?.name_cont || '',
-                        category_cont: query?.category_cont || '',
-                        description_cont: query?.description_cont || '',
-                        domain_cont: query?.domain_cont || '',
-                        tags_cont: query?.tags_cont || '',
-                        code_key_word_string_cont: query?.code_key_word_string_cont || ''
-                    }
-                }
-                const res: any = await getTemplates(queryData, page)
-                if (res.data && res.status === 200) {
-                    if(page === 1) {
-                        this.allTemplates = res.data.data
-                    } else {
-                        this.allTemplates = [...this.allTemplates, ...res.data.data]
-                    }
-                    this.hasMore = res.data.data.length > 0
-                }
-            } catch (error) {
-                console.error('Failed to fetch domains:', error)
-            } finally {
-                this.loading = false
-            }
+        setCurrentDomainTemplate(domainTemplate: any) {
+            this.currentDomainTemplate = domainTemplate
         },
 
-        async bindingTemplates(domainId: number, templates: any[]){
-            // 绑定模板
-            this.loading = true
-            try{
-                const bindingData = {
-                    domainId: domainId,
-                    templates: templates.map((item:any)=>{
-                        return {
-                            id: item.id,
-                            name: item.name,
-                            category: item.category,
-                            description: item.description,
-                            domain: item.domain,
-                            tags: item.tags,
-                            image_url: item.image_url,
-                            describing_the_model: item.describing_the_model,
-                            url: item.url
-                        }
-                    })
-                }
-                const res:any = await bindingTemplates(bindingData)
-                if(res.data && res.status===200){
-                    await this.fetchTemplates(domainId)
-                    return true
-                }
-            } catch(error) {
-                console.error('Failed to bind templates:', error)
-            } finally {
-                this.loading = false
-            }
-        },
-
-        async unbindingTemplates(domainId: number, id: number){
-            // 取消绑定模板
+        //将领域本身保存为模版
+        async saveDomainTemplate(domainData:any , templates:any , deviceTypes:any,components:any, templateId?:number){
             try {
-                const res: any = await unbindingTemplates(domainId, id)
-                if (res.data && res.status === 200) {
-                    await this.fetchTemplates(domainId)
-                    return true
+                let dslData = {
+                    domainData: domainData,
+                    templates: templates,
+                    deviceTypes: deviceTypes,
+                    components: components
                 }
-            } catch (error) {
-                console.error('Failed to unbind template:', error)
+                let data = {
+                    name: domainData.name,
+                    category: '领域模板',
+                    description: domainData.description,
+                    tags: '领域',
+                    domain: domainData.name,
+                    describing_the_model: 'JSON',
+                    code: JSON.stringify(dslData)
+                }
+                // TODO: 更新是否保存为模板字段，判断创建模板还是更新模板
+                let res: any;
+                if(templateId){
+                    console.log('update template')
+                    res = await updateTemplate(data, templateId);
+                }else{
+                    console.log('save template')
+                    res = await saveTemplate(data);
+                }
+                if (res.data && res.status === 200) {
+                    return res.data
+                }
+            }catch (error){
+                console.error('Failed to save template:', error)
                 throw error
             }
         },
 
-        setCurrentDomain(domainId: number) {
-            this.currentDomainId = domainId
-        },
-
-        setCurrentTemplate(template: any) {
-            this.currentTemplate = template
-        },
-
-        setAllTemplatesPageSize(pageSize: number) {
-            this.allTemplatesPageSize = pageSize
+        async saveTemplateId(domainId: number, templateId: number) {
+            try {
+                const res: any = await saveTemplateId(domainId, templateId)
+                if (res.data && res.status === 200) {
+                    return true
+                }
+            } catch (error) {
+                console.error('Failed to save template id:', error)
+                throw error
+            }
         }
     },
 

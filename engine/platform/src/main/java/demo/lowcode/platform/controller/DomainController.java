@@ -133,4 +133,15 @@ public class DomainController {
             return new ResponseEntity<>("领域模版获取失败",HttpStatus.CONFLICT);
         }
     }
+
+    @PostMapping(value = "/domains/templateId")
+    @ApiOperation(value = "新增领域模版,存储领域模板在模板库中id")
+    public ResponseEntity<?> updateDomainTemplate(@RequestBody DomainTemplateInfo domainTemInfo ){
+        try {
+            domainBusiness.updateDomainTemplate(domainTemInfo);
+            return new ResponseEntity<>("保存成功",HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>("保存失败",HttpStatus.CONFLICT);
+        }
+    }
 }

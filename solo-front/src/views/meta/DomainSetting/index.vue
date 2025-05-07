@@ -124,7 +124,10 @@
           v-if="domainTemplates.length > 0"
           indicator-position="outside"
           type="card"
+          :autoplay="false"
           class="template-carousel"
+          ref="carouselRef"
+          @change="handleCarouselChange"
       >
         <el-carousel-item v-for="(item, index) in domainTemplates" :key="index">
           <div class="carousel-item" >
@@ -135,7 +138,7 @@
       <template #footer>
         <div class="dialog-footer">
           <el-button @click="importDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="">
+          <el-button type="primary" @click="handleImportTemplate">
             确定
           </el-button>
         </div>
@@ -149,6 +152,7 @@ import { ref, reactive, computed, onMounted, watch, toRefs } from 'vue'
 import { Plus } from '@element-plus/icons-vue'
 import { useDomainStore } from '@/store/domain'
 import {useDomainTemplateStore} from "@/store/domainTemplate";
+import {useDomainComponentTemplateStore} from "@/store/domainComponentTemplate";
 import { ElMessage, type FormInstance, type FormRules } from 'element-plus'
 import { getDomainById, getMockDomainById } from '@/api/domain'
 import { useRouter, useRoute } from 'vue-router'
@@ -168,12 +172,14 @@ interface DomainForm {
   baseFramework: string
   dslStandard: string
   url: string
+  domainTemplateId: number
 }
 
 const router = useRouter()
 const route = useRoute()
 const domainStore = useDomainStore()
 const domainTemplateStore = useDomainTemplateStore()
+const domainComponentTemplateStore = useDomainComponentTemplateStore()
 const deviceTypeStore = useDeviceTypeStore()
 const domainFormRef = ref<FormInstance>()
 
@@ -189,7 +195,8 @@ const state = reactive({
     modelEditor: '',
     baseFramework: '',
     dslStandard: '',
-    url: ''
+    url: '',
+    domainTemplateId: null
   } as DomainForm,
   submitting: false,
   publishDialogVisible: false,
@@ -251,7 +258,8 @@ const resetFormData = () => {
     modelEditor: '',
     baseFramework: '',
     dslStandard: '',
-    url: ''
+    url: '',
+    domainTemplateId: null
   }
 }
 
@@ -271,6 +279,7 @@ const loadDomainToForm = (domain: any) => {
     domainForm.value.modelEditor = domain.modelEditor || ''
     domainForm.value.baseFramework = domain.framework || ''
     domainForm.value.dslStandard = domain.dsl || ''
+    domainForm.value.domainTemplateId = domain.domainTemplateId || null
     
     console.log('Domain data loaded to form:', domainForm.value)
   }
@@ -306,13 +315,14 @@ watch([() => route.query.domainId, () => route.query.mode , () => route.query.do
 // Load domain data if in edit mode
 onMounted(async () => {
   // Get domain templates
-  domainTemplates.value = await domainStore.importDomain()
-  console.log(domainTemplates.value)
+  // domainTemplates.value = await domainStore.importDomain()
+  await domainTemplateStore.fetchDomainTemplates()
+  domainTemplates.value = domainTemplateStore.domainTemplates.map((item: any) => ({
+    ...JSON.parse(item.code)
+  }))
+  console.log(domainTemplates.value, 'domainTemplates')
   // Clear form when in create mode
-  if (!isEditMode.value) {
-    resetFormData()
-  }
-  else if (isEditMode.value && domainId.value) {
+  if (isEditMode.value && domainId.value) {
     const currentDomain = domainStore.currentDomain
     
     if (currentDomain && currentDomain.domainId === domainId.value) {
@@ -418,16 +428,70 @@ const saveTemplate = async () => {
   await domainFormRef.value.validate(async (valid) => {
     if (valid) {
       try {
-        await domainStore.convertDomain(domainForm.value,domainTemplateStore.templates,deviceTypeStore.deviceTypes,null)
-            .then((res)=>{
-              if (res) ElMessage.success('保存模版成功')
-            })
+        const res = await domainTemplateStore.saveDomainTemplate(
+          domainForm.value,
+          domainComponentTemplateStore.templates,
+          deviceTypeStore.deviceTypes,
+          null,
+          domainForm.value.domainTemplateId
+        )
+        
+        if (!domainForm.value.domainTemplateId) {
+          const saveRes = await domainTemplateStore.saveTemplateId(domainId.value, res.id)
+          if (saveRes) {
+            ElMessage.success('保存模版成功')
+          }
+        } else {
+          ElMessage.success('保存模版成功')
+        }
       } catch (error) {
-        ElMessage.error("保存模版失败",error)
+        console.error('保存模版失败:', error)
+        ElMessage.error('保存模版失败')
       }
     }
   })
+}
 
+const carouselRef = ref()
+const activeTemplateIndex = ref(0)
+
+const handleCarouselChange = (index: number) => {
+  activeTemplateIndex.value = index
+}
+
+const handleImportTemplate = () => {
+  if (domainTemplates.value.length === 0) {
+    ElMessage.warning('没有可用的模板')
+    return
+  }
+  
+  const selectedTemplate = domainTemplates.value[activeTemplateIndex.value]
+  if (!selectedTemplate) {
+    ElMessage.warning('请选择模板')
+    return
+  }
+
+  // 这里处理选中的模板
+  console.log('Selected template:', selectedTemplate)
+  // TODO: 处理模板导入逻辑
+  loadDomainToTemplate(selectedTemplate)
+  
+  importDialogVisible.value = false
+}
+
+const loadDomainToTemplate = (template: any) => {
+  if (template) {
+    domainForm.value.description = template.domainData.description || ''
+    domainForm.value.status = '0'
+    domainForm.value.url = ''
+    domainForm.value.codeEditor = template.domainData.codeEditor || ''
+    domainForm.value.modelEditor = template.domainData.modelEditor || ''
+    domainForm.value.baseFramework = template.domainData.baseFramework || ''
+    domainForm.value.dslStandard = template.domainData.dslStandard || ''
+    domainForm.value.domainTemplateId = null
+    
+    console.log('Domain data loaded to template:', domainForm.value)
+  }
 }
 </script>
 

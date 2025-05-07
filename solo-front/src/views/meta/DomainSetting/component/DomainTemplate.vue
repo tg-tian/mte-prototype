@@ -2,7 +2,7 @@
     <el-button type="primary" style="float: right;margin-bottom: 10px" @click="openDialog">添加模板</el-button>
     <el-empty description="暂无模板" v-if="filteredDomainTemplates.length===0"/>
     <el-table
-      v-loading="domainTemplateStore.loading"
+      v-loading="domainComponentTemplateStore.loading"
       :data="filteredDomainTemplates"
       style="width: 100%; margin-top: 20px"
       border
@@ -26,41 +26,41 @@
         <div>
             <div class="template_item">
                 <div class="template_key">模板ID：</div>
-                <div class="template_value">{{ domainTemplateStore.currentTemplate.template_id }}</div>
+                <div class="template_value">{{ domainComponentTemplateStore.currentTemplate.template_id }}</div>
             </div>
             <div class="template_item">
                 <div class="template_key">模板名：</div>
-                <div class="template_value">{{ domainTemplateStore.currentTemplate.name }}</div>
+                <div class="template_value">{{ domainComponentTemplateStore.currentTemplate.name }}</div>
             </div>
             <div class="template_item">
                 <div class="template_key">模板描述：</div>
-                <div class="template_value">{{ domainTemplateStore.currentTemplate.description }}</div>
+                <div class="template_value">{{ domainComponentTemplateStore.currentTemplate.description }}</div>
             </div>
             <div class="template_item">
                 <div class="template_key">模板类别：</div>
-                <div class="template_value">{{ domainTemplateStore.currentTemplate.category }}</div>
+                <div class="template_value">{{ domainComponentTemplateStore.currentTemplate.category }}</div>
             </div>
             <div class="template_item">
                 <div class="template_key">模板标签：</div>
-                <div class="template_value">{{ domainTemplateStore.currentTemplate.tags }}</div>
+                <div class="template_value">{{ domainComponentTemplateStore.currentTemplate.tags }}</div>
             </div>
             <div class="template_item">
                 <div class="template_key">业务标签：</div>
-                <div class="template_value">{{ domainTemplateStore.currentTemplate.domain }}</div>
+                <div class="template_value">{{ domainComponentTemplateStore.currentTemplate.domain }}</div>
             </div>
             <div class="template_item">
                 <div class="template_key">DSL/平台：</div>
-                <div class="template_value">{{ domainTemplateStore.currentTemplate.describing_the_model }}</div>
+                <div class="template_value">{{ domainComponentTemplateStore.currentTemplate.describing_the_model }}</div>
             </div>
             <div class="template_item">
                 <div class="template_key">描述详情：</div>
                 <div class="template_value">
-                  <a :href="domainTemplateStore.currentTemplate.url.substring(0, domainTemplateStore.currentTemplate.url.length-5)" target="_blank">
-                    {{ domainTemplateStore.currentTemplate.url }}
+                  <a :href="domainComponentTemplateStore.currentTemplate.url.substring(0, domainComponentTemplateStore.currentTemplate.url.length-5)" target="_blank">
+                    {{ domainComponentTemplateStore.currentTemplate.url }}
                   </a>
                 </div>
             </div>
-            <el-image :src="domainTemplateStore.currentTemplate.image_url" />
+            <el-image :src="domainComponentTemplateStore.currentTemplate.image_url" />
         </div>
     </el-dialog>
 
@@ -145,13 +145,13 @@
     <div style="display: flex;justify-content: center; margin-top: 20px;">
         <el-button 
             link 
-            :loading="domainTemplateStore.loading"
+            :loading="domainComponentTemplateStore.loading"
             @click="loadMore"
-            v-if="domainTemplateStore.allTemplates.length > 0 && domainTemplateStore.hasMore"
+            v-if="domainComponentTemplateStore.allTemplates.length > 0 && domainComponentTemplateStore.hasMore"
         >
             加载更多
         </el-button>
-        <div v-else-if="domainTemplateStore.allTemplates.length > 0" style="color: #909399;">
+        <div v-else-if="domainComponentTemplateStore.allTemplates.length > 0" style="color: #909399;">
             没有更多数据了
         </div>
     </div>
@@ -167,12 +167,12 @@
 </template>
 
 <script setup lang="ts">
-import { useDomainTemplateStore } from '@/store/domainTemplate'
+import { useDomainComponentTemplateStore } from '@/store/domainComponentTemplate'
 import TemplateCard from './TemplateCard.vue';
 import { Search, Document, Collection } from '@element-plus/icons-vue'
 const route = useRoute()
 const router = useRouter()
-const domainTemplateStore = useDomainTemplateStore()
+const domainComponentTemplateStore = useDomainComponentTemplateStore()
 
 const domainId = computed(() => {
   return route.query.domainId ? parseInt(route.query.domainId as string) : null
@@ -199,8 +199,8 @@ const currentPage = ref(1)
 onMounted(async () => {
     try {
         const domain = route.query.domainId ? parseInt(route.query.domainId as string) : null
-        domainTemplateStore.setCurrentDomain(domain)
-        await domainTemplateStore.fetchTemplates(domain)
+        domainComponentTemplateStore.setCurrentDomain(domain)
+        await domainComponentTemplateStore.fetchTemplates(domain)
     } catch (error) {
         console.error('加载模板列表失败:', error)
     }
@@ -209,8 +209,8 @@ onMounted(async () => {
 watch([() => route.query.domainId], async ([newDomainId]) => {
     try {
         const newDomain = newDomainId ? parseInt(newDomainId as string) : null
-        domainTemplateStore.setCurrentDomain(newDomain)
-        await domainTemplateStore.fetchTemplates(newDomain)
+        domainComponentTemplateStore.setCurrentDomain(newDomain)
+        await domainComponentTemplateStore.fetchTemplates(newDomain)
     } catch (error) {
         console.error('加载模板列表失败:', error)
     }
@@ -223,7 +223,7 @@ const openDialog = async ()=>{
     currentPage.value = 1
     resetSearch()
     try {
-        await domainTemplateStore.fetchAllTemplates(1)
+        await domainComponentTemplateStore.fetchAllTemplates(1)
     }catch(error) {
         ElMessage.error("模板库模板获取失败")
     }
@@ -246,8 +246,8 @@ const addTemplate = async () => {
         ElMessage.warning("请选择要添加的模板")
     } else {
         try {
-          const selectedData = domainTemplateStore.allTemplates.filter((item)=>selectedTemplates.value.includes(item.id))
-          await domainTemplateStore.bindingTemplates(domainId.value, selectedData)
+          const selectedData = domainComponentTemplateStore.allTemplates.filter((item)=>selectedTemplates.value.includes(item.id))
+          await domainComponentTemplateStore.bindingTemplates(domainId.value, selectedData)
           ElMessage.success("添加成功")
           dialogVisible.value = false
         }catch(error) {
@@ -259,7 +259,7 @@ const addTemplate = async () => {
 const loadMore = async () => {
     currentPage.value++
     try {
-        await domainTemplateStore.fetchAllTemplates(currentPage.value, searchQuery.value)
+        await domainComponentTemplateStore.fetchAllTemplates(currentPage.value, searchQuery.value)
     } catch (error) {
         ElMessage.error("加载更多失败")
         currentPage.value--
@@ -268,27 +268,27 @@ const loadMore = async () => {
 
 // 过滤后的领域模板列表
 const filteredDomainTemplates = computed(() => {
-  if (!domainTemplateStore.templates) return []
+  if (!domainComponentTemplateStore.templates) return []
   
-  let templates = domainTemplateStore.templates
+  let templates = domainComponentTemplateStore.templates
 
   return templates
 })
 
 // 过滤已绑定该领域的模板后的模板库模板列表
 const filteredTemplates = computed(() => {
-  if (!domainTemplateStore.allTemplates) return []
+  if (!domainComponentTemplateStore.allTemplates) return []
 
   const domainTemplateIds = filteredDomainTemplates.value.map((template)=>template.template_id)
   
-  let templateList = domainTemplateStore.allTemplates.filter((template)=>!domainTemplateIds.includes(template.id))
+  let templateList = domainComponentTemplateStore.allTemplates.filter((template)=>!domainTemplateIds.includes(template.id))
 
   return templateList
 })
 
 //查看模板详情
 const navigateToTemplate = (template: any) => {
-  domainTemplateStore.setCurrentTemplate(template)
+  domainComponentTemplateStore.setCurrentTemplate(template)
   dialogDetailVisible.value = true
 }
 
@@ -305,7 +305,7 @@ const handleDelete = (row: any) => {
   )
   .then(async () => {
     try {
-      await domainTemplateStore.unbindingTemplates(domainId.value, row.id)
+      await domainComponentTemplateStore.unbindingTemplates(domainId.value, row.id)
       ElMessage.success('取消绑定成功')
     } catch (error) {
       ElMessage.error('取消绑定失败')
@@ -319,7 +319,7 @@ const handleDelete = (row: any) => {
 const handleSearch = async () => {
     currentPage.value = 1
     try {
-        await domainTemplateStore.fetchAllTemplates(1, searchQuery.value)
+        await domainComponentTemplateStore.fetchAllTemplates(1, searchQuery.value)
     } catch (error) {
         ElMessage.error("搜索失败")
     }

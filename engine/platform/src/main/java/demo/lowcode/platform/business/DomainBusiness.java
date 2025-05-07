@@ -174,8 +174,6 @@ public class DomainBusiness {
             throw new RuntimeException("领域不存在");
         }
 
-        //生成领域中间表示DSL
-
         existDomain.setStatus(pubInfo.getStatus());
         existDomain.setUrl(pubInfo.getUrl());
         existDomain.setUpdateTime(new Date());
@@ -237,5 +235,15 @@ public class DomainBusiness {
             e.printStackTrace();
         }
         return  domainTemInfoList;
+    }
+
+    public void updateDomainTemplate(DomainTemplateInfo domainTemInfo) {
+        Domain existDomain = domainMapper.selectById(domainTemInfo.getDomainId());
+        if (existDomain == null) {
+            throw new RuntimeException("领域不存在");
+        }
+        existDomain.setDomainTemplateId(domainTemInfo.getTemplateId());
+        existDomain.setUpdateTime(new Date());
+        domainMapper.updateById(existDomain);
     }
 }

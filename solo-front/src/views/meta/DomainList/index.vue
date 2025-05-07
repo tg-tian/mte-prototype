@@ -2,7 +2,7 @@
   <div class="domain-list-container">
     <div class="domain-header">
       <h2>领域平台列表</h2>
-      <el-button type="primary" @click="createDialogVisible = true">创建领域</el-button>
+      <el-button type="primary" @click="handleCreate">创建领域</el-button>
     </div>
     
     <el-card class="domain-search">
@@ -58,15 +58,14 @@
         title="创建领域"
         width="50%"
     >
-        <el-form :model="createForm" label-width="100px">
-          <el-form-item label="领域名称">
+        <el-form :model="createForm" :rules="rules" ref="createFormRef" label-width="120px">
+          <el-form-item label="领域名称" prop="name">
             <el-input v-model="createForm.name" placeholder="请输入场景名称" />
-            <div style="color: #999;">支持中文、大小写字母、数字，不超过40个字符</div>
           </el-form-item>
-          <el-form-item label="领域编码">
-            <el-input v-model="createForm.code"  />
+          <el-form-item label="领域编码" prop="code">
+            <el-input v-model="createForm.code" placeholder="请输入场景编码" />
           </el-form-item>
-          <el-form-item label="选择创建方式" >
+          <el-form-item label="选择创建方式" prop="createModel">
             <el-radio-group v-model="createModel">
               <el-radio value='1' size="large">自定义创建</el-radio>
               <el-radio value='2' size="large">从模版创建</el-radio>
@@ -87,6 +86,7 @@
 import { ref, reactive, computed, onMounted, toRefs } from 'vue'
 import { useDomainStore } from '@/store/domain'
 import { ElMessage, ElMessageBox } from 'element-plus'
+import { FormInstance } from 'element-plus'
 
 const router = useRouter()
 const domainStore = useDomainStore()
@@ -106,6 +106,19 @@ const state = reactive({
 })
 
 const { searchForm,createDialogVisible,createForm,createModel} = toRefs(state)
+
+const createFormRef = ref<FormInstance>()
+
+const rules = {
+  name: [
+    { required: true, message: '请输入领域名称', trigger: 'blur' },
+    { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9]{1,40}$/, message: '支持中文、大小写字母、数字，不超过40个字符', trigger: 'blur' }
+  ],
+  code: [
+    { required: true, message: '请输入领域编码', trigger: 'blur' },
+    { pattern: /^[a-zA-Z0-9]{2,20}$/, message: '领域编码只能包含字母和数字，长度在2-20个字符之间', trigger: 'blur' }
+  ]
+}
 
 // 过滤后的领域列表
 const filteredDomains = computed(() => {
@@ -135,8 +148,14 @@ onMounted(async () => {
 
 //重置创建
 const resetCreate = () => {
-  createForm.value.code = ''
-  createForm.value.name = ''
+  createForm.value = {
+    name: '',
+    code: ''
+  }
+  createModel.value = '1'
+  if (createFormRef.value) {
+    createFormRef.value.resetFields()
+  }
   createDialogVisible.value = false
 }
 // 搜索处理
@@ -151,31 +170,43 @@ const resetSearch = () => {
 }
 
 // 导航到领域设置页面
-const navigateToDomainSetting = (domain?: any) => {
+const navigateToDomainSetting = async (domain?: any) => {
   if (domain) {
     // 编辑领域
     domainStore.setCurrentDomain(domain)
     router.push(`/meta/domain/setting?mode=edit&domainId=${domain.domainId}`)
   } else {
     // 创建领域
-    if(createModel.value === '1'){
-      router.push({
-        path: '/meta/domain/setting',
-        query: {
-          mode:'create',
-          domainName:createForm.value.name,
-          domainCode:createForm.value.code,
-        }
-      })
-    }else if(createModel.value === '2')
-      router.push({
-        path: '/meta/domain/setting',
-        query: {
-          mode: 'template',
-          domainName:createForm.value.name,
-          domainCode:createForm.value.code,
-        }
-      })
+    if (!createFormRef.value) return
+    
+    try {
+      await createFormRef.value.validate()
+      // 验证通过，继续处理
+      if(createModel.value === '1'){
+        router.push({
+          path: '/meta/domain/setting',
+          query: {
+            mode:'create',
+            domainName:createForm.value.name,
+            domainCode:createForm.value.code,
+          }
+        })
+      }else if(createModel.value === '2'){
+        router.push({
+          path: '/meta/domain/setting',
+          query: {
+            mode: 'template',
+            domainName:createForm.value.name,
+            domainCode:createForm.value.code,
+          }
+        })
+      }
+      createDialogVisible.value = false
+    } catch (error) {
+      // 验证失败
+      console.error('表单验证失败:', error)
+      return
+    }
   }
 }
 
@@ -219,6 +250,12 @@ const handleDelete = (row: any) => {
   .catch(() => {
     // 用户取消操作
   })
+}
+
+// 在 script setup 部分添加
+const handleCreate = () => {
+  resetCreate()
+  createDialogVisible.value = true
 }
 </script>
 
