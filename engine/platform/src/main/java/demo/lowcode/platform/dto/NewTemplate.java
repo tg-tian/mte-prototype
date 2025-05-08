@@ -1,10 +1,13 @@
 package demo.lowcode.platform.dto;
 
+import jakarta.annotation.Nullable;
 import lombok.Data;
 
 @Data
 public class NewTemplate {
     private Long id;
+    @Nullable
+    private Long template_id;
     private String name;
     private String description;
     private String category;

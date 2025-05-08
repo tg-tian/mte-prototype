@@ -16,4 +16,6 @@ public interface TemplateMapper extends BaseMapper<Template> {
     Template selectByTemplateId(@Param("templateId") Long templateId);
     
     void deleteDomainTemplateRelation(@Param("domainId") Long domainId, @Param("templateId") Long templateId);
+
+    void batchInsertDomainTemplateRelations(@Param("domainId") Long domainId, @Param("templateIds") List<Long> templateIds);
 }

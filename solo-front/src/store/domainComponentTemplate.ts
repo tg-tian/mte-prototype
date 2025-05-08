@@ -53,9 +53,9 @@ export const useDomainComponentTemplateStore = defineStore('domainComponentTempl
                 const res: any = await getTemplates(queryData, page)
                 if (res.data && res.status === 200) {
                     if(page === 1) {
-                        this.allTemplates = res.data.data
+                        this.allTemplates = res.data.data.filter((item:any)=>item.category!=='领域模板')
                     } else {
-                        this.allTemplates = [...this.allTemplates, ...res.data.data]
+                        this.allTemplates = [...this.allTemplates, ...res.data.data.filter((item:any)=>item.category!=='领域模板')]
                     }
                     this.hasMore = res.data.data.length > 0
                 }

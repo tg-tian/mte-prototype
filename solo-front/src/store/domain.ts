@@ -1,5 +1,5 @@
 import { defineStore } from 'pinia'
-import { getMockDomains, createMockDomain, updateMockDomain, deleteMockDomain, getDomains, updateDomain, deleteDomain, createDomain, publishDomain ,convertDomain,importDomain } from '@/api/domain'
+import { getMockDomains, createMockDomain, updateMockDomain, deleteMockDomain, getDomains, updateDomain, deleteDomain, createDomain, publishDomain ,convertDomain,importDomain, createDomainFromTemplate } from '@/api/domain'
 
 export const useDomainStore = defineStore('domain', {
     state: () => ({
@@ -26,6 +26,19 @@ export const useDomainStore = defineStore('domain', {
         async createDomain(domainData: any) {
             try {
                 const res: any = await createDomain(domainData)
+                if (res.data && res.status === 200) {
+                    await this.fetchDomains()
+                    return res.data
+                }
+            } catch (error) {
+                console.error('Failed to create domain:', error)
+                throw error
+            }
+        },
+
+        async createDomainFromTemplate(domainData: any, templates: any, deviceTypes: any, components: any) {
+            try {
+                const res: any = await createDomainFromTemplate(domainData, templates, deviceTypes, components)
                 if (res.data && res.status === 200) {
                     await this.fetchDomains()
                     return res.data

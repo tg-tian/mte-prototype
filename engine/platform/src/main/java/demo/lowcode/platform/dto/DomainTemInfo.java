@@ -12,8 +12,8 @@ import java.util.Map;
 @Component
 public class DomainTemInfo {
 
-    private Map<String,String> domainData;
-    private List<?> templates;
+    private NewDomain domainData;
+    private List<NewTemplate> templates;
     private List<DeviceType> deviceTypes;
     private List<?> components;
 }

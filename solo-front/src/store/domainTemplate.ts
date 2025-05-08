@@ -47,7 +47,7 @@ export const useDomainTemplateStore = defineStore('domainTemplate', {
                     describing_the_model: 'JSON',
                     code: JSON.stringify(dslData)
                 }
-                // TODO: 更新是否保存为模板字段，判断创建模板还是更新模板
+                // 更新是否保存为模板字段，判断创建模板还是更新模板
                 let res: any;
                 if(templateId){
                     console.log('update template')

@@ -7,11 +7,18 @@ import demo.lowcode.common.CommonConfig;
 import demo.lowcode.common.Property;
 import demo.lowcode.platform.dto.*;
 import demo.lowcode.platform.entity.ComponentAbout;
+import demo.lowcode.platform.entity.DeviceType;
 import demo.lowcode.platform.entity.Domain;
+import demo.lowcode.platform.entity.Template;
+import demo.lowcode.platform.entity.DomainComponent;
 import demo.lowcode.platform.mapper.DomainMapper;
+import demo.lowcode.platform.mapper.TemplateMapper;
+import demo.lowcode.platform.mapper.DomainComponentMapper;
 import demo.lowcode.platform.model.DomainMeta;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.nio.file.Paths;
 
 import java.io.File;
@@ -22,9 +29,15 @@ import java.util.*;
 public class DomainBusiness {
 
     private final DomainMapper domainMapper;
+    private final TemplateMapper templateMapper;
+    private final DomainComponentMapper domainComponentMapper;
 
     @Autowired
-    public  DomainBusiness(DomainMapper domainMapper) { this.domainMapper = domainMapper;}
+    public  DomainBusiness(DomainMapper domainMapper, TemplateMapper templateMapper, DomainComponentMapper domainComponentMapper) {
+        this.domainMapper = domainMapper;
+        this.templateMapper = templateMapper;
+        this.domainComponentMapper = domainComponentMapper;
+    }
 
     // domain增删改查
     public DomainMeta addDomain(String domainId, String domainName, Map<String, List<String>> componentMap) {
@@ -57,7 +70,7 @@ public class DomainBusiness {
         File file = new File(CommonConfig.getWorkspacePath()+domainCode+"/"+domainCode+".do");//获取文件夹
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(file);
-        //组件信息表，定义在文件 definition/SmartBuilding.do 使用componentID作为“键”，使用剩下的内容作为“值”的List
+        //组件信息表，定义在文件 definition/SmartBuilding.do 使用componentID作为"键"，使用剩下的内容作为"值"的List
         Map<String,ComponentAbout> componentMap = new HashMap<>(); //用于存储componentAbout
 
         JsonNode componentTypeListNode = rootNode.path("componentTypeList"); //获取组件列表
@@ -196,7 +209,7 @@ public class DomainBusiness {
                 dir.mkdirs(); // 创建所有不存在的父目录
             }
 
-            File file = new File(targetDir, temInfo.getDomainData().get("code")+".json");
+            File file = new File(targetDir, temInfo.getDomainData().getCode()+".json");
 
             //写文件
             mapper.writeValue(file, temInfo);
@@ -245,5 +258,72 @@ public class DomainBusiness {
         existDomain.setDomainTemplateId(domainTemInfo.getTemplateId());
         existDomain.setUpdateTime(new Date());
         domainMapper.updateById(existDomain);
+    }
+
+    @Transactional
+    public Domain createDomainFromTemplate(DomainTemInfo domainTemInfo) {
+        Domain domain = new Domain();
+        if (domainMapper.getDomainByCode(domainTemInfo.getDomainData().getCode()) != null){
+            throw new RuntimeException("领域编码已存在");
+        }
+
+        // step1: 存入基本信息到数据库，获取id
+        domain.setDomainCode(domainTemInfo.getDomainData().getCode());
+        domain.setDomainName(domainTemInfo.getDomainData().getName());
+        domain.setDomainDescription(domainTemInfo.getDomainData().getDescription());
+        domain.setStatus(domainTemInfo.getDomainData().getStatus());
+        domain.setCreateTime(new Date());
+        domain.setCodeEditor(domainTemInfo.getDomainData().getCodeEditor());
+        domain.setModelEditor(domainTemInfo.getDomainData().getModelEditor());
+        domain.setFramework(domainTemInfo.getDomainData().getBaseFramework());
+        domain.setDsl(domainTemInfo.getDomainData().getDslStandard());
+        domainMapper.insert(domain);
+        Long domainId = domain.getDomainId();
+
+        // step2: 存入和模板的绑定关系到数据库
+        List<Long> templateIds = new ArrayList<>();
+        for(NewTemplate template : domainTemInfo.getTemplates()){
+            if(template.getTemplate_id() == null){
+                Template existTemplate = templateMapper.selectByTemplateId(template.getId());
+                if (existTemplate!=null){
+                    templateIds.add(existTemplate.getId());
+                }else{
+                    // 该模板未保存过，保存到数据库
+                    Template newTemplate = new Template();
+                    newTemplate.setTemplate_id(template.getId());
+                    newTemplate.setCategory(template.getCategory());
+                    newTemplate.setDescribing_the_model(template.getDescribing_the_model());
+                    newTemplate.setDescription(template.getDescription());
+                    newTemplate.setDomain(template.getDomain());
+                    newTemplate.setImage_url(template.getImage_url());
+                    newTemplate.setName(template.getName());
+                    newTemplate.setTags(template.getTags());
+                    newTemplate.setUrl(template.getUrl());
+                    templateMapper.insert(newTemplate);
+                    templateIds.add(newTemplate.getId());
+                }
+            } else {
+                templateIds.add(template.getId());
+            }
+        }
+
+        // 批量插入领域-模板关系
+        if (!templateIds.isEmpty()) {
+            templateMapper.batchInsertDomainTemplateRelations(domainId, templateIds);
+        }
+
+        // step3：存入和设备类型的绑定关系到数据库
+        List<Long> deviceTypeIds = new ArrayList<>();
+        for(DeviceType deviceType : domainTemInfo.getDeviceTypes()){
+            // 收集所有设备类型ID
+            deviceTypeIds.add(deviceType.getId());
+        }
+
+        // 批量插入领域-设备类型关系
+        if (!deviceTypeIds.isEmpty()) {
+            domainComponentMapper.batchInsertDomainComponents(domainId, deviceTypeIds);
+        }
+
+        return domain;
     }
 }

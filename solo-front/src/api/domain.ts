@@ -27,6 +27,19 @@ export function createDomain(data: any) {
     })
 }
 
+export function createDomainFromTemplate(data: any, templates: any, deviceTypes: any, components: any) {
+    return request({
+        url: '/domains/from-template',
+        method: 'post',
+        data: {
+            domainData: data,
+            templates: templates,
+            deviceTypes: deviceTypes,
+            components: components
+        }
+    })
+}
+
 export function updateDomain(id: number, data: any) {
     return request({
         url: `/domains/${id}`,

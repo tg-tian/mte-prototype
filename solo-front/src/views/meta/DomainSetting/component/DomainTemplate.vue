@@ -26,7 +26,7 @@
         <div>
             <div class="template_item">
                 <div class="template_key">模板ID：</div>
-                <div class="template_value">{{ domainComponentTemplateStore.currentTemplate.template_id }}</div>
+                <div class="template_value">{{ domainComponentTemplateStore.currentTemplate.template_id ?? domainComponentTemplateStore.currentTemplate.id }}</div>
             </div>
             <div class="template_item">
                 <div class="template_key">模板名：</div>
@@ -178,6 +178,10 @@ const domainId = computed(() => {
   return route.query.domainId ? parseInt(route.query.domainId as string) : null
 })
 
+const isFromTem = computed(() => {
+  return route.query.mode === 'template'
+})
+
 const state = reactive({
     dialogVisible: false,
     dialogDetailVisible: false,
@@ -247,7 +251,11 @@ const addTemplate = async () => {
     } else {
         try {
           const selectedData = domainComponentTemplateStore.allTemplates.filter((item)=>selectedTemplates.value.includes(item.id))
-          await domainComponentTemplateStore.bindingTemplates(domainId.value, selectedData)
+          if(isFromTem.value){
+            domainComponentTemplateStore.templates.push(...selectedData)
+          }else{
+            await domainComponentTemplateStore.bindingTemplates(domainId.value, selectedData)
+          }
           ElMessage.success("添加成功")
           dialogVisible.value = false
         }catch(error) {
@@ -279,7 +287,13 @@ const filteredDomainTemplates = computed(() => {
 const filteredTemplates = computed(() => {
   if (!domainComponentTemplateStore.allTemplates) return []
 
-  const domainTemplateIds = filteredDomainTemplates.value.map((template)=>template.template_id)
+  const domainTemplateIds = filteredDomainTemplates.value.map((template)=>{
+    if(template.template_id){
+      return template.template_id
+    }else{
+      return template.id
+    }
+  })
   
   let templateList = domainComponentTemplateStore.allTemplates.filter((template)=>!domainTemplateIds.includes(template.id))
 
@@ -305,7 +319,17 @@ const handleDelete = (row: any) => {
   )
   .then(async () => {
     try {
-      await domainComponentTemplateStore.unbindingTemplates(domainId.value, row.id)
+      if(isFromTem.value){
+        domainComponentTemplateStore.templates = domainComponentTemplateStore.templates.filter((template)=>{
+            if(template.template_id){
+                return template.template_id !== row.template_id
+            }else{
+                return template.id !== row.id
+            }
+        })
+      }else{
+        await domainComponentTemplateStore.unbindingTemplates(domainId.value, row.id)
+      }
       ElMessage.success('取消绑定成功')
     } catch (error) {
       ElMessage.error('取消绑定失败')

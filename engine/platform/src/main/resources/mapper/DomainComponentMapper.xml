@@ -15,4 +15,12 @@
         SELECT * FROM domain_component
         WHERE component_id = #{deviceTypeId} AND component_type = 'devicetype'
     </select>
+
+    <insert id="batchInsertDomainComponents">
+        INSERT INTO domain_component (domain_id, component_id, component_type)
+        VALUES 
+        <foreach collection="deviceTypeIds" item="deviceTypeId" separator=",">
+            (#{domainId}, #{deviceTypeId}, 'devicetype')
+        </foreach>
+    </insert>
 </mapper>

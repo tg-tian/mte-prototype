@@ -144,4 +144,15 @@ public class DomainController {
             return new ResponseEntity<>("保存失败",HttpStatus.CONFLICT);
         }
     }
+
+    @PostMapping(value = "/domains/from-template")
+    @ApiOperation(value = "从模板新增领域")
+    public ResponseEntity<?> createDomainFromTemplate(@RequestBody DomainTemInfo domainTemInfo ){
+        try {
+            Domain domain = domainBusiness.createDomainFromTemplate(domainTemInfo);
+            return new ResponseEntity<>(domain,HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>("新增失败："+e.getMessage(),HttpStatus.CONFLICT);
+        }
+    }
 }

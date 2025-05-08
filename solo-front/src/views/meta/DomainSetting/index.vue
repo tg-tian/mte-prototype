@@ -1,7 +1,7 @@
 <template>
   <div class="domain-setting-container">
     <div class="domain-header">
-      <h2>{{ isEditMode ? '编辑领域-'+domainForm.name : '创建领域' }}</h2>
+      <h2>{{ isEditMode ? '编辑领域-'+domainForm.name : isFromTem ? '创建领域-从模板导入' : '创建领域' }}</h2>
       <div class="header-actions">
         <el-button @click="navigateBack">返回列表</el-button>
         <el-button 
@@ -19,7 +19,7 @@
         <el-button 
           type="primary" 
           plain
-          v-if="isEditMode || isFromTem"
+          v-if="isEditMode"
           @click="saveTemplate"
         >保存为模板</el-button>
       </div>
@@ -161,7 +161,6 @@ import DomainTemplate from './component/DomainTemplate.vue'
 import DomainComponent from './component/DomainComponent.vue'
 import {useDeviceTypeStore} from "@/store/deviceType";
 
-
 interface DomainForm {
   code: string
   name: string
@@ -182,6 +181,8 @@ const domainTemplateStore = useDomainTemplateStore()
 const domainComponentTemplateStore = useDomainComponentTemplateStore()
 const deviceTypeStore = useDeviceTypeStore()
 const domainFormRef = ref<FormInstance>()
+const carouselRef = ref()
+const activeTemplateIndex = ref(0)
 
 // State
 const state = reactive({
@@ -203,10 +204,9 @@ const state = reactive({
   importDialogVisible:false,
   domainTemplates:[]
 })
-
 const { activeTab, domainForm, submitting, publishDialogVisible,importDialogVisible,domainTemplates } = toRefs(state)
 
-// Determine if we're in edit mode
+// 计算属性
 const isEditMode = computed(() => {
   return route.query.mode === 'edit'
 })
@@ -215,12 +215,11 @@ const isFromTem = computed(() => {
   return route.query.mode === 'template'
 })
 
-// Get current domain ID from query params
 const domainId = computed(() => {
   return parseInt(route.query.domainId as string) || null
 })
 
-// Rules for form validation
+// 表单验证规则
 const rules: FormRules = {
   code: [
     { required: true, message: '请输入领域编码', trigger: 'blur' },
@@ -247,7 +246,7 @@ const rules: FormRules = {
   ]
 }
 
-// Clear form for creation mode
+// 清空表单
 const resetFormData = () => {
   domainForm.value = {
     code: '',
@@ -263,7 +262,7 @@ const resetFormData = () => {
   }
 }
 
-// Helper function to load domain data to form
+// 编辑表单时加载领域
 const loadDomainToForm = (domain: any) => {
   // First reset the form to clear any previous data
   resetFormData()
@@ -285,16 +284,16 @@ const loadDomainToForm = (domain: any) => {
   }
 }
 
-// Watch for changes in route params to update form data accordingly
+// 监听路由参数变化
 watch([() => route.query.domainId, () => route.query.mode , () => route.query.domainName ,() => route.query.domainCode], async ([newDomainId, newMode,newDomainName,newDomainCode]) => {
   if (newMode === 'create' || newMode === 'template') {
-    // Clear form data when switching to create mode
+    // 清空表单
     resetFormData()
     domainForm.value.code = newDomainCode as string;
     domainForm.value.name = newDomainName as string;
     activeTab.value='basic'
   } else if (newMode === 'edit' && newDomainId) {
-    // Load domain data when switching to edit mode or changing domain ID
+    // 加载领域数据
     try {
       const res: any = await getDomainById(parseInt(newDomainId as string))
       if (res.data && res.status === 200) {
@@ -312,16 +311,14 @@ watch([() => route.query.domainId, () => route.query.mode , () => route.query.do
   }
 }, { immediate: true })
 
-// Load domain data if in edit mode
+// 加载领域数据
 onMounted(async () => {
-  // Get domain templates
+  // 获取领域模板
   // domainTemplates.value = await domainStore.importDomain()
   await domainTemplateStore.fetchDomainTemplates()
   domainTemplates.value = domainTemplateStore.domainTemplates.map((item: any) => ({
     ...JSON.parse(item.code)
   }))
-  console.log(domainTemplates.value, 'domainTemplates')
-  // Clear form when in create mode
   if (isEditMode.value && domainId.value) {
     const currentDomain = domainStore.currentDomain
     
@@ -348,12 +345,12 @@ onMounted(async () => {
   }
 })
 
-// Navigate back to domain list
+// 返回领域列表
 const navigateBack = () => {
   router.push('/meta/domain/list')
 }
 
-// Submit form - either create or update domain
+// 提交表单 - 创建或更新领域
 const submitForm = async () => {
   if (!domainFormRef.value) return
   
@@ -365,7 +362,11 @@ const submitForm = async () => {
           // Update existing domain
           await domainStore.updateDomain(domainId.value, domainForm.value)
           ElMessage.success('更新成功')
-        } else {
+        } else if (isFromTem.value) {
+          // Create new domain from template
+          await domainStore.createDomainFromTemplate(domainForm.value, domainComponentTemplateStore.templates, deviceTypeStore.deviceTypes, null)
+          ElMessage.success('创建成功')
+        }else {
           // Create new domain
           await domainStore.createDomain(domainForm.value)
           ElMessage.success('创建成功')
@@ -373,15 +374,19 @@ const submitForm = async () => {
         // Navigate back to list after successful operation
         // navigateBack()
       } catch (error) {
+        console.error('Failed to create domain:', error)
         ElMessage.error(isEditMode.value ? '更新失败' : '创建失败')
       } finally {
         submitting.value = false
       }
+
     }
   })
 }
 
-// Handle publish
+/*-------------------------------------------------------发布领域---------------------------------------------------- */
+
+// 点击发布按钮
 const handlePublish = async () => {
   if (!domainFormRef.value) return
   
@@ -403,6 +408,7 @@ const handlePublish = async () => {
   })
 }
 
+// 发布领域
 const publishDomain = async () => {
   if(domainForm.value.url){
     domainStore.publishDomain(domainId.value, domainForm.value.url, '1')
@@ -419,10 +425,14 @@ const publishDomain = async () => {
   }
 }
 
+/*--------------------------------------------------领域模板导入导出------------------------------------------------ */
+
+// 导入模板
 const importTemplate = () => {
   importDialogVisible.value = true
 }
 
+// 保存模板
 const saveTemplate = async () => {
   if (!domainFormRef.value) return
   await domainFormRef.value.validate(async (valid) => {
@@ -452,14 +462,16 @@ const saveTemplate = async () => {
   })
 }
 
-const carouselRef = ref()
-const activeTemplateIndex = ref(0)
-
 const handleCarouselChange = (index: number) => {
   activeTemplateIndex.value = index
 }
 
-const handleImportTemplate = () => {
+const handleImportTemplate = async () => {
+  await domainTemplateStore.fetchDomainTemplates()
+  domainTemplates.value = domainTemplateStore.domainTemplates.map((item: any) => ({
+    ...JSON.parse(item.code)
+  }))
+
   if (domainTemplates.value.length === 0) {
     ElMessage.warning('没有可用的模板')
     return
@@ -471,15 +483,16 @@ const handleImportTemplate = () => {
     return
   }
 
-  // 这里处理选中的模板
+  domainTemplateStore.setCurrentDomainTemplate(selectedTemplate)
+
   console.log('Selected template:', selectedTemplate)
-  // TODO: 处理模板导入逻辑
-  loadDomainToTemplate(selectedTemplate)
+  // 处理模板导入逻辑
+  loadDomainFromTemplate(selectedTemplate)
   
   importDialogVisible.value = false
 }
 
-const loadDomainToTemplate = (template: any) => {
+const loadDomainFromTemplate = (template: any) => {
   if (template) {
     domainForm.value.description = template.domainData.description || ''
     domainForm.value.status = '0'
@@ -489,6 +502,9 @@ const loadDomainToTemplate = (template: any) => {
     domainForm.value.baseFramework = template.domainData.baseFramework || ''
     domainForm.value.dslStandard = template.domainData.dslStandard || ''
     domainForm.value.domainTemplateId = null
+
+    domainComponentTemplateStore.templates = template.templates
+    deviceTypeStore.deviceTypes = template.deviceTypes
     
     console.log('Domain data loaded to template:', domainForm.value)
   }

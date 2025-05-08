@@ -33,6 +33,15 @@
         VALUES (#{domainId}, #{templateId}, 'template')
     </insert>
 
+    <!--批量插入领域模板关系-->
+    <insert id="batchInsertDomainTemplateRelations">
+        INSERT INTO domain_component (domain_id, component_id, component_type)
+        VALUES 
+        <foreach collection="templateIds" item="templateId" separator=",">
+            (#{domainId}, #{templateId}, 'template')
+        </foreach>
+    </insert>
+
     <!--根据template_id查询模板-->
     <select id="selectByTemplateId" resultMap="templateResultMap">
         SELECT * FROM template WHERE template_id = #{templateId}
