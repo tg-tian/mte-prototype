@@ -1,6 +1,25 @@
 <template>
     <!-- 添加设备类型绑定功能 -->
     <el-button type="primary" style="float: right;margin-bottom: 10px" @click="showBindDeviceTypeDialog">绑定设备类型</el-button>
+    <el-dialog v-model="bindingDialogVisible"
+    title="绑定设备类型"
+    width="50%"
+    >
+      <el-table
+        :data="availableDeviceTypes"
+        style="width: 100%; margin-top: 20px"
+        border
+      >
+      <el-table-column prop="code" label="设备类型编码" width="150"></el-table-column>
+        <el-table-column prop="name" label="设备类型名称" min-width="150"></el-table-column>
+        <el-table-column prop="description" label="设备类型描述" min-width="200"></el-table-column>
+        <el-table-column label="操作" width="220">
+          <template #default="scope">
+            <el-button type="primary" size="small" @click="bindDeviceType(scope.row)">绑定</el-button>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
     <el-empty description="暂无组件" v-if="filteredDeviceTypes.length===0"/>
     <el-table
       v-loading="deviceTypeStore.loading"
@@ -126,7 +145,8 @@ const showBindDeviceTypeDialog = async () => {
 }
 
 // 绑定设备类型
-const bindDeviceType = async () => {
+const bindDeviceType = async (row: any) => {
+  selectedDeviceTypeId.value = row.id
   if (!selectedDeviceTypeId.value) {
     ElMessage.warning('请选择设备类型')
     return
