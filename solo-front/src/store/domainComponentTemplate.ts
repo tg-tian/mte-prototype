@@ -122,6 +122,10 @@ export const useDomainComponentTemplateStore = defineStore('domainComponentTempl
 
         setAllTemplatesPageSize(pageSize: number) {
             this.allTemplatesPageSize = pageSize
+        },
+
+        setTemplates(templates: any[]) {
+            this.templates = templates
         }
     },
 

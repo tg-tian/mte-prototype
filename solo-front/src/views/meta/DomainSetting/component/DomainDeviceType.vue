@@ -51,11 +51,18 @@ const domainId = computed(() => {
   return route.query.domainId ? parseInt(route.query.domainId as string) : null
 })
 
+const isFromTem = computed(() => {
+  return route.query.mode === 'template'
+})
+
 // 初始化
 onMounted(async () => {
     try {
         const domain = route.query.domainId ? parseInt(route.query.domainId as string) : null
-        await deviceTypeStore.fetchDeviceTypes(domain)
+        // Only fetch device types if not in template mode
+        if (!isFromTem.value) {
+            await deviceTypeStore.fetchDeviceTypes(domain)
+        }
     } catch (error) {
         console.error('加载设备类型失败:', error)
     }
@@ -63,7 +70,10 @@ onMounted(async () => {
 
 watch([() => route.query.domainId], async ([newDomainId]) => {
     try {
-        await deviceTypeStore.fetchDeviceTypes(newDomainId ? parseInt(newDomainId as string) : null)
+        // Only fetch device types if not in template mode
+        if (!isFromTem.value) {
+            await deviceTypeStore.fetchDeviceTypes(newDomainId ? parseInt(newDomainId as string) : null)
+        }
     } catch (error) {
         console.error('加载设备类型失败:', error)
     }

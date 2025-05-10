@@ -13,12 +13,6 @@
         <el-button 
           type="primary" 
           plain
-          v-if="isFromTem"
-          @click="importTemplate"
-        >从模板导入</el-button>
-        <el-button 
-          type="primary" 
-          plain
           v-if="isEditMode"
           @click="saveTemplate"
         >保存为模板</el-button>
@@ -113,37 +107,6 @@
       </div>
     </template>
     </el-dialog>
-
-    <!-- Import Dialog-->
-    <el-dialog
-        v-model="importDialogVisible"
-        title="选择导入模版"
-        width="500"
-    >
-      <el-carousel
-          v-if="domainTemplates.length > 0"
-          indicator-position="outside"
-          type="card"
-          :autoplay="false"
-          class="template-carousel"
-          ref="carouselRef"
-          @change="handleCarouselChange"
-      >
-        <el-carousel-item v-for="(item, index) in domainTemplates" :key="index">
-          <div class="carousel-item" >
-            {{ item.domainData.name || '未命名模板' }}
-          </div>
-        </el-carousel-item>
-      </el-carousel>
-      <template #footer>
-        <div class="dialog-footer">
-          <el-button @click="importDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="handleImportTemplate">
-            确定
-          </el-button>
-        </div>
-      </template>
-    </el-dialog>
   </div>
 </template>
 
@@ -181,8 +144,6 @@ const domainTemplateStore = useDomainTemplateStore()
 const domainComponentTemplateStore = useDomainComponentTemplateStore()
 const deviceTypeStore = useDeviceTypeStore()
 const domainFormRef = ref<FormInstance>()
-const carouselRef = ref()
-const activeTemplateIndex = ref(0)
 
 // State
 const state = reactive({
@@ -200,11 +161,10 @@ const state = reactive({
     domainTemplateId: null
   } as DomainForm,
   submitting: false,
-  publishDialogVisible: false,
-  importDialogVisible:false,
-  domainTemplates:[]
+  publishDialogVisible: false
 })
-const { activeTab, domainForm, submitting, publishDialogVisible,importDialogVisible,domainTemplates } = toRefs(state)
+
+const { activeTab, domainForm, submitting, publishDialogVisible } = toRefs(state)
 
 // 计算属性
 const isEditMode = computed(() => {
@@ -292,6 +252,28 @@ watch([() => route.query.domainId, () => route.query.mode , () => route.query.do
     domainForm.value.code = newDomainCode as string;
     domainForm.value.name = newDomainName as string;
     activeTab.value='basic'
+
+    // If template mode, load template data
+    if (newMode === 'template') {
+      const currentTemplate = domainTemplateStore.currentDomainTemplate
+      if (currentTemplate) {
+        domainForm.value.description = currentTemplate.domainData.description || ''
+        domainForm.value.status = '0'
+        domainForm.value.url = ''
+        domainForm.value.codeEditor = currentTemplate.domainData.codeEditor || ''
+        domainForm.value.modelEditor = currentTemplate.domainData.modelEditor || ''
+        domainForm.value.baseFramework = currentTemplate.domainData.baseFramework || ''
+        domainForm.value.dslStandard = currentTemplate.domainData.dslStandard || ''
+        domainForm.value.domainTemplateId = null
+
+        domainComponentTemplateStore.setTemplates(currentTemplate.templates)
+        deviceTypeStore.setDeviceTypes(currentTemplate.deviceTypes)
+        console.log('template:', domainComponentTemplateStore.templates)
+        console.log('deviceType:', deviceTypeStore.deviceTypes)
+        
+        console.log('Domain data loaded from template:', domainForm.value)
+      }
+    }
   } else if (newMode === 'edit' && newDomainId) {
     // 加载领域数据
     try {
@@ -313,12 +295,6 @@ watch([() => route.query.domainId, () => route.query.mode , () => route.query.do
 
 // 加载领域数据
 onMounted(async () => {
-  // 获取领域模板
-  // domainTemplates.value = await domainStore.importDomain()
-  await domainTemplateStore.fetchDomainTemplates()
-  domainTemplates.value = domainTemplateStore.domainTemplates.map((item: any) => ({
-    ...JSON.parse(item.code)
-  }))
   if (isEditMode.value && domainId.value) {
     const currentDomain = domainStore.currentDomain
     
@@ -427,11 +403,6 @@ const publishDomain = async () => {
 
 /*--------------------------------------------------领域模板导入导出------------------------------------------------ */
 
-// 导入模板
-const importTemplate = () => {
-  importDialogVisible.value = true
-}
-
 // 保存模板
 const saveTemplate = async () => {
   if (!domainFormRef.value) return
@@ -460,36 +431,6 @@ const saveTemplate = async () => {
       }
     }
   })
-}
-
-const handleCarouselChange = (index: number) => {
-  activeTemplateIndex.value = index
-}
-
-const handleImportTemplate = async () => {
-  await domainTemplateStore.fetchDomainTemplates()
-  domainTemplates.value = domainTemplateStore.domainTemplates.map((item: any) => ({
-    ...JSON.parse(item.code)
-  }))
-
-  if (domainTemplates.value.length === 0) {
-    ElMessage.warning('没有可用的模板')
-    return
-  }
-  
-  const selectedTemplate = domainTemplates.value[activeTemplateIndex.value]
-  if (!selectedTemplate) {
-    ElMessage.warning('请选择模板')
-    return
-  }
-
-  domainTemplateStore.setCurrentDomainTemplate(selectedTemplate)
-
-  console.log('Selected template:', selectedTemplate)
-  // 处理模板导入逻辑
-  loadDomainFromTemplate(selectedTemplate)
-  
-  importDialogVisible.value = false
 }
 
 const loadDomainFromTemplate = (template: any) => {

@@ -204,7 +204,10 @@ onMounted(async () => {
     try {
         const domain = route.query.domainId ? parseInt(route.query.domainId as string) : null
         domainComponentTemplateStore.setCurrentDomain(domain)
-        await domainComponentTemplateStore.fetchTemplates(domain)
+        // Only fetch templates if not in template mode
+        if (!isFromTem.value) {
+            await domainComponentTemplateStore.fetchTemplates(domain)
+        }
     } catch (error) {
         console.error('加载模板列表失败:', error)
     }
@@ -214,7 +217,10 @@ watch([() => route.query.domainId], async ([newDomainId]) => {
     try {
         const newDomain = newDomainId ? parseInt(newDomainId as string) : null
         domainComponentTemplateStore.setCurrentDomain(newDomain)
-        await domainComponentTemplateStore.fetchTemplates(newDomain)
+        // Only fetch templates if not in template mode
+        if (!isFromTem.value) {
+            await domainComponentTemplateStore.fetchTemplates(newDomain)
+        }
     } catch (error) {
         console.error('加载模板列表失败:', error)
     }
@@ -279,6 +285,7 @@ const filteredDomainTemplates = computed(() => {
   if (!domainComponentTemplateStore.templates) return []
   
   let templates = domainComponentTemplateStore.templates
+  console.log('templates vvv:', templates)
 
   return templates
 })

@@ -98,6 +98,10 @@ export const useDeviceTypeStore = defineStore('deviceType', {
 
         setCurrentDeviceType(deviceType: any) {
             this.currentDeviceType = deviceType
+        },
+
+        setDeviceTypes(deviceTypes: any[]) {
+            this.deviceTypes = deviceTypes
         }
     },
 

@@ -79,21 +79,55 @@
         </span>
       </template>
     </el-dialog>
+
+    <!-- Template Selection Dialog -->
+    <el-dialog
+        v-model="templateDialogVisible"
+        title="选择导入模版"
+        width="500"
+    >
+      <el-carousel
+          v-if="domainTemplates.length > 0"
+          indicator-position="outside"
+          type="card"
+          :autoplay="false"
+          class="template-carousel"
+          ref="carouselRef"
+          @change="handleCarouselChange"
+      >
+        <el-carousel-item v-for="(item, index) in domainTemplates" :key="index">
+          <div class="carousel-item" >
+            {{ item.domainData.name || '未命名模板' }}
+          </div>
+        </el-carousel-item>
+      </el-carousel>
+      <template #footer>
+        <div class="dialog-footer">
+          <el-button @click="templateDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="handleTemplateSelect">
+            确定
+          </el-button>
+        </div>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, toRefs } from 'vue'
 import { useDomainStore } from '@/store/domain'
+import { useDomainTemplateStore } from '@/store/domainTemplate'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { FormInstance } from 'element-plus'
 
 const router = useRouter()
 const domainStore = useDomainStore()
+const domainTemplateStore = useDomainTemplateStore()
 
 // 状态
 const state = reactive({
   createDialogVisible: false,
+  templateDialogVisible: false,
   searchForm: {
     name: '',
     status: ''
@@ -103,11 +137,14 @@ const state = reactive({
     code:'',
   },
   createModel: '1',
+  domainTemplates: [],
+  activeTemplateIndex: 0
 })
 
-const { searchForm,createDialogVisible,createForm,createModel} = toRefs(state)
+const { searchForm, createDialogVisible, createForm, createModel, templateDialogVisible, domainTemplates, activeTemplateIndex } = toRefs(state)
 
 const createFormRef = ref<FormInstance>()
+const carouselRef = ref()
 
 const rules = {
   name: [
@@ -192,14 +229,9 @@ const navigateToDomainSetting = async (domain?: any) => {
           }
         })
       }else if(createModel.value === '2'){
-        router.push({
-          path: '/meta/domain/setting',
-          query: {
-            mode: 'template',
-            domainName:createForm.value.name,
-            domainCode:createForm.value.code,
-          }
-        })
+        // Show template selection dialog
+        templateDialogVisible.value = true
+        await loadDomainTemplates()
       }
       createDialogVisible.value = false
     } catch (error) {
@@ -208,6 +240,50 @@ const navigateToDomainSetting = async (domain?: any) => {
       return
     }
   }
+}
+
+// Load domain templates
+const loadDomainTemplates = async () => {
+  try {
+    await domainTemplateStore.fetchDomainTemplates()
+    domainTemplates.value = domainTemplateStore.domainTemplates.map((item: any) => ({
+      ...JSON.parse(item.code)
+    }))
+  } catch (error) {
+    console.error('Failed to load templates:', error)
+    ElMessage.error('加载模板失败')
+  }
+}
+
+const handleCarouselChange = (index: number) => {
+  activeTemplateIndex.value = index
+}
+
+const handleTemplateSelect = async () => {
+  if (domainTemplates.value.length === 0) {
+    ElMessage.warning('没有可用的模板')
+    return
+  }
+  
+  const selectedTemplate = domainTemplates.value[activeTemplateIndex.value]
+  if (!selectedTemplate) {
+    ElMessage.warning('请选择模板')
+    return
+  }
+
+  domainTemplateStore.setCurrentDomainTemplate(selectedTemplate)
+  
+  // Navigate to domain setting with template data
+  router.push({
+    path: '/meta/domain/setting',
+    query: {
+      mode: 'template',
+      domainName: createForm.value.name,
+      domainCode: createForm.value.code,
+    }
+  })
+  
+  templateDialogVisible.value = false
 }
 
 // 进入领域平台
@@ -279,6 +355,29 @@ const handleCreate = () => {
 .search-form {
   display: flex;
   flex-wrap: wrap;
+}
+
+.template-carousel {
+  height: 200px;
+  border: 2px solid #ebeef5;
+  border-radius: 4px;
+  margin: 0 auto 30px;
+}
+
+.carousel-item {
+  margin-top: 15%;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: center;
+  height: 40%;
+  background: beige;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s;
+  padding: 20px;
+  border: 1px solid gray;
+  box-sizing: border-box;
 }
 
 </style>
