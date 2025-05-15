@@ -1,8 +1,8 @@
 <template>
-    <div class="nav">
-      <!-- Replace LOGO text with an image -->
-      <el-image :src="logoImage" alt="Logo" style="max-width:95%;"/>
-      <el-menu
+  <div class="nav">
+    <!-- Replace LOGO text with an image -->
+    <el-image :src="logoImage" alt="Logo" style="max-width:95%;"/>
+    <el-menu
       :default-active="selectedItem"
       class="nav-menu"
       @select="handleMenuSelect"
@@ -11,7 +11,7 @@
         '--el-menu-text-color': 'rgba(255, 255, 255, 0.65)',
         '--el-menu-active-color': '#0454c4'
       }"
-      >
+    >
       <!-- 元工具平台 -->
       <div style="margin-top: 10px" v-if="!routerPath.startsWith('/domain') && !routerPath.startsWith('/scene')">
         <el-sub-menu index="0" class="nav-item">
@@ -21,6 +21,8 @@
           </template>
           <el-menu-item index="meta-devicetype-list" class="sub-menu-item">设备类型列表</el-menu-item>
           <el-menu-item index="meta-devicetype-setting" class="sub-menu-item">设备类型定制</el-menu-item>
+          <el-menu-item index="meta-component-list" class="sub-menu-item">组件列表</el-menu-item>
+          <el-menu-item index="meta-component-setting" class="sub-menu-item">组件定制</el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="1" class="nav-item">
           <template #title>
@@ -54,154 +56,167 @@
           <el-menu-item index="scene-location" class="sub-menu-item">场景布局</el-menu-item>
         </el-sub-menu>
       </div>
-      </el-menu>
-    </div>
+    </el-menu>
+  </div>
 </template>
   
-  <script setup lang="ts">
-  import { Monitor } from '@element-plus/icons-vue'
-  import router from '@/router/index.ts'
-  import logoImage from '@/assets/LOGO_dark.jpg'
-  
-  interface State {
-    selectedItem: string
-    items: any;
-    routerPath: string
-  }
-  
-  const state = reactive<State>({
-    selectedItem: '',
-    items: [
-      // 元工具平台
-      {
-        index: 'meta-devicetype-list',
-        name: '设备类型列表',
-        route: '/meta/devicetype/list'
-      },
-      {
-        index: 'meta-devicetype-setting',
-        name: '创建设备类型',
-        route: '/meta/devicetype/setting'
-      },
-      {
-        index: 'meta-domain-list',
-        name: '领域列表',
-        route: '/meta/domain/list'
-      },
-      {
-        index: 'meta-domain-setting',
-        name: '创建领域',
-        route: '/meta/domain/setting'
-      },
-      // 领域平台
-      {
-        index: 'domain-scene-list',
-        name: '场景列表',
-        route: '/domain/scene/list'
-      },
-      {
-        index: 'domain-scene-setting',
-        name: '创建场景',
-        route: '/domain/scene/setting'
-      },
-      // 场景平台
-      {
-        index: 'scene-information',
-        name: '场景信息',
-        route: '/scene/information'
-      },
-      {
-        index: 'scene-device',
-        name: '设备列表',
-        route: '/scene/device'
-      },
-      {
-        index: 'scene-location',
-        name: '场景布局',
-        route: '/scene/location'
-      },
-    ],
-    routerPath: ''
-  })
-  const { selectedItem, items, routerPath } = toRefs(state)
-  
-  watchEffect(() => {
-    const fullPath = router.currentRoute.value.fullPath
-    const path = router.currentRoute.value.path
-    routerPath.value=path
+<script setup lang="ts">
+import { Monitor } from '@element-plus/icons-vue'
+import router from '@/router/index.ts'
+import logoImage from '@/assets/LOGO_dark.jpg'
+import { reactive, watchEffect, ref } from 'vue'
 
-    const matchingItemData = items.value.find(item => item.route.includes(path.toLocaleLowerCase())||item.route.includes(fullPath.toLocaleLowerCase()));
-    if(fullPath.includes('mode=edit')){
-      const index = items.value.findIndex(item => item.route.includes(path.toLocaleLowerCase()))
-      selectedItem.value = (items.value[index-1])?.index
-    }else if (matchingItemData) {
-      selectedItem.value = matchingItemData.index;
-    } else {
-      selectedItem.value = '';
+interface State {
+  selectedItem: string
+  items: any[]
+  routerPath: string
+}
+
+const routerPath = ref('')
+const selectedItem = ref('')
+const items = ref([
+  // 元工具平台
+  {
+    index: 'meta-devicetype-list',
+    name: '设备类型列表',
+    route: '/meta/devicetype/list'
+  },
+  {
+    index: 'meta-devicetype-setting',
+    name: '创建设备类型',
+    route: '/meta/devicetype/setting'
+  },
+  {
+    index: 'meta-component-list',
+    name: '组件列表',
+    route: '/meta/component/list'
+  },
+  {
+    index: 'meta-component-setting',
+    name: '组件定制',
+    route: '/meta/component/setting'
+  },
+  {
+    index: 'meta-domain-list',
+    name: '领域列表',
+    route: '/meta/domain/list'
+  },
+  {
+    index: 'meta-domain-setting',
+    name: '创建领域',
+    route: '/meta/domain/setting'
+  },
+  // 领域平台
+  {
+    index: 'domain-scene-list',
+    name: '场景列表',
+    route: '/domain/scene/list'
+  },
+  {
+    index: 'domain-scene-setting',
+    name: '创建场景',
+    route: '/domain/scene/setting'
+  },
+  // 场景平台
+  {
+    index: 'scene-information',
+    name: '场景信息',
+    route: '/scene/information'
+  },
+  {
+    index: 'scene-device',
+    name: '设备列表',
+    route: '/scene/device'
+  }
+])
+
+watchEffect(() => {
+  const fullPath = router.currentRoute.value.fullPath
+  const path = router.currentRoute.value.path
+  routerPath.value = path
+  const matchingItemData = items.value.find(item => 
+    item.route.includes(path.toLowerCase()) || 
+    item.route.includes(fullPath.toLowerCase())
+  )
+
+  if(fullPath.includes('mode=edit')) {
+    const index = items.value.findIndex(item => 
+      item.route.includes(path.toLowerCase())
+    )
+    selectedItem.value = (items.value[index-1])?.index
+  } else if (matchingItemData) {
+    selectedItem.value = matchingItemData.index
+  } else {
+    selectedItem.value = ''
+  }
+})
+
+const handleMenuSelect = (key: string, _keyPath: string[]) => {
+  selectedItem.value = key
+  const selectedItemData = items.value.find(item => item.index === key)
+  
+  if (selectedItemData) {
+    let query = {}
+    if(!selectedItemData.route.startsWith("/meta")) {
+      query = { ...router.currentRoute.value.query }
     }
-  })
-  
-  const handleMenuSelect = (key: string, _keyPath: string[]) => {
-    selectedItem.value = key
-    const selectedItemData = items.value.find(item => item.index === key);
-    if (selectedItemData) {
-      let query={}
-      if(!selectedItemData.route.startsWith("/meta")){
-        query={...router.currentRoute.value.query}
-      }
-      if(selectedItemData.route.includes('setting')){
-        query['mode']='create'
-      }
-      router.push({
-        path: selectedItemData.route,
-        query: query
-      })
+    if(selectedItemData.route.includes('setting')) {
+      query['mode'] = 'create'
     }
+    router.push({
+      path: selectedItemData.route,
+      query: query
+    })
   }
-  </script>
-  <style scoped>
-  .nav {
-    width: 200px;
-    height: 100%;
-    background-color: #0454c4;
-    color: white;
-  }
-  .logo{
-    font-size: 20px;
-    /* padding-top: 10px;
-    margin-left: 10px; */
-  }
-  .nav-menu {
-    display: flex;
-    flex-direction: column;
-  }
-  
-  .nav-item {
-    width: 100%;
-  }
-  
-  .menu-item {
-    width: 100px;
-    text-align: center;
-    font-size: 16px;
-  }
-  
-  .sub-menu-item {
-    text-align: center;
-    font-size: 16px;
-  }
+}
+</script>
 
-  :deep(.nav-item .el-menu-item.is-active) {
-    background-color: #e4ecfc;
-    margin: 5px;
-    border-radius: 5px;
-  }
+<style scoped>
+.nav {
+  width: 200px;
+  height: 100%;
+  background-color: #0454c4;
+  color: white;
+}
 
-  :deep(.nav-item .el-menu-item:hover) {
-    color: #0454c4;
-  }
+.logo {
+  font-size: 20px;
+  padding-top: 10px;
+  margin-left: 10px;
+}
 
-  :deep(.nav-item .el-sub-menu__title:hover) {
-    color: #0454c4;
-  }
-  </style>
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+}
+
+.nav-item {
+  width: 100%;
+}
+
+.menu-item {
+  width: 100px;
+  text-align: center;
+  font-size: 16px;
+}
+
+.sub-menu-item {
+  text-align: center;
+  font-size: 16px;
+}
+
+:deep(.nav-item .el-menu-item.is-active) {
+  background-color: #e4ecfc;
+  margin: 5px;
+  border-radius: 5px;
+  color: #0454c4;
+}
+
+:deep(.nav-item .el-menu-item:hover) {
+  color: #0454c4;
+}
+
+:deep(.nav-item .el-sub-menu__title:hover) {
+  color: #0454c4;
+}
+</style>
