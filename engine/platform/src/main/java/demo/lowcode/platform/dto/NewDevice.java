@@ -11,4 +11,5 @@ public class NewDevice {
     private Long sceneId;
     private String protocolType;
     private ProtocolConfig protocolConfig;
+    private String field;
 }

@@ -130,6 +130,21 @@
           </div>
           <el-empty v-else description="暂无设备" />
         </el-tab-pane>
+
+        <el-tab-pane label="设备布局" name="deviceLocation">
+          <div v-if="filteredDevices && filteredDevices.length>0">
+            <el-table
+                v-loading="deviceStore.loading"
+                :data="filteredDevices"
+                style="width: 100%; margin-top: 20px"
+                border
+            >
+              <el-table-column prop="deviceName" label="设备名称" min-width="150"></el-table-column>
+              <el-table-column prop="deviceType.name" label="设备类型" min-width="150"></el-table-column>
+              <el-table-column prop="field" label="设备区域" min-width="120"></el-table-column>
+            </el-table>
+          </div>
+        </el-tab-pane>
       </el-tabs>
     </el-card>
     <el-dialog
@@ -160,6 +175,9 @@
             <el-option label="HTTP" value="HTTP"></el-option>
           </el-select>
         </el-form-item>
+        <el-form-item label="设备区域" prop="field">
+          <el-input v-model="deviceForm.field" placeholder="请输入设备区域"></el-input>
+        </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
@@ -181,6 +199,8 @@ import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
 import { getSceneById } from '@/api/scene'
 import { useRouter, useRoute } from 'vue-router'
 import { Device } from '@/types/models'
+import { fi } from 'element-plus/es/locale'
+import { fileURLToPath } from 'url'
 
 const router = useRouter()
 const route = useRoute()
@@ -217,6 +237,7 @@ const state = reactive({
     deviceTypeId: null,
     protocolType: 'MQTT',
     sceneId: parseInt(route.query.sceneId as string) || null,
+    field: '',
   },
   submitting: false,
   baiduMap: null as BMap.Map | null,
@@ -324,6 +345,9 @@ const deviceRules = {
   ],
   protocolType: [
     { required: true, message: '请输入协议类型', trigger: 'blur' }
+  ],
+  field: [
+    { required: true, message: '请输入设备区域', trigger: 'blur' }
   ]
 }
 
@@ -445,7 +469,7 @@ const initLocationMap = () => {
     centerPoint = new BMap.Point(121.4737, 31.2304)
   }
   
-  baiduMap.value.centerAndZoom(centerPoint, 12)
+  baiduMap.value.centerAndZoom(centerPoint, 18)
   
   // Enable scroll wheel zoom
   baiduMap.value.enableScrollWheelZoom()

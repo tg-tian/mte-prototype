@@ -79,4 +79,8 @@ public class Device {
     @Column(name = "last_online_time", nullable = false)
     @ApiModelProperty(value = "上次在线时间")
     private Date lastOnlineTime;
+
+    @Column(name = "field", nullable = false)
+    @ApiModelProperty(value = "布局")
+    private String field;
 }
