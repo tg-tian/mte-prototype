@@ -16,6 +16,8 @@ declare namespace BMap {
         getContainer(): HTMLElement;
         getZoom(): number;
         setZoom(zoom: number): void;
+        setViewport(points: Point[]): void;
+        getCenter(): Point;
     }
 
     class Point {

@@ -54,8 +54,8 @@
                   v-model="sceneForm.lng"
                   :precision="6"
                   :step="0.000001"
-                  :min="-180"
-                  :max="180"
+                  :min="lngMIn"
+                  :max="lngMax"
                   placeholder="经度"
                   class="coordinate-input"
                 ></el-input-number>
@@ -63,8 +63,8 @@
                   v-model="sceneForm.lat"
                   :precision="6"
                   :step="0.000001"
-                  :min="-90"
-                  :max="90"
+                  :min="latMin"
+                  :max="latMax"
                   placeholder="纬度"
                   class="coordinate-input"
                 ></el-input-number>
@@ -190,7 +190,10 @@ const deviceStore = useDeviceStore()
 const sceneFormRef = ref<FormInstance>()
 const deviceFormRef = ref<FormInstance>()           // 新增：设备对话框表单引用
 const locationMap = ref<HTMLElement | null>(null)
-
+const lngMIn = 73
+const lngMax = 135
+const latMin = 3
+const latMax = 53
 // State
 const state = reactive({
   activeTab: 'basic',
@@ -664,6 +667,16 @@ const publishForm = async()=>{
   
   await sceneFormRef.value.validate(async (valid) => {
     if (valid) {
+      console.log('sceneForm.value.lng', sceneForm.value.lng)
+      console.log('sceneForm.value.lat', sceneForm.value.lat)
+      if(sceneForm.value.lng < lngMIn || sceneForm.value.lng > lngMax){
+        ElMessage.error('经度范围不合法')
+        return
+      }
+      if(sceneForm.value.lat < latMin || sceneForm.value.lat > latMax){
+        ElMessage.error('纬度范围不合法')
+        return
+      }
       if(sceneForm.value.status === 'active') {
         sceneStore.publishScene(domainId.value, sceneId.value, '', 'inactive')
         .then((res)=>{
