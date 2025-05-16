@@ -84,6 +84,12 @@ public class SceneBusiness {
             scene.setLatitude(newScene.getLocation().getLat());
         }
         scene.setCreateTime(new Date());
+        if (sceneMapper.existsBySceneCode(newScene.getCode())) {
+            throw new RuntimeException("场景代码已存在: " + newScene.getCode());
+        }
+        if (sceneMapper.existsBySceneName(newScene.getName())) {
+            throw new RuntimeException("场景名称已存在: " + newScene.getName());
+        }
         sceneMapper.insert(scene);
         return scene;
     }

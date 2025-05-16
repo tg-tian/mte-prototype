@@ -41,6 +41,23 @@
             <el-form-item label="场景描述" prop="description">
               <el-input type="textarea" :rows="3" v-model="sceneForm.description" placeholder="请输入场景描述"></el-input>
             </el-form-item>
+            
+            <el-form-item label="场景图片">
+              <el-upload
+                class="scene-image-uploader"
+                action="/api/upload"
+                :show-file-list="false"
+                :on-success="handleImageSuccess"
+                :before-upload="beforeImageUpload"
+              >
+                <img v-if="sceneForm.imageUrl" :src="sceneForm.imageUrl" class="scene-image" />
+                <el-icon v-else class="scene-uploader-icon"><Plus /></el-icon>
+              </el-upload>
+              <div class="el-upload__tip">
+                支持 jpg/png 文件，大小不超过 5MB
+              </div>
+            </el-form-item>
+
             <el-form-item label="状态" prop="status">
               <el-tag :type="sceneForm.status==='active' ? 'success':'info'">{{ sceneForm.status==='active' ? '已发布':'定制中' }}</el-tag>
             </el-form-item>
@@ -621,46 +638,24 @@ const navigateBack = () => {
 
 // Submit form - either create or update scene
 const submitForm = async () => {
-  if (!sceneFormRef.value) return
-  
+  if (!sceneFormRef.value) return;
+
   await sceneFormRef.value.validate(async (valid) => {
     if (valid) {
-      submitting.value = true
+      submitting.value = true;
       try {
-        // Create location object if coordinates are set
-        const formData = { ...sceneForm.value }
-        
-        if (formData.lng && formData.lat) {
-          //@ts-ignore
-          formData.location = {
-            lng: formData.lng,
-            lat: formData.lat
-          }
-        }
-        
-        // Remove lng and lat properties as they're now in the location object
-        delete formData.lng
-        delete formData.lat
-        
-        if (isEditMode.value && sceneId.value) {
-          // Update existing scene
-          await sceneStore.updateScene(sceneId.value, formData)
-          ElMessage.success('更新成功')
-        } else {
-          // Create new scene
-          await sceneStore.createScene(formData)
-          ElMessage.success('创建成功')
-        }
-        // Navigate back to list after successful operation
-        navigateBack()
+        await sceneStore.createScene(sceneForm.value);
+        ElMessage.success('创建成功');
+        navigateBack();
       } catch (error) {
-        ElMessage.error(isEditMode.value ? '更新失败' : '创建失败')
+        console.error('提交失败:', error);
+        ElMessage.error(error.response?.data || '创建失败，请检查数据是否冲突');
       } finally {
-        submitting.value = false
+        submitting.value = false;
       }
     }
-  })
-}
+  });
+};
 
 const publishForm = async()=>{
   if (!sceneFormRef.value) return
@@ -708,6 +703,26 @@ const publishScene = () => {
     ElMessage.warning('请输入url')
   }
 }
+
+// 添加到 script setup 部分
+const handleImageSuccess = (res: any) => {
+  sceneForm.value.imageUrl = res;
+}
+
+const beforeImageUpload = (file: File) => {
+  const isImage = file.type === 'image/jpeg' || file.type === 'image/png';
+  const isLt5M = file.size / 1024 / 1024 < 5;
+
+  if (!isImage) {
+    ElMessage.error('只能上传 JPG/PNG 格式的图片!');
+    return false;
+  }
+  if (!isLt5M) {
+    ElMessage.error('图片大小不能超过 5MB!');
+    return false;
+  }
+  return true;
+}
 </script>
 
 <style scoped>
@@ -751,5 +766,20 @@ const publishScene = () => {
 }
 .device-search {
   margin-bottom: 20px;
+}
+.scene-image-uploader .scene-image {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+}
+.scene-uploader-icon {
+  width: 200px;
+  height: 200px;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  font-size: 28px;
+  color: #8c939d;
+  text-align: center;
+  line-height: 200px;
 }
 </style>
