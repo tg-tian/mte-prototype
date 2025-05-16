@@ -47,6 +47,16 @@ const routes: RouteRecordRaw[] = [
                         path: 'domain/setting',
                         name: '领域定制',
                         component: () => import('@/views/meta/DomainSetting/index.vue')
+                    },
+                    {
+                        path: 'component/list',
+                        name: '组件列表',
+                        component: () => import('@/views/meta/ComponentList/index.vue')
+                    },
+                    {
+                        path: 'component/setting',
+                        name: '组件定制',
+                        component: () => import('@/views/meta/ComponentSetting/index.vue')
                     }
                 ]
             },
