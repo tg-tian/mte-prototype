@@ -189,6 +189,7 @@ const domainStore = useDomainStore()
 const deviceStore = useDeviceStore()
 const sceneFormRef = ref<FormInstance>()
 const deviceFormRef = ref<FormInstance>()           // 新增：设备对话框表单引用
+const locationMap = ref<HTMLElement | null>(null)
 
 // State
 const state = reactive({
@@ -426,7 +427,7 @@ const submitDeviceForm = async () => {
 
 // Initialize location map
 const initLocationMap = () => {
-  if (!baiduMap.value) return
+  if (!locationMap.value) return
   
   // Create map instance
   baiduMap.value = new BMap.Map('location-map')
