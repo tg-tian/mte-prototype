@@ -246,7 +246,8 @@ const state = reactive({
     domainId: parseInt(route.query.domainId as string) || null,
     lng: undefined as number | undefined,
     lat: undefined as number | undefined,
-    url: ''
+    url: '',
+    imageUrl: ''
   },
   deviceForm: {
     code: '',
@@ -345,6 +346,9 @@ const rules = {
   ],
   description: [
     { required: true, message: '请输入场景描述', trigger: 'blur' }
+  ],
+  imageUrl: [
+    { required: false }
   ]
 }
 
@@ -413,6 +417,7 @@ const loadSceneToForm = (scene: any) => {
     sceneForm.value.status = scene.status || 'active'
     sceneForm.value.domainId = scene.domainId || domainId.value
     sceneForm.value.url = scene.url || ''
+    sceneForm.value.imageUrl = scene.imageUrl || ''
     
     // Load location if available
     // 首先尝试使用location对象

@@ -98,6 +98,22 @@
             <el-option label="非活跃" value="inactive"></el-option>
           </el-select>
         </el-form-item>
+
+        <el-form-item label="场景图片">
+          <el-upload
+            class="scene-image-uploader"
+            action="/api/upload"
+            :show-file-list="false"
+            :on-success="handleImageSuccess"
+            :before-upload="beforeImageUpload"
+          >
+            <img v-if="sceneForm.imageUrl" :src="sceneForm.imageUrl" class="scene-image" />
+            <el-icon v-else class="scene-uploader-icon"><Plus /></el-icon>
+          </el-upload>
+          <div class="el-upload__tip">
+            支持 jpg/png 文件，大小不超过 5MB
+          </div>
+        </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
@@ -115,6 +131,8 @@
 import { ref, reactive, computed, onMounted, toRefs } from 'vue'
 import { useSceneStore } from '@/store/scene'
 import { ElMessage, type FormInstance } from 'element-plus'
+import { useRouter, useRoute } from 'vue-router'
+import { Plus } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const route = useRoute()
@@ -128,7 +146,8 @@ const state = reactive({
   sceneForm: {
     name: '',
     description: '',
-    status: 'active'
+    status: 'active',
+    imageUrl: ''
   },
   dialogVisible: false
 })
@@ -169,7 +188,8 @@ const handleEdit = () => {
     sceneForm.value = {
       name: currentScene.value.name,
       description: currentScene.value.description,
-      status: currentScene.value.status
+      status: currentScene.value.status,
+      imageUrl: currentScene.value.imageUrl
     }
     dialogVisible.value = true
   }
@@ -190,6 +210,26 @@ const submitForm = async () => {
       }
     }
   })
+}
+
+// Add image handling functions
+const handleImageSuccess = (res: any) => {
+  sceneForm.value.imageUrl = res;
+}
+
+const beforeImageUpload = (file: File) => {
+  const isImage = file.type === 'image/jpeg' || file.type === 'image/png';
+  const isLt5M = file.size / 1024 / 1024 < 5;
+
+  if (!isImage) {
+    ElMessage.error('只能上传 JPG/PNG 格式的图片!');
+    return false;
+  }
+  if (!isLt5M) {
+    ElMessage.error('图片大小不能超过 5MB!');
+    return false;
+  }
+  return true;
 }
 </script>
 
@@ -234,11 +274,28 @@ const submitForm = async () => {
   color: #303133;
 }
 
-.scene-preview-image {
+.scene-image-uploader .scene-image {
   width: 200px;
   height: 200px;
   object-fit: cover;
-  border-radius: 4px;
+}
+
+.scene-uploader-icon {
+  width: 200px;
+  height: 200px;
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
+  font-size: 28px;
+  color: #8c939d;
+  text-align: center;
+  line-height: 200px;
   cursor: pointer;
+}
+
+.scene-preview-image {
+  max-width: 200px;
+  max-height: 200px;
+  object-fit: contain;
+  border-radius: 4px;
 }
 </style>

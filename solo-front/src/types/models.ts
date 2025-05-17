@@ -32,6 +32,7 @@ export interface Scene {
     deviceCount: number;
     status: 'active' | 'inactive';
     url: string;
+    imageUrl?: string;
     location?: {
         lng: number; // longitude
         lat: number; // latitude
