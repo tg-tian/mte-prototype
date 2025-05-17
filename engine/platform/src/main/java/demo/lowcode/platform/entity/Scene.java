@@ -33,7 +33,7 @@ public class Scene {
     @ApiModelProperty(value = "场景ID", example = "1")
     private Long sceneId;
 
-    @Column(name = "scene_code")
+    @Column(name = "scene_code", unique = true)
     @ApiModelProperty(value = "场景代码", example = "The second interdisciplinary building")
     private String sceneCode;
 
@@ -61,9 +61,13 @@ public class Scene {
     @ApiModelProperty(value = "场景经度", example = "121.1")
     private Float longitude;
 
-    @Column(name = "longitude")
+    @Column(name = "latitude")
     @ApiModelProperty(value = "场景纬度", example = "54.23")
     private Float latitude;
+
+    @Column(name = "image_url")
+    @ApiModelProperty(value = "场景图片URL")
+    private String imageUrl;
 
     @Column(name = "create_time", nullable = false)
     @ApiModelProperty(value = "创建时间")

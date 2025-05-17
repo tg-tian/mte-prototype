@@ -13,4 +13,5 @@ public class NewScene {
     private String url;
     private Long domainId;
     private Location location;
+    private String imageUrl;
 }

@@ -12,4 +12,8 @@ public interface SceneMapper extends BaseMapper<Scene> {
     Long getSceneId(@Param("sceneCode") String sceneCode);
 
     List<Scene> selectByDomainId(@Param("domainId") Long domainId);
+
+    boolean existsBySceneCode(String sceneCode);
+
+    boolean existsBySceneName(String sceneName);
 }

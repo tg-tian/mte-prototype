@@ -22,6 +22,17 @@
         <span class="info-value">{{ currentScene?.description || '-' }}</span>
       </div>
       
+      <div class="info-item" v-if="currentScene?.imageUrl">
+        <span class="info-label">场景图片:</span>
+        <div class="info-value">
+          <el-image 
+            :src="currentScene.imageUrl"
+            :preview-src-list="[currentScene.imageUrl]"
+            class="scene-preview-image"
+          />
+        </div>
+      </div>
+      
       <div class="info-item">
         <span class="info-label">创建时间:</span>
         <span class="info-value">{{ currentScene?.createTime || '-' }}</span>
@@ -221,5 +232,13 @@ const submitForm = async () => {
 .info-value {
   flex: 1;
   color: #303133;
+}
+
+.scene-preview-image {
+  width: 200px;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 4px;
+  cursor: pointer;
 }
 </style>
