@@ -16,6 +16,7 @@
           v-if="isEditMode"
           @click="saveTemplate"
         >保存为模板</el-button>
+        <el-button @click="handleDownload" v-if="isEditMode && domainForm.status==='1'">下载发布制品</el-button>
       </div>
     </div>
     
@@ -54,7 +55,7 @@
             </el-form-item>
             <el-form-item label="DSL标准" prop="dslStandard" class="half-width">
               <el-select v-model="domainForm.dslStandard" placeholder="请选择DSL标准">
-                <el-option label="默认" value="default" />
+                <el-option label="不限" value="default" />
                 <el-option label="UBML" value="UBML" />
               </el-select>
             </el-form-item>
@@ -123,6 +124,8 @@ import DomainDeviceType from './component/DomainDeviceType.vue'
 import DomainTemplate from './component/DomainTemplate.vue'
 import DomainComponent from './component/DomainComponent.vue'
 import {useDeviceTypeStore} from "@/store/deviceType";
+import axios from 'axios';
+import { request } from 'http';
 
 interface DomainForm {
   code: string
@@ -385,9 +388,15 @@ const handlePublish = async () => {
 }
 
 // 发布领域
-const publishDomain = async () => {
+const publishDomain = () => {
   if(domainForm.value.url){
-    domainStore.publishDomain(domainId.value, domainForm.value.url, '1')
+    let dslData = {
+        domainData: domainForm.value,
+        templates: domainComponentTemplateStore.templates,
+        deviceTypes: deviceTypeStore.deviceTypes,
+        components: null
+    }
+    domainStore.publishDomain(domainId.value, domainForm.value.url, '1', dslData)
     .then((res)=>{
         ElMessage.success('发布成功')
         loadDomainToForm(res)
@@ -399,6 +408,22 @@ const publishDomain = async () => {
   }else{
     ElMessage.warning('请输入url')
   }
+}
+
+// 下载发布制品
+const handleDownload =async () => {
+  axios.get(`${import.meta.env.VITE_BASE_PATH as string}/domains/download/${domainId.value}`, {
+    responseType: 'blob'
+  }).then(response => {
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `${domainForm.value.code}.json`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    ElMessage.success("文件正在下载中")
+});
 }
 
 /*--------------------------------------------------领域模板导入导出------------------------------------------------ */

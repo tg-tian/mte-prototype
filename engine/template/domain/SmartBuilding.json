@@ -3,12 +3,12 @@
     "code" : "SmartBuilding",
     "name" : "智慧楼宇",
     "description" : "智慧楼宇领域。",
-    "status" : "1",
+    "status" : "0",
+    "url" : "https://platform.shanhujiao.com/app/wb/workbench",
     "codeEditor" : "default",
     "modelEditor" : "default",
     "baseFramework" : "springboot",
-    "dslStandard" : "default",
-    "url" : "https://platform.shanhujiao.com/app/wb/workbench"
+    "dslStandard" : "default"
   },
   "templates" : [ {
     "id" : 1,
@@ -61,7 +61,7 @@
     "name" : "智能咖啡机",
     "description" : "智能咖啡机,可制作多种咖啡",
     "createTime" : 1744857054000,
-    "updateTime" : 1745904379000,
+    "updateTime" : 1747017516000,
     "model" : {
       "properties" : [ {
         "identify" : "sugar",
@@ -136,6 +136,14 @@
         } ]
       } ]
     }
+  }, {
+    "id" : 2,
+    "code" : "Pump",
+    "name" : "水泵",
+    "description" : "监测水位",
+    "createTime" : 1744857054000,
+    "updateTime" : 1744939787000,
+    "model" : null
   } ],
   "components" : null
 }

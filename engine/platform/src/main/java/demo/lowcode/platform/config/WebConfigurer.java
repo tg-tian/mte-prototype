@@ -13,6 +13,7 @@ public class WebConfigurer implements WebMvcConfigurer {
         registry.addMapping("/**")
 //                .allowedOrigins("*")
                 .allowedOriginPatterns("*")
+                .exposedHeaders("Content-Disposition")
                 .allowedMethods("POST", "PUT", "OPTIONS", "DELETE", "GET")
                 .allowedHeaders("*")
                 .allowCredentials(true)

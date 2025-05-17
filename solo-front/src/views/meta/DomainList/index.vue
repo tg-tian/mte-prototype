@@ -60,10 +60,10 @@
     >
         <el-form :model="createForm" :rules="rules" ref="createFormRef" label-width="120px">
           <el-form-item label="领域名称" prop="name">
-            <el-input v-model="createForm.name" placeholder="请输入场景名称" />
+            <el-input v-model="createForm.name" placeholder="请输入领域名称" />
           </el-form-item>
           <el-form-item label="领域编码" prop="code">
-            <el-input v-model="createForm.code" placeholder="请输入场景编码" />
+            <el-input v-model="createForm.code" placeholder="请输入领域编码" />
           </el-form-item>
           <el-form-item label="选择创建方式" prop="createModel">
             <el-radio-group v-model="createModel">

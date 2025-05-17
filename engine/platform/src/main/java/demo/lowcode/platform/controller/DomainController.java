@@ -4,11 +4,12 @@ import demo.lowcode.platform.business.DeviceTypeBusiness;
 import demo.lowcode.platform.business.DomainBusiness;
 import demo.lowcode.platform.dto.*;
 import demo.lowcode.platform.entity.Domain;
-import demo.lowcode.platform.entity.Scene;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import jakarta.annotation.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -110,12 +111,26 @@ public class DomainController {
         }
     }
 
+    @GetMapping(value = "/domains/download/{id}")
+    @ApiOperation(value = "下载领域配置文件")
+    public ResponseEntity<?> downloadDomain(@PathVariable Long id){
+        try {
+            org.springframework.core.io.Resource domain = domainBusiness.downloadDomain(id);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"" + domain.getFilename() + "\"")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(domain);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>("文件下载失败",HttpStatus.CONFLICT);
+        }
+    }
+
     @PostMapping(value = "/domains/templates")
     @ApiOperation(value = "新增领域模版")
     public ResponseEntity<?> createDomainTemplate(@RequestBody DomainTemInfo domainTemInfo ){
         try {
-            // todo:此处接入模板库
-            domainBusiness.createDomainTemplate(domainTemInfo);
+            domainBusiness.writeDomainInfo(domainTemInfo);
             return new ResponseEntity<>("保存成功",HttpStatus.OK);
         }catch (RuntimeException e){
             return new ResponseEntity<>("保存失败",HttpStatus.CONFLICT);
@@ -126,7 +141,6 @@ public class DomainController {
     @ApiOperation(value = "获取领域模版列表")
     public ResponseEntity<?> getDomainTemplate(){
         try {
-            // todo:此处接入模板库
             List<DomainTemInfo> domainTemInfoList = domainBusiness.getDomainTemplates();
             return new ResponseEntity<>(domainTemInfoList,HttpStatus.OK);
         }catch (RuntimeException e){

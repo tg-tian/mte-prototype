@@ -75,12 +75,18 @@ export const useDomainStore = defineStore('domain', {
             }
         },
 
-        async publishDomain(domainId: number, url: string, status: string) {
+        async publishDomain(domainId: number, url: string, status: string, dslData?: any) {
             try {
-                let data = {
+                let data: any = {
                     domainId: domainId,
                     status: status??'1',
                     url: url
+                }
+                if(dslData){
+                    data = {
+                        ...data,
+                        dslData: dslData
+                    }
                 }
                 const res: any = await publishDomain(data);
                 

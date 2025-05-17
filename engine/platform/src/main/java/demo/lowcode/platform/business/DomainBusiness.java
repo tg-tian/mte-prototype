@@ -10,15 +10,17 @@ import demo.lowcode.platform.entity.ComponentAbout;
 import demo.lowcode.platform.entity.DeviceType;
 import demo.lowcode.platform.entity.Domain;
 import demo.lowcode.platform.entity.Template;
-import demo.lowcode.platform.entity.DomainComponent;
 import demo.lowcode.platform.mapper.DomainMapper;
 import demo.lowcode.platform.mapper.TemplateMapper;
 import demo.lowcode.platform.mapper.DomainComponentMapper;
 import demo.lowcode.platform.model.DomainMeta;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import java.io.File;
@@ -145,7 +147,12 @@ public class DomainBusiness {
     }
 
 
-    public Domain  createDomain(NewDomain newDomain){
+    public Domain createDomain(NewDomain newDomain){
+        Domain existDomain = domainMapper.getDomainByCode(newDomain.getCode());
+        if (existDomain != null) {
+            throw new RuntimeException("领域编码已存在");
+        }
+
         Domain domain = new Domain();
         domain.setDomainCode(newDomain.getCode());
         domain.setDomainName(newDomain.getName());
@@ -161,6 +168,11 @@ public class DomainBusiness {
     }
 
     public Domain changeDomainByID(long id, NewDomain newDomain){
+        Domain existDomain = domainMapper.selectById(id);
+        if (existDomain == null) {
+            throw new RuntimeException("领域不存在");
+        }
+
         Domain domain = new Domain();
         domain.setDomainId(id);
         domain.setDomainCode(newDomain.getCode());
@@ -178,6 +190,10 @@ public class DomainBusiness {
     }
 
     public void deleteDomainByID(Long id){
+        Domain existDomain = domainMapper.selectById(id);
+        if (existDomain == null) {
+            throw new RuntimeException("领域不存在");
+        }
         domainMapper.deleteById(id);
     }
 
@@ -185,6 +201,16 @@ public class DomainBusiness {
         Domain existDomain = domainMapper.selectById(pubInfo.getDomainId());
         if (existDomain == null) {
             throw new RuntimeException("领域不存在");
+        }
+
+        if (pubInfo.getDslData() != null){
+            // 存储领域配置文件
+            writeDomainInfo(pubInfo.getDslData());
+        }
+
+        // 取消发布，删除领域配置文件
+        if (Objects.equals(pubInfo.getStatus(), "0")){
+            deleteDomainInfo(existDomain.getDomainCode());
         }
 
         existDomain.setStatus(pubInfo.getStatus());
@@ -195,7 +221,7 @@ public class DomainBusiness {
         return existDomain;
     }
 
-    public void createDomainTemplate(DomainTemInfo temInfo){
+    public void writeDomainInfo(DomainTemInfo temInfo){
         try {
             ObjectMapper mapper = new ObjectMapper();
             mapper.enable(SerializationFeature.INDENT_OUTPUT); // 格式化 JSON
@@ -214,8 +240,48 @@ public class DomainBusiness {
             //写文件
             mapper.writeValue(file, temInfo);
         } catch (IOException e) {
-            System.err.println("保存模版失败 " + e.getMessage());
             e.printStackTrace();
+            throw new RuntimeException("保存领域配置失败 " + e.getMessage());
+        }
+    }
+
+    public void deleteDomainInfo(String domainCode){
+        try {
+            // 计算目标路径
+            String projectRoot = System.getProperty("user.dir"); // 获取项目根目录
+            String targetDir = Paths.get(projectRoot,  "template", "domain").toString();
+
+            File file = new File(targetDir, domainCode+".json");
+            // 删除文件
+            if (file.exists()) {
+                if (file.delete()) {
+                    System.out.println("文件删除成功: " + file.getAbsolutePath());
+                } else {
+                    throw new RuntimeException("文件删除失败: " + file.getAbsolutePath());
+                }
+            } else {
+                throw new RuntimeException("文件不存在，无法删除: " + file.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("删除领域配置失败 " + e.getMessage());
+        }
+    }
+
+    public Resource downloadDomain(Long id) {
+        Domain existDomain = domainMapper.selectById(id);
+        if (existDomain == null) {
+            throw new RuntimeException("领域不存在");
+        }
+
+        try {
+            String projectRoot = System.getProperty("user.dir");
+            String targetDir = Paths.get(projectRoot, "template", "domain").toString();
+            Path filePath = Paths.get(targetDir, existDomain.getDomainCode() + ".json");
+            return new FileSystemResource(filePath);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new RuntimeException("领域配置文件不存在: " + e.getMessage());
         }
     }
 
