@@ -19,4 +19,8 @@ public class Result<T> {
     public static <T> Result<T> fail(String message) {
         return new Result<>(500, message, null);
     }
+
+    public static <T> Result<T> conflict(String message) {
+        return new Result<>(409, message, null);
+    }
 }

@@ -37,8 +37,8 @@
       border
     >
       <el-table-column prop="code" label="组件编码" width="150"></el-table-column>
-      <el-table-column prop="name" label="组件名称" min-width="150"></el-table-column>
-      <el-table-column prop="description" label="描述" min-width="200"></el-table-column>
+      <el-table-column prop="name" label="组件名称" min-width="50"></el-table-column>
+      <el-table-column prop="description" label="描述" min-width="100"></el-table-column>
       <el-table-column prop="type" label="类型" width="100">
         <template #default="scope">
           <el-tag :type="scope.row.type === 'node' ? 'primary' : 'success'">
@@ -65,7 +65,7 @@
           >查看约束</el-button>
         </template>
       </el-table-column>
-      <el-table-column label="操作" width="220">
+      <el-table-column label="操作" width="250">
         <template #default="scope">
           <el-button type="primary" size="small" @click="navigateToComponentSetting(scope.row)">编辑</el-button>
           <el-button type="success" size="small" @click="viewJson(scope.row)">查看JSON</el-button>

@@ -52,7 +52,6 @@ public class FileController {
             String originalName = file.getOriginalFilename();
             String fileName = StringUtil.capitalizeFirstLetter(deviceCode)+originalName.substring(originalName.lastIndexOf('.'));
             Path path = Paths.get(CommonConfig.getDefinitionPath()+ StringUtil.capitalizeFirstLetter(deviceCode)+"/"+fileName);
-            System.out.println(path.toString());
             Files.createDirectories(path.getParent());
             // 将文件写入指定位置
             Files.write(path, bytes);

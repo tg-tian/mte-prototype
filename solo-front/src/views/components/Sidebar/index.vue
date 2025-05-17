@@ -19,7 +19,7 @@
             <el-icon><Monitor /></el-icon>
             <div class="menu-item">元建模</div>
           </template>
-          <el-menu-item index="meta-devicetype-list" class="sub-menu-item">设备类型列表</el-menu-item>
+          <el-menu-item index="meta-devicetype-list" class="sub-menu-item">设备类型</el-menu-item>
           <el-menu-item index="meta-devicetype-setting" class="sub-menu-item">设备类型定制</el-menu-item>
           <el-menu-item index="meta-component-list" class="sub-menu-item">组件列表</el-menu-item>
           <el-menu-item index="meta-component-setting" class="sub-menu-item">组件定制</el-menu-item>

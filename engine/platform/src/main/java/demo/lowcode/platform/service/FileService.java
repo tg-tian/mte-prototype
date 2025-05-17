@@ -27,7 +27,7 @@ public class FileService {
 
             // 生成唯一文件名
             String filename = UUID.randomUUID().toString() + getFileExtension(file.getOriginalFilename());
-            
+
             // 保存文件
             Path filePath = uploadPath.resolve(filename);
             Files.copy(file.getInputStream(), filePath);
