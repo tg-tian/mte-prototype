@@ -36,6 +36,7 @@ export const useSceneStore = defineStore('scene', {
                             deviceCount: scene.deviceCount || 0,
                             status: scene.status || '1',
                             url: scene.url || '',
+                            imageUrl: scene.imageUrl || '',
                             location: scene.location || {
                                 lng: scene.longitude,
                                 lat: scene.latitude
@@ -81,6 +82,7 @@ export const useSceneStore = defineStore('scene', {
                         deviceCount: sceneData.deviceCount || 0,
                         status: sceneData.status || '1',
                         url: sceneData.url || '',
+                        imageUrl: sceneData.imageUrl || '',
                         location: sceneData.location || {
                             lng: sceneData.longitude,
                             lat: sceneData.latitude

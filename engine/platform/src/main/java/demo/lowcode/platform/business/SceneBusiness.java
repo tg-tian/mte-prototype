@@ -108,14 +108,14 @@ public class SceneBusiness {
             throw new IllegalArgumentException("场景不存在");
         }
 
-        existingScene.setSceneId(id);
-        existingScene.setSceneCode(newScene.getCode());
+        existingScene.setSceneId(id);        existingScene.setSceneCode(newScene.getCode());
         existingScene.setSceneName(newScene.getName());
         existingScene.setSceneDescription(newScene.getDescription());
         existingScene.setStatus(newScene.getStatus());
         existingScene.setUrl(newScene.getUrl());
         existingScene.setLongitude(newScene.getLocation().getLng());
         existingScene.setLatitude(newScene.getLocation().getLat());
+        existingScene.setImageUrl(newScene.getImageUrl());
         existingScene.setUpdateTime(new Date());
 
         existingScene.setDomainId(existingScene.getDomainId());
