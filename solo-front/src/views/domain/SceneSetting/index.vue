@@ -4,8 +4,15 @@
       <h2>{{ isEditMode ? '编辑场景-'+sceneForm.name : '创建场景' }} </h2>
       <div class="header-actions">
         <el-button @click="navigateBack">返回列表</el-button>
-        <el-button type="primary" @click="publishForm">{{sceneForm.status==='active' ? '取消发布':'发布'}}</el-button>
+        <el-button type="primary" @click="publishForm">{{sceneForm.status==='1' ? '取消发布':'发布'}}</el-button>
         <el-button type="primary" @click="submitForm" :loading="submitting">保存</el-button>
+        <el-button
+            type="primary"
+            plain
+            v-if="isEditMode"
+            @click="saveTemplate"
+        >保存为模板</el-button>
+        <el-button @click="handleDownload" v-if="isEditMode && sceneForm.status==='1'">下载发布制品</el-button>
       </div>
     </div>
     <el-dialog
@@ -59,9 +66,9 @@
             </el-form-item>
 
             <el-form-item label="状态" prop="status">
-              <el-tag :type="sceneForm.status==='active' ? 'success':'info'">{{ sceneForm.status==='active' ? '已发布':'定制中' }}</el-tag>
+              <el-tag :type="sceneForm.status==='1' ? 'success':'info'">{{ sceneForm.status==='1' ? '已发布':'定制中' }}</el-tag>
             </el-form-item>
-            <el-form-item label="场景地址" prop="url" v-if="sceneForm.status==='active'">
+            <el-form-item label="场景地址" prop="url" v-if="sceneForm.status==='1'">
               <el-input v-model="sceneForm.url"></el-input>
             </el-form-item>
             
@@ -212,18 +219,21 @@ import { ref, reactive, computed, onMounted, watch, toRefs, nextTick } from 'vue
 import { useSceneStore } from '@/store/scene'
 import { useDomainStore } from '@/store/domain'
 import { useDeviceStore } from '@/store/device'
+import { useSceneTemplateStore} from "@/store/sceneTemplate";
 import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
 import { getSceneById } from '@/api/scene'
 import { useRouter, useRoute } from 'vue-router'
 import { Device } from '@/types/models'
 import { fi } from 'element-plus/es/locale'
 import { fileURLToPath } from 'url'
+import axios from "axios";
 
 const router = useRouter()
 const route = useRoute()
 const sceneStore = useSceneStore()
 const domainStore = useDomainStore()
 const deviceStore = useDeviceStore()
+const sceneTemplateStore = useSceneTemplateStore()
 const sceneFormRef = ref<FormInstance>()
 const deviceFormRef = ref<FormInstance>()           // 新增：设备对话框表单引用
 const locationMap = ref<HTMLElement | null>(null)
@@ -242,16 +252,17 @@ const state = reactive({
     code: '',
     name: '',
     description: '',
-    status: 'inactive',
+    status: '0',
     domainId: parseInt(route.query.domainId as string) || null,
     lng: undefined as number | undefined,
     lat: undefined as number | undefined,
-    url: ''
+    url: '',
+    imageUrl: "",
   },
   deviceForm: {
     code: '',
     name: '',
-    deviceTypeId: null,
+    deviceTypeId: -1,
     protocolType: 'MQTT',
     sceneId: parseInt(route.query.sceneId as string) || null,
     field: '',
@@ -287,7 +298,8 @@ const handleAddDevice = () => {
     name: '',
     deviceTypeId: null,
     protocolType: 'MQTT',
-    sceneId: sceneId.value
+    sceneId: sceneId.value,
+    field:null,
   }
   deviceDialogVisible.value = true
 }
@@ -303,7 +315,7 @@ const handleDelete = (row: any) => {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }
+      },
   )
       .then(async () => {
         try {
@@ -374,11 +386,12 @@ const resetFormData = () => {
     code: '',
     name: '',
     description: '',
-    status: 'inactive',
+    status: '0',
     domainId: domainId.value,
     lng: undefined,
     lat: undefined,
-    url: ''
+    url: '',
+    imageUrl: "",
   }
 }
 
@@ -410,7 +423,7 @@ const loadSceneToForm = (scene: any) => {
     sceneForm.value.code = scene.code || scene.sceneCode || ''
     sceneForm.value.name = scene.name || scene.sceneName || ''
     sceneForm.value.description = scene.description || scene.sceneDescription || ''
-    sceneForm.value.status = scene.status || 'active'
+    sceneForm.value.status = scene.status || '1'
     sceneForm.value.domainId = scene.domainId || domainId.value
     sceneForm.value.url = scene.url || ''
     
@@ -437,7 +450,8 @@ const handleEdit = (row: Device) => {
     name: row.deviceName,
     deviceTypeId: row.deviceType.id,
     protocolType: row.protocolType,
-    sceneId: row.sceneId
+    sceneId: row.sceneId,
+    field: row.field,
   }
   currentId.value = row.id
   deviceDialogVisible.value = true
@@ -696,8 +710,8 @@ const publishForm = async()=>{
         ElMessage.error('纬度范围不合法')
         return
       }
-      if(sceneForm.value.status === 'active') {
-        sceneStore.publishScene(domainId.value, sceneId.value, '', 'inactive')
+      if(sceneForm.value.status === '1') {
+        sceneStore.publishScene(domainId.value, sceneId.value, '', '0')
         .then((res)=>{
           ElMessage.success('取消发布成功')
           loadSceneToForm(res)
@@ -707,6 +721,24 @@ const publishForm = async()=>{
         }) 
       }else{
         dialogVisible.value=true
+      }
+    }
+  })
+}
+
+const saveTemplate = async () => {
+  if (!sceneFormRef.value) return
+  await sceneFormRef.value.validate(async (valid) => {
+    if (valid) {
+      try {
+        const res = await sceneTemplateStore.saveSceneTemplate(
+            sceneStore.currentScene,
+            deviceStore.devices,
+        )
+        ElMessage.success('保存模版成功')
+      } catch (error) {
+        console.error('保存模版失败:', error)
+        ElMessage.error('保存模版失败')
       }
     }
   })
@@ -726,6 +758,22 @@ const publishScene = () => {
   }else{
     ElMessage.warning('请输入url')
   }
+}
+
+// 下载发布制品
+const handleDownload =async () => {
+  axios.get(`${import.meta.env.VITE_BASE_PATH as string}/scenes/download/${sceneId.value}`, {
+    responseType: 'blob'
+  }).then(response => {
+    const url = window.URL.createObjectURL(new Blob([response.data]));
+    const link = document.createElement('a');
+    link.href = url;
+    link.setAttribute('download', `${sceneForm.value.code}.json`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    ElMessage.success("文件正在下载中")
+  });
 }
 
 // 添加到 script setup 部分

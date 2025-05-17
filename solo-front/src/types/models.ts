@@ -53,6 +53,7 @@ export interface Device {
     createTime: string;
     updateTime: string;
     lastOnlineTime: string;
+    field: string;
 }
 
 export interface ProtocolConfig {

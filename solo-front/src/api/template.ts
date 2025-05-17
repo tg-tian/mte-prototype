@@ -59,6 +59,16 @@ export function getDomainTemplate(page: number) {
     })
 }
 
+export function saveSceneTemplate(data: any) {
+    return request({
+        url: `/scenes/templates`,
+        method: 'post',
+        data: data
+        }
+    )
+}
+
+
 // 将领域保存为模板
 export function saveTemplate(data: any) {
     return templateRequest({

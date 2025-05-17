@@ -2,17 +2,23 @@ package demo.lowcode.platform.business;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import demo.lowcode.common.CommonConfig;
 import demo.lowcode.platform.dto.NewScene;
 import demo.lowcode.platform.dto.ScenePubInfo;
+import demo.lowcode.platform.entity.Domain;
 import demo.lowcode.platform.entity.Scene;
 import demo.lowcode.platform.mapper.SceneMapper;
 import demo.lowcode.platform.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.FileSystemResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.*;
 
 @Service
@@ -127,11 +133,54 @@ public class SceneBusiness {
             throw new RuntimeException("场景不存在");
         }
 
+
+        // Unpublish - delete scene configuration file
+        if (Objects.equals(pubInfo.getStatus(), "0")) {
+            deleteSceneInfo(existingScene.getSceneCode());
+        }
+
         existingScene.setStatus(pubInfo.getStatus());
         existingScene.setUrl(pubInfo.getUrl());
         existingScene.setUpdateTime(new Date());
         sceneMapper.updateById(existingScene);
 
         return existingScene;
+    }
+
+
+    public void deleteSceneInfo(String sceneCode) {
+        try {
+            String projectRoot = System.getProperty("user.dir");
+            String targetDir = Paths.get(projectRoot, "template", "scene").toString();
+            File file = new File(targetDir, sceneCode + ".json");
+
+            if (file.exists()) {
+                if (!file.delete()) {
+                    throw new RuntimeException("文件删除失败: " + file.getAbsolutePath());
+                }
+            } else {
+                throw new RuntimeException("文件不存在，无法删除: " + file.getAbsolutePath());
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("删除场景配置失败: " + e.getMessage(), e);
+        }
+    }
+
+    public Resource downloadScene(Long id) {
+        Scene existScene = sceneMapper.selectById(id);
+        if (existScene == null) {
+            throw new RuntimeException("场景不存在");
+        }
+
+        try {
+            String projectRoot = System.getProperty("user.dir");
+            String targetDir = Paths.get(projectRoot, "template", "scene").toString();
+            Path filePath = Paths.get(targetDir, existScene.getSceneCode() + ".json");
+            return new FileSystemResource(filePath);
+        }catch (Exception e){
+            e.printStackTrace();
+            throw new RuntimeException("场景配置文件不存在: " + e.getMessage());
+        }
     }
 }

@@ -8,7 +8,9 @@ import demo.lowcode.platform.model.ScenarioJson;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import jakarta.annotation.Resource;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -146,5 +148,26 @@ public class SceneController {
         }catch (RuntimeException e){
             return new ResponseEntity<>("发布失败",HttpStatus.CONFLICT);
         }
+    }
+
+    @GetMapping(value = "/scenes/download/{id}")
+    @ApiOperation(value = "下载场景配置文件")
+    public ResponseEntity<?> downloadScene(@PathVariable Long id){
+        try {
+            org.springframework.core.io.Resource scene = sceneBusiness.downloadScene(id);
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
+                            "attachment; filename=\"" + scene.getFilename() + "\"")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .body(scene);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>("文件下载失败",HttpStatus.CONFLICT);
+        }
+    }
+
+    @PostMapping(value = "/scenes/templates")
+    @ApiOperation(value = "保存场景模版")
+    public ResponseEntity<?> saveSceneTemplate(){
+        return new ResponseEntity<>("保存成功",HttpStatus.OK);
     }
 }

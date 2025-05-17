@@ -34,7 +34,7 @@ export const useSceneStore = defineStore('scene', {
                             createTime: scene.createTime || new Date().toISOString().split('T')[0],
                             updateTime: scene.updateTime || new Date().toISOString().split('T')[0],
                             deviceCount: scene.deviceCount || 0,
-                            status: scene.status || 'active',
+                            status: scene.status || '1',
                             url: scene.url || '',
                             location: scene.location || {
                                 lng: scene.longitude,
@@ -79,7 +79,7 @@ export const useSceneStore = defineStore('scene', {
                         createTime: sceneData.createTime || new Date().toISOString().split('T')[0],
                         updateTime: sceneData.updateTime || new Date().toISOString().split('T')[0],
                         deviceCount: sceneData.deviceCount || 0,
-                        status: sceneData.status || 'active',
+                        status: sceneData.status || '1',
                         url: sceneData.url || '',
                         location: sceneData.location || {
                             lng: sceneData.longitude,
@@ -155,7 +155,7 @@ export const useSceneStore = defineStore('scene', {
             try {
                 let data = {
                     sceneId: sceneId,
-                    status: status??'active',
+                    status: status??'1',
                     url: url
                 }
                 const res: any = await publishScene(data);
