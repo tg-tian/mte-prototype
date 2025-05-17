@@ -14,8 +14,8 @@
         </el-form-item>
         <el-form-item label="状态">
           <el-select v-model="searchForm.status" placeholder="请选择状态" clearable>
-            <el-option label="已发布" value="active"></el-option>
-            <el-option label="定制中" value="inactive"></el-option>
+            <el-option label="已发布" value='1'></el-option>
+            <el-option label="定制中" value='0'></el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
@@ -48,8 +48,8 @@
           <el-table-column prop="deviceCount" label="设备数量" width="100"></el-table-column>
           <el-table-column prop="status" label="状态" width="100">
             <template #default="scope">
-              <el-tag :type="scope.row.status === 'active' ? 'success' : 'info'">
-                {{ scope.row.status === 'active' ? '已发布' : '定制中' }}
+              <el-tag :type="scope.row.status === '1' ? 'success' : 'info'">
+                {{ scope.row.status === '1' ? '已发布' : '定制中' }}
               </el-tag>
             </template>
           </el-table-column>

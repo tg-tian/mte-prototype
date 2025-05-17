@@ -750,7 +750,7 @@ const saveTemplate = async () => {
 
 const publishScene = () => {
   if(sceneForm.value.url){
-    sceneStore.publishScene(domainId.value, sceneId.value, sceneForm.value.url, 'active')
+    sceneStore.publishScene(domainId.value, sceneId.value, sceneForm.value.url, '1')
     .then((res)=>{
         ElMessage.success('发布成功')
         loadSceneToForm(res)
