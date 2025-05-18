@@ -153,12 +153,18 @@ export const useSceneStore = defineStore('scene', {
             }
         },
 
-        async publishScene(domainId: number, sceneId: number, url: string, status: string) {
+        async publishScene(domainId: number, sceneId: number, url: string, status: string, dslData?: any) {
             try {
-                let data = {
+                let data: any = {
                     sceneId: sceneId,
                     status: status??'1',
                     url: url
+                }
+                if(dslData){
+                    data = {
+                        ...data,
+                        dslData: dslData
+                    }
                 }
                 const res: any = await publishScene(data);
                 

@@ -4,8 +4,10 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import demo.lowcode.common.CommonConfig;
+import demo.lowcode.platform.dto.DomainTemInfo;
 import demo.lowcode.platform.dto.NewScene;
 import demo.lowcode.platform.dto.ScenePubInfo;
+import demo.lowcode.platform.dto.SceneTemInfo;
 import demo.lowcode.platform.entity.Domain;
 import demo.lowcode.platform.entity.Scene;
 import demo.lowcode.platform.mapper.SceneMapper;
@@ -132,6 +134,10 @@ public class SceneBusiness {
             throw new RuntimeException("场景不存在");
         }
 
+        if (pubInfo.getDslData() != null){
+            // 存储场景配置文件
+            writeSceneInfo(pubInfo.getDslData());
+        }
 
         // Unpublish - delete scene configuration file
         if (Objects.equals(pubInfo.getStatus(), "0")) {
@@ -146,6 +152,29 @@ public class SceneBusiness {
         return existingScene;
     }
 
+    public void writeSceneInfo(SceneTemInfo temInfo){
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.enable(SerializationFeature.INDENT_OUTPUT); // 格式化 JSON
+
+            // 计算目标路径
+            String projectRoot = System.getProperty("user.dir"); // 获取项目根目录
+            String targetDir = Paths.get(projectRoot,  "template", "scene").toString();
+            // 确保目录存在
+            File dir = new File(targetDir);
+            if (!dir.exists()) {
+                dir.mkdirs(); // 创建所有不存在的父目录
+            }
+
+            File file = new File(targetDir, temInfo.getSceneData().getCode()+".json");
+
+            //写文件
+            mapper.writeValue(file, temInfo);
+        } catch (IOException e) {
+            e.printStackTrace();
+            throw new RuntimeException("保存场景配置失败 " + e.getMessage());
+        }
+    }
 
     public void deleteSceneInfo(String sceneCode) {
         try {

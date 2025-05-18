@@ -570,6 +570,7 @@ watch([() => sceneForm.value.lng, () => sceneForm.value.lat], () => {
 
 // Watch for changes in route params to update form data accordingly
 watch([() => route.query.sceneId, () => route.query.mode, () => route.query.domainId], async ([newSceneId, newMode, newDomainId]) => {
+  activeTab.value = "basic"
   // Update domainId in form when it changes
   if (newDomainId) {
     sceneForm.value.domainId = parseInt(newDomainId as string)
@@ -586,6 +587,7 @@ watch([() => route.query.sceneId, () => route.query.mode, () => route.query.doma
         sceneStore.setCurrentScene(res.data)
         loadSceneToForm(res.data)
         deviceTypeList.value = await sceneStore.getSceneDeviceTypes(res.data.sceneId)
+        await deviceStore.fetchDevices(newSceneId ? parseInt(newSceneId as string) : undefined)
         
         // Initialize map after data is loaded
         nextTick(() => {
@@ -607,7 +609,7 @@ watch([() => route.query.sceneId, () => route.query.mode, () => route.query.doma
 
 // Load scene data if in edit mode
 onMounted(async () => {
-
+  activeTab.value = "basic"
   // Get scemeId
   const sceneId = parseInt(route.query.sceneId as string)
 
@@ -661,9 +663,7 @@ onMounted(async () => {
   }
   if (sceneId) {
     await deviceStore.fetchDevices(sceneId)
-  } else if (currentScene.value && currentScene.value.id) {
-    await deviceStore.fetchDevices(currentScene.value.id)
-  } else {
+  }else {
     await deviceStore.fetchDevices()
   }
 
@@ -750,7 +750,16 @@ const saveTemplate = async () => {
 
 const publishScene = () => {
   if(sceneForm.value.url){
-    sceneStore.publishScene(domainId.value, sceneId.value, sceneForm.value.url, '1')
+    const locationData = sceneForm.value.lng && sceneForm.value.lat ? { lng: sceneForm.value.lng, lat: sceneForm.value.lat } : undefined
+    let dslData = {
+        sceneData: {
+          ...sceneForm.value,
+          location: locationData
+        },
+        devices: deviceStore.devices,
+        locations: []
+    }
+    sceneStore.publishScene(domainId.value, sceneId.value, sceneForm.value.url, '1', dslData)
     .then((res)=>{
         ElMessage.success('发布成功')
         loadSceneToForm(res)
