@@ -9,13 +9,12 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Objects;
 import java.util.UUID;
 
 @Service
 public class FileService {
-
-    @Value("${app.upload.dir:./uploads}")
-    private String uploadDir;
+    private final String uploadDir = Paths.get(System.getProperty("user.dir"),  "uploads").toString();
 
     public String saveImage(MultipartFile file) {
         try {
@@ -26,7 +25,7 @@ public class FileService {
             }
 
             // 生成唯一文件名
-            String filename = UUID.randomUUID().toString() + getFileExtension(file.getOriginalFilename());
+            String filename = UUID.randomUUID().toString() + getFileExtension(Objects.requireNonNull(file.getOriginalFilename()));
 
             // 保存文件
             Path filePath = uploadPath.resolve(filename);

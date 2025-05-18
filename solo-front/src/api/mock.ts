@@ -10,7 +10,7 @@ export const mockDomains = reactive<Domain[]>([
         createTime: '2023-10-15',
         updateTime: '2023-11-20',
         sceneCount: 5,
-        status: 'active'
+        status: '1'
     },
     {
         id: 2,
@@ -19,7 +19,7 @@ export const mockDomains = reactive<Domain[]>([
         createTime: '2023-09-22',
         updateTime: '2023-12-05',
         sceneCount: 8,
-        status: 'active'
+        status: '1'
     },
     {
         id: 3,
@@ -28,7 +28,7 @@ export const mockDomains = reactive<Domain[]>([
         createTime: '2023-07-30',
         updateTime: '2023-10-12',
         sceneCount: 3,
-        status: 'active'
+        status: '1'
     },
     {
         id: 4,
@@ -37,7 +37,7 @@ export const mockDomains = reactive<Domain[]>([
         createTime: '2023-11-05',
         updateTime: '2023-12-18',
         sceneCount: 2,
-        status: 'inactive'
+        status: '0'
     }
 ])
 
@@ -51,7 +51,7 @@ export const mockScenes = reactive<Scene[]>([
         createTime: '2023-10-20',
         updateTime: '2023-12-01',
         deviceCount: 12,
-        status: 'active',
+        status: '1',
         url: '',
         location: {
             lng: 121.4737, // Shanghai coordinates
@@ -66,7 +66,7 @@ export const mockScenes = reactive<Scene[]>([
         createTime: '2023-10-25',
         updateTime: '2023-11-30',
         deviceCount: 8,
-        status: 'active',
+        status: '1',
         url: '',
         location: {
             lng: 121.5012,
@@ -81,7 +81,7 @@ export const mockScenes = reactive<Scene[]>([
         createTime: '2023-09-25',
         updateTime: '2023-12-10',
         deviceCount: 24,
-        status: 'active',
+        status: '1',
         url: '',
         location: {
             lng: 116.4074, // Beijing coordinates
@@ -106,7 +106,8 @@ export const mockDevices = reactive<Device[]>([
         protocolConfig: {
             type: "aliyun",
             configs: {}
-        }
+        },
+        field: ""
     },
     {
         id: 2,
@@ -122,7 +123,8 @@ export const mockDevices = reactive<Device[]>([
         protocolConfig: {
             type: "none",
             configs: {}
-        }
+        },
+        field: ""
     }
 ])
 
