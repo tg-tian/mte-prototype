@@ -57,7 +57,7 @@
                 :on-success="handleImageSuccess"
                 :before-upload="beforeImageUpload"
               >
-                <img v-if="sceneForm.imageUrl" :src="sceneForm.imageUrl" class="scene-image" />
+                <img v-if="sceneForm.imageUrl" :src="sceneImageUrl" class="scene-image" />
                 <el-icon v-else class="scene-uploader-icon"><Plus /></el-icon>
               </el-upload>
               <div class="el-upload__tip">
@@ -221,11 +221,10 @@ import { useDomainStore } from '@/store/domain'
 import { useDeviceStore } from '@/store/device'
 import { useSceneTemplateStore} from "@/store/sceneTemplate";
 import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
+import { Plus } from '@element-plus/icons-vue'
 import { getSceneById } from '@/api/scene'
 import { useRouter, useRoute } from 'vue-router'
 import { Device } from '@/types/models'
-import { fi } from 'element-plus/es/locale'
-import { fileURLToPath } from 'url'
 import axios from "axios";
 
 const router = useRouter()
@@ -287,6 +286,12 @@ const isEditMode = computed(() => {
 // Get current scene ID from query params
 const sceneId = computed(() => {
   return parseInt(route.query.sceneId as string) || null
+})
+
+const sceneImageUrl = computed(() => {
+  const imageUrl = (import.meta.env.VITE_BASE_PATH as string) + sceneForm.value.imageUrl
+  console.log("image url", imageUrl)
+  return imageUrl
 })
 
 // 新增方法：打开新增设备对话框
@@ -684,14 +689,27 @@ const submitForm = async () => {
 
   await sceneFormRef.value.validate(async (valid) => {
     if (valid) {
+      if(sceneForm.value.lng && (sceneForm.value.lng < lngMIn || sceneForm.value.lng > lngMax)){
+        ElMessage.error('经度范围不合法, 73-135')
+        return
+      }
+      if(sceneForm.value.lat && (sceneForm.value.lat < latMin || sceneForm.value.lat > latMax)){
+        ElMessage.error('纬度范围不合法, 3-53')
+        return
+      }
       submitting.value = true;
       try {
-        await sceneStore.createScene(sceneForm.value);
-        ElMessage.success('创建成功');
-        navigateBack();
+        if(isEditMode.value){
+          await sceneStore.updateScene(sceneId.value, sceneForm.value)
+          ElMessage.success("保存成功")
+        }else{
+          await sceneStore.createScene(sceneForm.value);
+          ElMessage.success('创建成功');
+          navigateBack();
+        }
       } catch (error) {
         console.error('提交失败:', error);
-        ElMessage.error(error.response?.data || '创建失败，请检查数据是否冲突');
+        ElMessage.error(error.response?.data || '保存失败，请检查数据是否冲突');
       } finally {
         submitting.value = false;
       }
@@ -704,16 +722,6 @@ const publishForm = async()=>{
   
   await sceneFormRef.value.validate(async (valid) => {
     if (valid) {
-      console.log('sceneForm.value.lng', sceneForm.value.lng)
-      console.log('sceneForm.value.lat', sceneForm.value.lat)
-      if(sceneForm.value.lng < lngMIn || sceneForm.value.lng > lngMax){
-        ElMessage.error('经度范围不合法')
-        return
-      }
-      if(sceneForm.value.lat < latMin || sceneForm.value.lat > latMax){
-        ElMessage.error('纬度范围不合法')
-        return
-      }
       if(sceneForm.value.status === '1') {
         sceneStore.publishScene(domainId.value, sceneId.value, '', '0')
         .then((res)=>{
@@ -757,7 +765,6 @@ const publishScene = () => {
           location: locationData
         },
         devices: deviceStore.devices,
-        locations: []
     }
     sceneStore.publishScene(domainId.value, sceneId.value, sceneForm.value.url, '1', dslData)
     .then((res)=>{
@@ -792,6 +799,7 @@ const handleDownload =async () => {
 // 添加到 script setup 部分
 const handleImageSuccess = (res: any) => {
   sceneForm.value.imageUrl = res;
+  ElMessage.success("图片上传成功")
 }
 
 const beforeImageUpload = (file: File) => {

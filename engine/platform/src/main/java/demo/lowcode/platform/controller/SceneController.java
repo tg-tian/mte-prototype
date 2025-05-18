@@ -165,9 +165,4 @@ public class SceneController {
         }
     }
 
-    @PostMapping(value = "/scenes/templates")
-    @ApiOperation(value = "保存场景模版")
-    public ResponseEntity<?> saveSceneTemplate(){
-        return new ResponseEntity<>("保存成功",HttpStatus.OK);
-    }
 }

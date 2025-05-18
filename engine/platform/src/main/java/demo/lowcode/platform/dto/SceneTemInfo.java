@@ -11,5 +11,4 @@ import java.util.List;
 public class SceneTemInfo {
     private NewScene sceneData;
     private List<Device> devices;
-    private List<?> locations;
 }
