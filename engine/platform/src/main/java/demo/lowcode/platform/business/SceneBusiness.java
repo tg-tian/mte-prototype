@@ -79,6 +79,11 @@ public class SceneBusiness {
     }
 
     public Scene createScene(NewScene newScene){
+        Scene existingScene = sceneMapper.selectBySceneCode(newScene.getCode());
+        if (existingScene != null) {
+            throw new IllegalArgumentException("场景已存在");
+        }
+
         Scene scene = new Scene();
         scene.setSceneCode(newScene.getCode());
         scene.setSceneName(newScene.getName());
@@ -91,12 +96,6 @@ public class SceneBusiness {
         }
         scene.setCreateTime(new Date());
         scene.setImageUrl(newScene.getImageUrl());
-/*        if (sceneMapper.existsBySceneCode(newScene.getCode())) {
-            throw new RuntimeException("场景代码已存在: " + newScene.getCode());
-        }
-        if (sceneMapper.existsBySceneName(newScene.getName())) {
-            throw new RuntimeException("场景名称已存在: " + newScene.getName());
-        }*/
         sceneMapper.insert(scene);
         return scene;
     }

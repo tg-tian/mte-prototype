@@ -44,18 +44,6 @@
           <el-menu-item index="domain-scene-setting" class="sub-menu-item">创建场景平台</el-menu-item>
         </el-sub-menu>
       </div>
-      <!-- 场景平台 -->
-      <div style="margin-top: 10px" v-if="routerPath.startsWith('/scene')">
-        <el-sub-menu index="0" class="nav-item">
-          <template #title>
-            <el-icon><Monitor /></el-icon>
-            <div class="menu-item">场景信息</div>
-          </template>
-          <el-menu-item index="scene-information" class="sub-menu-item">场景信息</el-menu-item>
-          <el-menu-item index="scene-device" class="sub-menu-item">设备列表</el-menu-item>
-          <el-menu-item index="scene-location" class="sub-menu-item">场景布局</el-menu-item>
-        </el-sub-menu>
-      </div>
     </el-menu>
   </div>
 </template>
@@ -116,17 +104,6 @@ const items = ref([
     index: 'domain-scene-setting',
     name: '创建场景',
     route: '/domain/scene/setting'
-  },
-  // 场景平台
-  {
-    index: 'scene-information',
-    name: '场景信息',
-    route: '/scene/information'
-  },
-  {
-    index: 'scene-device',
-    name: '设备列表',
-    route: '/scene/device'
   }
 ])
 

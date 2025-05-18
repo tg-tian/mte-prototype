@@ -56,7 +56,6 @@
           <el-table-column label="操作" width="300">
             <template #default="scope">
               <el-button type="primary" size="small" @click="navigateToSceneSetting(scope.row)">编辑</el-button>
-              <el-button type="success" size="small" @click="handleViewScene(scope.row)">详情</el-button>
               <el-button type="success" size="small" @click="handleScenePlatform(scope.row)">进入场景</el-button>
               <el-button type="danger" size="small" @click="handleDelete(scope.row)">删除</el-button>
             </template>
@@ -268,10 +267,10 @@ const showSceneInfo = (scene: Scene, marker: BMap.Marker) => {
   statusContainer.appendChild(statusLabel)
   
   const statusValue = document.createElement('span')
-  statusValue.textContent = scene.status === 'active' ? '已发布' : '定制中'
+  statusValue.textContent = scene.status === '1' ? '已发布' : '定制中'
   statusValue.style.padding = '2px 6px'
   statusValue.style.borderRadius = '4px'
-  statusValue.style.backgroundColor = scene.status === 'active' ? '#67C23A' : '#909399'
+  statusValue.style.backgroundColor = scene.status === '1' ? '#67C23A' : '#909399'
   statusValue.style.color = 'white'
   statusValue.style.fontSize = '12px'
   statusContainer.appendChild(statusValue)
@@ -313,7 +312,7 @@ const showSceneInfo = (scene: Scene, marker: BMap.Marker) => {
   enterButton.style.marginRight = '4px'  // 添加右边距
   enterButton.onclick = (e) => {
     e.preventDefault()
-    handleViewScene(scene)
+    navigateToSceneSetting(scene)
   }
   actionsContainer.appendChild(enterButton)
   
@@ -389,16 +388,10 @@ const navigateToSceneSetting = (scene?: any) => {
   }
 }
 
-// 查看场景详情
-const handleViewScene = (row: any) => {
-  sceneStore.setCurrentScene(row)
-  window.open(`/#/scene/information?sceneId=${row.id}`)
-}
-
 // 进入场景平台
 const handleScenePlatform = (row: any) => {
   sceneStore.setCurrentScene(row)
-  if(row.status !== 'active'){
+  if(row.status !== '1'){
     ElMessage.warning('请先发布')
   }else if(row.url === ''){
     ElMessage.warning('场景地址不能为空')

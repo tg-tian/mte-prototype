@@ -69,7 +69,7 @@ export function saveSceneTemplate(data: any) {
 }
 
 
-// 将领域保存为模板
+// 模板保存到模板库
 export function saveTemplate(data: any) {
     return templateRequest({
         url: `/templates.json`,
@@ -82,7 +82,7 @@ export function saveTemplate(data: any) {
 }
 
 // 将领域模板在模板库中id保存到数据库
-export function saveTemplateId(domainId: number, templateId: number) {
+export function saveDomainTemplateId(domainId: number, templateId: number) {
     return request({
         url: `/domains/templateId`,
         method: 'post',

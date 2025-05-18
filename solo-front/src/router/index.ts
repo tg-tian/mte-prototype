@@ -76,33 +76,6 @@ const routes: RouteRecordRaw[] = [
                         component: () => import('@/views/domain/SceneSetting/index.vue')
                     }
                 ]
-            },
-            {
-                path: 'scene',
-                name: '场景平台',
-                component: null,
-                children: [
-                    {
-                        path: 'information',
-                        name: '场景信息',
-                        component: () => import('@/views/scene/Information/index.vue')
-                    },
-                    {
-                        path: 'device',
-                        name: '设备列表',
-                        component: () => import('@/views/scene/Device/index.vue')
-                    },
-                    {
-                        path: 'location',
-                        name: '场景布局',
-                        component: () => import('@/views/scene/Location/index.vue')
-                    },
-                    {
-                        path: 'dashboard',
-                        name: '数据面板',
-                        component: () => import('@/views/scene/Dashboard/index.vue')
-                    }
-                ]
             }
         ]
     }

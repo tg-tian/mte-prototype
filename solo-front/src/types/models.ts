@@ -5,7 +5,7 @@ export interface Domain {
     createTime: string;
     updateTime: string;
     sceneCount: number;
-    status: 'active' | 'inactive';
+    status: '1' | '0';
 }
 
 // 模板
@@ -30,7 +30,7 @@ export interface Scene {
     createTime: string;
     updateTime: string;
     deviceCount: number;
-    status: 'active' | 'inactive';
+    status: '1' | '0';
     url: string;
     imageUrl?: string;
     location?: {

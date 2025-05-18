@@ -63,20 +63,6 @@ export function publishDomain(data: any) {
     })
 }
 
-export function convertDomain(data: any) {
-    return request({
-        url: `/domains/templates`,
-        method: 'post',
-        data: data
-    })
-}
-
-export function importDomain() {
-    return request({
-        url: `/domains/templates`,
-        method: 'get',
-    })
-}
 // Mock API functions
 export function getMockDomains() {
     return new Promise((resolve) => {

@@ -1,4 +1,4 @@
-import { getDomainTemplate, saveTemplate, saveTemplateId, updateTemplate } from '@/api/template'
+import { getDomainTemplate, saveTemplate, saveDomainTemplateId, updateTemplate } from '@/api/template'
 import { defineStore } from 'pinia'
 
 export const useDomainTemplateStore = defineStore('domainTemplate', {
@@ -67,7 +67,7 @@ export const useDomainTemplateStore = defineStore('domainTemplate', {
 
         async saveTemplateId(domainId: number, templateId: number) {
             try {
-                const res: any = await saveTemplateId(domainId, templateId)
+                const res: any = await saveDomainTemplateId(domainId, templateId)
                 if (res.data && res.status === 200) {
                     return true
                 }
