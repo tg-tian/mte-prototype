@@ -6,7 +6,7 @@ import {
     updateArea,
     deleteArea
 } from '@/api/area'; // 使用 area API
-import type { Component as Area } from '@/types/models'; // 引入 Area 类型
+import type { Area } from '@/types/models'; // 引入 Area 类型
 
 export const useAreaStore = defineStore('area', {
     state: () => ({

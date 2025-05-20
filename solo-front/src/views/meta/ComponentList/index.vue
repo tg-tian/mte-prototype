@@ -147,13 +147,27 @@ const { searchForm, constraintDialogVisible, jsonDialogVisible, selectedComponen
 
 // 格式化JSON
 const formattedComponentJson = computed(() => {
-  return jsonComponent.value ? JSON.stringify(jsonComponent.value, null, 2) : ''
+  if(!jsonComponent.value) return ''
+  let formatJson = jsonComponent.value
+  if(formatJson.type === ComponentType.Node){
+    formatJson = {
+      ...formatJson,
+      startConstraint: undefined,
+      endConstraint: undefined
+    }
+  }else{
+    formatJson = {
+      ...formatJson,
+      inputConstraint: undefined,
+      outputConstraint: undefined
+    }
+  }
+  return JSON.stringify(formatJson, null, 2)
 })
 
 // 过滤后的组件列表
 const filteredComponents = computed(() => {
   if (!componentStore.components) return []
-  
   return componentStore.components.filter((component: Component) => {
     const nameMatch = !searchForm.value.name || 
                      component.name.toLowerCase().includes(searchForm.value.name.toLowerCase()) || 
@@ -186,7 +200,7 @@ const navigateToComponentSetting = (component?: Component) => {
   if (component) {
     // 编辑组件
     componentStore.setCurrentComponent(component)
-    router.push(`/meta/component/setting?componentId=${component.id}&mode=edit`)
+    router.push(`/meta/component/setting?mode=edit&componentId=${component.id}`)
   } else {
     // 创建组件
     router.push('/meta/component/setting?mode=create')
