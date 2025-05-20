@@ -80,7 +80,7 @@ public class Device {
     @ApiModelProperty(value = "上次在线时间")
     private Date lastOnlineTime;
 
-    @Column(name = "field", nullable = false)
-    @ApiModelProperty(value = "布局")
-    private String field;
+    @Column(name = "device_location", nullable = false)
+    @ApiModelProperty(value = "设备位置")
+    private String deviceLocation;
 }

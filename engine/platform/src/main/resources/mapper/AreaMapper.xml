@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="demo.lowcode.platform.mapper.AreaMapper">
+
+    <!-- 区域的 ResultMap -->
+    <resultMap id="areaResultMap" type="demo.lowcode.platform.entity.Area">
+        <id column="id" property="id"/>
+        <result column="name" property="name"/>
+        <result column="scene_id" property="sceneId"/>
+        <result column="description" property="description"/>
+        <result column="image" property="image" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="position" property="position" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+    </resultMap>
+
+    <!-- 根据场景 ID 获取区域列表 -->
+    <select id="selectBySceneId" resultMap="areaResultMap">
+        SELECT * FROM area
+        WHERE scene_id = #{sceneId}
+    </select>
+
+</mapper>

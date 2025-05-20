@@ -107,7 +107,7 @@ export const mockDevices = reactive<Device[]>([
             type: "aliyun",
             configs: {}
         },
-        field: ""
+        location: ""
     },
     {
         id: 2,
@@ -124,7 +124,7 @@ export const mockDevices = reactive<Device[]>([
             type: "none",
             configs: {}
         },
-        field: ""
+        location: ""
     }
 ])
 
