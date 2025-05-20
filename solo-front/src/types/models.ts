@@ -153,7 +153,7 @@ export interface Component {
 }
 
 // area interface
-export interface Component {
+export interface Area {
     id?: number;
     name: string;
     description: string;
