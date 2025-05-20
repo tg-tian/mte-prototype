@@ -54,7 +54,7 @@ export interface Device {
     createTime: string;
     updateTime: string;
     lastOnlineTime: string;
-    field: string;
+    deviceLocation: string;
 }
 
 export interface ProtocolConfig {
@@ -151,3 +151,12 @@ export interface Component {
   startConstraint?: Constraint;
   endConstraint?: Constraint;
 }
+
+// area interface
+export interface Component {
+    id?: number;
+    name: string;
+    description: string;
+    image: string;
+    position: string;
+  }

@@ -16,6 +16,7 @@
         <result column="create_time" property="createTime"/>
         <result column="update_time" property="updateTime"/>
         <result column="last_online_time" property="lastOnlineTime"/>
+        <result column="device_location" property="deviceLocation"/>
     </resultMap>
 
     <!--获取场景设备列表-->

@@ -135,6 +135,7 @@
               <el-table-column prop="deviceName" label="设备名称" min-width="150"></el-table-column>
               <el-table-column prop="deviceType.name" label="设备类型" width="120"></el-table-column>
               <el-table-column prop="protocolType" label="协议类型" width="120"></el-table-column>
+              <el-table-column prop="deviceLocation" label="设备位置" width="120"></el-table-column>
               <el-table-column prop="createTime" label="创建时间" width="150"></el-table-column>
               <el-table-column prop="lastOnlineTime" label="最后上线时间" width="150"></el-table-column>
               <el-table-column prop="status" label="状态" width="100">
@@ -155,20 +156,20 @@
           <el-empty v-else description="暂无设备" />
         </el-tab-pane>
 
-        <el-tab-pane label="设备布局" name="deviceLocation">
-          <div v-if="filteredDevices && filteredDevices.length>0">
+        <el-tab-pane label="场景区域" name="area">
+          <div v-if="filteredAreas && filteredAreas.length > 0">
             <el-table
-                v-loading="deviceStore.loading"
-                :data="filteredDevices"
-                style="width: 100%; margin-top: 20px"
-                border
+              v-loading="areaStore.loading"
+              :data="filteredAreas"
+              style="width: 100%; margin-top: 20px"
+              border
             >
-              <el-table-column prop="deviceName" label="设备名称" min-width="150"></el-table-column>
-              <el-table-column prop="deviceType.name" label="设备类型" min-width="150"></el-table-column>
-              <el-table-column prop="field" label="设备区域" min-width="120"></el-table-column>
+              <el-table-column prop="name" label="区域名称" min-width="150"></el-table-column>
+              <el-table-column prop="description" label="区域描述" min-width="200"></el-table-column>
+              <!-- <el-table-column prop="position" label="位置" min-width="150"></el-table-column> -->
             </el-table>
           </div>
-        </el-tab-pane>
+                  </el-tab-pane>
       </el-tabs>
     </el-card>
     <el-dialog
@@ -199,8 +200,8 @@
             <el-option label="HTTP" value="HTTP"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="设备区域" prop="field">
-          <el-input v-model="deviceForm.field" placeholder="请输入设备区域"></el-input>
+        <el-form-item label="设备位置" prop="deviceLocation">
+          <el-input v-model="deviceForm.deviceLocation" placeholder="请输入设备位置"></el-input>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -219,6 +220,7 @@ import { ref, reactive, computed, onMounted, watch, toRefs, nextTick } from 'vue
 import { useSceneStore } from '@/store/scene'
 import { useDomainStore } from '@/store/domain'
 import { useDeviceStore } from '@/store/device'
+import { useAreaStore } from '@/store/area'
 import { useSceneTemplateStore} from "@/store/sceneTemplate";
 import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
@@ -232,6 +234,7 @@ const route = useRoute()
 const sceneStore = useSceneStore()
 const domainStore = useDomainStore()
 const deviceStore = useDeviceStore()
+const areaStore = useAreaStore()
 const sceneTemplateStore = useSceneTemplateStore()
 const sceneFormRef = ref<FormInstance>()
 const deviceFormRef = ref<FormInstance>()           // 新增：设备对话框表单引用
@@ -264,7 +267,7 @@ const state = reactive({
     deviceTypeId: -1,
     protocolType: 'MQTT',
     sceneId: parseInt(route.query.sceneId as string) || null,
-    field: '',
+    deviceLocation: '',
   },
   submitting: false,
   baiduMap: null as BMap.Map | null,
@@ -304,7 +307,7 @@ const handleAddDevice = () => {
     deviceTypeId: null,
     protocolType: 'MQTT',
     sceneId: sceneId.value,
-    field:null,
+    deviceLocation: null,
   }
   deviceDialogVisible.value = true
 }
@@ -383,8 +386,8 @@ const deviceRules = {
   protocolType: [
     { required: true, message: '请输入协议类型', trigger: 'blur' }
   ],
-  field: [
-    { required: true, message: '请输入设备区域', trigger: 'blur' }
+  deviceLocation: [
+    { required: true, message: '请输入设备位置', trigger: 'blur' }
   ]
 }
 
@@ -420,6 +423,16 @@ const filteredDevices = computed(() => {
     }
   })
 })
+
+// 获取区域列表
+const filteredAreas = computed(() => {
+  if (!areaStore.areas) return [];
+  return areaStore.areas.map((area: any) => ({
+    ...area,
+    createTime: area.createTime?.split('.')[0].replace('T', ' '),
+    updateTime: area.updateTime?.split('.')[0].replace('T', ' ')
+  }));
+});
 
 // Helper function to load scene data to form
 const loadSceneToForm = (scene: any) => {
@@ -457,10 +470,10 @@ const handleEdit = (row: Device) => {
   deviceForm.value = {
     code: row.deviceCode,
     name: row.deviceName,
-    deviceTypeId: row.deviceType.id,
+    deviceTypeId: row.deviceTypeId,
     protocolType: row.protocolType,
     sceneId: row.sceneId,
-    field: row.field,
+    deviceLocation: row.deviceLocation,
   }
   currentId.value = row.id
   deviceDialogVisible.value = true
@@ -593,7 +606,7 @@ watch([() => route.query.sceneId, () => route.query.mode, () => route.query.doma
         loadSceneToForm(res.data)
         deviceTypeList.value = await sceneStore.getSceneDeviceTypes(res.data.sceneId)
         await deviceStore.fetchDevices(newSceneId ? parseInt(newSceneId as string) : undefined)
-        
+        await areaStore.fetchAreas(newSceneId ? parseInt(newSceneId as string) : undefined)
         // Initialize map after data is loaded
         nextTick(() => {
           if (sceneForm.value.lng && sceneForm.value.lat) {
@@ -668,6 +681,8 @@ onMounted(async () => {
   }
   if (sceneId) {
     await deviceStore.fetchDevices(sceneId)
+    // 根据场景 ID 加载区域数据
+    await areaStore.fetchAreas(sceneId);
   }else {
     await deviceStore.fetchDevices()
   }
@@ -816,6 +831,36 @@ const beforeImageUpload = (file: File) => {
   }
   return true;
 }
+
+// 编辑区域
+const handleEditArea = (row: any) => {
+  console.log('编辑区域:', row);
+  // 在这里实现编辑区域的逻辑
+};
+
+// 删除区域
+const handleDeleteArea = (row: any) => {
+  ElMessageBox.confirm(
+    `确定要删除区域 "${row.name}" 吗？`,
+    '警告',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
+    }
+  )
+    .then(async () => {
+      try {
+        await areaStore.deleteArea(row.id);
+        ElMessage.success('删除成功');
+      } catch (error) {
+        ElMessage.error('删除失败');
+      }
+    })
+    .catch(() => {
+      // 用户取消操作
+    });
+};
 </script>
 
 <style scoped>
