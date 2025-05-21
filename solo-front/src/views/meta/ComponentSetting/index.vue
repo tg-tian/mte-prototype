@@ -256,6 +256,35 @@ const copyJson = () => {
     })
 }
 
+const loadComponent = (data) => {
+  const comp = JSON.parse(JSON.stringify(data))
+  if(comp.type === ComponentType.Node && comp.inputConstraint === null){
+    comp.inputConstraint = {
+        quantity: 0,
+        type: 'none'
+    }
+  }
+  if(comp.type === ComponentType.Node && comp.outputConstraint === null){
+    comp.outputConstraint = {
+      quantity: 1,
+      type: 'any'
+    }
+  }
+  if(comp.type === ComponentType.Edge && comp.startConstraint === null){
+    comp.startConstraint = {
+      quantity: 1,
+      type: 'node'
+    }
+  }
+  if(comp.type === ComponentType.Edge && comp.endConstraint === null){
+    comp.endConstraint = {
+      quantity: 1,
+      type: 'node'
+    }
+  }
+  componentForm.value = comp
+}
+
 // Watch for changes in route params to update form data accordingly
 watch([() => route.query.componentId, () => route.query.mode], async ([newComponentId, newMode]) => {
   if (newMode === 'create') {
@@ -267,7 +296,7 @@ watch([() => route.query.componentId, () => route.query.mode], async ([newCompon
       await componentStore.fetchComponentById(componentId.value)
       if (componentStore.currentComponent) {
         // Deep copy to avoid reference issues
-        componentForm.value = JSON.parse(JSON.stringify(componentStore.currentComponent))
+        loadComponent(componentStore.currentComponent)
       } else {
         ElMessage.warning('组件数据不存在或获取失败')
         navigateBack()
@@ -288,7 +317,7 @@ onMounted(async () => {
       await componentStore.fetchComponentById(componentId.value)
       if (componentStore.currentComponent) {
         // Deep copy to avoid reference issues
-        componentForm.value = JSON.parse(JSON.stringify(componentStore.currentComponent))
+        loadComponent(componentStore.currentComponent)
       } else {
         ElMessage.warning('组件数据不存在或获取失败')
         navigateBack()
