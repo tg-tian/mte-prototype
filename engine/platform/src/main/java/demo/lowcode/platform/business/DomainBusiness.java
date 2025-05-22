@@ -6,10 +6,7 @@ import com.fasterxml.jackson.databind.SerializationFeature;
 import demo.lowcode.common.CommonConfig;
 import demo.lowcode.common.Property;
 import demo.lowcode.platform.dto.*;
-import demo.lowcode.platform.entity.ComponentAbout;
-import demo.lowcode.platform.entity.DeviceType;
-import demo.lowcode.platform.entity.Domain;
-import demo.lowcode.platform.entity.Template;
+import demo.lowcode.platform.entity.*;
 import demo.lowcode.platform.mapper.DomainMapper;
 import demo.lowcode.platform.mapper.TemplateMapper;
 import demo.lowcode.platform.mapper.DomainComponentMapper;
@@ -387,7 +384,19 @@ public class DomainBusiness {
 
         // 批量插入领域-设备类型关系
         if (!deviceTypeIds.isEmpty()) {
-            domainComponentMapper.batchInsertDomainComponents(domainId, deviceTypeIds);
+            domainComponentMapper.batchInsertDomainDeviceTypes(domainId, deviceTypeIds);
+        }
+
+        // step4：存入和组件的绑定关系到数据库
+        List<Long> componentIds = new ArrayList<>();
+        for(ComponentDto component : domainTemInfo.getComponents()){
+            // 收集所有组件ID
+            componentIds.add(component.getId());
+        }
+
+        // 批量插入领域-组件关系
+        if (!componentIds.isEmpty()) {
+            domainComponentMapper.batchInsertDomainComponents(domainId, componentIds);
         }
 
         return domain;

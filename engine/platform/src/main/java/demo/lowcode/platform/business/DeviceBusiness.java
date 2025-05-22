@@ -29,10 +29,10 @@ public class DeviceBusiness extends ServiceImpl<DeviceOldMapper, DeviceOld> impl
 
     public List<Device> getDeviceListByScene(Long sceneId) {
         List<Device> deviceList = deviceMapper.selectBySceneId(sceneId);
-//        for (Device device : deviceList) {
-//            device.setDeviceType(deviceTypeMapper.selectById(device.getDeviceTypeId()));
-//            device.setScene(sceneMapper.selectById(device.getSceneId()));
-//        }
+        for (Device device : deviceList) {
+            device.setDeviceType(deviceTypeMapper.selectById(device.getDeviceTypeId()));
+            device.setScene(sceneMapper.selectById(device.getSceneId()));
+        }
         return deviceList;
     }
 

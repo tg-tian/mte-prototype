@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="demo.lowcode.platform.mapper.ComponentMapper">
+    <!--获取领域组件列表-->
+    <select id="selectByDomainId" resultType="demo.lowcode.platform.entity.Component">
+        SELECT * FROM component
+        WHERE component_id IN (
+            SELECT component_id FROM domain_component
+            WHERE domain_id = #{domainId} AND component_type = 'component'
+        )
+    </select>
+</mapper>

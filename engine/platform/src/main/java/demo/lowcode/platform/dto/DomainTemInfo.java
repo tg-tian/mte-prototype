@@ -14,5 +14,5 @@ public class DomainTemInfo {
     private NewDomain domainData;
     private List<NewTemplate> templates;
     private List<DeviceType> deviceTypes;
-    private List<?> components;
+    private List<ComponentDto> components;
 }

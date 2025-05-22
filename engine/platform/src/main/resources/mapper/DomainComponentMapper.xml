@@ -16,11 +16,25 @@
         WHERE component_id = #{deviceTypeId} AND component_type = 'devicetype'
     </select>
 
-    <insert id="batchInsertDomainComponents">
+    <insert id="batchInsertDomainDeviceTypes">
         INSERT INTO domain_component (domain_id, component_id, component_type)
-        VALUES 
+        VALUES
         <foreach collection="deviceTypeIds" item="deviceTypeId" separator=",">
             (#{domainId}, #{deviceTypeId}, 'devicetype')
         </foreach>
     </insert>
+
+    <insert id="batchInsertDomainComponents">
+        INSERT INTO domain_component (domain_id, component_id, component_type)
+        VALUES
+        <foreach collection="componentIds" item="componentId" separator=",">
+            (#{domainId}, #{componentId}, 'component')
+        </foreach>
+    </insert>
+
+    <!--获取组件和领域绑定关系-->
+    <select id="selectByDomainAndComponent" resultType="demo.lowcode.platform.entity.DomainComponent">
+        SELECT * FROM domain_component
+        WHERE component_id = #{componentId} AND domain_id = #{domainId} AND component_type = 'component'
+    </select>
 </mapper>
