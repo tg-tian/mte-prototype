@@ -2,10 +2,11 @@ import request from '@/utils/request'
 import { Component as ComponentModel } from '@/types/models'
 
 // Get all components
-export const getComponents = () => {
+export const getComponents = (domainId?: number) => {
   return request({
     url: '/components',
-    method: 'get'
+    method: 'get',
+    params: { domainId }
   })
 }
 
@@ -40,6 +41,28 @@ export const deleteComponent = (id: number) => {
   return request({
     url: `/components/${id}`,
     method: 'delete'
+  })
+}
+
+export function bindingComponent(domainId: number, componentId: number) {
+  return request({
+      url: `/domain/component/binding`,
+      method: 'post',
+      data: {
+          domainId: domainId,
+          componentId: componentId
+      }
+  })
+}
+
+export function unbindingComponent(domainId: number, componentId: number) {
+  return request({
+      url: `/domain/component/unbinding`,
+      method: 'post',
+      data: {
+          domainId: domainId,
+          componentId: componentId
+      }
   })
 }
 

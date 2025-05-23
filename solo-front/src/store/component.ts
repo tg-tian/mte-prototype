@@ -1,22 +1,23 @@
 import { defineStore } from 'pinia'
 import { Component } from '@/types/models'
-import { getComponents, getComponentById, createComponent, updateComponent, deleteComponent, mockComponents } from '@/api/component'
+import { getComponents, getComponentById, createComponent, updateComponent, deleteComponent, mockComponents, bindingComponent, unbindingComponent } from '@/api/component'
 
 export const useComponentStore = defineStore('component', {
   state: () => ({
     components: [] as Component[],
+    allComponents: [] as Component[],
     currentComponent: null as Component | null,
     loading: false
   }),
   
   actions: {
-    async fetchComponents() {
+    async fetchAllComponents() {
       this.loading = true
       try {
         // For production:
         const response: any = await getComponents()
         if (response.data && response.status === 200) {
-          this.components = response.data
+          this.allComponents = response.data
         }else{
           throw new Error(response)
         }
@@ -30,6 +31,24 @@ export const useComponentStore = defineStore('component', {
         this.loading = false
       }
     },
+
+    async fetchComponents(domainId?: number) {
+      if(domainId === null){
+          this.components = []
+          return
+      }
+      this.loading = true
+      try {
+          const res: any = await getComponents(domainId)
+          if (res.data && res.status === 200) {
+              this.components = res.data
+          }
+      } catch (error) {
+          console.error('Failed to fetch components:', error)
+      } finally {
+          this.loading = false
+      }
+  },
     
     async fetchComponentById(id: number) {
       this.loading = true
@@ -59,7 +78,7 @@ export const useComponentStore = defineStore('component', {
         // For production:
         const response = await createComponent(componentData)
         if (response.data && response.status === 200) {
-          this.fetchComponents() // Refresh the list
+          this.fetchAllComponents() // Refresh the list
           return response.data
         }
         
@@ -81,7 +100,7 @@ export const useComponentStore = defineStore('component', {
         // For production:
         const response = await updateComponent(id, componentData)
         if (response.data && response.status === 200) {
-          this.fetchComponents() // Refresh the list
+          this.fetchAllComponents() // Refresh the list
           return response.data
         }
         
@@ -107,7 +126,7 @@ export const useComponentStore = defineStore('component', {
         // For production:
         const response = await deleteComponent(id)
         if (response.data && response.status === 200) {
-          this.fetchComponents() // Refresh the list
+          this.fetchAllComponents() // Refresh the list
           return true
         }
         
@@ -126,9 +145,39 @@ export const useComponentStore = defineStore('component', {
         this.loading = false
       }
     },
+
+    async bindingComponent(id: number, domainId: number) {
+      try {
+          const res: any = await bindingComponent(domainId, id)
+          if (res.data && res.status === 200) {
+              await this.fetchComponents(domainId)
+              return true
+          }
+      } catch (error) {
+          console.error('Failed to bind deviceType:', error)
+          throw error
+      }
+  },
+
+  async unbindingComponent(id: number, domainId: number) {
+      try {
+          const res: any = await unbindingComponent(domainId, id)
+          if (res.data && res.status === 200) {
+              await this.fetchComponents(domainId)
+              return true
+          }
+      } catch (error) {
+          console.error('Failed to unbind deviceType:', error)
+          throw error
+      }
+  },
     
     setCurrentComponent(component: Component) {
       this.currentComponent = component
+    },
+
+    setComponents(components: Component[]) {
+      this.components = components
     }
   },
   

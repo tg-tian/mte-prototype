@@ -4,11 +4,26 @@ import { getMockDeviceTypes, createMockDeviceType, updateMockDeviceType, deleteM
 export const useDeviceTypeStore = defineStore('deviceType', {
     state: () => ({
         deviceTypes: [],
+        allDeviceTypes: [],
         loading: false,
         currentDeviceType: null
     }),
 
     actions: {
+        async fetchAllDeviceTypes() {
+            this.loading = true
+            try {
+                const res: any = await getDeviceTypes()
+                if (res.data && res.status === 200) {
+                    this.allDeviceTypes = res.data
+                }
+            } catch (error) {
+                console.error('Failed to fetch deviceTypes:', error)
+            } finally {
+                this.loading = false
+            }
+        },
+
         async fetchDeviceTypes(domainId?: number) {
             if(domainId === null){
                 this.deviceTypes = []
@@ -31,7 +46,7 @@ export const useDeviceTypeStore = defineStore('deviceType', {
             try {
                 const res: any = await createDeviceType(deviceTypeData)
                 if (res.data && res.status === 200) {
-                    await this.fetchDeviceTypes()
+                    await this.fetchAllDeviceTypes()
                     return res.data
                 } else {
                     throw new Error(res.message || '创建设备类型失败')
@@ -46,7 +61,7 @@ export const useDeviceTypeStore = defineStore('deviceType', {
             try {
                 const res: any = await updateDeviceType(id, deviceTypeData)
                 if (res.data && res.status === 200) {
-                    await this.fetchDeviceTypes()
+                    await this.fetchAllDeviceTypes()
                     return res.data
                 } else {
                     throw new Error(res.message || '更新设备类型失败')
@@ -61,7 +76,7 @@ export const useDeviceTypeStore = defineStore('deviceType', {
             try {
                 const res: any = await deleteDeviceType(id)
                 if (res.data && res.status === 200) {
-                    await this.fetchDeviceTypes()
+                    await this.fetchAllDeviceTypes()
                     return true
                 }
             } catch (error) {

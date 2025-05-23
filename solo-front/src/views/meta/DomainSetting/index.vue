@@ -126,6 +126,8 @@ import DomainComponent from './component/DomainComponent.vue'
 import {useDeviceTypeStore} from "@/store/deviceType";
 import axios from 'axios';
 import { request } from 'http';
+import { useComponentStore } from '@/store/component';
+import { ComponentType } from '@/types/models';
 
 interface DomainForm {
   code: string
@@ -146,6 +148,7 @@ const domainStore = useDomainStore()
 const domainTemplateStore = useDomainTemplateStore()
 const domainComponentTemplateStore = useDomainComponentTemplateStore()
 const deviceTypeStore = useDeviceTypeStore()
+const componentStore = useComponentStore()
 const domainFormRef = ref<FormInstance>()
 
 // State
@@ -254,7 +257,6 @@ watch([() => route.query.domainId, () => route.query.mode , () => route.query.do
     resetFormData()
     domainForm.value.code = newDomainCode as string;
     domainForm.value.name = newDomainName as string;
-    activeTab.value='basic'
 
     // If template mode, load template data
     if (newMode === 'template') {
@@ -271,8 +273,10 @@ watch([() => route.query.domainId, () => route.query.mode , () => route.query.do
 
         domainComponentTemplateStore.setTemplates(currentTemplate.templates)
         deviceTypeStore.setDeviceTypes(currentTemplate.deviceTypes)
+        componentStore.setComponents(currentTemplate.components)
         console.log('template:', domainComponentTemplateStore.templates)
         console.log('deviceType:', deviceTypeStore.deviceTypes)
+        console.log('components:', componentStore.components)
         
         console.log('Domain data loaded from template:', domainForm.value)
       }
@@ -343,7 +347,7 @@ const submitForm = async () => {
           ElMessage.success('更新成功')
         } else if (isFromTem.value) {
           // Create new domain from template
-          await domainStore.createDomainFromTemplate(domainForm.value, domainComponentTemplateStore.templates, deviceTypeStore.deviceTypes, null)
+          await domainStore.createDomainFromTemplate(domainForm.value, domainComponentTemplateStore.templates, deviceTypeStore.deviceTypes, componentStore.components)
           ElMessage.success('创建成功')
         }else {
           // Create new domain
@@ -394,7 +398,7 @@ const publishDomain = () => {
         domainData: domainForm.value,
         templates: domainComponentTemplateStore.templates,
         deviceTypes: deviceTypeStore.deviceTypes,
-        components: null
+        components: componentStore.components
     }
     domainStore.publishDomain(domainId.value, domainForm.value.url, '1', dslData)
     .then((res)=>{
@@ -438,7 +442,7 @@ const saveTemplate = async () => {
           domainForm.value,
           domainComponentTemplateStore.templates,
           deviceTypeStore.deviceTypes,
-          null,
+          componentStore.components,
           domainForm.value.domainTemplateId
         )
         
@@ -471,6 +475,7 @@ const loadDomainFromTemplate = (template: any) => {
 
     domainComponentTemplateStore.templates = template.templates
     deviceTypeStore.deviceTypes = template.deviceTypes
+    componentStore.components =  template.components
     
     console.log('Domain data loaded to template:', domainForm.value)
   }

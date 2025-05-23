@@ -167,8 +167,8 @@ const formattedComponentJson = computed(() => {
 
 // 过滤后的组件列表
 const filteredComponents = computed(() => {
-  if (!componentStore.components) return []
-  return componentStore.components.filter((component: Component) => {
+  if (!componentStore.allComponents) return []
+  return componentStore.allComponents.filter((component: Component) => {
     const nameMatch = !searchForm.value.name || 
                      component.name.toLowerCase().includes(searchForm.value.name.toLowerCase()) || 
                      component.code.toLowerCase().includes(searchForm.value.name.toLowerCase())
@@ -180,7 +180,7 @@ const filteredComponents = computed(() => {
 
 // 初始化
 onMounted(async () => {
-  await componentStore.fetchComponents()
+  await componentStore.fetchAllComponents()
 })
 
 // 搜索处理

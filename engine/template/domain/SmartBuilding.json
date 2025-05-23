@@ -145,5 +145,24 @@
     "updateTime" : 1744939787000,
     "model" : null
   } ],
-  "components" : null
+  "components" : [ {
+    "id" : 1,
+    "code" : "START_NODE",
+    "name" : "开始节点",
+    "description" : "流程的起始节点",
+    "type" : "node",
+    "purpose" : "businessFlow",
+    "inputConstraint" : {
+      "quantity" : 0,
+      "type" : "none"
+    },
+    "outputConstraint" : {
+      "quantity" : 1,
+      "type" : "any"
+    },
+    "startConstraint" : null,
+    "endConstraint" : null,
+    "createTime" : "2025-05-20 21:53:59",
+    "updateTime" : "2025-05-20 22:14:09"
+  } ]
 }

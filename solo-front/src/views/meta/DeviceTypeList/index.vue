@@ -59,9 +59,9 @@
   
   // 过滤后的领域列表
   const filteredDevicetypes = computed(() => {
-    if (!deviceTypeStore.deviceTypes) return []
+    if (!deviceTypeStore.allDeviceTypes) return []
     
-    return deviceTypeStore.deviceTypes.filter((deviceType: DeviceType) => {
+    return deviceTypeStore.allDeviceTypes.filter((deviceType: DeviceType) => {
       const nameMatch = !searchForm.value.name || deviceType.name.toLowerCase().includes(searchForm.value.name.toLowerCase())
       return nameMatch
     }).map((deviceType: any)=>{
@@ -75,7 +75,7 @@
   
   // 初始化
   onMounted(async () => {
-    await deviceTypeStore.fetchDeviceTypes()
+    await deviceTypeStore.fetchAllDeviceTypes()
   })
   
   // 搜索处理
