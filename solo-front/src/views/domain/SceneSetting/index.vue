@@ -5,7 +5,7 @@
       <div class="header-actions">
         <el-button @click="navigateBack">返回列表</el-button>
         <el-button type="primary" @click="publishForm">{{sceneForm.status==='1' ? '取消发布':'发布'}}</el-button>
-        <el-button type="primary" @click="submitForm" :loading="submitting">保存</el-button>
+        <el-button type="primary" @click="submitForm" :loading="submitting">{{ isEditMode ? '保存' : '创建' }}</el-button>
         <el-button
             type="primary"
             plain
@@ -101,7 +101,7 @@
           </el-form>
         </el-tab-pane>
         
-        <el-tab-pane label="场景设备" name="device">
+        <el-tab-pane label="场景设备" name="device" v-if="isEditMode">
           <el-card class="device-search">
             <el-form :inline="true" :model="searchForm" class="search-form">
               <el-form-item label="设备名称">
@@ -156,7 +156,7 @@
           <el-empty v-else description="暂无设备" />
         </el-tab-pane>
 
-        <el-tab-pane label="场景区域" name="area">
+        <el-tab-pane label="场景区域" name="area" v-if="isEditMode">
           <div v-if="filteredAreas && filteredAreas.length > 0">
             <el-table
               v-loading="areaStore.loading"
@@ -169,7 +169,8 @@
               <!-- <el-table-column prop="position" label="位置" min-width="150"></el-table-column> -->
             </el-table>
           </div>
-                  </el-tab-pane>
+          <el-empty v-else description="暂无区域" />
+        </el-tab-pane>
       </el-tabs>
     </el-card>
     <el-dialog
