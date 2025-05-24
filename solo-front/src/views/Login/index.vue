@@ -2,7 +2,7 @@
   <div class="login-container">
     <el-card class="login-card">
       <div class="login-header">
-        <h2>面向场景计算的低代码平台</h2>
+        <h2>面向场景计算的低代码开发元工具环境平台</h2>
       </div>
       
       <el-form
@@ -12,21 +12,23 @@
         label-width="0"
         class="login-form"
       >
-        <el-form-item prop="username">
+        <el-form-item prop="username" label="用户名" label-width="100px">
           <el-input 
             v-model="loginForm.username" 
             prefix-icon="User"
             placeholder="用户名"
+            class="login-form-input"
           ></el-input>
         </el-form-item>
         
-        <el-form-item prop="password">
+        <el-form-item prop="password" label="密码" label-width="100px">
           <el-input 
             v-model="loginForm.password" 
             prefix-icon="Lock"
             type="password"
             placeholder="密码"
             @keyup.enter="handleLogin"
+            class="login-form-input"
           ></el-input>
         </el-form-item>
         
@@ -40,10 +42,10 @@
         </el-form-item>
       </el-form>
       
-      <div class="login-tips">
+      <!-- <div class="login-tips">
         <p>默认用户名：admin</p>
         <p>默认密码：123456</p>
-      </div>
+      </div> -->
     </el-card>
   </div>
 </template>
@@ -109,7 +111,7 @@ const handleLogin = async () => {
 }
 
 .login-card {
-  width: 380px;
+  width: 500px;
   padding: 20px;
 }
 
@@ -125,6 +127,10 @@ const handleLogin = async () => {
 
 .login-form {
   margin-bottom: 20px;
+}
+
+.login-form-input {
+  width: 80%;
 }
 
 .login-button {

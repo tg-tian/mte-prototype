@@ -38,7 +38,7 @@ interface State {
 }
 
 const state = reactive<State>({
-  title: '面向场景计算的低代码平台'
+  title: '面向场景计算的低代码开发元工具环境平台'
 })
 const { title } = toRefs(state)
 
@@ -61,7 +61,7 @@ watchEffect(() => {
   } else if (path.startsWith('/scene')) {
     title.value = '场景低代码开发平台'
   } else {
-    title.value = '面向场景计算的低代码元工具平台'
+    title.value = '面向场景计算的低代码开发元工具环境平台'
   }
 })
 
