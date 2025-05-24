@@ -355,7 +355,7 @@ const submitForm = async () => {
           ElMessage.success('创建成功')
         }
         // Navigate back to list after successful operation
-        // navigateBack()
+        navigateBack()
       } catch (error) {
         console.error('Failed to create domain:', error)
         ElMessage.error(isEditMode.value ? '更新失败' : '创建失败')
