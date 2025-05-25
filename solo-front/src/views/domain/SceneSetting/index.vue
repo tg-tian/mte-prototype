@@ -157,6 +157,9 @@
         </el-tab-pane>
 
         <el-tab-pane label="场景区域" name="area" v-if="isEditMode">
+          <div class="area-actions" style="margin:10px 0;">
+            <el-button type="primary" @click="handleAddArea">添加区域</el-button>
+          </div>
           <div v-if="filteredAreas && filteredAreas.length > 0">
             <el-table
               v-loading="areaStore.loading"
@@ -166,7 +169,19 @@
             >
               <el-table-column prop="name" label="区域名称" min-width="150"></el-table-column>
               <el-table-column prop="description" label="区域描述" min-width="200"></el-table-column>
-              <!-- <el-table-column prop="position" label="位置" min-width="150"></el-table-column> -->
+              <el-table-column prop="image" label="区域布局图" min-width="200">
+                <template #default="scope">
+                  <img :src="areaImageUrl(scope.row)" class="area-image" v-if="scope.row.image" />
+                  <span v-else>暂无图片</span>
+                </template>
+              </el-table-column>
+              <el-table-column prop="position" label="区域坐标" min-width="150"></el-table-column>
+              <el-table-column label="操作" width="220">
+                <template #default="scope">
+                  <el-button type="primary" size="small" @click="handleEditArea(scope.row)">编辑</el-button>
+                  <el-button type="danger" size="small" @click="handleDeleteArea(scope.row)">删除</el-button>
+                </template>
+              </el-table-column>
             </el-table>
           </div>
           <el-empty v-else description="暂无区域" />
@@ -202,7 +217,14 @@
           </el-select>
         </el-form-item>
         <el-form-item label="设备位置" prop="deviceLocation">
-          <el-input v-model="deviceForm.deviceLocation" placeholder="请输入设备位置"></el-input>
+          <el-select v-model="deviceForm.deviceLocation" placeholder="请选择设备位置">
+            <el-option
+              v-for="area in areaStore.areas"
+              :key="area.id"
+              :value="area.name"
+              :label="area.name"
+            ></el-option>
+          </el-select>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -210,6 +232,49 @@
           <el-button @click="deviceDialogVisible = false">取消</el-button>
           <!-- 调整为调用 submitDeviceForm -->
           <el-button type="primary" @click="submitDeviceForm" :loading="submitting">确认</el-button>
+        </span>
+      </template>
+    </el-dialog>
+    <el-dialog
+        v-model="areaDialogVisible"
+        :title="isEdit ? '编辑区域' : '添加区域'"
+        width="50%"
+    >
+      <el-form
+          :model="areaForm"
+          label-width="120px"
+          :rules="areaRules"
+          ref="areaFormRef"
+      >
+        <el-form-item label="区域名称" prop="name">
+          <el-input v-model="areaForm.name" placeholder="请输入区域名称"></el-input>
+        </el-form-item>
+        <el-form-item label="区域描述" prop="description">
+          <el-input v-model="areaForm.description" placeholder="请输入区域描述"></el-input>
+        </el-form-item>
+        <el-form-item label="区域布局图">
+              <el-upload
+                class="scene-image-uploader"
+                action="/api/upload"
+                :show-file-list="false"
+                :on-success="handleAreaImageSuccess"
+                :before-upload="beforeImageUpload"
+              >
+                <img v-if="areaForm.image" :src="areaImage" class="area-image" />
+                <el-icon v-else class="scene-uploader-icon"><Plus /></el-icon>
+              </el-upload>
+              <div class="el-upload__tip">
+                支持 jpg/png 文件，大小不超过 5MB
+              </div>
+            </el-form-item>
+        <el-form-item label="区域坐标" prop="position">
+          <el-input v-model="areaForm.position" placeholder="请输入区域坐标"></el-input>
+        </el-form-item>
+      </el-form>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="areaDialogVisible = false">取消</el-button>
+          <el-button type="primary" @click="submitAreaForm" :loading="submitting">确认</el-button>
         </span>
       </template>
     </el-dialog>
@@ -239,6 +304,7 @@ const areaStore = useAreaStore()
 const sceneTemplateStore = useSceneTemplateStore()
 const sceneFormRef = ref<FormInstance>()
 const deviceFormRef = ref<FormInstance>()           // 新增：设备对话框表单引用
+const areaFormRef = ref<FormInstance>()           // 新增：区域对话框表单引用
 const locationMap = ref<HTMLElement | null>(null)
 const lngMIn = 73
 const lngMax = 135
@@ -270,17 +336,28 @@ const state = reactive({
     sceneId: parseInt(route.query.sceneId as string) || null,
     deviceLocation: '',
   },
+  areaForm: {
+    name: '',
+    image: '',
+    description: '',
+    sceneId: parseInt(route.query.sceneId as string) || null,
+    position: '',
+  },
   submitting: false,
   baiduMap: null as BMap.Map | null,
   locationMarker: null as BMap.Marker | null,
   dialogVisible: false,
   deviceDialogVisible:false,
+  areaDialogVisible:false,
   isEdit: false,
   currentId: null,
   deviceTypeList: []
 })
 
-const { activeTab, sceneForm, submitting, baiduMap, locationMarker, dialogVisible,searchForm,isEdit,deviceForm,currentId,deviceDialogVisible, deviceTypeList } = toRefs(state)
+const { activeTab, sceneForm, submitting, baiduMap, locationMarker, 
+  dialogVisible,searchForm,isEdit,deviceForm,
+  currentId,deviceDialogVisible, deviceTypeList,
+areaForm, areaDialogVisible } = toRefs(state)
 
 // Determine if we're in edit mode
 const isEditMode = computed(() => {
@@ -298,6 +375,29 @@ const sceneImageUrl = computed(() => {
   return imageUrl
 })
 
+const areaImage = computed(() => {
+  const imageUrl = (import.meta.env.VITE_BASE_PATH as string) + areaForm.value.image
+  console.log("areaImage", imageUrl)
+  return imageUrl
+})
+
+const areaImageUrl = (image) => {
+  if (!image) return ''; // 如果没有图片，返回空字符串
+  let url;
+  url = image.image.replace(/^"|"$/g, ''); // 去掉路径两端的引号
+  const imageUrl = (import.meta.env.VITE_BASE_PATH as string) + url
+  return imageUrl
+};
+
+const areaEditImageUrl = (image) => {
+  if (!image) return ''; // 如果没有图片，返回空字符串
+  let url;
+  url = image.replace(/^"|"$/g, ''); // 去掉路径两端的引号
+  const imageUrl = (import.meta.env.VITE_BASE_PATH as string) + url
+  console.log("areaImageUrl", imageUrl)
+  return imageUrl
+};
+
 // 新增方法：打开新增设备对话框
 const handleAddDevice = () => {
   isEdit.value = false
@@ -311,6 +411,19 @@ const handleAddDevice = () => {
     deviceLocation: null,
   }
   deviceDialogVisible.value = true
+}
+
+const handleAddArea = () => {
+  isEdit.value = false
+  currentId.value = null
+  areaForm.value = {
+    name: '',
+    image: '',
+    description: '',
+    sceneId: sceneId.value,
+    position: '',
+  }
+  areaDialogVisible.value = true
 }
 
 const handleSearch = () => {
@@ -329,6 +442,7 @@ const handleDelete = (row: any) => {
       .then(async () => {
         try {
           await deviceStore.deleteDevice(row.id)
+          await deviceStore.fetchDevices(sceneId.value)
           ElMessage.success('删除成功')
         } catch (error) {
           ElMessage.error('删除失败')
@@ -392,6 +506,20 @@ const deviceRules = {
   ]
 }
 
+const areaRules = {
+  name: [
+    { required: true, message: '请输入区域名称', trigger: 'blur' },
+    { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
+  ],
+  description: [
+    { required: false, message: '请输入区域描述', trigger: 'blur' },
+    { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
+  ],
+  position: [
+    { required: false, message: '请输入区域位置', trigger: 'blur' }
+  ]
+}
+
 // Clear form for creation mode
 const resetFormData = () => {
   sceneForm.value = {
@@ -431,7 +559,7 @@ const filteredAreas = computed(() => {
   return areaStore.areas.map((area: any) => ({
     ...area,
     createTime: area.createTime?.split('.')[0].replace('T', ' '),
-    updateTime: area.updateTime?.split('.')[0].replace('T', ' ')
+    updateTime: area.updateTime?.split('.')[0].replace('T', ' '),
   }));
 });
 
@@ -482,29 +610,67 @@ const handleEdit = (row: Device) => {
 
 // 新增方法：提交设备表单
 const submitDeviceForm = async () => {
-  if (!deviceFormRef.value) return        // 现在可以访问到正确的 ref
+  if (!deviceFormRef.value) return; // 确保表单引用存在
   await deviceFormRef.value.validate(async (valid) => {
     if (valid) {
-      submitting.value = true
+      // 验证设备位置是否为有效的区域
+      const validLocations = areaStore.areas.map((area) => area.name);
+      if (!validLocations.includes(deviceForm.value.deviceLocation)) {
+        ElMessage.error('设备位置无效，请从已有区域中选择');
+        return;
+      }
+
+      submitting.value = true;
       try {
         if (isEdit.value && currentId.value !== null) {
-          await deviceStore.updateDevice(currentId.value, { ...deviceForm.value })
-          ElMessage.success('更新设备成功')
+          await deviceStore.updateDevice(currentId.value, { ...deviceForm.value });
+          ElMessage.success('更新设备成功');
         } else {
-          await deviceStore.createDevice({ ...deviceForm.value })
-          ElMessage.success('创建设备成功')
+          await deviceStore.createDevice({ ...deviceForm.value });
+          ElMessage.success('创建设备成功');
         }
-        // 刷新列表
-        await deviceStore.fetchDevices(sceneId.value)
-        deviceDialogVisible.value = false
+        // 刷新设备列表
+        await deviceStore.fetchDevices(sceneId.value);
+        deviceDialogVisible.value = false;
       } catch {
-        ElMessage.error(isEdit.value ? '更新设备失败' : '创建设备失败')
+        ElMessage.error(isEdit.value ? '更新设备失败' : '创建设备失败');
       } finally {
-        submitting.value = false
+        submitting.value = false;
       }
     }
-  })
-}
+  });
+};
+
+const submitAreaForm = async () => {
+  if (!areaFormRef.value) return; // 确保表单引用存在
+  await areaFormRef.value.validate(async (valid) => {
+    if (valid) {
+      submitting.value = true;
+      try {
+        // 确保图片路径没有多余的引号
+        if (areaForm.value.image) {
+          areaForm.value.image = areaForm.value.image.replace(/^"|"$/g, '');
+        }
+
+        if (isEdit.value && currentId.value !== null) {
+          await areaStore.updateArea(currentId.value, { ...areaForm.value });
+          ElMessage.success('更新区域成功');
+        } else {
+          await areaStore.createArea({ ...areaForm.value });
+          ElMessage.success('创建区域成功');
+        }
+
+        // 刷新区域列表
+        await areaStore.fetchAreas(sceneId.value);
+        areaDialogVisible.value = false;
+      } catch {
+        ElMessage.error(isEdit.value ? '更新区域失败' : '创建区域失败');
+      } finally {
+        submitting.value = false;
+      }
+    }
+  });
+};
 
 // Initialize location map
 const initLocationMap = () => {
@@ -818,6 +984,16 @@ const handleImageSuccess = (res: any) => {
   ElMessage.success("图片上传成功")
 }
 
+const handleAreaImageSuccess = (res: any) => {
+  // 如果返回的路径包含引号，去掉引号
+  if (typeof res === 'string') {
+    areaForm.value.image = res.replace(/^"|"$/g, '');
+  } else {
+    areaForm.value.image = res;
+  }
+  ElMessage.success("图片上传成功");
+}
+
 const beforeImageUpload = (file: File) => {
   const isImage = file.type === 'image/jpeg' || file.type === 'image/png';
   const isLt5M = file.size / 1024 / 1024 < 5;
@@ -836,7 +1012,16 @@ const beforeImageUpload = (file: File) => {
 // 编辑区域
 const handleEditArea = (row: any) => {
   console.log('编辑区域:', row);
-  // 在这里实现编辑区域的逻辑
+  isEdit.value = true
+  areaForm.value = {
+    name: row.name,
+    description: row.description,
+    image: areaEditImageUrl(row.image),
+    sceneId: row.sceneId,
+    position: row.positon,
+  }
+  currentId.value = row.id
+  areaDialogVisible.value = true
 };
 
 // 删除区域
@@ -852,8 +1037,11 @@ const handleDeleteArea = (row: any) => {
   )
     .then(async () => {
       try {
-        await areaStore.deleteArea(row.id);
+        await areaStore.deleteArea(row.id); // 调用删除接口
         ElMessage.success('删除成功');
+
+        // 重新请求区域数据
+        await areaStore.fetchAreas(sceneId.value);
       } catch (error) {
         ElMessage.error('删除失败');
       }
@@ -862,6 +1050,21 @@ const handleDeleteArea = (row: any) => {
       // 用户取消操作
     });
 };
+
+onMounted(async () => {
+  if (sceneId.value) {
+    await areaStore.fetchAreas(sceneId.value); // 加载区域数据
+  }
+});
+
+watch(
+  () => areaStore.areas,
+  (newAreas) => {
+    if (!newAreas.some((area) => area.name === deviceForm.value.deviceLocation)) {
+      deviceForm.value.deviceLocation = ''; // 如果当前选择的设备位置无效，则清空
+    }
+  }
+);
 </script>
 
 <style scoped>
@@ -909,6 +1112,11 @@ const handleDeleteArea = (row: any) => {
 .scene-image-uploader .scene-image {
   width: 200px;
   height: 200px;
+  object-fit: cover;
+}
+.area-image {
+  width: 80px;
+  height: 80px;
   object-fit: cover;
 }
 .scene-uploader-icon {

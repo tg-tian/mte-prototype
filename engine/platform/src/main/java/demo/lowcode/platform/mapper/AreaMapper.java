@@ -11,4 +11,5 @@ import java.util.List;
 @Mapper
 public interface AreaMapper extends BaseMapper<Area> {
     List<Area> selectBySceneId(Long sceneId);
+    Area selectById(Long id);
 }
