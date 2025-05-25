@@ -16,8 +16,13 @@ export const useAreaStore = defineStore('area', {
     }),
 
     actions: {
+
         // 获取区域列表
         async fetchAreas(id:number) {
+            if(!id){
+                this.devices = []
+                return
+            }
             this.loading = true;
             try {
                 const res: any = await getAreas(id);
@@ -50,7 +55,7 @@ export const useAreaStore = defineStore('area', {
             try {
                 const res: any = await createArea(areaData);
                 if (res.data && res.status === 200) {
-                    await this.fetchAreas(); // 刷新区域列表
+                    await this.fetchAreas()
                     return res.data;
                 }
             } catch (error) {
@@ -64,7 +69,7 @@ export const useAreaStore = defineStore('area', {
             try {
                 const res: any = await updateArea(id, areaData);
                 if (res.data && res.status === 200) {
-                    await this.fetchAreas(); // 刷新区域列表
+                    await this.fetchAreas()
                     return res.data;
                 }
             } catch (error) {
@@ -78,7 +83,7 @@ export const useAreaStore = defineStore('area', {
             try {
                 const res: any = await deleteArea(id);
                 if (res.data && res.status === 200) {
-                    await this.fetchAreas(); // 刷新区域列表
+                    await this.fetchAreas()
                     return true;
                 }
             } catch (error) {
