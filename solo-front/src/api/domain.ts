@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import domainPlatformRequest from "@/utils/domainPlatformRequest";
 import { mockDomains } from './mock'
 
 // 实际环境下的API接口
@@ -59,6 +60,14 @@ export function publishDomain(data: any) {
     return request({
         url: `/domains/publish`,
         method: 'post',
+        data: data
+    })
+}
+
+export function setDomainPlatform(data: any){
+    return domainPlatformRequest({
+        url:"/api/v1/specification/create",
+        method:'post',
         data: data
     })
 }
