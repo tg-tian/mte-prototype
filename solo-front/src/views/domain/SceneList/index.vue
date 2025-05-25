@@ -75,6 +75,8 @@ import { useSceneStore } from '@/store/scene'
 import { useDomainStore } from '@/store/domain'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { Scene } from '@/types/models'
+import scenePlatformRequest from "@/utils/scenePlatformRequest";
+import {setScenePlatform} from "@/api/scene";
 
 const router = useRouter()
 const route = useRoute()
@@ -396,7 +398,14 @@ const handleScenePlatform = (row: any) => {
   }else if(row.url === ''){
     ElMessage.warning('场景地址不能为空')
   }else{
-    window.open(row.url)
+    const data ={
+      name:row.code,
+      cnName:row.name,
+      platformKind: "solo-sp",
+      logo:"https://www.gitlink.org.cn/images/avatars/Organization/130318?t=1712062266"
+    }
+    const result = setScenePlatform(data)
+    if(result) window.open(row.url)
   }
 }
 

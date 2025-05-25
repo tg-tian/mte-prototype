@@ -28,8 +28,8 @@
           </el-form>
         </el-tab-pane>
         
-        <el-tab-pane label="模型定义" name="model" :disabled="!isEditMode && !tempId">
-          <div v-if="isEditMode || tempId">
+        <el-tab-pane label="模型定义" name="model" :disabled="!isEditMode && !currentDeviceTypeId">
+          <div v-if="isEditMode || currentDeviceTypeId">
             <!-- 属性定义 -->
             <div class="model-section">
               <div class="section-header">
@@ -458,7 +458,8 @@ const state = reactive({
   editingEventIndex: -1,
   editingParamIndex: -1,
   editingParamType: '' as 'input' | 'output' | 'event',
-  tempId: null as number | null // 临时ID，用于在创建设备类型后添加模型
+  tempId: null as number | null , // 临时ID，用于在创建设备类型后添加模型
+  currentDeviceTypeId:null        // 临时ID，用于在创建设备类型后添加模型
 })
 
 // 计算属性
@@ -466,7 +467,7 @@ const {
   activeTab, deviceTypeForm, modelForm, propertyForm, serviceForm, eventForm, paramForm,
   submitting, propertyDialogVisible, serviceDialogVisible, eventDialogVisible, paramDialogVisible,
   isPropertyEdit, isServiceEdit, isEventEdit, isParamEdit, editingPropertyIndex, editingServiceIndex,
-  editingEventIndex, editingParamIndex, editingParamType, tempId
+  editingEventIndex, editingParamIndex, editingParamType, tempId,currentDeviceTypeId
 } = toRefs(state)
 
 // 确定是否是编辑模式
@@ -801,7 +802,9 @@ const submitForm = async () => {
           await updateDeviceTypeModel(deviceTypeId.value, modelForm.value)
           
           ElMessage.success('更新成功')
-        } else {
+        }else if(activeTab.value === 'model'){
+          tempId.value = currentDeviceTypeId.value
+        }else {
           // 创建设备类型 - 符合接口文档格式
           const createData = {
             code: deviceTypeForm.value.code,
@@ -811,7 +814,7 @@ const submitForm = async () => {
           
           const result = await deviceTypeStore.createDeviceType(createData)
           if (result && result.id) {
-            tempId.value = result.id
+            currentDeviceTypeId.value = result.id
             // 激活模型选项卡
             activeTab.value = 'model'
             ElMessage.success('创建成功，请继续定义设备类型模型')
@@ -907,6 +910,7 @@ const addServiceParam = (type: 'input' | 'output') => {
   isParamEdit.value = false
   editingParamType.value = type
   serviceDialogVisible.value = true
+  paramDialogVisible.value = true
 }
 
 const editServiceParam = (type: 'input' | 'output', param: Property, index: number) => {
@@ -967,6 +971,7 @@ const addEventParam = () => {
   isParamEdit.value = false
   editingParamType.value = 'event'
   eventDialogVisible.value = true
+  paramDialogVisible.value = true
 }
 
 const editEventParam = (param: Property, index: number) => {
@@ -1021,7 +1026,7 @@ watch(() => tempId.value, async (newId) => {
         services: modelForm.value.services || [],
         events: modelForm.value.events || []
       }
-      
+
       // 更新新创建的设备类型的模型
       await updateDeviceTypeModel(newId, modelData)
       ElMessage.success('模型已保存')

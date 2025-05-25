@@ -119,6 +119,7 @@ import { useDomainStore } from '@/store/domain'
 import { useDomainTemplateStore } from '@/store/domainTemplate'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { FormInstance } from 'element-plus'
+import {setDomainPlatform} from "@/api/domain";
 
 const router = useRouter()
 const domainStore = useDomainStore()
@@ -294,7 +295,14 @@ const navigateToDomainPlatform = (row: any) => {
   }else if(row.url === ''){
     ElMessage.warning('领域地址不能为空')
   }else{
-    window.open(row.url)
+    const data = {
+      name:row.domainCode,
+      cnName:row.domainName,
+      platformKind: "solo-dp",
+      logo:"https://www.gitlink.org.cn/images/avatars/Organization/130318?t=1712062266"
+    }
+    const result = setDomainPlatform(data)
+    if(result) window.open(row.url)
   }
 }
 
