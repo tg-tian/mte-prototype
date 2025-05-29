@@ -114,11 +114,14 @@ public class SceneBusiness {
         existingScene.setSceneDescription(newScene.getDescription());
         existingScene.setStatus(newScene.getStatus());
         existingScene.setUrl(newScene.getUrl());
-        existingScene.setLongitude(newScene.getLocation().getLng());
-        existingScene.setLatitude(newScene.getLocation().getLat());
-        existingScene.setImageUrl(newScene.getImageUrl());
+        if(newScene.getLocation() != null){
+            existingScene.setLongitude(newScene.getLocation().getLng());
+            existingScene.setLatitude(newScene.getLocation().getLat());
+        }
+        if(newScene.getImageUrl() != null){
+            existingScene.setImageUrl(newScene.getImageUrl());
+        }
         existingScene.setUpdateTime(new Date());
-
         existingScene.setDomainId(existingScene.getDomainId());
         sceneMapper.updateById(existingScene);
         return existingScene;
