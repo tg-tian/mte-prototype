@@ -12,4 +12,5 @@ public class NewDevice {
     private String protocolType;
     private ProtocolConfig protocolConfig;
     private String deviceLocation;
+    private String devicePosition;
 }
