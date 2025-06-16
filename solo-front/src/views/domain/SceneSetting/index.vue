@@ -136,6 +136,7 @@
               <el-table-column prop="deviceType.name" label="设备类型" width="120"></el-table-column>
               <el-table-column prop="protocolType" label="协议类型" width="120"></el-table-column>
               <el-table-column prop="deviceLocation" label="设备位置" width="120"></el-table-column>
+              <!-- <el-table-column prop="devicePosition" label="设备坐标" width="120"></el-table-column> -->
               <el-table-column prop="createTime" label="创建时间" width="150"></el-table-column>
               <el-table-column prop="lastOnlineTime" label="最后上线时间" width="150"></el-table-column>
               <el-table-column prop="status" label="状态" width="100">

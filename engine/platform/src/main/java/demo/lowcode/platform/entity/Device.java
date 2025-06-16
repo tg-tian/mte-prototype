@@ -83,4 +83,8 @@ public class Device {
     @Column(name = "device_location", nullable = false)
     @ApiModelProperty(value = "设备位置")
     private String deviceLocation;
+
+    @Column(name = "device_position", nullable = false)
+    @ApiModelProperty(value = "设备坐标")
+    private String devicePosition;
 }

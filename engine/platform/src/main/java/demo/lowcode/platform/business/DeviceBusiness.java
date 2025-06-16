@@ -70,6 +70,8 @@ public class DeviceBusiness extends ServiceImpl<DeviceOldMapper, DeviceOld> impl
         device.setCreateTime(new Date());
         device.setStatus(2);
         device.setDeviceLocation(newDevice.getDeviceLocation());
+        device.setDevicePosition(newDevice.getDevicePosition());
+
         deviceMapper.insert(device);
 
         return device;
@@ -101,6 +103,8 @@ public class DeviceBusiness extends ServiceImpl<DeviceOldMapper, DeviceOld> impl
         device.setProtocolType(newDevice.getProtocolType());
         device.setProtocolConfig(newDevice.getProtocolConfig());
         device.setDeviceLocation(newDevice.getDeviceLocation());
+        device.setDevicePosition(newDevice.getDevicePosition());
+
         deviceMapper.updateById(device);
 
         return device;

@@ -17,6 +17,7 @@
         <result column="update_time" property="updateTime"/>
         <result column="last_online_time" property="lastOnlineTime"/>
         <result column="device_location" property="deviceLocation"/>
+        <result column="device_position" property="devicePosition"/>
     </resultMap>
 
     <!--获取场景设备列表-->
