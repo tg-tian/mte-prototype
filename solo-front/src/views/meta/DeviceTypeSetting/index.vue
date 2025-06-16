@@ -1,7 +1,7 @@
 <template>
   <div class="device-type-setting">
     <div class="devicetype-header">
-      <h2>{{ isEditMode ? '编辑设备类型' : '创建设备类型' }}</h2>
+      <h2>{{ isEditMode ? '编辑设备类型——'+ deviceTypeForm.name : '创建设备类型' }}</h2>
       <div class="header-actions">
         <el-button @click="navigateBack">返回列表</el-button>
         <el-button type="primary" @click="submitForm" :loading="submitting">保存</el-button>
