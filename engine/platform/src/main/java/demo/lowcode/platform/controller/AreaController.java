@@ -2,6 +2,7 @@ package demo.lowcode.platform.controller;
 
 import demo.lowcode.platform.business.AreaBusiness;
 import demo.lowcode.platform.business.DeviceBusiness;
+import demo.lowcode.platform.dto.NewArea;
 import demo.lowcode.platform.entity.Area;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -65,5 +66,37 @@ public class AreaController {
         }
     }
 
+    @PutMapping("/areas/addChildren")
+    @ApiOperation(value = "更新区域信息")
+    public ResponseEntity<?> addChildren(@RequestParam Long parentId, @RequestBody List<Long> childrenIds) {
+        try {
+            areaBusiness.addChildren(parentId,childrenIds);
+            return new ResponseEntity<>("新增子结点成功",HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        }
+    }
+
+    @GetMapping("/areas/buildAreaTree/{id}")
+    @ApiOperation(value = "构建区域树")
+    public ResponseEntity<?> buildAreaTree(@PathVariable("id") Long sceneId, @RequestParam Long areaId) {
+        try {
+            NewArea area = areaBusiness.buildAreaTree(sceneId,areaId);
+            return new ResponseEntity<>(area,HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        }
+    }
+
+    @PutMapping("/areas/deleteParent/{id}")
+    @ApiOperation(value = "删除区域父区域")
+    public ResponseEntity<?> deleteParent(@PathVariable("id") Long id) {
+        try {
+            areaBusiness.deleteParent(id);
+            return new ResponseEntity<>("删除成功",HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+        }
+    }
 
 }

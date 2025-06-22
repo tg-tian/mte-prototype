@@ -159,4 +159,6 @@ export interface Area {
     description: string;
     image: string;
     position: string;
+    parentId?: number; // 父区域ID
+    children?: Area[]; // 子区域列表
   }

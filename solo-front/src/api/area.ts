@@ -1,3 +1,4 @@
+import { Area } from '@/types/models';
 import request from '@/utils/request';
 
 // 实际环境下的API接口
@@ -42,5 +43,29 @@ export function deleteArea(id: number) {
     return request({
         url: `/areas/${id}`,
         method: 'delete'
+    });
+}
+
+export function addChildren(parentId: number, childIds: number[]) {
+    return request({
+        url: `/areas/addChildren`,
+        method: 'put',
+        params: { parentId },
+        data: childIds, 
+    });
+}
+
+export function buildAreaTree(id: number, areaId: number) {
+    return request({
+        url: `/areas/buildAreaTree/${id}`,
+        method: 'get',
+        params: { areaId },
+    });
+}
+
+export function deleteParent(id: number) {
+    return request({
+        url: `/areas/deleteParent/${id}`,
+        method: 'put',
     });
 }

@@ -12,6 +12,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Data
 @NoArgsConstructor
@@ -50,4 +52,9 @@ public class Area {
     @ApiModelProperty(value = "区域坐标", example = "{\"x\":100,\"y\":200}")
     @TableField(value = "position", typeHandler = JacksonTypeHandler.class)
     private String position;
+
+    @ApiModelProperty(value = "父区域ID", example = "0")
+    @TableField(value = "parent_id", typeHandler = JacksonTypeHandler.class)
+    private Long parentId;
+
 }

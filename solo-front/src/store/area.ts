@@ -4,7 +4,10 @@ import {
     getAreaById,
     createArea,
     updateArea,
-    deleteArea
+    deleteArea,
+    addChildren,
+    buildAreaTree,
+    deleteParent,
 } from '@/api/area'; // 使用 area API
 import type { Area } from '@/types/models'; // 引入 Area 类型
 
@@ -90,6 +93,46 @@ export const useAreaStore = defineStore('area', {
                 console.error('Failed to delete area:', error);
                 throw error;
             }
+        },
+
+        async addChildren(parentId: number, childIds: number[]) {
+            try {
+                const res: any = await addChildren(parentId,childIds);
+                if (res.data && res.status === 200) {
+                    await this.fetchAreas()
+                    return true;
+                }
+            } catch (error) {
+                console.error('Failed to add children:', error);
+                throw error;
+            }
+        },
+
+        async buildAreaTree(sceneId: number, areaId: number) {
+            try {
+                const res: any = await buildAreaTree(sceneId,areaId);
+                if (res.data && res.status === 200) {
+                    await this.fetchAreas()
+                    return res.data;
+                }
+            } catch (error) {
+                console.error('Failed to add children:', error);
+                throw error;
+            }
+        },
+
+
+        async deleteNode(id: number) {
+            try {
+                const res: any = await deleteParent(id);
+                if (res.data && res.status === 200) {
+                    await this.fetchAreas()
+                    return true;
+                }
+            } catch (error) {
+                console.error('删除节点失败:', error);
+            }
+             
         },
 
         // 设置当前区域

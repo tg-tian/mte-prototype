@@ -2,22 +2,20 @@ package demo.lowcode.platform.business;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import demo.lowcode.platform.dto.NewDevice;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import demo.lowcode.platform.dto.NewArea;
 import demo.lowcode.platform.entity.Area;
-import demo.lowcode.platform.entity.Device;
-import demo.lowcode.platform.entity.DeviceOld;
-import demo.lowcode.platform.entity.DeviceType;
 import demo.lowcode.platform.entity.Scene;
 import demo.lowcode.platform.mapper.AreaMapper;
 import demo.lowcode.platform.mapper.DeviceMapper;
-import demo.lowcode.platform.mapper.DeviceOldMapper;
 import demo.lowcode.platform.mapper.DeviceTypeMapper;
 import demo.lowcode.platform.mapper.SceneMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 public class AreaBusiness extends ServiceImpl<AreaMapper, Area> implements IService<Area> {
@@ -46,7 +44,6 @@ public class AreaBusiness extends ServiceImpl<AreaMapper, Area> implements IServ
         if (scene == null) {
             throw new RuntimeException("关联的场景不存在");
         }
-
         // 插入区域
         areaMapper.insert(newArea);
         return newArea;
@@ -84,7 +81,62 @@ public class AreaBusiness extends ServiceImpl<AreaMapper, Area> implements IServ
         if (area == null) {
             throw new RuntimeException("区域不存在");
         }
-
         areaMapper.deleteById(id);
+        List<Area> areas = areaMapper.selectByParentId(area.getId());
+        List<Long> ids = areas.stream().map(Area::getId).collect(Collectors.toList());
+        areaMapper.updateParent(-1L,ids);
+    }
+
+
+    public void addChildren(Long parentId, List<Long> childrenIds) {
+        Area area = areaMapper.selectById(parentId);
+        if (area == null) {
+            throw new RuntimeException("区域不存在");
+        }
+        areaMapper.updateParent(parentId,childrenIds);
+    }
+
+    public NewArea buildAreaTree(Long sceneId, Long areaId) {
+        List<Area> areas = areaMapper.selectBySceneId(sceneId);
+        Area area = areaMapper.selectById(areaId);
+        Area area1 = findRoot(area, areas);
+        ObjectMapper objectMapper = new ObjectMapper();
+        NewArea root = objectMapper.convertValue(area1, NewArea.class);
+        buildChild(root,areas);
+        return root;
+    }
+
+    private Area findRoot(Area node, List<Area> areas) {
+        while(node != null && node.getParentId() != -1){
+            for (Area area : areas) {
+                if (area.getId().equals(node.getParentId())) {
+                    node = area;
+                    break;
+                }
+            }
+        }
+        return node;
+    }
+
+    private void buildChild(NewArea root, List<Area> areas) {
+        for (Area area : areas) {
+            Long parentId = area.getParentId();
+            if (root.getId() == parentId) {
+                ObjectMapper objectMapper = new ObjectMapper();
+                NewArea newArea = objectMapper.convertValue(area, NewArea.class);
+                if(root.getChildren() == null) {
+                    List<NewArea> newAreas = new ArrayList<>();
+                    newAreas.add(newArea);
+                    root.setChildren(newAreas);
+                }else{
+                    root.getChildren().add(newArea);
+                }
+                buildChild(newArea, areas);
+            }
+        }
+    }
+
+    public void deleteParent(Long id) {
+        areaMapper.deleteParent(id);
     }
 }

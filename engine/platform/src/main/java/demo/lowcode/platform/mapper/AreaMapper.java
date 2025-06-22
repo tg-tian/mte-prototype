@@ -12,4 +12,8 @@ import java.util.List;
 public interface AreaMapper extends BaseMapper<Area> {
     List<Area> selectBySceneId(Long sceneId);
     Area selectById(Long id);
+    void updateParent(Long id, List<Long> children);
+    void deleteParent(Long id);
+
+    List<Area> selectByParentId(Long id);
 }
