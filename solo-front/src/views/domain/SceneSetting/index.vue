@@ -168,18 +168,26 @@
               style="width: 100%; margin-top: 20px"
               border
             >
-              <el-table-column prop="name" label="区域名称" min-width="150"></el-table-column>
-              <el-table-column prop="description" label="区域描述" min-width="200"></el-table-column>
-              <el-table-column prop="image" label="区域布局图" min-width="200">
+              <el-table-column prop="name" label="区域名称" min-width="100"></el-table-column>
+              <el-table-column prop="image" label="区域布局图" min-width="120">
                 <template #default="scope">
                   <img :src="areaImageUrl(scope.row)" class="area-image" v-if="scope.row.image" />
                   <span v-else>暂无图片</span>
                 </template>
               </el-table-column>
-              <el-table-column prop="position" label="区域坐标" min-width="150"></el-table-column>
-              <el-table-column label="操作" width="220">
+              <el-table-column prop="position" label="区域坐标" min-width="100"></el-table-column>
+              <el-table-column prop="root" label="区域级别" width="100">
+                <template #default="scope">
+                  <el-tag :type="scope.row.parentId === -1 || scope.row.parentId === null ? 'success' : 'info'">
+                    {{ scope.row.parentId === -1 || scope.row.parentId === null ? '根区域' : '子区域' }}
+                  </el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column prop="description" label="区域描述" min-width="150"></el-table-column>
+              <el-table-column label="操作" width="250">
                 <template #default="scope">
                   <el-button type="primary" size="small" @click="handleEditArea(scope.row)">编辑</el-button>
+                  <el-button type="success" size="small" @click="editAreaTree(scope.row)">区域树</el-button>
                   <el-button type="danger" size="small" @click="handleDeleteArea(scope.row)">删除</el-button>
                 </template>
               </el-table-column>
@@ -269,7 +277,7 @@
               </div>
             </el-form-item>
         <el-form-item label="区域坐标" prop="position">
-          <el-input v-model="areaForm.position" placeholder="请输入区域坐标"></el-input>
+            <el-input v-model="areaForm.position" placeholder="请输入区域坐标"></el-input>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -277,6 +285,70 @@
           <el-button @click="areaDialogVisible = false">取消</el-button>
           <el-button type="primary" @click="submitAreaForm" :loading="submitting">确认</el-button>
         </span>
+      </template>
+    </el-dialog>
+
+    <el-dialog
+        v-model="areaTreeVisible"
+        :title="'编辑'+areaForm.name+'区域树'"
+        width="50%"
+    >
+      <el-form
+          :model="areaForm"
+          label-width="120px"
+          ref="areaFormRef"
+      >
+        <el-form-item >
+        <el-tree
+          :data="treeData"
+          :props="treeProps"
+          node-key="id"
+          highlight-current
+          :default-expanded-keys="expandedKeys"
+          @node-click="handleTreeNodeClick"
+          ref="treeRef"
+        >
+          <template #default="{ node, data }">
+            <span class="tree-node-content">
+              <span class="tree-node-label">{{ data.name }}</span>
+              <span v-if="!pathNodeIds.includes(data.id)" class="tree-node-actions">
+                <span
+                  class="add-child-action"
+                  @click="(event) => { event.stopPropagation(); addNode(data); }"
+                >
+                  +
+                </span>
+                <span
+                  class="delete-node-action"
+                  @click="(event) => { event.stopPropagation(); deleteNode(data); }"
+                >
+                  -
+                </span>
+              </span>
+            </span>
+          </template>
+        </el-tree>
+        </el-form-item>
+      </el-form>
+    </el-dialog>
+
+    <el-dialog
+      v-model="areaSelectionDialogVisible"
+      title="选择区域"
+      width="30%"
+    >
+      <el-checkbox-group v-model="selectedAreas">
+        <el-checkbox
+          v-for="area in filteredParentAreas"
+          :key="area.id"
+          :label="area.id"
+        >
+          {{ area.name }}
+        </el-checkbox>
+      </el-checkbox-group>
+      <template #footer>
+        <el-button @click="areaSelectionDialogVisible = false">取消</el-button>
+        <el-button type="primary" @click="confirmAddNode">确定</el-button>
       </template>
     </el-dialog>
   </div>
@@ -295,6 +367,16 @@ import { getSceneById } from '@/api/scene'
 import { useRouter, useRoute } from 'vue-router'
 import { Device } from '@/types/models'
 import axios from "axios";
+import {
+  Check,
+  Delete,
+  Edit,
+  Message,
+  Search,
+  Star,
+} from '@element-plus/icons-vue'
+import Node from 'element-plus/es/components/tree/src/model/node'
+import { pa } from 'element-plus/es/locale'
 
 const router = useRouter()
 const route = useRoute()
@@ -307,6 +389,7 @@ const sceneFormRef = ref<FormInstance>()
 const deviceFormRef = ref<FormInstance>()           // 新增：设备对话框表单引用
 const areaFormRef = ref<FormInstance>()           // 新增：区域对话框表单引用
 const locationMap = ref<HTMLElement | null>(null)
+const treeRef = ref(null); 
 const lngMIn = 73
 const lngMax = 135
 const latMin = 3
@@ -337,28 +420,54 @@ const state = reactive({
     sceneId: parseInt(route.query.sceneId as string) || null,
     deviceLocation: '',
   },
-  areaForm: {
+  areaForm: reactive({
+    id: null, // 新增字段，用于记录当前区域的 ID
     name: '',
     image: '',
     description: '',
     sceneId: parseInt(route.query.sceneId as string) || null,
     position: '',
-  },
+    parentId: null, // 父区域 ID
+    children: [] // 子节点
+  }),
+  currentNode: reactive({
+    id: null, // 新增字段，用于记录当前区域的 ID
+    name: '',
+    image: '',
+    description: '',
+    sceneId: parseInt(route.query.sceneId as string) || null,
+    position: '',
+    parentId: null, // 父区域 ID
+    children: [] // 子节点
+  }),
   submitting: false,
   baiduMap: null as BMap.Map | null,
   locationMarker: null as BMap.Marker | null,
   dialogVisible: false,
   deviceDialogVisible:false,
   areaDialogVisible:false,
-  isEdit: false,
+  areaTreeVisible:false,
   currentId: null,
+  isEdit: false,
   deviceTypeList: []
 })
 
 const { activeTab, sceneForm, submitting, baiduMap, locationMarker, 
   dialogVisible,searchForm,isEdit,deviceForm,
   currentId,deviceDialogVisible, deviceTypeList,
-areaForm, areaDialogVisible } = toRefs(state)
+areaForm, areaDialogVisible,areaTreeVisible,currentNode} = toRefs(state)
+
+
+const createAreaForm = () => ({
+  id: null, // 新增字段，用于记录当前区域的 ID
+  name: '',
+  image: '',
+  description: '',
+  sceneId: parseInt(route.query.sceneId as string) || null,
+  position: '',
+  parentId: null, // 父区域 ID
+  children: [] // 子节点
+});
 
 // Determine if we're in edit mode
 const isEditMode = computed(() => {
@@ -418,13 +527,50 @@ const handleAddArea = () => {
   isEdit.value = false
   currentId.value = null
   areaForm.value = {
+    id: null,
     name: '',
     image: '',
     description: '',
     sceneId: sceneId.value,
     position: '',
+    parentId: -1,
+    children: []
   }
   areaDialogVisible.value = true
+}
+
+const editAreaTree = async (row) => {
+  await areaStore.fetchAreas(sceneId.value);
+  try {
+    currentNode.value = {
+      id: row.id,
+      name: row.name,
+      image: row.image,
+      description: row.description,
+      sceneId: row.sceneId,
+      position: row.position,
+      parentId: row.parentId,
+      children: row.children || [] 
+    };
+    const areaTree = await areaStore.buildAreaTree(sceneId.value, row.id);
+    console.log("areaTree", areaTree);
+    console.log("当前结点",currentNode.value);
+    areaForm.value = {
+      id: areaTree.id,
+      name: areaTree.name,
+      image: areaTree.image,
+      description: areaTree.description,
+      sceneId: areaTree.sceneId,
+      position: areaTree.position,
+      parentId: areaTree.parentId,
+      children: areaTree.children || [], // 使用返回的 areaTree 数据
+    };
+
+    // 显示区域树对话框
+    areaTreeVisible.value = true;
+  } catch (error) {
+    ElMessage.error("获取区域树失败");
+  }
 }
 
 const handleSearch = () => {
@@ -643,12 +789,12 @@ const submitDeviceForm = async () => {
 };
 
 const submitAreaForm = async () => {
+  console.log("areaForm", areaForm.value)
   if (!areaFormRef.value) return; // 确保表单引用存在
   await areaFormRef.value.validate(async (valid) => {
     if (valid) {
       submitting.value = true;
       try {
-        // 确保图片路径没有多余的引号
         if (areaForm.value.image) {
           areaForm.value.image = areaForm.value.image.replace(/^"|"$/g, '');
         }
@@ -661,7 +807,6 @@ const submitAreaForm = async () => {
           ElMessage.success('创建区域成功');
         }
 
-        // 刷新区域列表
         await areaStore.fetchAreas(sceneId.value);
         areaDialogVisible.value = false;
       } catch {
@@ -740,6 +885,17 @@ const addLocationMarker = () => {
   // Center map on marker
   baiduMap.value.setCenter(point)
 }
+
+const filteredParentAreas = computed(() => {
+  // 获取当前节点到根路径上的所有节点 ID
+  const pathIds = getPathNodes(paretnNode.value)
+  pathIds.push(paretnNode.value.id) // 添加当前节点 ID 到路径
+  console.log("pathIds", pathIds)
+  // 过滤掉路径上的节点
+  return areaStore.areas.filter((area) => {
+    return !pathIds.includes(area.id) && area.parentId === -1; // 过滤掉路径上的节点并保留根节点
+  });
+});
 
 // Watch for changes in coordinates to update marker
 watch([() => sceneForm.value.lng, () => sceneForm.value.lat], () => {
@@ -1015,11 +1171,14 @@ const handleEditArea = (row: any) => {
   console.log('编辑区域:', row);
   isEdit.value = true
   areaForm.value = {
+    id: null,
     name: row.name,
     description: row.description,
     image: areaEditImageUrl(row.image),
     sceneId: row.sceneId,
     position: row.positon,
+    parentId: row.parentId,
+    children: row.children || [] // 确保 children 是数组
   }
   currentId.value = row.id
   areaDialogVisible.value = true
@@ -1066,6 +1225,190 @@ watch(
     }
   }
 );
+
+onMounted(() => {
+  if (treeRef.value && currentNode.value.id) {
+    treeRef.value.setCurrentKey(currentNode.value.id); 
+  }
+});
+
+watch(
+  () => currentNode.value.id,
+  (newId) => {
+    if (treeRef.value && newId) {
+      treeRef.value.setCurrentKey(newId);
+    }
+  }
+);
+
+const treeData = computed(() => {
+  console.log('ids',expandedKeys.value);
+  return [
+    {
+      id:  areaForm.value.id, // 当前区域的 ID
+      name: areaForm.value.name, // 当前区域的名称
+      children: areaForm.value.children,// 子节点为空
+      parentId: areaForm.value.parentId, // 父区域 ID
+    }
+  ];
+});
+
+const treeProps = {
+  children: 'children',
+  label: 'name',
+};
+
+const handleTreeNodeClick = (node) => {
+  console.log('选中区域:', node);
+};
+
+const selectedAreas = ref([]); // 存储选中的区域
+const areaSelectionDialogVisible = ref(false); // 控制对话框显示
+const paretnNode = ref(null); // 存储父节点
+
+const getPathNodes = (node) => {
+  const pathNodes = [];
+  let currentNode = node;
+  while (currentNode) {
+    currentNode = findNode(areaForm.value, currentNode.parentId); 
+    if (!currentNode) break;
+    pathNodes.push(currentNode.id); 
+  }
+  return pathNodes;
+};
+
+const pathNodeIds = computed(() => {
+  return getPathNodes(currentNode.value);
+});
+
+const expandedKeys = computed(() => {
+  return pathNodeIds.value; // 默认展开路径上的节点
+});
+
+const addNode = (node) => {
+  console.log('当前结点:', node);
+  areaSelectionDialogVisible.value = true;
+  paretnNode.value = node; // 保存父节点
+};
+
+const deleteNode = (node) => {
+  ElMessageBox.confirm(
+    `确定要删除子区域 "${node.name}" 吗？`,
+    '警告',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning',
+    }
+  )
+    .then( async () => {
+      console.log('要删除的结点:', node);
+      console.log(areaForm.value)
+      const parentNode = findNode(areaForm.value, node.parentId);
+      console.log('要删除的结点的父节点:', parentNode);
+      if (parentNode && parentNode.children) {
+        // 从父节点的 children 中删除当前节点
+        const index = parentNode.children.findIndex((child) => child.id === node.id);
+        if (index > -1) {
+          parentNode.children.splice(index, 1);
+          await areaStore.deleteNode(node.id); // 调用删除接口
+          await areaStore.fetchAreas(sceneId.value); // 刷新区域数据
+        }
+        ElMessage.success('节点删除成功');
+      }
+      
+    })
+    .catch(() => {
+      console.log('用户取消删除操作');
+  });
+};
+
+const findNode = (node, parentId) => {
+  if (node.id === parentId) {
+    return node;
+  }
+  if (node.children && node.children.length > 0) {
+    for (const child of node.children) {
+      const result = findNode(child, parentId);
+      if (result) {
+        return result;
+      }
+    }
+  }
+  return null;
+};
+
+const confirmAddNode = async () => {
+  const parentNode = paretnNode.value; // 获取父节点
+  // 将选中的区域添加为子节点
+  console.log('父节点:', parentNode);
+  let childIds = [];
+  selectedAreas.value.forEach(async (areaId) => {
+    let area = areaStore.areas.find((a) => a.id === areaId);
+    childIds.push(areaId);
+    area = await areaStore.buildAreaTree(sceneId.value, areaId);
+    if (area) {
+      const newChild = {
+        id: area.id,
+        name: area.name,
+        children: area.children,
+        parentId: parentNode.id,
+      };
+      if(parentNode.children === null) {
+        parentNode.children = [];
+      }
+      parentNode.children.push(newChild);
+    }
+  });
+
+  // 找到路径上所有点的集合
+  const getPathNodes = (node) => {
+    const pathNodes = [];
+    let currentNode = node;
+    while (currentNode) {
+      pathNodes.push(currentNode.id); // 保存路径上的节点 ID
+      currentNode = findNode(areaForm.value, currentNode.parentId); // 向上查找父节点
+    }
+    return pathNodes;
+  };
+
+  const pathNodeIds = getPathNodes(parentNode); // 获取路径上的所有节点 ID
+  console.log('路径上的节点集合:', pathNodeIds);
+
+  // 检查 childIds 是否在路径节点集合中
+  const invalidChildren = childIds.filter((childId) => pathNodeIds.includes(childId));
+
+  if (invalidChildren.length > 0) {
+    // 获取不能添加的区域名称
+    const invalidAreaNames = invalidChildren.map((childId) => {
+      const area = areaStore.areas.find((a) => a.id === childId);
+      return area ? area.name : '未知区域';
+    });
+
+    // 弹出失败弹窗，告知用户不能添加这些节点
+    ElMessageBox.alert(
+      `以下区域不能添加为子区域：${invalidAreaNames.join(', ')}`,
+      '操作失败',
+      {
+        confirmButtonText: '确定',
+        type: 'error',
+      }
+    );
+    return; // 终止操作
+  }
+
+  try {
+    // 调用 addChildren 方法
+    await areaStore.addChildren(parentNode.id, childIds);
+    // 强制刷新 areas 数据
+    await areaStore.fetchAreas(sceneId.value);
+    ElMessage.success('子区域添加成功');
+  } catch (error) {
+    ElMessage.error('添加子节点失败');
+  }
+  selectedAreas.value = [];
+  areaSelectionDialogVisible.value = false;
+};
 </script>
 
 <style scoped>
@@ -1129,5 +1472,45 @@ watch(
   color: #8c939d;
   text-align: center;
   line-height: 200px;
+}
+
+
+.tree-node-content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.tree-node-label {
+  flex: 1;
+}
+
+.tree-node-actions {
+  display: flex;
+  gap: 10px; 
+}
+
+.add-child-action {
+  color: green; 
+  cursor: pointer;
+  font-size: 14px;
+  margin-left: 10px;
+}
+
+.delete-node-action {
+  color: red; 
+  cursor: pointer;
+  font-size: 14px;
+}
+
+
+.area-selection-dialog {
+  padding: 20px;
+}
+
+.el-checkbox-group {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }
 </style>
