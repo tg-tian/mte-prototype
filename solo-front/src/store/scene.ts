@@ -1,5 +1,18 @@
 import { defineStore } from 'pinia'
-import { getMockScenes, createMockScene, updateMockScene, deleteMockScene, getScenes, createScene, updateScene, deleteScene, getSceneById, publishScene, getSceneDeviceTypes } from '@/api/scene'
+import {
+    getMockScenes,
+    createMockScene,
+    updateMockScene,
+    deleteMockScene,
+    getScenes,
+    createScene,
+    updateScene,
+    deleteScene,
+    getSceneById,
+    publishScene,
+    getSceneDeviceTypes,
+    downloadScene
+} from '@/api/scene'
 import { Scene } from '@/types/models'
 
 export const useSceneStore = defineStore('scene', {
@@ -198,6 +211,18 @@ export const useSceneStore = defineStore('scene', {
 
         setCurrentScene(scene: Scene) {
             this.currentScene = scene
+        },
+
+        async downloadScene(sceneId: number){
+            try {
+                const  res: any = await  downloadScene(sceneId)
+                if(res & res.status === 200) {
+                    return res.data
+                }
+            } catch (error) {
+                console.error('Failed to download scene_message:', error)
+                throw error
+            }
         }
     },
 

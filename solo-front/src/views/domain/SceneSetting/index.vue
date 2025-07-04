@@ -427,7 +427,7 @@ const state = reactive({
     description: '',
     sceneId: parseInt(route.query.sceneId as string) || null,
     position: '',
-    parentId: null, // 父区域 ID
+    parentId: -1, // 父区域 ID
     children: [] // 子节点
   }),
   currentNode: reactive({
@@ -579,8 +579,8 @@ const handleSearch = () => {
 const handleDelete = (row: any) => {
   ElMessageBox.confirm(
       `确定要删除设备 "${row.name}" 吗？`,
-      '警告',
       {
+        title: '警告',
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -888,8 +888,8 @@ const addLocationMarker = () => {
 
 const filteredParentAreas = computed(() => {
   // 获取当前节点到根路径上的所有节点 ID
-  const pathIds = getPathNodes(paretnNode.value)
-  pathIds.push(paretnNode.value.id) // 添加当前节点 ID 到路径
+  const pathIds = getPathNodes(parentNode.value)
+  pathIds.push(parentNode.value.id) // 添加当前节点 ID 到路径
   console.log("pathIds", pathIds)
   // 过滤掉路径上的节点
   return areaStore.areas.filter((area) => {
@@ -1121,10 +1121,9 @@ const publishScene = () => {
 
 // 下载发布制品
 const handleDownload =async () => {
-  axios.get(`${import.meta.env.VITE_BASE_PATH as string}/scenes/download/${sceneId.value}`, {
-    responseType: 'blob'
-  }).then(response => {
-    const url = window.URL.createObjectURL(new Blob([response.data]));
+  sceneStore.downloadScene(sceneId.value).
+  then((res) => {
+    const url = window.URL.createObjectURL(new Blob([res.data]));
     const link = document.createElement('a');
     link.href = url;
     link.setAttribute('download', `${sceneForm.value.code}.json`);
@@ -1172,11 +1171,12 @@ const handleEditArea = (row: any) => {
   isEdit.value = true
   areaForm.value = {
     id: null,
+
     name: row.name,
     description: row.description,
     image: areaEditImageUrl(row.image),
     sceneId: row.sceneId,
-    position: row.positon,
+    position: row.position,
     parentId: row.parentId,
     children: row.children || [] // 确保 children 是数组
   }
@@ -1188,8 +1188,8 @@ const handleEditArea = (row: any) => {
 const handleDeleteArea = (row: any) => {
   ElMessageBox.confirm(
     `确定要删除区域 "${row.name}" 吗？`,
-    '警告',
     {
+      title: '警告',
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'
@@ -1264,7 +1264,7 @@ const handleTreeNodeClick = (node) => {
 
 const selectedAreas = ref([]); // 存储选中的区域
 const areaSelectionDialogVisible = ref(false); // 控制对话框显示
-const paretnNode = ref(null); // 存储父节点
+const parentNode = ref(null); // 存储父节点
 
 const getPathNodes = (node) => {
   const pathNodes = [];
@@ -1288,14 +1288,14 @@ const expandedKeys = computed(() => {
 const addNode = (node) => {
   console.log('当前结点:', node);
   areaSelectionDialogVisible.value = true;
-  paretnNode.value = node; // 保存父节点
+  parentNode.value = node; // 保存父节点
 };
 
 const deleteNode = (node) => {
   ElMessageBox.confirm(
     `确定要删除子区域 "${node.name}" 吗？`,
-    '警告',
     {
+      title: '警告',
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning',
@@ -1339,11 +1339,11 @@ const findNode = (node, parentId) => {
 };
 
 const confirmAddNode = async () => {
-  const parentNode = paretnNode.value; // 获取父节点
+  const parentNode = parentNode.value; // 获取父节点
   // 将选中的区域添加为子节点
   console.log('父节点:', parentNode);
   let childIds = [];
-  selectedAreas.value.forEach(async (areaId) => {
+  for (const areaId of selectedAreas.value) {
     let area = areaStore.areas.find((a) => a.id === areaId);
     childIds.push(areaId);
     area = await areaStore.buildAreaTree(sceneId.value, areaId);
@@ -1359,7 +1359,7 @@ const confirmAddNode = async () => {
       }
       parentNode.children.push(newChild);
     }
-  });
+  }
 
   // 找到路径上所有点的集合
   const getPathNodes = (node) => {
@@ -1386,13 +1386,13 @@ const confirmAddNode = async () => {
     });
 
     // 弹出失败弹窗，告知用户不能添加这些节点
-    ElMessageBox.alert(
-      `以下区域不能添加为子区域：${invalidAreaNames.join(', ')}`,
-      '操作失败',
-      {
-        confirmButtonText: '确定',
-        type: 'error',
-      }
+    await ElMessageBox.alert(
+        `以下区域不能添加为子区域：${invalidAreaNames.join(', ')}`,
+        {
+          title: '操作失败',
+          confirmButtonText: '确定',
+          type: 'error',
+        }
     );
     return; // 终止操作
   }

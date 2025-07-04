@@ -63,6 +63,13 @@ export function publishScene(data: any) {
     })
 }
 
+export function downloadScene(id : number) {
+    return request({
+        url:`/scenes/download/${id}`,
+        method:"get"
+    })
+}
+
 export function getSceneDeviceTypes(sceneId: number) {
     return request({
         url: `/devices/devicetype-list?sceneId=${sceneId}`,

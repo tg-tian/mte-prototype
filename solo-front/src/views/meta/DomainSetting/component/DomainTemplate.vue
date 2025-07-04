@@ -317,8 +317,8 @@ const navigateToTemplate = (template: any) => {
 const handleDelete = (row: any) => {
   ElMessageBox.confirm(
     `确定要取消绑定模板 "${row.name}" 吗？`,
-    '警告',
     {
+      title: '警告',
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'
