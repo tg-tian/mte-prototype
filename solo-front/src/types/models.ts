@@ -71,7 +71,7 @@ export interface DeviceType {
     createTime: string;
     updateTime: string;
     domainIds?: Array<number>,
-    model?: Model
+    model: Model
 }
 
 export interface Model {
@@ -154,11 +154,46 @@ export interface Component {
 
 // area interface
 export interface Area {
-    id?: number;
+    id: number;
     name: string;
-    description: string;
     image: string;
+    description: string;
     position: string;
-    parentId?: number; // 父区域ID
-    children?: Area[]; // 子区域列表
-  }
+    parentId: number; // 父区域ID
+    children: Area[]; // 子区域列表
+}
+
+export interface Area {
+    id: number;
+    name: string;
+    image: string;
+    description: string;
+    position: string;
+    parentId: number; // 父区域ID
+    children: Area[]; // 子区域列表
+}
+
+export interface Connection {
+    id: number; //连接设备id
+    name: string; //连接设备名称
+    position: string; //连接位置
+}
+
+export interface DeviceConnection {
+    id: number;
+    deviceCode: string;
+    name: string;
+    deviceTypeId: number;
+    deviceType: DeviceType;//获取设备时会返回
+    sceneId: number;
+    scene?: Scene;//获取设备时会返回
+    status: number;//0-离线，1-在线，2-未激活，初始默认未激活
+    protocolType: string;// MQTT/HTTP
+    protocolConfig: ProtocolConfig;// 协议连接配置参数
+    createTime: string;
+    updateTime: string;
+    lastOnlineTime: string;
+    deviceLocation: string;
+    connections: Connection[]; // 连接设备列表
+    intelligent: boolean; // 是否智能设备
+}

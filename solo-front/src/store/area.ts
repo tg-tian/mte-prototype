@@ -21,9 +21,9 @@ export const useAreaStore = defineStore('area', {
     actions: {
 
         // 获取区域列表
-        async fetchAreas(id:number | null) {
+        async fetchAreas(id?:number | null) {
             if(!id){
-                this.devices = []
+                this.areas = []
                 return
             }
             this.loading = true;
@@ -108,7 +108,7 @@ export const useAreaStore = defineStore('area', {
             }
         },
 
-        async buildAreaTree(sceneId: number | null, areaId: number) {
+        async buildAreaTree(sceneId: number, areaId: number) {
             try {
                 const res: any = await buildAreaTree(sceneId,areaId);
                 if (res.data && res.status === 200) {

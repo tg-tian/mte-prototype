@@ -382,15 +382,15 @@
       width="400px"
     >
       <div class="device-actions" style="margin:10px 0; display: flex; justify-content: flex-end;">
-        <el-button 
-          type="primary" 
+        <el-button
+          type="primary"
           @click="handleAddConnection"
           :disabled="availablePositions.length === 0">
           增加连接设备
         </el-button>
       </div>
-      <div 
-          v-if="currentDevice.connections && currentDevice.connections.length > 0 && currentDevice.connections[0] !== '暂无连接设备'">
+      <div
+          v-if="currentDevice.connections && currentDevice.connections.length > 0 ">
         <el-table
           :data="currentDevice.connections"
           border
@@ -455,11 +455,11 @@ import { useDomainStore } from '@/store/domain'
 import { useDeviceStore } from '@/store/device'
 import { useAreaStore } from '@/store/area'
 import { useSceneTemplateStore} from "@/store/sceneTemplate";
-import { ElMessage, ElMessageBox, type FormInstance } from 'element-plus'
+import { ElMessage, ElMessageBox, type FormInstance ,ElTree} from 'element-plus'
 import { Plus } from '@element-plus/icons-vue'
 import { getSceneById } from '@/api/scene'
 import { useRouter, useRoute } from 'vue-router'
-import { Device } from '@/types/models'
+import { Device,Area,DeviceType,DeviceConnection,Connection } from '@/types/models'
 import axios from "axios";
 import {
   Check,
@@ -471,6 +471,7 @@ import {
 } from '@element-plus/icons-vue'
 import Node from 'element-plus/es/components/tree/src/model/node'
 import { pa } from 'element-plus/es/locale'
+import { connect } from 'http2'
 
 const router = useRouter()
 const route = useRoute()
@@ -483,19 +484,18 @@ const sceneFormRef = ref<FormInstance>()
 const deviceFormRef = ref<FormInstance>()           // 新增：设备对话框表单引用
 const areaFormRef = ref<FormInstance>()           // 新增：区域对话框表单引用
 const locationMap = ref<HTMLElement | null>(null)
-const treeRef = ref(null); 
+const treeRef = ref<InstanceType<typeof ElTree>>()
 const lngMIn = 73
 const lngMax = 135
 const latMin = 3
 const latMax = 53
 const editConnectionsDialogVisible = ref(false)
-const deviceConnections = ref([])
+const deviceConnections = ref<DeviceConnection[]>([])
 const addInPointDialogVisible = ref(false);
-const selectedDeviceId = ref(null);
-const selectedPosition = ref(null);
+const selectedDeviceId = ref(undefined);
+const selectedPosition = ref(undefined);
 const selectedAreas = ref([]); // 存储选中的区域
 const areaSelectionDialogVisible = ref(false); // 控制对话框显示
-const paretnNode = ref(null); // 存储父节点
 
 // State
 const state = reactive({
@@ -523,32 +523,39 @@ const state = reactive({
     sceneId: parseInt(route.query.sceneId as string) || null,
     deviceLocation: '',
   },
-  areaForm: reactive({
-    id: null, // 新增字段，用于记录当前区域的 ID
+  areaForm: reactive<Area>({
+    id: -1, // 新增字段，用于记录当前区域的 ID
     name: '',
     image: '',
     description: '',
-    sceneId: parseInt(route.query.sceneId as string) || null,
     position: '',
     parentId: -1, // 父区域 ID
     children: [] // 子节点
   }),
-  currentNode: reactive({
-    id: null, 
+  currentNode: reactive<Area>({
+    id: -1,
     name: '',
     image: '',
     description: '',
-    sceneId: parseInt(route.query.sceneId as string) || null,
     position: '',
-    parentId: null, // 父区域 ID
+    parentId: -1, // 父区域 ID
+    children: [] // 子节点
+  }),
+  parentNode: reactive<Area>({
+    id: -1,
+    name: '',
+    image: '',
+    description: '',
+    position: '',
+    parentId: -1, // 父区域 ID
     children: [] // 子节点
   }),
   currentDevice: reactive({
-    id: -1, 
+    id: -1,
     name: '',
-    deviceType: null,
+    deviceType: {} as DeviceType,
     sceneId: parseInt(route.query.sceneId as string) || null,
-    connections: [],
+    connections: [] as Connection[],
   }),
   submitting: false,
   baiduMap: null as BMap.Map | null,
@@ -559,13 +566,13 @@ const state = reactive({
   areaTreeVisible:false,
   currentId: 0,
   isEdit: false,
-  deviceTypeList: [] 
+  deviceTypeList: [] as DeviceType[],
 })
 
 const { activeTab, sceneForm, submitting, baiduMap, locationMarker, 
   dialogVisible,searchForm,isEdit,deviceForm,
   currentId,deviceDialogVisible, deviceTypeList,
-areaForm, areaDialogVisible,areaTreeVisible,currentNode,currentDevice} = toRefs(state)
+areaForm, areaDialogVisible,areaTreeVisible,currentNode,parentNode,currentDevice} = toRefs(state)
 
 
 const createAreaForm = () => ({
@@ -586,7 +593,7 @@ const isEditMode = computed(() => {
 
 // Get current scene ID from query params
 const sceneId = computed(() => {
-  return parseInt(route.query.sceneId as string) || null
+  return parseInt(route.query.sceneId as string)
 })
 
 const sceneImageUrl = computed(() => {
@@ -601,18 +608,18 @@ const areaImage = computed(() => {
   return imageUrl
 })
 
-const areaImageUrl = (image) => {
-  if (!image) return ''; // 如果没有图片，返回空字符串
+const areaImageUrl = (area:Area) => {
+  if (!area) return ''; // 如果没有图片，返回空字符串
   let url;
-  url = image.image.replace(/^"|"$/g, ''); // 去掉路径两端的引号
+  url = area.image.replace(/^"|"$/g, ''); // 去掉路径两端的引号
   const imageUrl = (import.meta.env.VITE_BASE_PATH as string) + url
   return imageUrl
 };
 
-const areaEditImageUrl = (image) => {
-  if (!image) return ''; // 如果没有图片，返回空字符串
+const areaEditImageUrl = (area:Area) => {
+  if (!area) return ''; // 如果没有图片，返回空字符串
   let url;
-  url = image.replace(/^"|"$/g, ''); // 去掉路径两端的引号
+  url = area.image.replace(/^"|"$/g, ''); // 去掉路径两端的引号
   const imageUrl = (import.meta.env.VITE_BASE_PATH as string) + url
   console.log("areaImageUrl", imageUrl)
   return imageUrl
@@ -637,11 +644,10 @@ const handleAddArea = () => {
   isEdit.value = false
   currentId.value = -1
   areaForm.value = {
-    id: null,
+    id: -1,
     name: '',
     image: '',
     description: '',
-    sceneId: sceneId.value,
     position: '',
     parentId: -1,
     children: []
@@ -649,7 +655,7 @@ const handleAddArea = () => {
   areaDialogVisible.value = true
 }
 
-const editAreaTree = async (row) => {
+const editAreaTree = async (row:Area) => {
   await areaStore.fetchAreas(sceneId.value);
   try {
     currentNode.value = {
@@ -657,7 +663,6 @@ const editAreaTree = async (row) => {
       name: row.name,
       image: row.image,
       description: row.description,
-      sceneId: row.sceneId,
       position: row.position,
       parentId: row.parentId,
       children: row.children || [] 
@@ -670,7 +675,6 @@ const editAreaTree = async (row) => {
       name: areaTree.name,
       image: areaTree.image,
       description: areaTree.description,
-      sceneId: areaTree.sceneId,
       position: areaTree.position,
       parentId: areaTree.parentId,
       children: areaTree.children || [], // 使用返回的 areaTree 数据
@@ -689,8 +693,8 @@ const handleSearch = () => {
 const handleDelete = (row: any) => {
   ElMessageBox.confirm(
       `确定要删除设备 "${row.name}" 吗？`,
-      '警告',
       {
+        title: '警告',
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
@@ -717,7 +721,7 @@ const resetSearch = () => {
 
 // Get domain ID from query params
 const domainId = computed(() => {
-  return parseInt(route.query.domainId as string) || null
+  return parseInt(route.query.domainId as string)
 })
 
 // Get current domain
@@ -743,14 +747,19 @@ const filteredDeviceConnections = computed(() => {
   }));
 });
 
-const handleConnection = (row) => {
-  currentDevice.value = { ...row };
-  editConnectionsDialogVisible.value = true
+const handleConnection = (row:DeviceConnection) => {
+  Object.assign(currentDevice.value, {
+  id: row.id,
+  name: row.name,
+  deviceType: row.deviceType,
+  connections: row.connections,
+  });
   console.log("currentDevice", currentDevice.value)
+  editConnectionsDialogVisible.value = true
 };
 
 // 删除接入点
-const handleDeletePoint = async (row) => {
+const handleDeletePoint = async (row:Connection) => {
   const sourceId = currentDevice.value.id
   const targetId = row.id
   console.log("sourceId", sourceId, "targetId", targetId)
@@ -758,11 +767,8 @@ const handleDeletePoint = async (row) => {
     await deviceStore.deleteConnection(sourceId, targetId);
     await loadDeviceConnections()
     currentDevice.value.connections = currentDevice.value.connections.filter(
-      (item) => (item.id || item.inPointId) !== row.id
+      (item) => (item.id) !== row.id
     );
-    if (currentDevice.value.connections.length === 0) {
-      currentDevice.value.connections = ['暂无连接设备'];
-    }
     ElMessage.success('删除接入点成功');
   } catch (error) {
     ElMessage.error('删除接入点失败');
@@ -1045,8 +1051,8 @@ const addLocationMarker = () => {
 
 const filteredParentAreas = computed(() => {
   // 获取当前节点到根路径上的所有节点 ID
-  const pathIds = getPathNodes(paretnNode.value)
-  pathIds.push(paretnNode.value.id) // 添加当前节点 ID 到路径
+  const pathIds = getPathNodes(parentNode.value)
+  pathIds.push(parentNode.value.id) // 添加当前节点 ID 到路径
   console.log("pathIds", pathIds)
   // 过滤掉路径上的节点
   return areaStore.areas.filter((area) => {
@@ -1087,7 +1093,7 @@ watch([() => route.query.sceneId, () => route.query.mode, () => route.query.doma
         loadSceneToForm(res.data)
         deviceTypeList.value = await sceneStore.getSceneDeviceTypes(res.data.sceneId)
         await deviceStore.fetchDevices(newSceneId ? parseInt(newSceneId as string) : undefined)
-        await areaStore.fetchAreas(newSceneId ? parseInt(newSceneId as string) : undefined)
+        await areaStore.fetchAreas(newSceneId ? parseInt(newSceneId as string) : null)
         // Initialize map after data is loaded
         nextTick(() => {
           if (sceneForm.value.lng && sceneForm.value.lat) {
@@ -1177,8 +1183,8 @@ onMounted(async () => {
 });
 
 const loadDeviceConnections = async () => {
-  const connections = await deviceStore.fetchDeviceConnections(sceneId.value)
-  deviceConnections.value = connections
+  const res = await deviceStore.fetchDeviceConnections(sceneId.value)
+  deviceConnections.value = res
 }
 
 onMounted(loadDeviceConnections)
@@ -1196,7 +1202,7 @@ watch(
 
 onMounted(() => {
   if (treeRef.value && currentNode.value.id) {
-    treeRef.value.setCurrentKey(currentNode.value.id); 
+    treeRef.value.setCurrentKey(currentNode.value.id);
   }
 });
 
@@ -1244,7 +1250,7 @@ const submitForm = async () => {
         }
       } catch (error) {
         console.error('提交失败:', error);
-        ElMessage.error(error.response?.data || '保存失败，请检查数据是否冲突');
+        ElMessage.error('保存失败，请检查数据是否冲突');
       } finally {
         submitting.value = false;
       }
@@ -1317,10 +1323,9 @@ const publishScene = () => {
 
 //下载发布制品
 const handleDownload =async () => {
-  axios.get(`${import.meta.env.VITE_BASE_PATH as string}/scenes/download/${sceneId.value}`, {
-    responseType: 'blob'
-  }).then(response => {
-    const url = window.URL.createObjectURL(new Blob([response.data]));
+  sceneStore.downloadScene(sceneId.value).
+  then((res) => {
+    const url = window.URL.createObjectURL(new Blob([res.data]));
     const link = document.createElement('a');
     link.href = url;
     link.setAttribute('download', `${sceneForm.value.code}.json`);
@@ -1399,11 +1404,10 @@ const handleEditArea = (row: any) => {
   console.log('编辑区域:', row);
   isEdit.value = true
   areaForm.value = {
-    id: null,
+    id: -1,
     name: row.name,
     description: row.description,
     image: areaEditImageUrl(row.image),
-    sceneId: row.sceneId,
     position: row.position,
     parentId: row.parentId,
     children: row.children || [] // 确保 children 是数组
@@ -1416,8 +1420,8 @@ const handleEditArea = (row: any) => {
 const handleDeleteArea = (row: any) => {
   ElMessageBox.confirm(
     `确定要删除区域 "${row.name}" 吗？`,
-    '警告',
     {
+      title: '警告',
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning'
@@ -1456,11 +1460,11 @@ const treeProps = {
   label: 'name',
 };
 
-const handleTreeNodeClick = (node) => {
+const handleTreeNodeClick = (node:Area) => {
   console.log('选中区域:', node);
 };
 
-const getPathNodes = (node) => {
+const getPathNodes = (node:Area | null) => {
   const pathNodes = [];
   let currentNode = node;
   while (currentNode) {
@@ -1479,17 +1483,17 @@ const expandedKeys = computed(() => {
   return pathNodeIds.value; // 默认展开路径上的节点
 });
 
-const addNode = (node) => {
+const addNode = (node:Area) => {
   console.log('当前结点:', node);
   areaSelectionDialogVisible.value = true;
-  paretnNode.value = node; // 保存父节点
+  parentNode.value = node; // 保存父节点
 };
 
-const deleteNode = (node) => {
+const deleteNode = (node:Area) => {
   ElMessageBox.confirm(
     `确定要删除子区域 "${node.name}" 吗？`,
-    '警告',
     {
+      title: '警告',
       confirmButtonText: '确定',
       cancelButtonText: '取消',
       type: 'warning',
@@ -1517,7 +1521,7 @@ const deleteNode = (node) => {
   });
 };
 
-const findNode = (node, parentId) => {
+const findNode = (node:Area, parentId:number) : Area | null => {
   if (node.id === parentId) {
     return node;
   }
@@ -1533,10 +1537,10 @@ const findNode = (node, parentId) => {
 };
 
 const confirmAddNode = async () => {
-  const parentNode = paretnNode.value; // 获取父节点
+  const parent = parentNode.value; // 获取父节点
   // 将选中的区域添加为子节点
-  console.log('父节点:', parentNode);
-  let childIds = [];
+  console.log('父节点:', parent);
+  let childIds:number[] = [];
   selectedAreas.value.forEach(async (areaId) => {
     let area = areaStore.areas.find((a) => a.id === areaId);
     childIds.push(areaId);
@@ -1546,17 +1550,17 @@ const confirmAddNode = async () => {
         id: area.id,
         name: area.name,
         children: area.children,
-        parentId: parentNode.id,
-      };
-      if(parentNode.children === null) {
-        parentNode.children = [];
+        parentId: parent.id,
+      } as Area;
+      if(parent.children === null) {
+        parent.children = [];
       }
-      parentNode.children.push(newChild);
+      parent.children.push(newChild);
     }
   });
 
   // 找到路径上所有点的集合
-  const getPathNodes = (node) => {
+  const getPathNodes = (node:Area | null) => {
     const pathNodes = [];
     let currentNode = node;
     while (currentNode) {
@@ -1566,7 +1570,7 @@ const confirmAddNode = async () => {
     return pathNodes;
   };
 
-  const pathNodeIds = getPathNodes(parentNode); // 获取路径上的所有节点 ID
+  const pathNodeIds = getPathNodes(parent); // 获取路径上的所有节点 ID
   console.log('路径上的节点集合:', pathNodeIds);
 
   // 检查 childIds 是否在路径节点集合中
@@ -1580,20 +1584,20 @@ const confirmAddNode = async () => {
     });
 
     // 弹出失败弹窗，告知用户不能添加这些节点
-    ElMessageBox.alert(
-      `以下区域不能添加为子区域：${invalidAreaNames.join(', ')}`,
-      '操作失败',
-      {
-        confirmButtonText: '确定',
-        type: 'error',
-      }
+    await ElMessageBox.alert(
+        `以下区域不能添加为子区域：${invalidAreaNames.join(', ')}`,
+        {
+          title: '操作失败',
+          confirmButtonText: '确定',
+          type: 'error',
+        }
     );
     return; // 终止操作
   }
 
   try {
     // 调用 addChildren 方法
-    await areaStore.addChildren(parentNode.id, childIds);
+    await areaStore.addChildren(parent.id, childIds);
     // 强制刷新 areas 数据
     await areaStore.fetchAreas(sceneId.value);
     ElMessage.success('子区域添加成功');
@@ -1606,6 +1610,8 @@ const confirmAddNode = async () => {
 
 const availableDevices = computed(() => {
   const usedIds = (currentDevice.value.connections || []).map((d: any) => d.id);
+  console.log("usedIds", usedIds)
+  console.log("current", currentDevice.value)
   return deviceConnections.value.filter((d: any) => !usedIds.includes(d.id) && d.id !== currentDevice.value.id && d.intelligent === true);
 });
 
@@ -1620,8 +1626,8 @@ const availablePositions = computed(() => {
 });
 
 const handleAddConnection = () => {
-  selectedPosition.value = null;
-  selectedDeviceId.value = null;
+  selectedPosition.value = undefined;
+  selectedDeviceId.value = undefined;
   addInPointDialogVisible.value = true;
 };
 

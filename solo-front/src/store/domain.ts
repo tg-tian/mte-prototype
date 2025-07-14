@@ -1,11 +1,12 @@
 import { defineStore } from 'pinia'
 import { getMockDomains, createMockDomain, updateMockDomain, deleteMockDomain, getDomains, updateDomain, deleteDomain, createDomain, publishDomain, createDomainFromTemplate } from '@/api/domain'
+import {Domain} from '@/types/models'
 
 export const useDomainStore = defineStore('domain', {
     state: () => ({
         domains: [],
         loading: false,
-        currentDomain: null
+        currentDomain : null as Domain | null,
     }),
 
     actions: {
