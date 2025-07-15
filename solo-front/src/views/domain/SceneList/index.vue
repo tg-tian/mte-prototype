@@ -206,7 +206,7 @@ const addSceneMarkers = () => {
   
   // 添加调试信息
   console.log('Adding markers for scenes:', filteredScenes.value)
-  const points = []
+  const points : BMap.Point[] = [] 
   // Add a marker for each scene with location
   filteredScenes.value.forEach((scene: any) => {
     // 增强兼容性，处理不同的数据结构
@@ -391,7 +391,7 @@ const navigateToSceneSetting = (scene?: any) => {
 }
 
 // 进入场景平台
-const handleScenePlatform = (row: any) => {
+const handleScenePlatform = async (row: any) => {
   sceneStore.setCurrentScene(row)
   if(row.status !== '1'){
     ElMessage.warning('请先发布')
@@ -404,7 +404,7 @@ const handleScenePlatform = (row: any) => {
       platformKind: "solo-sp",
       logo:"https://www.gitlink.org.cn/images/avatars/Organization/130318?t=1712062266"
     }
-    const result = setScenePlatform(data)
+    const result =  await setScenePlatform(data)
     if(result) window.open(row.url)
   }
 }

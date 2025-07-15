@@ -78,4 +78,40 @@ public class DeviceController {
             return new ResponseEntity<>(e.getMessage(),HttpStatus.CONFLICT);
         }
     }
+
+    @GetMapping("/devices/connections")
+    @ApiOperation(value = "获取当前场景的设备连接列表")
+    public ResponseEntity<?> getDeviceConnectionsByScene(@RequestParam Long sceneId){
+        try {
+            List<NewDevice> deviceConnections = deviceBusiness.getDeviceConnectionsListByScene(sceneId);
+            return new ResponseEntity<>(deviceConnections, HttpStatus.OK);
+        }catch (RuntimeException e){
+            System.err.println("设备连接读取失败: " + e.getMessage());
+            return new ResponseEntity<>("未查询到设备连接列表",HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @PostMapping("/devices/add-connection")
+    @ApiOperation(value = "增加当前场景的设备连接列表")
+    public ResponseEntity<?> addDeviceConnection(@RequestParam Long sourceId,@RequestParam Long targetId,@RequestParam String position){
+        try {
+            deviceBusiness.addConnection(sourceId,targetId,position);
+            return new ResponseEntity<>("增加连接成功", HttpStatus.OK);
+        }catch (RuntimeException e){
+            System.err.println("设备连接读取失败: " + e.getMessage());
+            return new ResponseEntity<>("未查询到设备连接列表",HttpStatus.NOT_FOUND);
+        }
+    }
+
+    @DeleteMapping("/devices/delete-connection")
+    @ApiOperation(value = "删除当前场景的设备连接列表")
+    public ResponseEntity<?> deleteDeviceConnection(@RequestParam Long sourceId,@RequestParam Long targetId){
+        try {
+            deviceBusiness.deleteConnection(sourceId,targetId);
+            return new ResponseEntity<>("删除成功", HttpStatus.OK);
+        }catch (RuntimeException e){
+            System.err.println("设备连接读取失败: " + e.getMessage());
+            return new ResponseEntity<>("未查询到设备连接列表",HttpStatus.NOT_FOUND);
+        }
+    }
 }

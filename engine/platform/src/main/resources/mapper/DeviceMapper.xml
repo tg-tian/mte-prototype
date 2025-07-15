@@ -31,4 +31,8 @@
         SELECT * FROM device
         WHERE scene_id = #{sceneId} AND device_code = #{code}
     </select>
+    <select id="selectBySceneIdWithIntelligent" resultType="demo.lowcode.platform.dto.DeviceWithPosition">
+        SELECT * FROM device
+        WHERE scene_id = #{sceneId}
+    </select>
 </mapper>

@@ -21,9 +21,9 @@ export const useAreaStore = defineStore('area', {
     actions: {
 
         // 获取区域列表
-        async fetchAreas(id:number) {
+        async fetchAreas(id?:number | null) {
             if(!id){
-                this.devices = []
+                this.areas = []
                 return
             }
             this.loading = true;

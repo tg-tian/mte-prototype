@@ -152,6 +152,7 @@
             <el-option label="布尔值" value="bool"></el-option>
             <el-option label="字符串" value="string"></el-option>
             <el-option label="枚举" value="enum"></el-option>
+            <el-option label="智能对象" value="object"></el-option>
           </el-select>
         </el-form-item>
         <!-- 整数和浮点数的规格 -->

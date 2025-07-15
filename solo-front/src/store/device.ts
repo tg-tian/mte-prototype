@@ -7,7 +7,10 @@ import {
     getDevices,
     createDevice,
     updateDevice,
-    deleteDevice
+    deleteDevice,
+    getDeviceConnections,
+    deleteDeviceConnection,
+    addDeviceConnection,
 } from '@/api/device'
 
 export const useDeviceStore = defineStore('device', {
@@ -18,7 +21,7 @@ export const useDeviceStore = defineStore('device', {
     }),
 
     actions: {
-        async fetchDevices(sceneId?: number) {
+        async fetchDevices(sceneId?: number | null) {
             if(!sceneId){
                 this.devices = []
                 return
@@ -72,6 +75,51 @@ export const useDeviceStore = defineStore('device', {
             } catch (error) {
                 console.error('Failed to delete device:', error)
                 throw error
+            }
+        },
+
+
+        async fetchDeviceConnections(sceneId?: number) {
+            if(!sceneId){
+                return []
+            }
+            this.loading = true
+            try {
+                const res: any = await getDeviceConnections(sceneId)
+                if (res.data && res.status === 200) {
+                    return res.data
+                }
+            } catch (error) {
+                console.error('Failed to fetch device connections:', error)
+            } finally {
+                this.loading = false
+            }
+        },
+
+        async deleteConnection(sourceId: number, targetId: number) {
+            try {
+                const res: any = await deleteDeviceConnection(sourceId,targetId)
+                if (res.data && res.status === 200) {
+                    return true
+                }
+            } catch (error) {
+                console.error('Failed to delete connection connections:', error)
+            } finally {
+                this.loading = false
+            }
+
+        },
+
+        async addConnection(sourceId: number, targetId: number,position:string) {
+            try {
+                const res: any = await addDeviceConnection(sourceId,targetId,position)
+                if (res.data && res.status === 200) {
+                    return true
+                }
+            } catch (error) {
+                console.error('Failed to add connection connections:', error)
+            } finally {
+                this.loading = false
             }
         },
 

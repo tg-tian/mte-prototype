@@ -87,7 +87,6 @@ export const useSceneStore = defineStore('scene', {
                     this.currentScene = {
                         id: sceneData.sceneId || sceneData.id,
                         domainId: sceneData.domainId,
-                        code: sceneData.sceneCode || sceneData.code,
                         name: sceneData.sceneName || sceneData.name,
                         description: sceneData.sceneDescription || sceneData.description,
                         createTime: sceneData.createTime || new Date().toISOString().split('T')[0],
@@ -216,7 +215,7 @@ export const useSceneStore = defineStore('scene', {
         async downloadScene(sceneId: number){
             try {
                 const  res: any = await  downloadScene(sceneId)
-                if(res & res.status === 200) {
+                if(res && res.status === 200) {
                     return res.data
                 }
             } catch (error) {

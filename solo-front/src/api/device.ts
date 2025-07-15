@@ -40,6 +40,31 @@ export function deleteDevice(id: number) {
     })
 }
 
+export function getDeviceConnections(sceneId?: number) {
+    return request({
+        url: '/devices/connections',
+        method: 'get',
+        params: { sceneId }
+    })
+}   
+
+export function deleteDeviceConnection(sourceId?: number,targetId?: number) {
+    return request({
+        url: '/devices/delete-connection',
+        method: 'delete',
+        params: { sourceId, targetId }
+    })
+}   
+
+export function addDeviceConnection(sourceId?: number,targetId?: number,position?: string) {
+    return request({
+        url: '/devices/add-connection',
+        method: 'post',
+        params: { sourceId, targetId , position }
+    })
+}   
+
+
 // Mock API functions
 export function getMockDevices(sceneId?: number) {
     return new Promise((resolve) => {

@@ -15,6 +15,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.Date;
+import java.util.List;
 
 @Entity
 @Data
@@ -87,4 +88,5 @@ public class Device {
     @Column(name = "device_position", nullable = false)
     @ApiModelProperty(value = "设备坐标")
     private String devicePosition;
+
 }
