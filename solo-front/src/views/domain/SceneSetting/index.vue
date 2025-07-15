@@ -57,7 +57,7 @@
                 :on-success="handleImageSuccess"
                 :before-upload="beforeImageUpload"
               >
-                <img v-if="sceneForm.imageUrl" :src="sceneImageUrl" class="scene-image" />
+                <img v-if="sceneForm.imageUrl" :src="sceneImageUrl" class="scene-image" @error="handleImageError"/>
                 <el-icon v-else class="scene-uploader-icon"><Plus /></el-icon>
               </el-upload>
               <div class="el-upload__tip">
@@ -115,7 +115,7 @@
               <el-table-column prop="name" label="区域名称" min-width="100"></el-table-column>
               <el-table-column prop="image" label="区域布局图" min-width="120">
                 <template #default="scope">
-                  <img :src="areaImageUrl(scope.row)" class="area-image" v-if="scope.row.image" />
+                  <img :src="areaImageUrl(scope.row)" class="area-image" v-if="scope.row.image" @error="handleImageError"/>
                   <span v-else>暂无图片</span>
                 </template>
               </el-table-column>
@@ -293,7 +293,7 @@
                 :on-success="handleAreaImageSuccess"
                 :before-upload="beforeImageUpload"
               >
-                <img v-if="areaForm.image" :src="areaImage" class="area-image" />
+                <img v-if="areaForm.image" :src="areaImage" class="area-image" @error="handleImageError"/>
                 <el-icon v-else class="scene-uploader-icon"><Plus /></el-icon>
               </el-upload>
               <div class="el-upload__tip">
@@ -460,18 +460,7 @@ import { Plus } from '@element-plus/icons-vue'
 import { getSceneById } from '@/api/scene'
 import { useRouter, useRoute } from 'vue-router'
 import { Device,Area,DeviceType,DeviceConnection,Connection } from '@/types/models'
-import axios from "axios";
-import {
-  Check,
-  Delete,
-  Edit,
-  Message,
-  Search,
-  Star,
-} from '@element-plus/icons-vue'
-import Node from 'element-plus/es/components/tree/src/model/node'
-import { pa } from 'element-plus/es/locale'
-import { connect } from 'http2'
+import defaultImage from '@/assets/default.png'
 
 const router = useRouter()
 const route = useRoute()
@@ -526,7 +515,7 @@ const state = reactive({
   areaForm: reactive<Area>({
     id: -1, // 新增字段，用于记录当前区域的 ID
     name: '',
-    image: '',
+    image: null,
     description: '',
     position: '',
     parentId: -1, // 父区域 ID
@@ -574,18 +563,6 @@ const { activeTab, sceneForm, submitting, baiduMap, locationMarker,
   currentId,deviceDialogVisible, deviceTypeList,
 areaForm, areaDialogVisible,areaTreeVisible,currentNode,parentNode,currentDevice} = toRefs(state)
 
-
-const createAreaForm = () => ({
-  id: null, // 新增字段，用于记录当前区域的 ID
-  name: '',
-  image: '',
-  description: '',
-  sceneId: parseInt(route.query.sceneId as string) || null,
-  position: '',
-  parentId: null, // 父区域 ID
-  children: [] // 子节点
-});
-
 // Determine if we're in edit mode
 const isEditMode = computed(() => {
   return route.query.mode === 'edit'
@@ -609,19 +586,8 @@ const areaImage = computed(() => {
 })
 
 const areaImageUrl = (area:Area) => {
-  if (!area) return ''; // 如果没有图片，返回空字符串
-  let url;
-  url = area.image.replace(/^"|"$/g, ''); // 去掉路径两端的引号
-  const imageUrl = (import.meta.env.VITE_BASE_PATH as string) + url
-  return imageUrl
-};
-
-const areaEditImageUrl = (area:Area) => {
-  if (!area) return ''; // 如果没有图片，返回空字符串
-  let url;
-  url = area.image.replace(/^"|"$/g, ''); // 去掉路径两端的引号
-  const imageUrl = (import.meta.env.VITE_BASE_PATH as string) + url
-  console.log("areaImageUrl", imageUrl)
+  if (!area) return null;
+  const imageUrl = (import.meta.env.VITE_BASE_PATH as string) + area.image
   return imageUrl
 };
 
@@ -646,7 +612,7 @@ const handleAddArea = () => {
   areaForm.value = {
     id: -1,
     name: '',
-    image: '',
+    image: null,
     description: '',
     position: '',
     parentId: -1,
@@ -656,7 +622,7 @@ const handleAddArea = () => {
 }
 
 const editAreaTree = async (row:Area) => {
-  await areaStore.fetchAreas(sceneId.value);
+  // await areaStore.fetchAreas(sceneId.value);
   try {
     currentNode.value = {
       id: row.id,
@@ -958,15 +924,11 @@ const submitAreaForm = async () => {
     if (valid) {
       submitting.value = true;
       try {
-        if (areaForm.value.image) {
-          areaForm.value.image = areaForm.value.image.replace(/^"|"$/g, '');
-        }
-
         if (isEdit.value && currentId.value !== null) {
-          await areaStore.updateArea(currentId.value, { ...areaForm.value });
+          await areaStore.updateArea(currentId.value, { ...areaForm.value, sceneId: parseInt(route.query.sceneId as string) || null });
           ElMessage.success('更新区域成功');
         } else {
-          await areaStore.createArea({ ...areaForm.value });
+          await areaStore.createArea({ ...areaForm.value, sceneId: parseInt(route.query.sceneId as string) || null });
           ElMessage.success('创建区域成功');
         }
 
@@ -1374,13 +1336,12 @@ const handleImageSuccess = (res: any) => {
   ElMessage.success("图片上传成功")
 }
 
+const handleImageError = (event: any) => {
+  event.target.src = defaultImage;
+}
+
 const handleAreaImageSuccess = (res: any) => {
-  // 如果返回的路径包含引号，去掉引号
-  if (typeof res === 'string') {
-    areaForm.value.image = res.replace(/^"|"$/g, '');
-  } else {
-    areaForm.value.image = res;
-  }
+  areaForm.value.image = res;
   ElMessage.success("图片上传成功");
 }
 
@@ -1404,10 +1365,10 @@ const handleEditArea = (row: any) => {
   console.log('编辑区域:', row);
   isEdit.value = true
   areaForm.value = {
-    id: -1,
+    id: row.id,
     name: row.name,
     description: row.description,
-    image: areaEditImageUrl(row.image),
+    image: row.image,
     position: row.position,
     parentId: row.parentId,
     children: row.children || [] // 确保 children 是数组

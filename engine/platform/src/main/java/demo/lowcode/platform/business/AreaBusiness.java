@@ -38,21 +38,28 @@ public class AreaBusiness extends ServiceImpl<AreaMapper, Area> implements IServ
     /**
      * 创建新的区域
      */
-    public Area createArea(Area newArea) {
+    public Area createArea(NewArea newArea) {
         // 验证关联的场景是否存在
         Scene scene = sceneMapper.selectById(newArea.getSceneId());
         if (scene == null) {
             throw new RuntimeException("关联的场景不存在");
         }
         // 插入区域
-        areaMapper.insert(newArea);
-        return newArea;
+        Area area = new Area();
+        area.setDescription(newArea.getDescription());
+        area.setName(newArea.getName());
+        area.setImage(newArea.getImage());
+        area.setPosition(newArea.getPosition());
+        area.setParentId(newArea.getParentId());
+        area.setSceneId(newArea.getSceneId());
+        areaMapper.insert(area);
+        return area;
     }
 
     /**
      * 更新区域信息
      */
-    public Area updateArea(Long id, Area updatedArea) {
+    public Area updateArea(Long id, NewArea updatedArea) {
         // 检查区域是否存在
         Area existingArea = areaMapper.selectById(id);
         if (existingArea == null) {
@@ -68,9 +75,14 @@ public class AreaBusiness extends ServiceImpl<AreaMapper, Area> implements IServ
         }
 
         // 更新区域信息
-        updatedArea.setId(id);
-        areaMapper.updateById(updatedArea);
-        return updatedArea;
+        existingArea.setName(updatedArea.getName());
+        existingArea.setDescription(updatedArea.getDescription());
+        existingArea.setImage(updatedArea.getImage());
+        existingArea.setParentId(updatedArea.getParentId());
+        existingArea.setPosition(updatedArea.getPosition());
+        existingArea.setSceneId(updatedArea.getSceneId());
+        areaMapper.updateById(existingArea);
+        return existingArea;
     }
 
     /**
@@ -81,10 +93,11 @@ public class AreaBusiness extends ServiceImpl<AreaMapper, Area> implements IServ
         if (area == null) {
             throw new RuntimeException("区域不存在");
         }
-        areaMapper.deleteById(id);
+
         List<Area> areas = areaMapper.selectByParentId(area.getId());
         List<Long> ids = areas.stream().map(Area::getId).collect(Collectors.toList());
         areaMapper.updateParent(-1L,ids);
+        areaMapper.deleteById(id);
     }
 
 

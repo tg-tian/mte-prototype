@@ -35,7 +35,7 @@ public class AreaController {
 
     @PostMapping("/areas")
     @ApiOperation(value = "创建新的区域")
-    public ResponseEntity<?> createArea(@RequestBody Area newArea) {
+    public ResponseEntity<?> createArea(@RequestBody NewArea newArea) {
         try {
             Area area = areaBusiness.createArea(newArea);
             return new ResponseEntity<>(area, HttpStatus.CREATED);
@@ -46,7 +46,7 @@ public class AreaController {
 
     @PutMapping("/areas/{id}")
     @ApiOperation(value = "更新区域信息")
-    public ResponseEntity<?> updateArea(@PathVariable("id") Long id, @RequestBody Area updatedArea) {
+    public ResponseEntity<?> updateArea(@PathVariable("id") Long id, @RequestBody NewArea updatedArea) {
         try {
             Area area = areaBusiness.updateArea(id, updatedArea);
             return new ResponseEntity<>(area, HttpStatus.OK);

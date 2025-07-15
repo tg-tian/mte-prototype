@@ -65,7 +65,7 @@
             <el-form-item label="领域地址" prop="url" v-if="domainForm.status==='1'">
               <el-input v-model="domainForm.url"></el-input>
             </el-form-item>
-            <el-form-item label="图标">
+            <!-- <el-form-item label="图标">
               <el-upload
                 action="#"
                 list-type="picture-card"
@@ -73,7 +73,7 @@
               >
                 <el-icon><Plus /></el-icon>
               </el-upload>
-            </el-form-item>
+            </el-form-item> -->
           </el-form>
         </el-tab-pane>
         

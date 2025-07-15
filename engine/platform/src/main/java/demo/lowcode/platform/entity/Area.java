@@ -46,7 +46,7 @@ public class Area {
     private String description;
 
     @ApiModelProperty(value = "区域布局图", example = "base64编码的图片数据")
-    @TableField(value = "image", typeHandler = JacksonTypeHandler.class)
+    @TableField(value = "image")
     private String image;
 
     @ApiModelProperty(value = "区域坐标", example = "{\"x\":100,\"y\":200}")
@@ -54,7 +54,7 @@ public class Area {
     private String position;
 
     @ApiModelProperty(value = "父区域ID", example = "0")
-    @TableField(value = "parent_id", typeHandler = JacksonTypeHandler.class)
+    @TableField(value = "parent_id")
     private Long parentId;
 
 }

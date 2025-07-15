@@ -54,7 +54,7 @@ export const useAreaStore = defineStore('area', {
         },
 
         // 创建区域
-        async createArea(areaData: Area) {
+        async createArea(areaData: any) {
             try {
                 const res: any = await createArea(areaData);
                 if (res.data && res.status === 200) {
@@ -68,7 +68,7 @@ export const useAreaStore = defineStore('area', {
         },
 
         // 更新区域
-        async updateArea(id: number, areaData: Area) {
+        async updateArea(id: number, areaData: any) {
             try {
                 const res: any = await updateArea(id, areaData);
                 if (res.data && res.status === 200) {

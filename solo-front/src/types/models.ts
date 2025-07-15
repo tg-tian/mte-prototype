@@ -156,17 +156,7 @@ export interface Component {
 export interface Area {
     id: number;
     name: string;
-    image: string;
-    description: string;
-    position: string;
-    parentId: number; // 父区域ID
-    children: Area[]; // 子区域列表
-}
-
-export interface Area {
-    id: number;
-    name: string;
-    image: string;
+    image: string | null;
     description: string;
     position: string;
     parentId: number; // 父区域ID
