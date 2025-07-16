@@ -21,7 +21,7 @@ export const useAreaStore = defineStore('area', {
     actions: {
 
         // 获取区域列表
-        async fetchAreas(id?:number | null) {
+        async fetchAreas(id:number) {
             if(!id){
                 this.areas = []
                 return
@@ -58,7 +58,7 @@ export const useAreaStore = defineStore('area', {
             try {
                 const res: any = await createArea(areaData);
                 if (res.data && res.status === 200) {
-                    await this.fetchAreas()
+                    await this.fetchAreas(areaData.sceneId); // 刷新区域列表
                     return res.data;
                 }
             } catch (error) {
@@ -72,7 +72,7 @@ export const useAreaStore = defineStore('area', {
             try {
                 const res: any = await updateArea(id, areaData);
                 if (res.data && res.status === 200) {
-                    await this.fetchAreas()
+                    await this.fetchAreas(areaData.sceneId); // 刷新区域列表
                     return res.data;
                 }
             } catch (error) {
@@ -86,7 +86,6 @@ export const useAreaStore = defineStore('area', {
             try {
                 const res: any = await deleteArea(id);
                 if (res.data && res.status === 200) {
-                    await this.fetchAreas()
                     return true;
                 }
             } catch (error) {
@@ -99,7 +98,6 @@ export const useAreaStore = defineStore('area', {
             try {
                 const res: any = await addChildren(parentId,childIds);
                 if (res.data && res.status === 200) {
-                    await this.fetchAreas()
                     return true;
                 }
             } catch (error) {
@@ -112,7 +110,7 @@ export const useAreaStore = defineStore('area', {
             try {
                 const res: any = await buildAreaTree(sceneId,areaId);
                 if (res.data && res.status === 200) {
-                    await this.fetchAreas()
+                    await this.fetchAreas(sceneId)
                     return res.data;
                 }
             } catch (error) {
@@ -126,7 +124,6 @@ export const useAreaStore = defineStore('area', {
             try {
                 const res: any = await deleteParent(id);
                 if (res.data && res.status === 200) {
-                    await this.fetchAreas()
                     return true;
                 }
             } catch (error) {

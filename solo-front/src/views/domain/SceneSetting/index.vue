@@ -585,7 +585,7 @@ const areaImage = computed(() => {
 })
 
 const areaImageUrl = (area:Area) => {
-  if (!area) return null;
+  if (!area) return undefined;
   const imageUrl = (import.meta.env.VITE_BASE_PATH as string) + area.image
   return imageUrl
 };
@@ -621,7 +621,6 @@ const handleAddArea = () => {
 }
 
 const editAreaTree = async (row:Area) => {
-  // await areaStore.fetchAreas(sceneId.value);
   try {
     currentNode.value = {
       id: row.id,
@@ -1054,7 +1053,7 @@ watch([() => route.query.sceneId, () => route.query.mode, () => route.query.doma
         loadSceneToForm(res.data)
         deviceTypeList.value = await sceneStore.getSceneDeviceTypes(res.data.sceneId)
         await deviceStore.fetchDevices(newSceneId ? parseInt(newSceneId as string) : undefined)
-        await areaStore.fetchAreas(newSceneId ? parseInt(newSceneId as string) : null)
+        await areaStore.fetchAreas(parseInt(newSceneId as string))
         // Initialize map after data is loaded
         nextTick(() => {
           if (sceneForm.value.lng && sceneForm.value.lat) {
