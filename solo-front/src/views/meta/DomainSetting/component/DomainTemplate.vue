@@ -175,7 +175,7 @@ const router = useRouter()
 const domainComponentTemplateStore = useDomainComponentTemplateStore()
 
 const domainId = computed(() => {
-  return route.query.domainId ? parseInt(route.query.domainId as string) : null
+  return parseInt(route.query.domainId as string)
 })
 
 const isFromTem = computed(() => {
@@ -185,7 +185,7 @@ const isFromTem = computed(() => {
 const state = reactive({
     dialogVisible: false,
     dialogDetailVisible: false,
-    selectedTemplates: [],
+    selectedTemplates: [] as number[],
     showAdvanced: false,
     searchQuery: {
         name_or_category_or_description_or_domain_or_tags_or_code_key_word_string_cont: '',
@@ -202,7 +202,7 @@ const currentPage = ref(1)
 // 初始化
 onMounted(async () => {
     try {
-        const domain = route.query.domainId ? parseInt(route.query.domainId as string) : null
+        const domain = parseInt(route.query.domainId as string)
         domainComponentTemplateStore.setCurrentDomain(domain)
         // Only fetch templates if not in template mode
         if (!isFromTem.value) {
@@ -215,7 +215,7 @@ onMounted(async () => {
 
 watch([() => route.query.domainId], async ([newDomainId]) => {
     try {
-        const newDomain = newDomainId ? parseInt(newDomainId as string) : null
+        const newDomain = parseInt(newDomainId as string)
         domainComponentTemplateStore.setCurrentDomain(newDomain)
         // Only fetch templates if not in template mode
         if (!isFromTem.value) {

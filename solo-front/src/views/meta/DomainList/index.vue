@@ -138,7 +138,7 @@ const state = reactive({
     code:'',
   },
   createModel: '1',
-  domainTemplates: [],
+  domainTemplates: [] as any[],
   activeTemplateIndex: 0
 })
 
@@ -166,7 +166,7 @@ const filteredDomains = computed(() => {
     const nameMatch = !searchForm.value.name || domain.domainName.toLowerCase().includes(searchForm.value.name.toLowerCase())
     const statusMatch = !searchForm.value.status || domain.status === searchForm.value.status
     return nameMatch && statusMatch
-  })
+  }) as any[]
   domains = domains.map((domain: any)=>{
     return {
       ...domain,
@@ -288,7 +288,7 @@ const handleTemplateSelect = async () => {
 }
 
 // 进入领域平台
-const navigateToDomainPlatform = (row: any) => {
+const navigateToDomainPlatform = async (row: any) => {
   domainStore.setCurrentDomain(row)
   if(row.status !== '1'){
     ElMessage.warning('请先发布')
@@ -301,7 +301,7 @@ const navigateToDomainPlatform = (row: any) => {
       platformKind: "solo-dp",
       logo:"https://www.gitlink.org.cn/images/avatars/Organization/130318?t=1712062266"
     }
-    const result = setDomainPlatform(data)
+    const result = await setDomainPlatform(data)
     if(result) window.open(row.url)
   }
 }

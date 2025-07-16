@@ -1,15 +1,16 @@
 import { mockTemplates } from '@/api/mock'
 import { bindingTemplates, getDomainTemplates, getTemplates, unbindingTemplates } from '@/api/template'
+import { Template } from '@/types/models'
 import { id } from 'element-plus/es/locale'
 import { defineStore } from 'pinia'
 
 export const useDomainComponentTemplateStore = defineStore('domainComponentTemplate', {
     state: () => ({
-        allTemplates: [],
-        templates: [],
+        allTemplates: [] as Template[],
+        templates: [] as Template[],
         loading: false,
-        currentTemplate: null,
-        currentDomainId: null,
+        currentTemplate: {} as Template ,
+        currentDomainId: 0,
         allTemplatesPageSize: 0,
         hasMore: true
     }),

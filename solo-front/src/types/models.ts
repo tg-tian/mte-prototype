@@ -145,11 +145,11 @@ export interface Component {
   createTime?: string;
   updateTime?: string;
   // For Node type
-  inputConstraint?: Constraint;
-  outputConstraint?: Constraint;
+  inputConstraint: Constraint;
+  outputConstraint: Constraint;
   // For Edge type
-  startConstraint?: Constraint;
-  endConstraint?: Constraint;
+  startConstraint: Constraint;
+  endConstraint: Constraint;
 }
 
 // area interface

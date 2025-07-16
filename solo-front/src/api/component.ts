@@ -162,4 +162,4 @@ export const mockComponents = reactive<ComponentModel[]>([
       type: 'any'
     }
   }
-])
+] as any[])

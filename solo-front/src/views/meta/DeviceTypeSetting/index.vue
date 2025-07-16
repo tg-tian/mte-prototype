@@ -632,7 +632,7 @@ const formatDataTypeSpecs = (dataType: DataType) => {
     case 'string':
       return `最大长度: ${dataType.specs.length}`
     case 'enum':
-      return dataType.specs.values ? dataType.specs.values.map(v => `${v.label}(${v.value})`).join(', ') : ''
+      return dataType.specs.values ? dataType.specs.values.map((v : any)=> `${v.label}(${v.value})`).join(', ') : ''
     default:
       return ''
   }

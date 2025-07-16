@@ -54,7 +54,8 @@ import type { CollapseModelValue } from 'element-plus'
 
 const props = defineProps({
     template: {
-        type: Object as ()=>Template
+        type: Object as ()=>Template ,
+        required: true
     },
     resetSelected: {
         type: Boolean,
@@ -71,7 +72,7 @@ watch(() => props.resetSelected, (newVal) => {
     }
 })
 
-const handleClick = (value: boolean) => {
+const handleClick = (value: any) => {
     emit('template-click', props.template.id ,value);
 };
 

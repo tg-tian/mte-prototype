@@ -48,7 +48,7 @@ const router = useRouter()
 const componentStore = useComponentStore()
 
 const domainId = computed(() => {
-  return route.query.domainId ? parseInt(route.query.domainId as string) : null
+  return parseInt(route.query.domainId as string)
 })
 
 const isFromTem = computed(() => {
@@ -59,7 +59,7 @@ const isFromTem = computed(() => {
 onMounted(async () => {
     componentStore.setComponents([])
     try {
-        const domain = route.query.domainId ? parseInt(route.query.domainId as string) : null
+        const domain = parseInt(route.query.domainId as string)
         // Only fetch device types if not in template mode
         if (!isFromTem.value) {
             await componentStore.fetchComponents(domain)
@@ -74,7 +74,7 @@ watch([() => route.query.domainId], async ([newDomainId]) => {
     try {
         // Only fetch device types if not in template mode
         if (!isFromTem.value) {
-            await componentStore.fetchComponents(newDomainId ? parseInt(newDomainId as string) : null)
+            await componentStore.fetchComponents(parseInt(newDomainId as string))
         }
     } catch (error) {
         console.error('加载设备类型失败:', error)

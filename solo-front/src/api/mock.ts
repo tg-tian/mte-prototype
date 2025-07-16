@@ -136,7 +136,7 @@ export const mockDeviceTypes = reactive<DeviceType[]>([
         name: "智能咖啡机",
         description: "智能咖啡机能够自动制作多种咖啡",
         createTime: "2023-12-20 14:30:45",
-        updateTime: null,
+        updateTime: '',
         domainIds: [1],
         model: {
             properties: [
@@ -199,7 +199,7 @@ export const mockDeviceTypes = reactive<DeviceType[]>([
         name: "烟感器",
         description: "能够检测烟雾浓度",
         createTime: "2024-12-20 14:30:45",
-        updateTime: null,
+        updateTime: '',
         model: {
             properties: [
                 {

@@ -52,7 +52,7 @@ watchEffect(() => {
   if (path.startsWith('/domain/scene')) {  // new branch for domain scene pages
     if (currentDomain.value) {
       // Use domainName or fallback
-      title.value = `${currentDomain.value.domainName || currentDomain.value.name}-详情`
+      title.value = `${currentDomain.value.name}-详情`
     } else {
       title.value = '领域低代码开发平台'
     }

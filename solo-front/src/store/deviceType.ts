@@ -1,9 +1,10 @@
 import { defineStore } from 'pinia'
 import { getMockDeviceTypes, createMockDeviceType, updateMockDeviceType, deleteMockDeviceType, getDeviceTypes, createDeviceType, updateDeviceType, deleteDeviceType, bindingDeviceType, unbindingDeviceType } from '@/api/deviceType'
+import { DeviceType } from '@/types/models'
 
 export const useDeviceTypeStore = defineStore('deviceType', {
     state: () => ({
-        deviceTypes: [],
+        deviceTypes: [] as DeviceType[],
         allDeviceTypes: [],
         loading: false,
         currentDeviceType: null

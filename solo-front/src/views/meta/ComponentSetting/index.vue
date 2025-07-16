@@ -221,7 +221,7 @@ const resetFormData = () => {
 }
 
 // Handle component type change
-const handleTypeChange = (value: ComponentType) => {
+const handleTypeChange = (value: any) => {
   // Reset constraints based on component type
   if (value === ComponentType.Node) {
     componentForm.value.inputConstraint = {
@@ -256,7 +256,7 @@ const copyJson = () => {
     })
 }
 
-const loadComponent = (data) => {
+const loadComponent = (data : any) => {
   const comp = JSON.parse(JSON.stringify(data))
   if(comp.type === ComponentType.Node && comp.inputConstraint === null){
     comp.inputConstraint = {

@@ -152,14 +152,14 @@ const formattedComponentJson = computed(() => {
   if(formatJson.type === ComponentType.Node){
     formatJson = {
       ...formatJson,
-      startConstraint: undefined,
-      endConstraint: undefined
+      startConstraint: {} as any,
+      endConstraint: {} as any
     }
   }else{
     formatJson = {
       ...formatJson,
-      inputConstraint: undefined,
-      outputConstraint: undefined
+      inputConstraint: {} as any,
+      outputConstraint: {} as any
     }
   }
   return JSON.stringify(formatJson, null, 2)

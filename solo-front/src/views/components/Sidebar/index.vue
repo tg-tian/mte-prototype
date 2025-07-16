@@ -133,7 +133,7 @@ const handleMenuSelect = (key: string, _keyPath: string[]) => {
   const selectedItemData = items.value.find(item => item.index === key)
   
   if (selectedItemData) {
-    let query = {}
+    let query = {} as any
     if(!selectedItemData.route.startsWith("/meta")) {
       query = { ...router.currentRoute.value.query }
     }

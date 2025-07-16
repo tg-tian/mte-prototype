@@ -164,7 +164,7 @@ const state = reactive({
     baseFramework: '',
     dslStandard: '',
     url: '',
-    domainTemplateId: null
+    domainTemplateId: 0
   } as DomainForm,
   submitting: false,
   publishDialogVisible: false
@@ -182,7 +182,7 @@ const isFromTem = computed(() => {
 })
 
 const domainId = computed(() => {
-  return parseInt(route.query.domainId as string) || null
+  return parseInt(route.query.domainId as string)
 })
 
 // 表单验证规则
@@ -224,7 +224,7 @@ const resetFormData = () => {
     baseFramework: '',
     dslStandard: '',
     url: '',
-    domainTemplateId: null
+    domainTemplateId: 0
   }
 }
 
@@ -260,7 +260,7 @@ watch([() => route.query.domainId, () => route.query.mode , () => route.query.do
 
     // If template mode, load template data
     if (newMode === 'template') {
-      const currentTemplate = domainTemplateStore.currentDomainTemplate
+      const currentTemplate = domainTemplateStore.currentDomainTemplate as any
       if (currentTemplate) {
         domainForm.value.description = currentTemplate.domainData.description || ''
         domainForm.value.status = '0'
@@ -269,7 +269,7 @@ watch([() => route.query.domainId, () => route.query.mode , () => route.query.do
         domainForm.value.modelEditor = currentTemplate.domainData.modelEditor || ''
         domainForm.value.baseFramework = currentTemplate.domainData.baseFramework || ''
         domainForm.value.dslStandard = currentTemplate.domainData.dslStandard || ''
-        domainForm.value.domainTemplateId = null
+        domainForm.value.domainTemplateId = 0
 
         domainComponentTemplateStore.setTemplates(currentTemplate.templates)
         deviceTypeStore.setDeviceTypes(currentTemplate.deviceTypes)
@@ -305,7 +305,7 @@ onMounted(async () => {
   if (isEditMode.value && domainId.value) {
     const currentDomain = domainStore.currentDomain
     
-    if (currentDomain && currentDomain.domainId === domainId.value) {
+    if (currentDomain && currentDomain.id === domainId.value) {
       // Load from current domain in store
       loadDomainToForm(currentDomain)
     } else {
@@ -471,7 +471,7 @@ const loadDomainFromTemplate = (template: any) => {
     domainForm.value.modelEditor = template.domainData.modelEditor || ''
     domainForm.value.baseFramework = template.domainData.baseFramework || ''
     domainForm.value.dslStandard = template.domainData.dslStandard || ''
-    domainForm.value.domainTemplateId = null
+    domainForm.value.domainTemplateId = 0
 
     domainComponentTemplateStore.templates = template.templates
     deviceTypeStore.deviceTypes = template.deviceTypes

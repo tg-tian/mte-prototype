@@ -4,7 +4,7 @@ import { defineStore } from 'pinia'
 export const useDomainTemplateStore = defineStore('domainTemplate', {
     state: () => ({
         domainTemplates: [],
-        currentDomainTemplate: null,
+        currentDomainTemplate: null ,
         loading: false,
         total: 0
     }),
