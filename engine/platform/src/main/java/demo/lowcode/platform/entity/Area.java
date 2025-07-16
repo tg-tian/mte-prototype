@@ -50,7 +50,7 @@ public class Area {
     private String image;
 
     @ApiModelProperty(value = "区域坐标", example = "{\"x\":100,\"y\":200}")
-    @TableField(value = "position", typeHandler = JacksonTypeHandler.class)
+    @TableField(value = "position")
     private String position;
 
     @ApiModelProperty(value = "父区域ID", example = "0")

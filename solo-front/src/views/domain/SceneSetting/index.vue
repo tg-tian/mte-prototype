@@ -318,9 +318,8 @@
         width="50%"
     >
       <el-form
-          :model="areaForm"
           label-width="120px"
-          ref="areaFormRef"
+          ref="areaTreeRef"
       >
         <el-form-item >
         <el-tree

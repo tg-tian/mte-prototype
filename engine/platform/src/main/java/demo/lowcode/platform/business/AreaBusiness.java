@@ -96,7 +96,10 @@ public class AreaBusiness extends ServiceImpl<AreaMapper, Area> implements IServ
 
         List<Area> areas = areaMapper.selectByParentId(area.getId());
         List<Long> ids = areas.stream().map(Area::getId).collect(Collectors.toList());
-        areaMapper.updateParent(-1L,ids);
+        if (ids.size() > 0){
+            areaMapper.updateParent(-1L,ids);
+        }
+
         areaMapper.deleteById(id);
     }
 
