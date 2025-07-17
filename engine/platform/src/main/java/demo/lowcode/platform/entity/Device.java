@@ -89,4 +89,8 @@ public class Device {
     @ApiModelProperty(value = "设备坐标")
     private String devicePosition;
 
+    @Column(name = "intelligent", nullable = false)
+    @ApiModelProperty(value = "智能化")
+    private boolean intelligent;
+
 }

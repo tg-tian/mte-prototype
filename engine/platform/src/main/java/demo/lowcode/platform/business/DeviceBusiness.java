@@ -7,6 +7,7 @@ import demo.lowcode.platform.dto.DeviceWithPosition;
 import demo.lowcode.platform.dto.NewDevice;
 import demo.lowcode.platform.entity.*;
 import demo.lowcode.platform.mapper.*;
+import demo.lowcode.platform.model.device.Property;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -40,6 +41,7 @@ public class DeviceBusiness extends ServiceImpl<DeviceOldMapper, DeviceOld> impl
 
     public Device createDevice(NewDevice newDevice) {
         Device device = new Device();
+        device.setIntelligent(true);
         if (newDevice.getDeviceTypeId() != null) {
             DeviceType deviceType = deviceTypeMapper.selectById(newDevice.getDeviceTypeId());
             if (deviceType == null) {
@@ -47,6 +49,17 @@ public class DeviceBusiness extends ServiceImpl<DeviceOldMapper, DeviceOld> impl
             }
             device.setDeviceType(deviceType);
             device.setDeviceTypeId(newDevice.getDeviceTypeId());
+            List<Property> properties = null;
+            if (deviceType.getModel() != null) {
+                properties = deviceType.getModel().getProperties();
+            }
+            if (properties != null) {
+                boolean hasObjectProperty = properties.stream()
+                        .anyMatch(p -> p.getIdentify() != null && p.getIdentify().startsWith("OBJECT"));
+                if (hasObjectProperty) {
+                    device.setIntelligent(false);
+                }
+            }
         } else {
             throw new RuntimeException("请选择设备类型");
         }
@@ -73,7 +86,6 @@ public class DeviceBusiness extends ServiceImpl<DeviceOldMapper, DeviceOld> impl
         device.setStatus(2);
         device.setDeviceLocation(newDevice.getDeviceLocation());
         device.setDevicePosition(newDevice.getDevicePosition());
-
         deviceMapper.insert(device);
 
         return device;

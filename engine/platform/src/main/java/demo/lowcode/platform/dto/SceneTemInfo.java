@@ -10,5 +10,5 @@ import java.util.List;
 @Component
 public class SceneTemInfo {
     private NewScene sceneData;
-    private List<Device> devices;
+    private List<NewDevice> devices;
 }

@@ -389,7 +389,7 @@ const state = reactive({
   deviceForm: {
     code: '',
     name: '',
-    deviceTypeId: -1,
+    deviceTypeId: undefined as number | undefined,
     protocolType: 'MQTT',
     sceneId: parseInt(route.query.sceneId as string) || null,
     deviceLocation: '',
@@ -480,7 +480,7 @@ const handleAddDevice = () => {
   deviceForm.value = {
     code: '',
     name: '',
-    deviceTypeId: -1,
+    deviceTypeId: undefined,
     protocolType: 'MQTT',
     sceneId: sceneId.value,
     deviceLocation: '',
@@ -756,7 +756,7 @@ const handleEdit = (row: Device) => {
   deviceForm.value = {
     code: row.deviceCode,
     name: row.deviceName,
-    deviceTypeId: row.deviceTypeId,
+    deviceTypeId: row.deviceTypeId? row.deviceTypeId : undefined,
     protocolType: row.protocolType,
     sceneId: row.sceneId,
     deviceLocation: row.deviceLocation,
@@ -788,6 +788,7 @@ const submitDeviceForm = async () => {
         }
         // 刷新设备列表
         await deviceStore.fetchDevices(sceneId.value);
+        loadDeviceConnections();
         deviceDialogVisible.value = false;
       } catch {
         ElMessage.error(isEdit.value ? '更新设备失败' : '创建设备失败');
@@ -1148,8 +1149,15 @@ const publishScene = () => {
         ...sceneForm.value,
         location: locationData
       },
-      devices: deviceStore.devices,
+      devices: deviceStore.devices.map((d: any) => {
+        const dc = deviceConnections.value.find((c: any) => c.id === d.id);
+        return {
+          ...d,
+          connections: dc ? dc.connections : [],
+        };
+      })
     }
+    console.log("dslData", dslData)
     sceneStore.publishScene(domainId.value, sceneId.value, sceneForm.value.url, '1', dslData)
       .then((res) => {
         ElMessage.success('发布成功')
@@ -1168,7 +1176,18 @@ const publishScene = () => {
 const handleDownload = async () => {
   sceneStore.downloadScene(sceneId.value).
     then((res) => {
-      const url = window.URL.createObjectURL(new Blob([res.data]));
+      const jsonString = JSON.stringify(res, (key, value) => {
+        // 直接过滤掉 null、undefined、空对象、空数组
+        if (value === null || value === undefined ||
+          (typeof value === 'object' && Object.keys(value).length === 0) ||
+          (Array.isArray(value) && value.length === 0)) {
+          return undefined;
+        }
+        return value;
+      }, 2);
+      const blob = new Blob([jsonString], { type: "application/json" });
+      const url = window.URL.createObjectURL(blob);
+      console.log("jsonString", jsonString)
       const link = document.createElement('a');
       link.href = url;
       link.setAttribute('download', `${sceneForm.value.code}.json`);
@@ -1462,7 +1481,7 @@ const availablePositions = computed(() => {
   const usedPositions = (currentDevice.value.connections || []).map((d: any) => d.position);
   console.log("currentDevicesdf", currentDevice.value)
   const positions = currentDevice.value.deviceType.model.properties
-    .filter(prop => prop.identify === 'LINK')
+    .filter(prop => prop.identify.startsWith('OBJECT'))
     .map(prop => prop.name);
   return positions.filter(pos => !usedPositions.includes(pos));
 });
