@@ -5,7 +5,7 @@ import { Domain, Scene, Device, DeviceType, Template } from '@/types/models'
 export const mockDomains = reactive<Domain[]>([
     {
         id: 1,
-        name: '智能制造领域',
+        domainName: '智能制造领域',
         description: '面向工业4.0的智能制造解决方案',
         createTime: '2023-10-15',
         updateTime: '2023-11-20',
@@ -14,7 +14,7 @@ export const mockDomains = reactive<Domain[]>([
     },
     {
         id: 2,
-        name: '智慧城市领域',
+        domainName: '智慧城市领域',
         description: '城市数字孪生与智能监控管理平台',
         createTime: '2023-09-22',
         updateTime: '2023-12-05',
@@ -23,7 +23,7 @@ export const mockDomains = reactive<Domain[]>([
     },
     {
         id: 3,
-        name: '医疗健康领域',
+        domainName: '医疗健康领域',
         description: '医疗服务与健康管理数字化平台',
         createTime: '2023-07-30',
         updateTime: '2023-10-12',
@@ -32,7 +32,7 @@ export const mockDomains = reactive<Domain[]>([
     },
     {
         id: 4,
-        name: '教育科研领域',
+        domainName: '教育科研领域',
         description: '教育资源管理与科研协作平台',
         createTime: '2023-11-05',
         updateTime: '2023-12-18',

@@ -308,6 +308,7 @@ const navigateToDomainPlatform = async (row: any) => {
 
 // 查看场景
 const handleViewScenes = (row: any) => {
+  console.log('Navigating to scenes for domain:', row)
   domainStore.setCurrentDomain(row)
   window.open(`/#/domain/scene/list?domainId=${row.domainId}`)
 }

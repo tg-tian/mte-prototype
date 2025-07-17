@@ -1,7 +1,7 @@
 <template>
   <div class="scene-list-container">
     <div class="scene-header">
-      <h2>场景列表 <small v-if="currentDomain"> {{ currentDomain.name }}</small></h2>
+      <h2>场景列表 <small v-if="currentDomain"> {{ currentDomain.domainName }}</small></h2>
       <div class="header-actions">
         <el-button type="primary" @click="navigateToSceneSetting()">创建场景</el-button>
       </div>
