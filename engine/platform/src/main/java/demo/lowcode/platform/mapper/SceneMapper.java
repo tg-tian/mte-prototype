@@ -14,4 +14,6 @@ public interface SceneMapper extends BaseMapper<Scene> {
     List<Scene> selectByDomainId(@Param("domainId") Long domainId);
 
     Scene selectBySceneCode(@Param("sceneCode") String sceneCode);
+    
+    List<Scene> selectAll();
 }

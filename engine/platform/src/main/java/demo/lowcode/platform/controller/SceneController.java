@@ -72,6 +72,17 @@ public class SceneController {
         List<Scene> sceneList = sceneBusiness.getSceneList(domainId);
         return new ResponseEntity<>(sceneList,HttpStatus.OK);
     }
+    
+    /**
+     * 获取所有场景列表
+     * @return 所有场景列表
+     */
+    @GetMapping(value = "/all-scenes")
+    @ApiOperation(value = "获取所有场景列表",notes = "用于获取所有场景的列表，不需要指定领域ID")
+    public ResponseEntity<?> getAllScenes(){
+        List<Scene> allScenes = sceneBusiness.getAllScenes();
+        return new ResponseEntity<>(allScenes,HttpStatus.OK);
+    }
 
     /**
      * 通过id获取场景信息

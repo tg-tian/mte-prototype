@@ -75,6 +75,14 @@ public class SceneBusiness {
     public List<Scene> getSceneList(Long domainId){
         return sceneMapper.selectByDomainId(domainId);
     }
+    
+    /**
+     * 获取所有场景列表
+     * @return 所有场景列表
+     */
+    public List<Scene> getAllScenes(){
+        return sceneMapper.selectAll();
+    }
 
     public Scene getSceneById (Long sceneId){
         return sceneMapper.selectById(sceneId);
