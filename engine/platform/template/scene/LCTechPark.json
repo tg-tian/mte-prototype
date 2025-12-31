@@ -1,0 +1,853 @@
+{
+  "sceneData" : {
+    "code" : "LCTechPark",
+    "name" : "算谷浪潮科技园",
+    "description" : "在北京市范围内建设的，面向都市型农业 的集生产、科研、示范、休闲、科普等多功能于一体的现代农业园区",
+    "status" : "0",
+    "url" : "ds",
+    "domainId" : 26,
+    "location" : {
+      "lng" : 116.806,
+      "lat" : 39.8794
+    },
+    "imageUrl" : "/uploads/07844a38-0744-42b9-8f3a-155fe195b747.png"
+  },
+  "devices" : [ {
+    "id" : 40,
+    "deviceCode" : "Valve1",
+    "deviceName" : "1号阀",
+    "deviceType" : {
+      "id" : 55,
+      "code" : "Valve",
+      "name" : "水阀",
+      "description" : " 控制液体在管道中流动的状态",
+      "createTime" : 1751872825000,
+      "updateTime" : 1753411895000,
+      "model" : {
+        "properties" : [ {
+          "identify" : "STATE",
+          "name" : "开关状态",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "bool",
+            "specs" : {
+              "0" : "关",
+              "1" : "开"
+            }
+          }
+        }, {
+          "identify" : "OBJECT1",
+          "name" : "端1",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "string",
+            "specs" : {
+              "length" : "255"
+            }
+          }
+        }, {
+          "identify" : "OBJECT2",
+          "name" : "端2",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "string",
+            "specs" : {
+              "length" : "255"
+            }
+          }
+        } ],
+        "services" : [ {
+          "identify" : "START",
+          "name" : "启动",
+          "inputData" : [ ],
+          "outputData" : [ ]
+        }, {
+          "identify" : "STOP",
+          "name" : "停止",
+          "inputData" : [ ],
+          "outputData" : [ ]
+        } ],
+        "events" : [ ]
+      }
+    },
+    "code" : null,
+    "name" : null,
+    "deviceTypeId" : 55,
+    "sceneId" : 28,
+    "protocolType" : "MQTT",
+    "protocolConfig" : null,
+    "deviceLocation" : "1号温室",
+    "devicePosition" : null,
+    "connections" : [ {
+      "id" : 46,
+      "deviceName" : "南种植槽",
+      "position" : "端1"
+    }, {
+      "id" : 52,
+      "deviceName" : "一体机",
+      "position" : "端2"
+    } ],
+    "intelligent" : false
+  }, {
+    "id" : 41,
+    "deviceCode" : "Valve2",
+    "deviceName" : "2号阀",
+    "deviceType" : {
+      "id" : 55,
+      "code" : "Valve",
+      "name" : "水阀",
+      "description" : " 控制液体在管道中流动的状态",
+      "createTime" : 1751872825000,
+      "updateTime" : 1753411895000,
+      "model" : {
+        "properties" : [ {
+          "identify" : "STATE",
+          "name" : "开关状态",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "bool",
+            "specs" : {
+              "0" : "关",
+              "1" : "开"
+            }
+          }
+        }, {
+          "identify" : "OBJECT1",
+          "name" : "端1",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "string",
+            "specs" : {
+              "length" : "255"
+            }
+          }
+        }, {
+          "identify" : "OBJECT2",
+          "name" : "端2",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "string",
+            "specs" : {
+              "length" : "255"
+            }
+          }
+        } ],
+        "services" : [ {
+          "identify" : "START",
+          "name" : "启动",
+          "inputData" : [ ],
+          "outputData" : [ ]
+        }, {
+          "identify" : "STOP",
+          "name" : "停止",
+          "inputData" : [ ],
+          "outputData" : [ ]
+        } ],
+        "events" : [ ]
+      }
+    },
+    "code" : null,
+    "name" : null,
+    "deviceTypeId" : 55,
+    "sceneId" : 28,
+    "protocolType" : "MQTT",
+    "protocolConfig" : null,
+    "deviceLocation" : "1号温室",
+    "devicePosition" : null,
+    "connections" : [ {
+      "id" : 47,
+      "deviceName" : "北种植槽",
+      "position" : "端1"
+    }, {
+      "id" : 52,
+      "deviceName" : "一体机",
+      "position" : "端2"
+    } ],
+    "intelligent" : false
+  }, {
+    "id" : 42,
+    "deviceCode" : "Valve3",
+    "deviceName" : "3号阀",
+    "deviceType" : {
+      "id" : 55,
+      "code" : "Valve",
+      "name" : "水阀",
+      "description" : " 控制液体在管道中流动的状态",
+      "createTime" : 1751872825000,
+      "updateTime" : 1753411895000,
+      "model" : {
+        "properties" : [ {
+          "identify" : "STATE",
+          "name" : "开关状态",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "bool",
+            "specs" : {
+              "0" : "关",
+              "1" : "开"
+            }
+          }
+        }, {
+          "identify" : "OBJECT1",
+          "name" : "端1",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "string",
+            "specs" : {
+              "length" : "255"
+            }
+          }
+        }, {
+          "identify" : "OBJECT2",
+          "name" : "端2",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "string",
+            "specs" : {
+              "length" : "255"
+            }
+          }
+        } ],
+        "services" : [ {
+          "identify" : "START",
+          "name" : "启动",
+          "inputData" : [ ],
+          "outputData" : [ ]
+        }, {
+          "identify" : "STOP",
+          "name" : "停止",
+          "inputData" : [ ],
+          "outputData" : [ ]
+        } ],
+        "events" : [ ]
+      }
+    },
+    "code" : null,
+    "name" : null,
+    "deviceTypeId" : 55,
+    "sceneId" : 28,
+    "protocolType" : "MQTT",
+    "protocolConfig" : null,
+    "deviceLocation" : "1号温室",
+    "devicePosition" : null,
+    "connections" : [ {
+      "id" : 44,
+      "deviceName" : "南水池",
+      "position" : "端1"
+    }, {
+      "id" : 53,
+      "deviceName" : "鱼塘",
+      "position" : "端2"
+    } ],
+    "intelligent" : false
+  }, {
+    "id" : 43,
+    "deviceCode" : "Valve4",
+    "deviceName" : "4号阀",
+    "deviceType" : {
+      "id" : 55,
+      "code" : "Valve",
+      "name" : "水阀",
+      "description" : " 控制液体在管道中流动的状态",
+      "createTime" : 1751872825000,
+      "updateTime" : 1753411895000,
+      "model" : {
+        "properties" : [ {
+          "identify" : "STATE",
+          "name" : "开关状态",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "bool",
+            "specs" : {
+              "0" : "关",
+              "1" : "开"
+            }
+          }
+        }, {
+          "identify" : "OBJECT1",
+          "name" : "端1",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "string",
+            "specs" : {
+              "length" : "255"
+            }
+          }
+        }, {
+          "identify" : "OBJECT2",
+          "name" : "端2",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "string",
+            "specs" : {
+              "length" : "255"
+            }
+          }
+        } ],
+        "services" : [ {
+          "identify" : "START",
+          "name" : "启动",
+          "inputData" : [ ],
+          "outputData" : [ ]
+        }, {
+          "identify" : "STOP",
+          "name" : "停止",
+          "inputData" : [ ],
+          "outputData" : [ ]
+        } ],
+        "events" : [ ]
+      }
+    },
+    "code" : null,
+    "name" : null,
+    "deviceTypeId" : 55,
+    "sceneId" : 28,
+    "protocolType" : "MQTT",
+    "protocolConfig" : null,
+    "deviceLocation" : "1号温室",
+    "devicePosition" : null,
+    "connections" : [ {
+      "id" : 45,
+      "deviceName" : "北水池",
+      "position" : "端1"
+    }, {
+      "id" : 53,
+      "deviceName" : "鱼塘",
+      "position" : "端2"
+    } ],
+    "intelligent" : false
+  }, {
+    "id" : 44,
+    "deviceCode" : "Pool1",
+    "deviceName" : "南水池",
+    "deviceType" : {
+      "id" : 59,
+      "code" : "WaterStorageArea",
+      "name" : "蓄水区域",
+      "description" : "储存水的空间或场所",
+      "createTime" : 1751873412000,
+      "updateTime" : 1751873493000,
+      "model" : {
+        "properties" : [ ],
+        "services" : [ ],
+        "events" : [ ]
+      }
+    },
+    "code" : null,
+    "name" : null,
+    "deviceTypeId" : 59,
+    "sceneId" : 28,
+    "protocolType" : "MQTT",
+    "protocolConfig" : null,
+    "deviceLocation" : "1号温室",
+    "devicePosition" : null,
+    "connections" : [ ],
+    "intelligent" : true
+  }, {
+    "id" : 45,
+    "deviceCode" : "Pool2",
+    "deviceName" : "北水池",
+    "deviceType" : {
+      "id" : 59,
+      "code" : "WaterStorageArea",
+      "name" : "蓄水区域",
+      "description" : "储存水的空间或场所",
+      "createTime" : 1751873412000,
+      "updateTime" : 1751873493000,
+      "model" : {
+        "properties" : [ ],
+        "services" : [ ],
+        "events" : [ ]
+      }
+    },
+    "code" : null,
+    "name" : null,
+    "deviceTypeId" : 59,
+    "sceneId" : 28,
+    "protocolType" : "MQTT",
+    "protocolConfig" : null,
+    "deviceLocation" : "1号温室",
+    "devicePosition" : null,
+    "connections" : [ ],
+    "intelligent" : true
+  }, {
+    "id" : 46,
+    "deviceCode" : "PlantingTrough1",
+    "deviceName" : "南种植槽",
+    "deviceType" : {
+      "id" : 61,
+      "code" : "PlantingTrough",
+      "name" : "种植槽",
+      "description" : "用来栽种植物的槽状容器，可用于农业、园艺、屋顶绿化、温室、立体种植、无土栽培等",
+      "createTime" : 1751873580000,
+      "updateTime" : null,
+      "model" : null
+    },
+    "code" : null,
+    "name" : null,
+    "deviceTypeId" : 61,
+    "sceneId" : 28,
+    "protocolType" : "MQTT",
+    "protocolConfig" : null,
+    "deviceLocation" : "1号温室",
+    "devicePosition" : null,
+    "connections" : [ ],
+    "intelligent" : true
+  }, {
+    "id" : 47,
+    "deviceCode" : "PlantingTrough2",
+    "deviceName" : "北种植槽",
+    "deviceType" : {
+      "id" : 61,
+      "code" : "PlantingTrough",
+      "name" : "种植槽",
+      "description" : "用来栽种植物的槽状容器，可用于农业、园艺、屋顶绿化、温室、立体种植、无土栽培等",
+      "createTime" : 1751873580000,
+      "updateTime" : null,
+      "model" : null
+    },
+    "code" : null,
+    "name" : null,
+    "deviceTypeId" : 61,
+    "sceneId" : 28,
+    "protocolType" : "MQTT",
+    "protocolConfig" : null,
+    "deviceLocation" : "1号温室",
+    "devicePosition" : null,
+    "connections" : [ ],
+    "intelligent" : true
+  }, {
+    "id" : 48,
+    "deviceCode" : "Pump1",
+    "deviceName" : "主水泵",
+    "deviceType" : {
+      "id" : 54,
+      "code" : "Pump",
+      "name" : "水泵",
+      "description" : "控制液体在管道中流动的状态",
+      "createTime" : 1751872751000,
+      "updateTime" : 1762389379000,
+      "model" : {
+        "properties" : [ {
+          "identify" : "OBJECT1",
+          "name" : "入口",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "object",
+            "specs" : {
+              "max" : "100",
+              "min" : "0",
+              "step" : "1",
+              "unit" : ""
+            }
+          }
+        }, {
+          "identify" : "OBJECT2",
+          "name" : "出口",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "object",
+            "specs" : {
+              "max" : "100",
+              "min" : "0",
+              "step" : "1",
+              "unit" : ""
+            }
+          }
+        }, {
+          "identify" : "STATE",
+          "name" : "开关状态",
+          "accessMode" : "r",
+          "dataType" : {
+            "type" : "bool",
+            "specs" : {
+              "0" : "关",
+              "1" : "开"
+            }
+          }
+        } ],
+        "services" : [ {
+          "identify" : "START",
+          "name" : "启动",
+          "inputData" : [ ],
+          "outputData" : [ ]
+        }, {
+          "identify" : "STOP",
+          "name" : "停止",
+          "inputData" : [ ],
+          "outputData" : [ ]
+        } ],
+        "events" : [ ]
+      }
+    },
+    "code" : null,
+    "name" : null,
+    "deviceTypeId" : 54,
+    "sceneId" : 28,
+    "protocolType" : "MQTT",
+    "protocolConfig" : null,
+    "deviceLocation" : "1号温室",
+    "devicePosition" : null,
+    "connections" : [ {
+      "id" : 52,
+      "deviceName" : "一体机",
+      "position" : "入口"
+    }, {
+      "id" : 53,
+      "deviceName" : "鱼塘",
+      "position" : "出口"
+    } ],
+    "intelligent" : false
+  }, {
+    "id" : 49,
+    "deviceCode" : "Pump2",
+    "deviceName" : "备用水泵",
+    "deviceType" : {
+      "id" : 54,
+      "code" : "Pump",
+      "name" : "水泵",
+      "description" : "控制液体在管道中流动的状态",
+      "createTime" : 1751872751000,
+      "updateTime" : 1762389379000,
+      "model" : {
+        "properties" : [ {
+          "identify" : "OBJECT1",
+          "name" : "入口",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "object",
+            "specs" : {
+              "max" : "100",
+              "min" : "0",
+              "step" : "1",
+              "unit" : ""
+            }
+          }
+        }, {
+          "identify" : "OBJECT2",
+          "name" : "出口",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "object",
+            "specs" : {
+              "max" : "100",
+              "min" : "0",
+              "step" : "1",
+              "unit" : ""
+            }
+          }
+        }, {
+          "identify" : "STATE",
+          "name" : "开关状态",
+          "accessMode" : "r",
+          "dataType" : {
+            "type" : "bool",
+            "specs" : {
+              "0" : "关",
+              "1" : "开"
+            }
+          }
+        } ],
+        "services" : [ {
+          "identify" : "START",
+          "name" : "启动",
+          "inputData" : [ ],
+          "outputData" : [ ]
+        }, {
+          "identify" : "STOP",
+          "name" : "停止",
+          "inputData" : [ ],
+          "outputData" : [ ]
+        } ],
+        "events" : [ ]
+      }
+    },
+    "code" : null,
+    "name" : null,
+    "deviceTypeId" : 54,
+    "sceneId" : 28,
+    "protocolType" : "MQTT",
+    "protocolConfig" : null,
+    "deviceLocation" : "1号温室",
+    "devicePosition" : null,
+    "connections" : [ {
+      "id" : 52,
+      "deviceName" : "一体机",
+      "position" : "入口"
+    }, {
+      "id" : 53,
+      "deviceName" : "鱼塘",
+      "position" : "出口"
+    } ],
+    "intelligent" : false
+  }, {
+    "id" : 50,
+    "deviceCode" : "OxygenConcentrator",
+    "deviceName" : "制氧机",
+    "deviceType" : {
+      "id" : 57,
+      "code" : "OxygenConcentrator",
+      "name" : "制氧机",
+      "description" : "制造并提供氧气",
+      "createTime" : 1751873200000,
+      "updateTime" : 1751873244000,
+      "model" : {
+        "properties" : [ {
+          "identify" : "LINK",
+          "name" : "氧气出口",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "bool",
+            "specs" : {
+              "0" : "关",
+              "1" : "开"
+            }
+          }
+        } ],
+        "services" : [ ],
+        "events" : [ ]
+      }
+    },
+    "code" : null,
+    "name" : null,
+    "deviceTypeId" : 57,
+    "sceneId" : 28,
+    "protocolType" : "MQTT",
+    "protocolConfig" : null,
+    "deviceLocation" : "1号温室",
+    "devicePosition" : null,
+    "connections" : [ {
+      "id" : 53,
+      "deviceName" : "鱼塘",
+      "position" : "氧气出口"
+    } ],
+    "intelligent" : false
+  }, {
+    "id" : 51,
+    "deviceCode" : "FishFeedDispenser",
+    "deviceName" : "投饵机",
+    "deviceType" : {
+      "id" : 56,
+      "code" : "FishFeedDispenser",
+      "name" : "鱼饲料投喂机",
+      "description" : "给鱼塘中的鱼类提供饵料",
+      "createTime" : 1751873060000,
+      "updateTime" : 1751880791000,
+      "model" : {
+        "properties" : [ {
+          "identify" : "LINK",
+          "name" : "投喂口",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "string",
+            "specs" : {
+              "length" : "255"
+            }
+          }
+        } ],
+        "services" : [ ],
+        "events" : [ ]
+      }
+    },
+    "code" : null,
+    "name" : null,
+    "deviceTypeId" : 56,
+    "sceneId" : 28,
+    "protocolType" : "MQTT",
+    "protocolConfig" : null,
+    "deviceLocation" : "1号温室",
+    "devicePosition" : null,
+    "connections" : [ {
+      "id" : 53,
+      "deviceName" : "鱼塘",
+      "position" : "投喂口"
+    } ],
+    "intelligent" : false
+  }, {
+    "id" : 52,
+    "deviceCode" : "IntegratedMachine",
+    "deviceName" : "一体机",
+    "deviceType" : {
+      "id" : 58,
+      "code" : "IntegratedMachine",
+      "name" : "一体机",
+      "description" : "灌溉水过滤和杀菌一体机",
+      "createTime" : 1751873307000,
+      "updateTime" : 1752113984000,
+      "model" : {
+        "properties" : [ {
+          "identify" : "LINK_IN",
+          "name" : "入口",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "string",
+            "specs" : {
+              "length" : "255"
+            }
+          }
+        }, {
+          "identify" : "LINK_OUT",
+          "name" : "出口",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "string",
+            "specs" : {
+              "length" : "255"
+            }
+          }
+        } ],
+        "services" : [ {
+          "identify" : "start",
+          "name" : "启动",
+          "inputData" : [ ],
+          "outputData" : [ ]
+        }, {
+          "identify" : "stop",
+          "name" : "停止",
+          "inputData" : [ ],
+          "outputData" : [ ]
+        } ],
+        "events" : [ ]
+      }
+    },
+    "code" : null,
+    "name" : null,
+    "deviceTypeId" : 58,
+    "sceneId" : 28,
+    "protocolType" : "MQTT",
+    "protocolConfig" : null,
+    "deviceLocation" : "1号温室",
+    "devicePosition" : null,
+    "connections" : [ ],
+    "intelligent" : true
+  }, {
+    "id" : 53,
+    "deviceCode" : "FishPool",
+    "deviceName" : "鱼塘",
+    "deviceType" : {
+      "id" : 60,
+      "code" : "FishPond",
+      "name" : "鱼塘",
+      "description" : "饲养鱼类",
+      "createTime" : 1751873477000,
+      "updateTime" : null,
+      "model" : null
+    },
+    "code" : null,
+    "name" : null,
+    "deviceTypeId" : 60,
+    "sceneId" : 28,
+    "protocolType" : "MQTT",
+    "protocolConfig" : null,
+    "deviceLocation" : "1号温室",
+    "devicePosition" : null,
+    "connections" : [ ],
+    "intelligent" : true
+  }, {
+    "id" : 56,
+    "deviceCode" : "Connector1",
+    "deviceName" : "连接器1",
+    "deviceType" : {
+      "id" : 65,
+      "code" : "Pipe",
+      "name" : "管道",
+      "description" : "水管连通设备",
+      "createTime" : 1752129591000,
+      "updateTime" : 1752473552000,
+      "model" : {
+        "properties" : [ {
+          "identify" : "LINK",
+          "name" : "端1",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "int",
+            "specs" : {
+              "max" : "100",
+              "min" : "0",
+              "step" : "1",
+              "unit" : ""
+            }
+          }
+        }, {
+          "identify" : "LINK",
+          "name" : "端2",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "int",
+            "specs" : {
+              "max" : "100",
+              "min" : "0",
+              "step" : "1",
+              "unit" : ""
+            }
+          }
+        } ],
+        "services" : [ ],
+        "events" : [ ]
+      }
+    },
+    "code" : null,
+    "name" : null,
+    "deviceTypeId" : 65,
+    "sceneId" : 28,
+    "protocolType" : "MQTT",
+    "protocolConfig" : null,
+    "deviceLocation" : "1号温室",
+    "devicePosition" : null,
+    "connections" : [ ],
+    "intelligent" : false
+  }, {
+    "id" : 57,
+    "deviceCode" : "Connector2",
+    "deviceName" : "连接器2",
+    "deviceType" : {
+      "id" : 65,
+      "code" : "Pipe",
+      "name" : "管道",
+      "description" : "水管连通设备",
+      "createTime" : 1752129591000,
+      "updateTime" : 1752473552000,
+      "model" : {
+        "properties" : [ {
+          "identify" : "LINK",
+          "name" : "端1",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "int",
+            "specs" : {
+              "max" : "100",
+              "min" : "0",
+              "step" : "1",
+              "unit" : ""
+            }
+          }
+        }, {
+          "identify" : "LINK",
+          "name" : "端2",
+          "accessMode" : "rw",
+          "dataType" : {
+            "type" : "int",
+            "specs" : {
+              "max" : "100",
+              "min" : "0",
+              "step" : "1",
+              "unit" : ""
+            }
+          }
+        } ],
+        "services" : [ ],
+        "events" : [ ]
+      }
+    },
+    "code" : null,
+    "name" : null,
+    "deviceTypeId" : 65,
+    "sceneId" : 28,
+    "protocolType" : "MQTT",
+    "protocolConfig" : null,
+    "deviceLocation" : "1号温室",
+    "devicePosition" : null,
+    "connections" : [ ],
+    "intelligent" : false
+  } ]
+}
