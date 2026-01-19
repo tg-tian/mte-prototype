@@ -11,6 +11,7 @@ import org.springframework.util.StreamUtils;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 @Service
 public class DeviceLibraryBusiness extends ServiceImpl<DeviceLibraryMapper, DeviceLibrary> {
@@ -18,7 +19,7 @@ public class DeviceLibraryBusiness extends ServiceImpl<DeviceLibraryMapper, Devi
     public String getMapperContent(String provider, String category, String deviceModel) {
         QueryWrapper<DeviceLibrary> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("provider", provider)
-                    .eq("category", category)
+                    .eq("device_type_name", category)
                     .eq("device_model", deviceModel);
         
         DeviceLibrary deviceLibrary = this.getOne(queryWrapper);
@@ -42,5 +43,9 @@ public class DeviceLibraryBusiness extends ServiceImpl<DeviceLibraryMapper, Devi
         } catch (IOException e) {
             throw new RuntimeException("读取Mapper文件失败", e);
         }
+    }
+
+    public List<DeviceLibrary> listAll() {
+        return this.list();
     }
 }

@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("device_library")
+@TableName("device_library1")
 @Entity
 @ApiModel(value = "设备库", description = "设备库信息")
 public class DeviceLibrary {
@@ -27,9 +27,13 @@ public class DeviceLibrary {
     @ApiModelProperty(value = "设备厂商")
     private String provider;
 
-    @Column(nullable = false)
-    @ApiModelProperty(value = "设备分类")
-    private String category;
+    @Column(name = "deviceType_id", nullable = false)
+    @ApiModelProperty(value = "设备类型ID")
+    private Long deviceTypeId;
+
+    @Column(name = "deviceType_name")
+    @ApiModelProperty(value = "设备类型名称")
+    private String deviceTypeName;
 
     @Column(name = "device_model", nullable = false)
     @ApiModelProperty(value = "设备型号")
