@@ -1,7 +1,7 @@
 <template>
   <div class="component-list-container">
     <div class="component-header">
-      <h2>组件列表</h2>
+      <h2>组件类型</h2>
       <el-button type="primary" @click="navigateToComponentSetting()">创建组件</el-button>
     </div>
     

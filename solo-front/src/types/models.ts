@@ -74,6 +74,19 @@ export interface DeviceType {
     model: Model
 }
 
+//设备型号
+export interface DeviceModel {
+    id: number;
+    code: string;
+    name: string;
+    deviceTypeId: number;
+    deviceType?: DeviceType; //获取设备型号时会返回
+    mapper: Record<string, any>; // mapper配置
+    description: string;
+    createTime: string;
+    updateTime: string;
+}
+
 export interface Model {
     properties: Array<Property>
     services: Array<Service>

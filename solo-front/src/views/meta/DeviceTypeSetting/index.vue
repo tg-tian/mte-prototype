@@ -8,122 +8,127 @@
       </div>
     </div>
 
+    <!-- 基本信息表单 - 提到最上面 -->
+    <el-card class="basic-info-card">
+      <el-form 
+        :model="deviceTypeForm" 
+        :rules="basicRules"
+        ref="deviceTypeFormRef"
+        label-width="120px">
+        <el-form-item label="设备类型编码" prop="code">
+          <el-input v-model="deviceTypeForm.code" placeholder="请输入设备类型编码"></el-input>
+        </el-form-item>
+        <el-form-item label="设备类型名称" prop="name">
+          <el-input v-model="deviceTypeForm.name" placeholder="请输入设备类型名称"></el-input>
+        </el-form-item>
+        <el-form-item label="设备类型描述" prop="description">
+          <el-input type="textarea" :rows="3" v-model="deviceTypeForm.description" placeholder="请输入设备类型描述"></el-input>
+        </el-form-item>
+      </el-form>
+    </el-card>
+
+    <!-- Tab页面：属性、服务、事件 -->
     <el-card class="setting-content">
       <el-tabs v-model="activeTab">
-        <el-tab-pane label="基本信息" name="basic">
-          <el-form 
-            :model="deviceTypeForm" 
-            :rules="basicRules"
-            ref="deviceTypeFormRef"
-            label-width="120px">
-            <el-form-item label="设备类型编码" prop="code">
-              <el-input v-model="deviceTypeForm.code" placeholder="请输入设备类型编码"></el-input>
-            </el-form-item>
-            <el-form-item label="设备类型名称" prop="name">
-              <el-input v-model="deviceTypeForm.name" placeholder="请输入设备类型名称"></el-input>
-            </el-form-item>
-            <el-form-item label="设备类型描述" prop="description">
-              <el-input type="textarea" :rows="3" v-model="deviceTypeForm.description" placeholder="请输入设备类型描述"></el-input>
-            </el-form-item>
-          </el-form>
+        <el-tab-pane label="属性" name="property" :disabled="!isEditMode && !currentDeviceTypeId">
+          <div v-if="isEditMode || currentDeviceTypeId">
+            <div class="section-header">
+              <h3>属性</h3>
+              <div class="section-actions">
+                <el-button type="primary" size="small" @click="addProperty">添加属性</el-button>
+                <el-button type="primary" size="small" @click="showModelJson">查看JSON</el-button>
+              </div>
+            </div>
+            
+            <el-table :data="modelForm.properties" border style="width: 100%; margin-top: 10px;">
+              <el-table-column prop="identify" label="标识符" width="180"></el-table-column>
+              <el-table-column prop="name" label="名称" width="180"></el-table-column>
+              <el-table-column prop="accessMode" label="读写类型" width="120">
+                <template #default="scope">
+                  {{ getAccessModeText(scope.row.accessMode) }}
+                </template>
+              </el-table-column>
+              <el-table-column prop="dataType.type" label="数据类型" width="120">
+                <template #default="scope">
+                  {{ getDataTypeLabel(scope.row.dataType.type) }}
+                </template>
+              </el-table-column>
+              <el-table-column prop="dataType.specs" label="规格">
+                <template #default="scope">
+                  {{ formatDataTypeSpecs(scope.row.dataType) }}
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" width="150">
+                <template #default="scope">
+                  <el-button type="primary" size="small" @click="editProperty(scope.row, scope.$index)">编辑</el-button>
+                  <el-button type="danger" size="small" @click="removeProperty(scope.$index)">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+            
+            <el-empty v-if="modelForm.properties.length === 0" description="暂无属性"></el-empty>
+          </div>
         </el-tab-pane>
         
-        <el-tab-pane label="模型定义" name="model" :disabled="!isEditMode && !currentDeviceTypeId">
+        <el-tab-pane label="服务" name="service" :disabled="!isEditMode && !currentDeviceTypeId">
           <div v-if="isEditMode || currentDeviceTypeId">
-            <!-- 属性定义 -->
-            <div class="model-section">
-              <div class="section-header">
-                <h3>属性</h3>
-                <div class="section-actions">
-                  <el-button type="primary" size="small" @click="addProperty">添加属性</el-button>
-                  <el-button type="primary" size="small" @click="showModelJson">查看JSON</el-button>
-                </div>
-              </div>
-              
-              <el-table :data="modelForm.properties" border style="width: 100%; margin-top: 10px;">
-                <el-table-column prop="identify" label="标识符" width="180"></el-table-column>
-                <el-table-column prop="name" label="名称" width="180"></el-table-column>
-                <el-table-column prop="accessMode" label="读写类型" width="120">
-                  <template #default="scope">
-                    {{ getAccessModeText(scope.row.accessMode) }}
-                  </template>
-                </el-table-column>
-                <el-table-column prop="dataType.type" label="数据类型" width="120"></el-table-column>
-                <el-table-column prop="dataType.specs" label="规格">
-                  <template #default="scope">
-                    {{ formatDataTypeSpecs(scope.row.dataType) }}
-                  </template>
-                </el-table-column>
-                <el-table-column label="操作" width="150">
-                  <template #default="scope">
-                    <el-button type="primary" size="small" @click="editProperty(scope.row, scope.$index)">编辑</el-button>
-                    <el-button type="danger" size="small" @click="removeProperty(scope.$index)">删除</el-button>
-                  </template>
-                </el-table-column>
-              </el-table>
-              
-              <el-empty v-if="modelForm.properties.length === 0" description="暂无属性"></el-empty>
+            <div class="section-header">
+              <h3>服务</h3>
+              <el-button type="primary" size="small" @click="addService">添加服务</el-button>
             </div>
+            <el-table :data="modelForm.services" border style="width: 100%; margin-top: 10px;">
+              <el-table-column prop="identify" label="标识符" width="180"></el-table-column>
+              <el-table-column prop="name" label="名称" width="180"></el-table-column>
+              <el-table-column label="输入参数" width="120">
+                <template #default="scope">
+                  {{ scope.row.inputData.length }} 个参数
+                </template>
+              </el-table-column>
+              <el-table-column label="输出参数" width="120">
+                <template #default="scope">
+                  {{ scope.row.outputData.length }} 个参数
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" width="150">
+                <template #default="scope">
+                  <el-button type="primary" size="small" @click="editService(scope.row, scope.$index)">编辑</el-button>
+                  <el-button type="danger" size="small" @click="removeService(scope.$index)">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
             
-            <!-- 服务定义 -->
-            <div class="model-section">
-              <div class="section-header">
-                <h3>服务</h3>
-                <el-button type="primary" size="small" @click="addService">添加服务</el-button>
-              </div>
-              <el-table :data="modelForm.services" border style="width: 100%; margin-top: 10px;">
-                <el-table-column prop="identify" label="标识符" width="180"></el-table-column>
-                <el-table-column prop="name" label="名称" width="180"></el-table-column>
-                <el-table-column label="输入参数" width="120">
-                  <template #default="scope">
-                    {{ scope.row.inputData.length }} 个参数
-                  </template>
-                </el-table-column>
-                <el-table-column label="输出参数" width="120">
-                  <template #default="scope">
-                    {{ scope.row.outputData.length }} 个参数
-                  </template>
-                </el-table-column>
-                <el-table-column label="操作" width="150">
-                  <template #default="scope">
-                    <el-button type="primary" size="small" @click="editService(scope.row, scope.$index)">编辑</el-button>
-                    <el-button type="danger" size="small" @click="removeService(scope.$index)">删除</el-button>
-                  </template>
-                </el-table-column>
-              </el-table>
-              
-              <el-empty v-if="modelForm.services.length === 0" description="暂无服务"></el-empty>
+            <el-empty v-if="modelForm.services.length === 0" description="暂无服务"></el-empty>
+          </div>
+        </el-tab-pane>
+        
+        <el-tab-pane label="事件" name="event" :disabled="!isEditMode && !currentDeviceTypeId">
+          <div v-if="isEditMode || currentDeviceTypeId">
+            <div class="section-header">
+              <h3>事件</h3>
+              <el-button type="primary" size="small" @click="addEvent">添加事件</el-button>
             </div>
+            <el-table :data="modelForm.events" border style="width: 100%; margin-top: 10px;">
+              <el-table-column prop="identify" label="标识符" width="180"></el-table-column>
+              <el-table-column prop="name" label="名称" width="180"></el-table-column>
+              <el-table-column prop="type" label="事件类型" width="120">
+                <template #default="scope">
+                  <el-tag :type="getEventTypeTag(scope.row.type)">{{ getEventTypeText(scope.row.type) }}</el-tag>
+                </template>
+              </el-table-column>
+              <el-table-column label="输出参数" width="120">
+                <template #default="scope">
+                  {{ scope.row.outputData.length }} 个参数
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" width="150">
+                <template #default="scope">
+                  <el-button type="primary" size="small" @click="editEvent(scope.row, scope.$index)">编辑</el-button>
+                  <el-button type="danger" size="small" @click="removeEvent(scope.$index)">删除</el-button>
+                </template>
+              </el-table-column>
+            </el-table>
             
-            <!-- 事件定义 -->
-            <div class="model-section">
-              <div class="section-header">
-                <h3>事件</h3>
-                <el-button type="primary" size="small" @click="addEvent">添加事件</el-button>
-              </div>
-              <el-table :data="modelForm.events" border style="width: 100%; margin-top: 10px;">
-                <el-table-column prop="identify" label="标识符" width="180"></el-table-column>
-                <el-table-column prop="name" label="名称" width="180"></el-table-column>
-                <el-table-column prop="type" label="事件类型" width="120">
-                  <template #default="scope">
-                    <el-tag :type="getEventTypeTag(scope.row.type)">{{ getEventTypeText(scope.row.type) }}</el-tag>
-                  </template>
-                </el-table-column>
-                <el-table-column label="输出参数" width="120">
-                  <template #default="scope">
-                    {{ scope.row.outputData.length }} 个参数
-                  </template>
-                </el-table-column>
-                <el-table-column label="操作" width="150">
-                  <template #default="scope">
-                    <el-button type="primary" size="small" @click="editEvent(scope.row, scope.$index)">编辑</el-button>
-                    <el-button type="danger" size="small" @click="removeEvent(scope.$index)">删除</el-button>
-                  </template>
-                </el-table-column>
-              </el-table>
-              
-              <el-empty v-if="modelForm.events.length === 0" description="暂无事件"></el-empty>
-            </div>
+            <el-empty v-if="modelForm.events.length === 0" description="暂无事件"></el-empty>
           </div>
         </el-tab-pane>
       </el-tabs>
@@ -147,37 +152,102 @@
         </el-form-item>
         <el-form-item label="数据类型" prop="dataType.type">
           <el-select v-model="propertyForm.dataType.type" placeholder="请选择数据类型" @change="handleDataTypeChange">
-            <el-option label="整数" value="int"></el-option>
-            <el-option label="浮点数" value="float"></el-option>
-            <el-option label="布尔值" value="bool"></el-option>
-            <el-option label="字符串" value="string"></el-option>
-            <el-option label="枚举" value="enum"></el-option>
-            <el-option label="智能对象" value="object"></el-option>
+            <el-option-group label="字符串类">
+              <el-option label="字符串" value="string"></el-option>
+              <el-option label="邮箱" value="email"></el-option>
+              <el-option label="电话" value="phone"></el-option>
+              <el-option label="URL" value="url"></el-option>
+              <el-option label="IP地址" value="ip"></el-option>
+              <el-option label="JSON" value="json"></el-option>
+              <el-option label="Base64" value="base64"></el-option>
+              <el-option label="Hash" value="hash"></el-option>
+              <el-option label="Markdown文本" value="markdown"></el-option>
+              <el-option label="代码块" value="code"></el-option>
+            </el-option-group>
+            <el-option-group label="数值类">
+              <el-option label="数字" value="number"></el-option>
+              <el-option label="整数" value="integer"></el-option>
+              <el-option label="小数" value="decimal"></el-option>
+              <el-option label="浮点数" value="float"></el-option>
+              <el-option label="整数(兼容)" value="int"></el-option>
+            </el-option-group>
+            <el-option-group label="日期类">
+              <el-option label="日期" value="date"></el-option>
+              <el-option label="日期时间" value="datetime"></el-option>
+              <el-option label="时间" value="time"></el-option>
+            </el-option-group>
+            <el-option-group label="其他类型">
+              <el-option label="布尔值" value="boolean"></el-option>
+              <el-option label="布尔值(兼容)" value="bool"></el-option>
+              <el-option label="UUID" value="uuid"></el-option>
+              <el-option label="枚举" value="enum"></el-option>
+              <el-option label="单选" value="singleSelect"></el-option>
+              <el-option label="多选" value="multiSelect"></el-option>
+              <el-option label="地址" value="address"></el-option>
+              <el-option label="定位" value="location"></el-option>
+              <el-option label="经纬度" value="latlng"></el-option>
+              <el-option label="文件" value="file"></el-option>
+              <el-option label="图片" value="image"></el-option>
+              <el-option label="智能对象" value="object"></el-option>
+            </el-option-group>
           </el-select>
         </el-form-item>
-        <!-- 整数和浮点数的规格 -->
-        <template v-if="propertyForm.dataType.type === 'int' || propertyForm.dataType.type === 'float'">
+        <!-- 数值类型的规格 (int, integer, float, number, decimal) -->
+        <template v-if="['int', 'integer', 'float', 'number', 'decimal'].includes(propertyForm.dataType.type)">
           <el-form-item label="最小值" prop="dataType.specs.min">
-            <el-input-number v-model="propertyForm.dataType.specs.min" :precision="propertyForm.dataType.type === 'float' ? 2 : 0"></el-input-number>
+            <el-input-number v-model="propertyForm.dataType.specs.min" :precision="['float', 'number', 'decimal'].includes(propertyForm.dataType.type) ? 2 : 0"></el-input-number>
           </el-form-item>
           <el-form-item label="最大值" prop="dataType.specs.max">
-            <el-input-number v-model="propertyForm.dataType.specs.max" :precision="propertyForm.dataType.type === 'float' ? 2 : 0"></el-input-number>
+            <el-input-number v-model="propertyForm.dataType.specs.max" :precision="['float', 'number', 'decimal'].includes(propertyForm.dataType.type) ? 2 : 0"></el-input-number>
           </el-form-item>
           <el-form-item label="步长" prop="dataType.specs.step">
-            <el-input-number v-model="propertyForm.dataType.specs.step" :precision="propertyForm.dataType.type === 'float' ? 2 : 0"></el-input-number>
+            <el-input-number v-model="propertyForm.dataType.specs.step" :precision="['float', 'number', 'decimal'].includes(propertyForm.dataType.type) ? 2 : 0"></el-input-number>
           </el-form-item>
           <el-form-item label="单位" prop="dataType.specs.unit">
             <el-input v-model="propertyForm.dataType.specs.unit" placeholder="例如：℃、kg"></el-input>
           </el-form-item>
         </template>
-        <!-- 字符串规格 -->
-        <template v-if="propertyForm.dataType.type === 'string'">
+        <!-- 字符串类型的规格 -->
+        <template v-if="['string', 'email', 'phone', 'url', 'ip', 'json', 'base64', 'hash', 'markdown', 'code'].includes(propertyForm.dataType.type)">
           <el-form-item label="最大长度" prop="dataType.specs.length">
             <el-input-number v-model="propertyForm.dataType.specs['length']" :min="1"></el-input-number>
           </el-form-item>
         </template>
-        <!-- 枚举规格 -->
-        <template v-if="propertyForm.dataType.type === 'enum'">
+        <!-- 日期类型的规格 -->
+        <template v-if="['date', 'datetime', 'time'].includes(propertyForm.dataType.type)">
+          <el-form-item label="格式" prop="dataType.specs.format">
+            <el-input v-model="propertyForm.dataType.specs['format']" :placeholder="propertyForm.dataType.type === 'date' ? '例如：YYYY-MM-DD' : propertyForm.dataType.type === 'datetime' ? '例如：YYYY-MM-DD HH:mm:ss' : '例如：HH:mm:ss'"></el-input>
+          </el-form-item>
+        </template>
+        <!-- 布尔类型的规格 -->
+        <template v-if="['bool', 'boolean'].includes(propertyForm.dataType.type)">
+          <el-form-item label="真值标签" prop="dataType.specs.trueLabel">
+            <el-input v-model="propertyForm.dataType.specs['trueLabel']" placeholder="例如：开"></el-input>
+          </el-form-item>
+          <el-form-item label="假值标签" prop="dataType.specs.falseLabel">
+            <el-input v-model="propertyForm.dataType.specs['falseLabel']" placeholder="例如：关"></el-input>
+          </el-form-item>
+        </template>
+        <!-- 经纬度类型的规格 -->
+        <template v-if="propertyForm.dataType.type === 'latlng'">
+          <el-form-item label="经度范围" prop="dataType.specs.lngRange">
+            <el-input v-model="propertyForm.dataType.specs['lngRange']" placeholder="例如：-180,180"></el-input>
+          </el-form-item>
+          <el-form-item label="纬度范围" prop="dataType.specs.latRange">
+            <el-input v-model="propertyForm.dataType.specs['latRange']" placeholder="例如：-90,90"></el-input>
+          </el-form-item>
+        </template>
+        <!-- 文件/图片类型的规格 -->
+        <template v-if="['file', 'image'].includes(propertyForm.dataType.type)">
+          <el-form-item label="最大文件大小(MB)" prop="dataType.specs.maxSize">
+            <el-input-number v-model="propertyForm.dataType.specs['maxSize']" :min="1"></el-input-number>
+          </el-form-item>
+          <el-form-item label="允许的扩展名" prop="dataType.specs.extensions">
+            <el-input v-model="propertyForm.dataType.specs['extensions']" placeholder="例如：jpg,png,pdf (用逗号分隔)"></el-input>
+          </el-form-item>
+        </template>
+        <!-- 枚举类型的规格 (enum, singleSelect, multiSelect) -->
+        <template v-if="['enum', 'singleSelect', 'multiSelect'].includes(propertyForm.dataType.type)">
           <el-form-item label="枚举值">
             <div v-for="(item, index) in propertyForm.dataType.specs['values']" :key="index" class="enum-item">
               <el-input v-model="item.value" placeholder="值" class="enum-value"></el-input>
@@ -211,7 +281,11 @@
           <el-table :data="serviceForm.inputData" border style="width: 100%; margin-top: 10px;">
             <el-table-column prop="identify" label="标识符" width="150"></el-table-column>
             <el-table-column prop="name" label="名称" width="150"></el-table-column>
-            <el-table-column prop="dataType.type" label="数据类型" width="100"></el-table-column>
+            <el-table-column prop="dataType.type" label="数据类型" width="100">
+              <template #default="scope">
+                {{ getDataTypeLabel(scope.row.dataType.type) }}
+              </template>
+            </el-table-column>
             <el-table-column prop="dataType.specs" label="规格">
               <template #default="scope">
                 {{ formatDataTypeSpecs(scope.row.dataType) }}
@@ -232,7 +306,11 @@
           <el-table :data="serviceForm.outputData" border style="width: 100%; margin-top: 10px;">
             <el-table-column prop="identify" label="标识符" width="150"></el-table-column>
             <el-table-column prop="name" label="名称" width="150"></el-table-column>
-            <el-table-column prop="dataType.type" label="数据类型" width="100"></el-table-column>
+            <el-table-column prop="dataType.type" label="数据类型" width="100">
+              <template #default="scope">
+                {{ getDataTypeLabel(scope.row.dataType.type) }}
+              </template>
+            </el-table-column>
             <el-table-column prop="dataType.specs" label="规格">
               <template #default="scope">
                 {{ formatDataTypeSpecs(scope.row.dataType) }}
@@ -278,7 +356,11 @@
           <el-table :data="eventForm.outputData" border style="width: 100%; margin-top: 10px;">
             <el-table-column prop="identify" label="标识符" width="150"></el-table-column>
             <el-table-column prop="name" label="名称" width="150"></el-table-column>
-            <el-table-column prop="dataType.type" label="数据类型" width="100"></el-table-column>
+            <el-table-column prop="dataType.type" label="数据类型" width="100">
+              <template #default="scope">
+                {{ getDataTypeLabel(scope.row.dataType.type) }}
+              </template>
+            </el-table-column>
             <el-table-column prop="dataType.specs" label="规格">
               <template #default="scope">
                 {{ formatDataTypeSpecs(scope.row.dataType) }}
@@ -313,36 +395,101 @@
         </el-form-item>
         <el-form-item label="数据类型" prop="dataType.type">
           <el-select v-model="paramForm.dataType.type" placeholder="请选择数据类型" @change="handleParamDataTypeChange">
-            <el-option label="整数" value="int"></el-option>
-            <el-option label="浮点数" value="float"></el-option>
-            <el-option label="布尔值" value="bool"></el-option>
-            <el-option label="字符串" value="string"></el-option>
-            <el-option label="枚举" value="enum"></el-option>
+            <el-option-group label="字符串类">
+              <el-option label="字符串" value="string"></el-option>
+              <el-option label="邮箱" value="email"></el-option>
+              <el-option label="电话" value="phone"></el-option>
+              <el-option label="URL" value="url"></el-option>
+              <el-option label="IP地址" value="ip"></el-option>
+              <el-option label="JSON" value="json"></el-option>
+              <el-option label="Base64" value="base64"></el-option>
+              <el-option label="Hash" value="hash"></el-option>
+              <el-option label="Markdown文本" value="markdown"></el-option>
+              <el-option label="代码块" value="code"></el-option>
+            </el-option-group>
+            <el-option-group label="数值类">
+              <el-option label="数字" value="number"></el-option>
+              <el-option label="整数" value="integer"></el-option>
+              <el-option label="小数" value="decimal"></el-option>
+              <el-option label="浮点数" value="float"></el-option>
+              <el-option label="整数(兼容)" value="int"></el-option>
+            </el-option-group>
+            <el-option-group label="日期类">
+              <el-option label="日期" value="date"></el-option>
+              <el-option label="日期时间" value="datetime"></el-option>
+              <el-option label="时间" value="time"></el-option>
+            </el-option-group>
+            <el-option-group label="其他类型">
+              <el-option label="布尔值" value="boolean"></el-option>
+              <el-option label="布尔值(兼容)" value="bool"></el-option>
+              <el-option label="UUID" value="uuid"></el-option>
+              <el-option label="枚举" value="enum"></el-option>
+              <el-option label="单选" value="singleSelect"></el-option>
+              <el-option label="多选" value="multiSelect"></el-option>
+              <el-option label="地址" value="address"></el-option>
+              <el-option label="定位" value="location"></el-option>
+              <el-option label="经纬度" value="latlng"></el-option>
+              <el-option label="文件" value="file"></el-option>
+              <el-option label="图片" value="image"></el-option>
+            </el-option-group>
           </el-select>
         </el-form-item>
-        <!-- 整数和浮点数的规格 -->
-        <template v-if="paramForm.dataType.type === 'int' || paramForm.dataType.type === 'float'">
+        <!-- 数值类型的规格 -->
+        <template v-if="['int', 'integer', 'float', 'number', 'decimal'].includes(paramForm.dataType.type)">
           <el-form-item label="最小值" prop="dataType.specs.min">
-            <el-input-number v-model="paramForm.dataType.specs.min" :precision="paramForm.dataType.type === 'float' ? 2 : 0"></el-input-number>
+            <el-input-number v-model="paramForm.dataType.specs.min" :precision="['float', 'number', 'decimal'].includes(paramForm.dataType.type) ? 2 : 0"></el-input-number>
           </el-form-item>
           <el-form-item label="最大值" prop="dataType.specs.max">
-            <el-input-number v-model="paramForm.dataType.specs.max" :precision="paramForm.dataType.type === 'float' ? 2 : 0"></el-input-number>
+            <el-input-number v-model="paramForm.dataType.specs.max" :precision="['float', 'number', 'decimal'].includes(paramForm.dataType.type) ? 2 : 0"></el-input-number>
           </el-form-item>
           <el-form-item label="步长" prop="dataType.specs.step">
-            <el-input-number v-model="paramForm.dataType.specs.step" :precision="paramForm.dataType.type === 'float' ? 2 : 0"></el-input-number>
+            <el-input-number v-model="paramForm.dataType.specs.step" :precision="['float', 'number', 'decimal'].includes(paramForm.dataType.type) ? 2 : 0"></el-input-number>
           </el-form-item>
           <el-form-item label="单位" prop="dataType.specs.unit">
             <el-input v-model="paramForm.dataType.specs.unit" placeholder="例如：℃、kg"></el-input>
           </el-form-item>
         </template>
-        <!-- 字符串规格 -->
-        <template v-if="paramForm.dataType.type === 'string'">
+        <!-- 字符串类型的规格 -->
+        <template v-if="['string', 'email', 'phone', 'url', 'ip', 'json', 'base64', 'hash', 'markdown', 'code'].includes(paramForm.dataType.type)">
           <el-form-item label="最大长度" prop="dataType.specs.length">
             <el-input-number v-model="paramForm.dataType.specs['length']" :min="1"></el-input-number>
           </el-form-item>
         </template>
-        <!-- 枚举规格 -->
-        <template v-if="paramForm.dataType.type === 'enum'">
+        <!-- 日期类型的规格 -->
+        <template v-if="['date', 'datetime', 'time'].includes(paramForm.dataType.type)">
+          <el-form-item label="格式" prop="dataType.specs.format">
+            <el-input v-model="paramForm.dataType.specs['format']" :placeholder="paramForm.dataType.type === 'date' ? '例如：YYYY-MM-DD' : paramForm.dataType.type === 'datetime' ? '例如：YYYY-MM-DD HH:mm:ss' : '例如：HH:mm:ss'"></el-input>
+          </el-form-item>
+        </template>
+        <!-- 布尔类型的规格 -->
+        <template v-if="['bool', 'boolean'].includes(paramForm.dataType.type)">
+          <el-form-item label="真值标签" prop="dataType.specs.trueLabel">
+            <el-input v-model="paramForm.dataType.specs['trueLabel']" placeholder="例如：开"></el-input>
+          </el-form-item>
+          <el-form-item label="假值标签" prop="dataType.specs.falseLabel">
+            <el-input v-model="paramForm.dataType.specs['falseLabel']" placeholder="例如：关"></el-input>
+          </el-form-item>
+        </template>
+        <!-- 经纬度类型的规格 -->
+        <template v-if="paramForm.dataType.type === 'latlng'">
+          <el-form-item label="经度范围" prop="dataType.specs.lngRange">
+            <el-input v-model="paramForm.dataType.specs['lngRange']" placeholder="例如：-180,180"></el-input>
+          </el-form-item>
+          <el-form-item label="纬度范围" prop="dataType.specs.latRange">
+            <el-input v-model="paramForm.dataType.specs['latRange']" placeholder="例如：-90,90"></el-input>
+          </el-form-item>
+        </template>
+        <!-- 文件/图片类型的规格 -->
+        <template v-if="['file', 'image'].includes(paramForm.dataType.type)">
+          <el-form-item label="最大文件大小(MB)" prop="dataType.specs.maxSize">
+            <el-input-number v-model="paramForm.dataType.specs['maxSize']" :min="1"></el-input-number>
+          </el-form-item>
+          <el-form-item label="允许的扩展名" prop="dataType.specs.extensions">
+            <el-input v-model="paramForm.dataType.specs['extensions']" placeholder="例如：jpg,png,pdf (用逗号分隔)"></el-input>
+          </el-form-item>
+        </template>
+        <!-- 枚举类型的规格 -->
+        <template v-if="['enum', 'singleSelect', 'multiSelect'].includes(paramForm.dataType.type)">
           <el-form-item label="枚举值">
             <div v-for="(item, index) in paramForm.dataType.specs['values']" :key="index" class="enum-item">
               <el-input v-model="item.value" placeholder="值" class="enum-value"></el-input>
@@ -386,6 +533,50 @@ const router = useRouter()
 const route = useRoute()
 const deviceTypeStore = useDeviceTypeStore()
 
+// 数据类型配置
+const dataTypeOptions = [
+  // 字符串类
+  { label: '字符串', value: 'string' },
+  { label: '邮箱', value: 'email' },
+  { label: '电话', value: 'phone' },
+  { label: 'URL', value: 'url' },
+  { label: 'IP地址', value: 'ip' },
+  { label: 'JSON', value: 'json' },
+  { label: 'Base64', value: 'base64' },
+  { label: 'Hash', value: 'hash' },
+  { label: 'Markdown文本', value: 'markdown' },
+  { label: '代码块', value: 'code' },
+  // 数值类
+  { label: '数字', value: 'number' },
+  { label: '整数', value: 'integer' },
+  { label: '小数', value: 'decimal' },
+  { label: '浮点数', value: 'float' },
+  // 日期类
+  { label: '日期', value: 'date' },
+  { label: '日期时间', value: 'datetime' },
+  { label: '时间', value: 'time' },
+  // 布尔类
+  { label: '布尔值', value: 'boolean' },
+  // 标识符类
+  { label: 'UUID', value: 'uuid' },
+  // 枚举类
+  { label: '枚举', value: 'enum' },
+  { label: '单选', value: 'singleSelect' },
+  { label: '多选', value: 'multiSelect' },
+  // 地理/地址类
+  { label: '地址', value: 'address' },
+  { label: '定位', value: 'location' },
+  { label: '经纬度', value: 'latlng' },
+  // 文件/媒体类
+  { label: '文件', value: 'file' },
+  { label: '图片', value: 'image' },
+  // 智能对象（保留原有的）
+  { label: '智能对象', value: 'object' },
+  // 兼容旧版本
+  { label: '整数', value: 'int' },
+  { label: '布尔值', value: 'bool' },
+]
+
 // 表单引用
 const deviceTypeFormRef = ref<FormInstance>()
 const propertyFormRef = ref<FormInstance>()
@@ -395,7 +586,7 @@ const paramFormRef = ref<FormInstance>()
 
 // 状态
 const state = reactive({
-  activeTab: 'basic',
+  activeTab: 'property',
   deviceTypeForm: {
     code: '',
     name: '',
@@ -459,8 +650,7 @@ const state = reactive({
   editingEventIndex: -1,
   editingParamIndex: -1,
   editingParamType: '' as 'input' | 'output' | 'event',
-  tempId: null as number | null , // 临时ID，用于在创建设备类型后添加模型
-  currentDeviceTypeId:null        // 临时ID，用于在创建设备类型后添加模型
+  currentDeviceTypeId: null as number | null  // 创建设备类型后获得的ID，用于保存模型
 })
 
 // 计算属性
@@ -468,7 +658,7 @@ const {
   activeTab, deviceTypeForm, modelForm, propertyForm, serviceForm, eventForm, paramForm,
   submitting, propertyDialogVisible, serviceDialogVisible, eventDialogVisible, paramDialogVisible,
   isPropertyEdit, isServiceEdit, isEventEdit, isParamEdit, editingPropertyIndex, editingServiceIndex,
-  editingEventIndex, editingParamIndex, editingParamType, tempId,currentDeviceTypeId
+  editingEventIndex, editingParamIndex, editingParamType, currentDeviceTypeId
 } = toRefs(state)
 
 // 确定是否是编辑模式
@@ -552,47 +742,93 @@ const paramRules = {
 
 // 处理数据类型变化
 const handleDataTypeChange = (type: string) => {
-  switch(type) {
-    case 'int':
-      propertyForm.value.dataType.specs = { min: 0, max: 100, step: 1, unit: '' }
-      break
-    case 'float':
-      propertyForm.value.dataType.specs = { min: 0.0, max: 100.0, step: 0.1, unit: '' }
-      break
-    case 'bool':
-      propertyForm.value.dataType.specs = { '0': '关', '1': '开' }
-      break
-    case 'string':
-      propertyForm.value.dataType.specs = { length: 255 }
-      break
-    case 'enum':
-      propertyForm.value.dataType.specs = { values: [{ value: '0', label: '选项1' }] }
-      break
-    default:
-      propertyForm.value.dataType.specs = { min: 0, max: 100, step: 1, unit: '' }
+  // 数值类型
+  if (['int', 'integer', 'number'].includes(type)) {
+    propertyForm.value.dataType.specs = { min: 0, max: 100, step: 1, unit: '' }
+  } else if (['float', 'decimal'].includes(type)) {
+    propertyForm.value.dataType.specs = { min: 0.0, max: 100.0, step: 0.1, unit: '' }
+  }
+  // 字符串类型
+  else if (['string', 'email', 'phone', 'url', 'ip', 'json', 'base64', 'hash', 'markdown', 'code'].includes(type)) {
+    propertyForm.value.dataType.specs = { length: 255 }
+  }
+  // 布尔类型
+  else if (['bool', 'boolean'].includes(type)) {
+    propertyForm.value.dataType.specs = { trueLabel: '开', falseLabel: '关' }
+  }
+  // 枚举类型
+  else if (['enum', 'singleSelect', 'multiSelect'].includes(type)) {
+    propertyForm.value.dataType.specs = { values: [{ value: '0', label: '选项1' }] }
+  }
+  // 日期类型
+  else if (type === 'date') {
+    propertyForm.value.dataType.specs = { format: 'YYYY-MM-DD' }
+  } else if (type === 'datetime') {
+    propertyForm.value.dataType.specs = { format: 'YYYY-MM-DD HH:mm:ss' }
+  } else if (type === 'time') {
+    propertyForm.value.dataType.specs = { format: 'HH:mm:ss' }
+  }
+  // 经纬度类型
+  else if (type === 'latlng') {
+    propertyForm.value.dataType.specs = { lngRange: '-180,180', latRange: '-90,90' }
+  }
+  // 文件/图片类型
+  else if (['file', 'image'].includes(type)) {
+    propertyForm.value.dataType.specs = { maxSize: 10, extensions: '' }
+  }
+  // UUID、地址、定位、对象等类型不需要特殊规格
+  else if (['uuid', 'address', 'location', 'object'].includes(type)) {
+    propertyForm.value.dataType.specs = {}
+  }
+  // 默认值
+  else {
+    propertyForm.value.dataType.specs = {}
   }
 }
 
 // 处理数据类型变化
 const handleParamDataTypeChange = (type: string) => {
-  switch(type) {
-    case 'int':
-      paramForm.value.dataType.specs = { min: 0, max: 100, step: 1, unit: '' }
-      break
-    case 'float':
-      paramForm.value.dataType.specs = { min: 0.0, max: 100.0, step: 0.1, unit: '' }
-      break
-    case 'bool':
-      paramForm.value.dataType.specs = { '0': '关', '1': '开' }
-      break
-    case 'string':
-      paramForm.value.dataType.specs = { length: 255 }
-      break
-    case 'enum':
-      paramForm.value.dataType.specs = { values: [{ value: '0', label: '选项1' }] }
-      break
-    default:
-      paramForm.value.dataType.specs = { min: 0, max: 100, step: 1, unit: '' }
+  // 数值类型
+  if (['int', 'integer', 'number'].includes(type)) {
+    paramForm.value.dataType.specs = { min: 0, max: 100, step: 1, unit: '' }
+  } else if (['float', 'decimal'].includes(type)) {
+    paramForm.value.dataType.specs = { min: 0.0, max: 100.0, step: 0.1, unit: '' }
+  }
+  // 字符串类型
+  else if (['string', 'email', 'phone', 'url', 'ip', 'json', 'base64', 'hash', 'markdown', 'code'].includes(type)) {
+    paramForm.value.dataType.specs = { length: 255 }
+  }
+  // 布尔类型
+  else if (['bool', 'boolean'].includes(type)) {
+    paramForm.value.dataType.specs = { trueLabel: '开', falseLabel: '关' }
+  }
+  // 枚举类型
+  else if (['enum', 'singleSelect', 'multiSelect'].includes(type)) {
+    paramForm.value.dataType.specs = { values: [{ value: '0', label: '选项1' }] }
+  }
+  // 日期类型
+  else if (type === 'date') {
+    paramForm.value.dataType.specs = { format: 'YYYY-MM-DD' }
+  } else if (type === 'datetime') {
+    paramForm.value.dataType.specs = { format: 'YYYY-MM-DD HH:mm:ss' }
+  } else if (type === 'time') {
+    paramForm.value.dataType.specs = { format: 'HH:mm:ss' }
+  }
+  // 经纬度类型
+  else if (type === 'latlng') {
+    paramForm.value.dataType.specs = { lngRange: '-180,180', latRange: '-90,90' }
+  }
+  // 文件/图片类型
+  else if (['file', 'image'].includes(type)) {
+    paramForm.value.dataType.specs = { maxSize: 10, extensions: '' }
+  }
+  // UUID、地址、定位等类型不需要特殊规格
+  else if (['uuid', 'address', 'location'].includes(type)) {
+    paramForm.value.dataType.specs = {}
+  }
+  // 默认值
+  else {
+    paramForm.value.dataType.specs = {}
   }
 }
 
@@ -622,20 +858,64 @@ const removeParamEnumValue = (index: number) => {
 // 格式化数据类型规格
 const formatDataTypeSpecs = (dataType: DataType) => {
   if (!dataType || !dataType.specs) return ''
-  switch (dataType.type) {
-    case 'int':
-      return `范围: ${dataType.specs.min} - ${dataType.specs.max}${dataType.specs.unit ? ', 单位: ' + dataType.specs.unit : ''}`
-    case 'float':
-      return `范围: ${dataType.specs.min} - ${dataType.specs.max}${dataType.specs.unit ? ', 单位: ' + dataType.specs.unit : ''}`
-    case 'bool':
-      return `${dataType.specs[0]} / ${dataType.specs[1]}`
-    case 'string':
-      return `最大长度: ${dataType.specs.length}`
-    case 'enum':
-      return dataType.specs.values ? dataType.specs.values.map((v : any)=> `${v.label}(${v.value})`).join(', ') : ''
-    default:
-      return ''
+  const specs = dataType.specs
+  const type = dataType.type
+  
+  // 数值类型
+  if (['int', 'integer', 'number', 'float', 'decimal'].includes(type)) {
+    if (specs.min !== undefined && specs.max !== undefined) {
+      return `范围: ${specs.min} - ${specs.max}${specs.unit ? ', 单位: ' + specs.unit : ''}${specs.step ? ', 步长: ' + specs.step : ''}`
+    }
   }
+  // 字符串类型
+  else if (['string', 'email', 'phone', 'url', 'ip', 'json', 'base64', 'hash', 'markdown', 'code'].includes(type)) {
+    if (specs.length !== undefined) {
+      return `最大长度: ${specs.length}`
+    }
+  }
+  // 布尔类型 (兼容旧格式)
+  else if (['bool', 'boolean'].includes(type)) {
+    // 兼容旧格式 { '0': '关', '1': '开' }
+    if (specs['0'] && specs['1']) {
+      return `${specs['0']} / ${specs['1']}`
+    }
+    // 新格式 { trueLabel: '开', falseLabel: '关' }
+    else if (specs.trueLabel && specs.falseLabel) {
+      return `${specs.falseLabel} / ${specs.trueLabel}`
+    }
+  }
+  // 枚举类型
+  else if (['enum', 'singleSelect', 'multiSelect'].includes(type)) {
+    if (specs.values && Array.isArray(specs.values)) {
+      return specs.values.map((v: any) => `${v.label}(${v.value})`).join(', ')
+    }
+  }
+  // 日期类型
+  else if (['date', 'datetime', 'time'].includes(type)) {
+    if (specs.format) {
+      return `格式: ${specs.format}`
+    }
+  }
+  // 经纬度类型
+  else if (type === 'latlng') {
+    const parts = []
+    if (specs.lngRange) parts.push(`经度: ${specs.lngRange}`)
+    if (specs.latRange) parts.push(`纬度: ${specs.latRange}`)
+    return parts.join(', ')
+  }
+  // 文件/图片类型
+  else if (['file', 'image'].includes(type)) {
+    const parts = []
+    if (specs.maxSize) parts.push(`最大: ${specs.maxSize}MB`)
+    if (specs.extensions) parts.push(`扩展名: ${specs.extensions}`)
+    return parts.join(', ')
+  }
+  // UUID、地址、定位、对象等类型
+  else if (['uuid', 'address', 'location', 'object'].includes(type)) {
+    return '无额外约束'
+  }
+  
+  return ''
 }
 
 // 获取事件类型文本和标签类型
@@ -665,6 +945,52 @@ const getAccessModeText = (mode: string) => {
     case 'w': return '只写'
     default: return mode
   }
+}
+
+// 获取数据类型中文标签
+const getDataTypeLabel = (type: string) => {
+  const typeMap: Record<string, string> = {
+    // 字符串类
+    'string': '字符串',
+    'email': '邮箱',
+    'phone': '电话',
+    'url': 'URL',
+    'ip': 'IP地址',
+    'json': 'JSON',
+    'base64': 'Base64',
+    'hash': 'Hash',
+    'markdown': 'Markdown文本',
+    'code': '代码块',
+    // 数值类
+    'number': '数字',
+    'integer': '整数',
+    'decimal': '小数',
+    'float': '浮点数',
+    'int': '整数',
+    // 日期类
+    'date': '日期',
+    'datetime': '日期时间',
+    'time': '时间',
+    // 布尔类
+    'boolean': '布尔值',
+    'bool': '布尔值',
+    // 标识符类
+    'uuid': 'UUID',
+    // 枚举类
+    'enum': '枚举',
+    'singleSelect': '单选',
+    'multiSelect': '多选',
+    // 地理/地址类
+    'address': '地址',
+    'location': '定位',
+    'latlng': '经纬度',
+    // 文件/媒体类
+    'file': '文件',
+    'image': '图片',
+    // 其他
+    'object': '智能对象',
+  }
+  return typeMap[type] || type
 }
 
 // 初始化表单数据
@@ -789,6 +1115,22 @@ const navigateBack = () => {
   router.push('/meta/deviceType/list')
 }
 
+// 保存模型到数据库
+const saveModel = async (deviceTypeId: number) => {
+  try {
+    const modelData = {
+      properties: modelForm.value.properties || [],
+      services: modelForm.value.services || [],
+      events: modelForm.value.events || []
+    }
+    await updateDeviceTypeModel(deviceTypeId, modelData)
+    return true
+  } catch (error) {
+    console.error('保存模型失败:', error)
+    throw error
+  }
+}
+
 // 提交表单
 const submitForm = async () => {
   if (!deviceTypeFormRef.value) return
@@ -798,14 +1140,15 @@ const submitForm = async () => {
       try {
         if (isEditMode.value && deviceTypeId.value) {
           // 更新设备类型
-          const result = await deviceTypeStore.updateDeviceType(deviceTypeId.value, deviceTypeForm.value)
+          await deviceTypeStore.updateDeviceType(deviceTypeId.value, deviceTypeForm.value)
           // 更新设备类型模型
-          await updateDeviceTypeModel(deviceTypeId.value, modelForm.value)
-          
+          await saveModel(deviceTypeId.value)
           ElMessage.success('更新成功')
-        }else if(activeTab.value === 'model'){
-          tempId.value = currentDeviceTypeId.value
-        }else {
+        } else if (currentDeviceTypeId.value) {
+          // 如果已经有设备类型ID，说明是在编辑模型，只保存模型
+          await saveModel(currentDeviceTypeId.value)
+          ElMessage.success('模型已保存')
+        } else {
           // 创建设备类型 - 符合接口文档格式
           const createData = {
             code: deviceTypeForm.value.code,
@@ -816,8 +1159,12 @@ const submitForm = async () => {
           const result = await deviceTypeStore.createDeviceType(createData)
           if (result && result.id) {
             currentDeviceTypeId.value = result.id
-            // 激活模型选项卡
-            activeTab.value = 'model'
+            // 如果有模型数据，立即保存
+            if (modelForm.value.properties.length > 0 || modelForm.value.services.length > 0 || modelForm.value.events.length > 0) {
+              await saveModel(result.id)
+            }
+            // 激活属性选项卡
+            activeTab.value = 'property'
             ElMessage.success('创建成功，请继续定义设备类型模型')
           } else {
             throw new Error('创建设备类型失败，未返回有效ID')
@@ -847,8 +1194,17 @@ const editProperty = (property: Property, index: number) => {
   propertyDialogVisible.value = true
 }
 
-const removeProperty = (index: number) => {
+const removeProperty = async (index: number) => {
   modelForm.value.properties.splice(index, 1)
+  // 如果有设备类型ID，自动保存模型
+  if (currentDeviceTypeId.value || deviceTypeId.value) {
+    try {
+      await saveModel(currentDeviceTypeId.value || deviceTypeId.value!)
+      ElMessage.success('属性已删除')
+    } catch (error) {
+      ElMessage.error('删除属性失败')
+    }
+  }
 }
 
 const submitPropertyForm = async () => {
@@ -865,6 +1221,16 @@ const submitPropertyForm = async () => {
         modelForm.value.properties.push(JSON.parse(JSON.stringify(propertyForm.value)))
       }
       propertyDialogVisible.value = false
+      
+      // 如果有设备类型ID，自动保存模型
+      if (currentDeviceTypeId.value || deviceTypeId.value) {
+        try {
+          await saveModel(currentDeviceTypeId.value || deviceTypeId.value!)
+          ElMessage.success('属性已保存')
+        } catch (error) {
+          ElMessage.error('保存属性失败')
+        }
+      }
     }
   })
 }
@@ -883,8 +1249,17 @@ const editService = (service: Service, index: number) => {
   serviceDialogVisible.value = true
 }
 
-const removeService = (index: number) => {
+const removeService = async (index: number) => {
   modelForm.value.services.splice(index, 1)
+  // 如果有设备类型ID，自动保存模型
+  if (currentDeviceTypeId.value || deviceTypeId.value) {
+    try {
+      await saveModel(currentDeviceTypeId.value || deviceTypeId.value!)
+      ElMessage.success('服务已删除')
+    } catch (error) {
+      ElMessage.error('删除服务失败')
+    }
+  }
 }
 
 const submitServiceForm = async () => {
@@ -901,6 +1276,16 @@ const submitServiceForm = async () => {
         modelForm.value.services.push(JSON.parse(JSON.stringify(serviceForm.value)))
       }
       serviceDialogVisible.value = false
+      
+      // 如果有设备类型ID，自动保存模型
+      if (currentDeviceTypeId.value || deviceTypeId.value) {
+        try {
+          await saveModel(currentDeviceTypeId.value || deviceTypeId.value!)
+          ElMessage.success('服务已保存')
+        } catch (error) {
+          ElMessage.error('保存服务失败')
+        }
+      }
     }
   })
 }
@@ -928,6 +1313,7 @@ const removeServiceParam = (type: 'input' | 'output', index: number) => {
   } else {
     serviceForm.value.outputData.splice(index, 1)
   }
+  // 注意：这里不自动保存，因为参数是在服务对话框中编辑的，应该在提交服务时一起保存
 }
 
 // 事件相关方法
@@ -944,8 +1330,17 @@ const editEvent = (event: Event, index: number) => {
   eventDialogVisible.value = true
 }
 
-const removeEvent = (index: number) => {
+const removeEvent = async (index: number) => {
   modelForm.value.events.splice(index, 1)
+  // 如果有设备类型ID，自动保存模型
+  if (currentDeviceTypeId.value || deviceTypeId.value) {
+    try {
+      await saveModel(currentDeviceTypeId.value || deviceTypeId.value!)
+      ElMessage.success('事件已删除')
+    } catch (error) {
+      ElMessage.error('删除事件失败')
+    }
+  }
 }
 
 const submitEventForm = async () => {
@@ -962,6 +1357,16 @@ const submitEventForm = async () => {
         modelForm.value.events.push(JSON.parse(JSON.stringify(eventForm.value)))
       }
       eventDialogVisible.value = false
+      
+      // 如果有设备类型ID，自动保存模型
+      if (currentDeviceTypeId.value || deviceTypeId.value) {
+        try {
+          await saveModel(currentDeviceTypeId.value || deviceTypeId.value!)
+          ElMessage.success('事件已保存')
+        } catch (error) {
+          ElMessage.error('保存事件失败')
+        }
+      }
     }
   })
 }
@@ -985,6 +1390,7 @@ const editEventParam = (param: Property, index: number) => {
 
 const removeEventParam = (index: number) => {
   eventForm.value.outputData.splice(index, 1)
+  // 注意：这里不自动保存，因为参数是在事件对话框中编辑的，应该在提交事件时一起保存
 }
 
 // 提交参数表单
@@ -1013,30 +1419,14 @@ const submitParamForm = async () => {
         }
       }
       paramDialogVisible.value = false
+      
+      // 参数修改后，需要保存对应的服务或事件
+      // 注意：这里不自动保存，因为参数是在服务/事件对话框中编辑的，应该在提交服务/事件时一起保存
     }
   })
 }
 
-// 在保存临时设备类型后，更新设备类型模型
-watch(() => tempId.value, async (newId) => {
-  if (newId && activeTab.value === 'model' && modelForm.value.properties.length > 0) {
-    try {
-      // 确保模型数据结构符合接口要求
-      const modelData = {
-        properties: modelForm.value.properties || [],
-        services: modelForm.value.services || [],
-        events: modelForm.value.events || []
-      }
-
-      // 更新新创建的设备类型的模型
-      await updateDeviceTypeModel(newId, modelData)
-      ElMessage.success('模型已保存')
-    } catch (error) {
-      console.error('保存模型失败:', error)
-      ElMessage.error('保存模型失败')
-    }
-  }
-})
+// 移除旧的watch，改为在操作时直接保存
 
 // JSON对话框相关状态
 const jsonDialogVisible = ref(false)
@@ -1079,6 +1469,10 @@ const copyModelJson = () => {
 .header-actions {
   display: flex;
   gap: 10px;
+}
+
+.basic-info-card {
+  margin-bottom: 20px;
 }
 
 .model-section {
