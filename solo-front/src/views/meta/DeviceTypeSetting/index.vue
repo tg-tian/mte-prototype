@@ -650,8 +650,7 @@ const state = reactive({
   editingEventIndex: -1,
   editingParamIndex: -1,
   editingParamType: '' as 'input' | 'output' | 'event',
-  tempId: null as number | null , // 临时ID，用于在创建设备类型后添加模型
-  currentDeviceTypeId:null        // 临时ID，用于在创建设备类型后添加模型
+  currentDeviceTypeId: null as number | null  // 创建设备类型后获得的ID，用于保存模型
 })
 
 // 计算属性
@@ -659,7 +658,7 @@ const {
   activeTab, deviceTypeForm, modelForm, propertyForm, serviceForm, eventForm, paramForm,
   submitting, propertyDialogVisible, serviceDialogVisible, eventDialogVisible, paramDialogVisible,
   isPropertyEdit, isServiceEdit, isEventEdit, isParamEdit, editingPropertyIndex, editingServiceIndex,
-  editingEventIndex, editingParamIndex, editingParamType, tempId,currentDeviceTypeId
+  editingEventIndex, editingParamIndex, editingParamType, currentDeviceTypeId
 } = toRefs(state)
 
 // 确定是否是编辑模式
@@ -1116,6 +1115,22 @@ const navigateBack = () => {
   router.push('/meta/deviceType/list')
 }
 
+// 保存模型到数据库
+const saveModel = async (deviceTypeId: number) => {
+  try {
+    const modelData = {
+      properties: modelForm.value.properties || [],
+      services: modelForm.value.services || [],
+      events: modelForm.value.events || []
+    }
+    await updateDeviceTypeModel(deviceTypeId, modelData)
+    return true
+  } catch (error) {
+    console.error('保存模型失败:', error)
+    throw error
+  }
+}
+
 // 提交表单
 const submitForm = async () => {
   if (!deviceTypeFormRef.value) return
@@ -1125,14 +1140,15 @@ const submitForm = async () => {
       try {
         if (isEditMode.value && deviceTypeId.value) {
           // 更新设备类型
-          const result = await deviceTypeStore.updateDeviceType(deviceTypeId.value, deviceTypeForm.value)
+          await deviceTypeStore.updateDeviceType(deviceTypeId.value, deviceTypeForm.value)
           // 更新设备类型模型
-          await updateDeviceTypeModel(deviceTypeId.value, modelForm.value)
-          
+          await saveModel(deviceTypeId.value)
           ElMessage.success('更新成功')
-        }else if(activeTab.value === 'property' || activeTab.value === 'service' || activeTab.value === 'event'){
-          tempId.value = currentDeviceTypeId.value
-        }else {
+        } else if (currentDeviceTypeId.value) {
+          // 如果已经有设备类型ID，说明是在编辑模型，只保存模型
+          await saveModel(currentDeviceTypeId.value)
+          ElMessage.success('模型已保存')
+        } else {
           // 创建设备类型 - 符合接口文档格式
           const createData = {
             code: deviceTypeForm.value.code,
@@ -1143,6 +1159,10 @@ const submitForm = async () => {
           const result = await deviceTypeStore.createDeviceType(createData)
           if (result && result.id) {
             currentDeviceTypeId.value = result.id
+            // 如果有模型数据，立即保存
+            if (modelForm.value.properties.length > 0 || modelForm.value.services.length > 0 || modelForm.value.events.length > 0) {
+              await saveModel(result.id)
+            }
             // 激活属性选项卡
             activeTab.value = 'property'
             ElMessage.success('创建成功，请继续定义设备类型模型')
@@ -1174,8 +1194,17 @@ const editProperty = (property: Property, index: number) => {
   propertyDialogVisible.value = true
 }
 
-const removeProperty = (index: number) => {
+const removeProperty = async (index: number) => {
   modelForm.value.properties.splice(index, 1)
+  // 如果有设备类型ID，自动保存模型
+  if (currentDeviceTypeId.value || deviceTypeId.value) {
+    try {
+      await saveModel(currentDeviceTypeId.value || deviceTypeId.value!)
+      ElMessage.success('属性已删除')
+    } catch (error) {
+      ElMessage.error('删除属性失败')
+    }
+  }
 }
 
 const submitPropertyForm = async () => {
@@ -1192,6 +1221,16 @@ const submitPropertyForm = async () => {
         modelForm.value.properties.push(JSON.parse(JSON.stringify(propertyForm.value)))
       }
       propertyDialogVisible.value = false
+      
+      // 如果有设备类型ID，自动保存模型
+      if (currentDeviceTypeId.value || deviceTypeId.value) {
+        try {
+          await saveModel(currentDeviceTypeId.value || deviceTypeId.value!)
+          ElMessage.success('属性已保存')
+        } catch (error) {
+          ElMessage.error('保存属性失败')
+        }
+      }
     }
   })
 }
@@ -1210,8 +1249,17 @@ const editService = (service: Service, index: number) => {
   serviceDialogVisible.value = true
 }
 
-const removeService = (index: number) => {
+const removeService = async (index: number) => {
   modelForm.value.services.splice(index, 1)
+  // 如果有设备类型ID，自动保存模型
+  if (currentDeviceTypeId.value || deviceTypeId.value) {
+    try {
+      await saveModel(currentDeviceTypeId.value || deviceTypeId.value!)
+      ElMessage.success('服务已删除')
+    } catch (error) {
+      ElMessage.error('删除服务失败')
+    }
+  }
 }
 
 const submitServiceForm = async () => {
@@ -1228,6 +1276,16 @@ const submitServiceForm = async () => {
         modelForm.value.services.push(JSON.parse(JSON.stringify(serviceForm.value)))
       }
       serviceDialogVisible.value = false
+      
+      // 如果有设备类型ID，自动保存模型
+      if (currentDeviceTypeId.value || deviceTypeId.value) {
+        try {
+          await saveModel(currentDeviceTypeId.value || deviceTypeId.value!)
+          ElMessage.success('服务已保存')
+        } catch (error) {
+          ElMessage.error('保存服务失败')
+        }
+      }
     }
   })
 }
@@ -1255,6 +1313,7 @@ const removeServiceParam = (type: 'input' | 'output', index: number) => {
   } else {
     serviceForm.value.outputData.splice(index, 1)
   }
+  // 注意：这里不自动保存，因为参数是在服务对话框中编辑的，应该在提交服务时一起保存
 }
 
 // 事件相关方法
@@ -1271,8 +1330,17 @@ const editEvent = (event: Event, index: number) => {
   eventDialogVisible.value = true
 }
 
-const removeEvent = (index: number) => {
+const removeEvent = async (index: number) => {
   modelForm.value.events.splice(index, 1)
+  // 如果有设备类型ID，自动保存模型
+  if (currentDeviceTypeId.value || deviceTypeId.value) {
+    try {
+      await saveModel(currentDeviceTypeId.value || deviceTypeId.value!)
+      ElMessage.success('事件已删除')
+    } catch (error) {
+      ElMessage.error('删除事件失败')
+    }
+  }
 }
 
 const submitEventForm = async () => {
@@ -1289,6 +1357,16 @@ const submitEventForm = async () => {
         modelForm.value.events.push(JSON.parse(JSON.stringify(eventForm.value)))
       }
       eventDialogVisible.value = false
+      
+      // 如果有设备类型ID，自动保存模型
+      if (currentDeviceTypeId.value || deviceTypeId.value) {
+        try {
+          await saveModel(currentDeviceTypeId.value || deviceTypeId.value!)
+          ElMessage.success('事件已保存')
+        } catch (error) {
+          ElMessage.error('保存事件失败')
+        }
+      }
     }
   })
 }
@@ -1312,6 +1390,7 @@ const editEventParam = (param: Property, index: number) => {
 
 const removeEventParam = (index: number) => {
   eventForm.value.outputData.splice(index, 1)
+  // 注意：这里不自动保存，因为参数是在事件对话框中编辑的，应该在提交事件时一起保存
 }
 
 // 提交参数表单
@@ -1340,30 +1419,14 @@ const submitParamForm = async () => {
         }
       }
       paramDialogVisible.value = false
+      
+      // 参数修改后，需要保存对应的服务或事件
+      // 注意：这里不自动保存，因为参数是在服务/事件对话框中编辑的，应该在提交服务/事件时一起保存
     }
   })
 }
 
-// 在保存临时设备类型后，更新设备类型模型
-watch(() => tempId.value, async (newId) => {
-  if (newId && (activeTab.value === 'property' || activeTab.value === 'service' || activeTab.value === 'event') && modelForm.value.properties.length > 0) {
-    try {
-      // 确保模型数据结构符合接口要求
-      const modelData = {
-        properties: modelForm.value.properties || [],
-        services: modelForm.value.services || [],
-        events: modelForm.value.events || []
-      }
-
-      // 更新新创建的设备类型的模型
-      await updateDeviceTypeModel(newId, modelData)
-      ElMessage.success('模型已保存')
-    } catch (error) {
-      console.error('保存模型失败:', error)
-      ElMessage.error('保存模型失败')
-    }
-  }
-})
+// 移除旧的watch，改为在操作时直接保存
 
 // JSON对话框相关状态
 const jsonDialogVisible = ref(false)
