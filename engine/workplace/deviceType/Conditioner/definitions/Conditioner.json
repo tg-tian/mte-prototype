@@ -1,0 +1,38 @@
+{
+    "code": "Conditioner",
+    "name": "空调",
+    "type": "Device",
+    "img_link": "./Conditioner.png",
+    "refs": [
+        {
+            "refID": "events",
+            "refPath": [
+                {
+                    "code": "StartEvent",
+                    "path": "events\/StartEvent.json"
+                }
+            ]
+        },
+        {
+            "refID": "services",
+            "refPath": [
+                {
+                    "code": "AService",
+                    "path": "services\/AService.json"
+                }
+            ]
+        }
+    ],
+    "commands": [
+        {
+            "code": "start",
+            "name": "启动",
+            "inputParams": [],
+            "outputParam": "void",
+            "events": [
+                "onStartError"
+            ],
+            "services": []
+        }
+    ]
+}

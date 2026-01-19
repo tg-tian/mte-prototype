@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="demo.lowcode.platform.mapper.DeviceConnectionMapper">
+    <insert id="addConnection">
+        insert into deviceconnection (source_id, source_device_name, target_id, target_device_name, position)
+        values (#{sourceId}, #{sName}, #{targetId}, #{tName}, #{position})
+    </insert>
+    <delete id="delteConnection">
+        delete from deviceconnection where source_id = #{sourceId} and target_id = #{targetId}
+    </delete>
+
+    <select id="selectConnectionsByDeviceId" resultType="demo.lowcode.platform.dto.DeviceWithPosition">
+        select target_id as id, target_device_name as deviceName, position from deviceconnection
+        where source_id = #{deviceId}
+    </select>
+
+</mapper>

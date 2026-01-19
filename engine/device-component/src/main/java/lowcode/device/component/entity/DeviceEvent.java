@@ -1,0 +1,26 @@
+package lowcode.device.component.entity;
+
+
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import org.springframework.stereotype.Component;
+
+@AllArgsConstructor
+@Data
+@Component
+@NoArgsConstructor
+@ApiModel(value = "事件信息实体类，用于存储事件的基本信息")
+public class DeviceEvent {
+    @ApiModelProperty("事件名称")
+    private String name;
+    @ApiModelProperty("事件描述")
+    private String description;
+    @ApiModelProperty("事件类型")
+    private String type;
+    @ApiModelProperty("绑定操作")
+    private String commandId;
+
+}

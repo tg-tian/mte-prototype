@@ -1,0 +1,13 @@
+{
+    "eventPath": "StartEventController.java",
+    "eventList": [
+        {
+            "name": "onStartError",
+            "description": "test",
+            "type": "onError",
+            "command": "start",
+            "signature": "",
+            "body": ""
+        }
+    ]
+}

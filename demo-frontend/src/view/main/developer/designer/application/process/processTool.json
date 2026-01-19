@@ -1,0 +1,63 @@
+[
+  {
+    "type": "flow-template",
+    "name": "流程模板",
+    "items": [
+      {
+        "id": "Reservation",
+        "type": "process",
+        "name": "预约流程",
+        "category": "flow-template",
+        "icon": "icon/process-template.png"
+      }
+    ]
+  },
+  {
+    "type": "flow",
+    "name": "流程类控件",
+    "items": [
+      {
+        "id": "StartNode",
+        "type": "flow-group",
+        "name": "开始节点",
+        "category": "flow",
+        "icon": "icon/startNode.png"
+      },
+      {
+        "id": "EndNode",
+        "type": "icon/flow-group",
+        "name": "结束节点",
+        "category": "flow",
+        "icon": "endNode.png"
+      },
+      {
+        "id": "XORNode",
+        "type": "flow-group",
+        "name": "异或网关",
+        "category": "flow",
+        "icon": "icon/xor.png"
+      },
+      {
+        "id": "ParallelNode",
+        "type": "flow-group",
+        "name": "并行网关",
+        "category": "flow",
+        "icon": "icon/parallel.png"
+      },
+      {
+        "id": "DecisionNode",
+        "type": "flow-group",
+        "name": "决策节点",
+        "category": "flow",
+        "icon": "icon/decision.png"
+      },
+      {
+        "id": "LoopNode",
+        "type": "flow-group",
+        "name": "循环节点",
+        "category": "flow",
+        "icon": "icon/xunhuan.png"
+      }
+    ]
+  }
+]
