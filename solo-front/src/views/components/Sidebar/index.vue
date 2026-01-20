@@ -20,7 +20,7 @@
             <div class="menu-item">元建模</div>
           </template>
           <el-menu-item index="meta-devicetype-list" class="sub-menu-item">设备类型</el-menu-item>
-          <el-menu-item index="meta-devicemodel-list" class="sub-menu-item">设备型号列表</el-menu-item>
+          <el-menu-item index="meta-devicemodel-list" class="sub-menu-item">设备型号</el-menu-item>
           <el-menu-item index="meta-nodetype-list" class="sub-menu-item">节点类型</el-menu-item>
           <el-menu-item index="meta-component-list" class="sub-menu-item">组件类型</el-menu-item>
         </el-sub-menu>

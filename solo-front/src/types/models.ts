@@ -189,3 +189,17 @@ export interface DeviceConnection {
     connections: Connection[]; // 连接设备列表
     intelligent: boolean; // 是否智能设备
 }
+
+export interface DeviceLibrary {
+    id?: number;
+    provider: string; // 设备厂商
+    deviceTypeId?: number; // 设备类型ID
+    deviceTypeName: string; // 设备类型名称
+    deviceModel: string; // 设备型号
+    deviceName?: string; // 设备名称
+    deviceMapperPath?: string; // 设备Mapper路径
+    propertyMap?: Record<string, string>; // 属性映射规则
+}
+
+// 保持向前兼容，如果 UI 仍然称其为 DeviceModel
+export type DeviceModel = DeviceLibrary;

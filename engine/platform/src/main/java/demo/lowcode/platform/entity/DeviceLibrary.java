@@ -1,8 +1,10 @@
 package demo.lowcode.platform.entity;
 
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import jakarta.persistence.*;
@@ -10,10 +12,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Map;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("device_library")
+@TableName(value = "device_library1", autoResultMap = true)
 @Entity
 @ApiModel(value = "设备库", description = "设备库信息")
 public class DeviceLibrary {
@@ -27,9 +31,13 @@ public class DeviceLibrary {
     @ApiModelProperty(value = "设备厂商")
     private String provider;
 
-    @Column(nullable = false)
-    @ApiModelProperty(value = "设备分类")
-    private String category;
+    @Column(name = "device_type_id")
+    @ApiModelProperty(value = "设备类型id")
+    private Integer deviceTypeId;
+
+    @Column(name = "device_type_name", nullable = false)
+    @ApiModelProperty(value = "设备类型名称")
+    private String deviceTypeName;
 
     @Column(name = "device_model", nullable = false)
     @ApiModelProperty(value = "设备型号")
@@ -42,4 +50,9 @@ public class DeviceLibrary {
     @Column(name = "device_mapper_path")
     @ApiModelProperty(value = "设备Mapper路径")
     private String deviceMapperPath;
+
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    @Column(columnDefinition = "json")
+    @ApiModelProperty(value = "属性映射 (设备属性 -> 设备类型属性)")
+    private Map<String, String> propertyMap;
 }

@@ -5,9 +5,9 @@ import { DeviceType } from '@/types/models'
 export const useDeviceTypeStore = defineStore('deviceType', {
     state: () => ({
         deviceTypes: [] as DeviceType[],
-        allDeviceTypes: [],
+        allDeviceTypes: [] as DeviceType[],
         loading: false,
-        currentDeviceType: null
+        currentDeviceType: null as DeviceType | null
     }),
 
     actions: {
