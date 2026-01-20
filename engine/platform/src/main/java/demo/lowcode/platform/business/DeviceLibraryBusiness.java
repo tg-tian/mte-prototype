@@ -85,10 +85,7 @@ public class DeviceLibraryBusiness extends ServiceImpl<DeviceLibraryMapper, Devi
 
         File file = new File(directory, fileName);
         if (file.exists()) {
-            // 如果文件已存在，我们可能不想覆盖它，或者根据需求覆盖。
-            // 这里选择如果不覆盖，除非是强制更新标记。
-            // 简单起见，如果不存在则创建
-            return;
+            // return;
         }
 
         String className = fileName.replace(".ts", "");
@@ -99,38 +96,44 @@ public class DeviceLibraryBusiness extends ServiceImpl<DeviceLibraryMapper, Devi
                     .collect(Collectors.joining(",\n")) + "\n  }";
         }
 
-        String content = "import mqtt from 'mqtt';\n" +
-                "import { DeviceMapper} from '../device-mapper';\n" +
-                "import { ProviderConfig } from '../../domain/provider-config';\n" +
-                "import { BaseDeviceModel } from '../../domain/model';\n\n" +
-                "export class " + className + " implements DeviceMapper {\n" +
-                "  metaModel : BaseDeviceModel;\n" +
-                "  deviceModel = '" + entity.getDeviceModel() + "';\n" +
-                "  provider = '" + entity.getProvider() + "';\n" +
-                "  private client: mqtt.MqttClient;\n" +
-                "  private cfg: ProviderConfig;\n" +
-                "  propertyMap: Record<string, string> = " + propertyMapStr + ";\n\n" +
-                "  constructor(config: ProviderConfig , metaModel: BaseDeviceModel) {\n" +
-                "    this.cfg = config;\n" +
-                "    this.metaModel = metaModel;\n" +
-                "    this.client = mqtt.connect(this.cfg.communication.baseUrl);\n" +
-                "  }\n\n" +
-                "  mapProperties(rawProps: any): Record<string, any> {\n" +
-                "    const mapped: Record<string, any> = {};\n" +
-                "    for (const [key, value] of Object.entries(rawProps)) {\n" +
-                "      const target = this.propertyMap[key as keyof typeof this.propertyMap];\n" +
-                "      if (target) {\n" +
-                "        mapped[target] = value;\n" +
-                "      } else {\n" +
-                "        mapped[key] = value;\n" +
-                "      }\n" +
-                "    }\n" +
-                "    return mapped;\n" +
-                "  }\n\n" +
-                "  mapEvent(rawEvent: any): any | null {\n" +
-                "    return null;\n" +
-                "  }\n" +
-                "}\n";
+        String content = """
+                import mqtt from 'mqtt';
+                import { DeviceMapper} from '../device-mapper';
+                import { ProviderConfig } from '../../domain/provider-config';
+                import { BaseDeviceModel } from '../../domain/model';
+
+                export class %s implements DeviceMapper {
+                  metaModel : BaseDeviceModel;
+                  deviceModel = '%s';
+                  provider = '%s';
+                  private client: mqtt.MqttClient;
+                  private cfg: ProviderConfig;
+                  propertyMap: Record<string, string> = %s;
+
+                  constructor(config: ProviderConfig , metaModel: BaseDeviceModel) {
+                    this.cfg = config;
+                    this.metaModel = metaModel;
+                    this.client = mqtt.connect(this.cfg.communication.baseUrl);
+                  }
+
+                  mapProperties(rawProps: any): Record<string, any> {
+                    const mapped: Record<string, any> = {};
+                    for (const [key, value] of Object.entries(rawProps)) {
+                      const target = this.propertyMap[key as keyof typeof this.propertyMap];
+                      if (target) {
+                        mapped[target] = value;
+                      } else {
+                        mapped[key] = value;
+                      }
+                    }
+                    return mapped;
+                  }
+
+                  mapEvent(rawEvent: any): any | null {
+                    return null;
+                  }
+                }
+                """.formatted(className, entity.getDeviceModel(), entity.getProvider(), propertyMapStr);
 
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(content);

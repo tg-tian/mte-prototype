@@ -1,148 +1,228 @@
 <template>
-    <div class="devicetype-list-container">
-      <div class="devicetype-header">
-        <h2>设备类型列表</h2>
-        <el-button type="primary" @click="navigateToDeviceTypeSetting()">创建设备类型</el-button>
+  <div class="devicetype-list-container">
+    <div class="header-section">
+      <div class="title-wrapper">
+        <h2 class="main-title">设备类型管理</h2>
+        <p class="sub-title">定义和管理平台支持的物联网设备元模型</p>
       </div>
-      
-      <el-card class="devicetype-search">
-        <el-form :inline="true" :model="searchForm" class="search-form">
-          <el-form-item label="模型名称">
-            <el-input v-model="searchForm.modelName" placeholder="请输入模型名称" clearable></el-input>
-          </el-form-item>
-          <el-form-item>
-            <el-button type="primary" @click="handleSearch">搜索</el-button>
-            <el-button @click="resetSearch">重置</el-button>
-          </el-form-item>
-        </el-form>
-      </el-card>
-      
-      <el-table
-        v-loading="deviceTypeStore.loading"
-        :data="filteredDevicetypes"
-        style="width: 100%; margin-top: 20px"
-        border
-      >
-        <el-table-column prop="id" label="ID" width="80"></el-table-column>
-        <el-table-column prop="modelName" label="模型名称" min-width="150"></el-table-column>
-        <el-table-column prop="category" label="品类" width="120"></el-table-column>
-        <el-table-column prop="createTime" label="创建时间" min-width="150"></el-table-column>
-        <el-table-column prop="updateTime" label="更新时间" min-width="150"></el-table-column>
-        <el-table-column label="操作" width="220">
-          <template #default="scope">
-            <el-button type="primary" size="small" @click="navigateToDeviceTypeSetting(scope.row)">编辑</el-button>
-            <el-button type="danger" size="small" @click="handleDelete(scope.row)">删除</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
+      <el-button type="primary" class="create-btn" @click="navigateToDeviceTypeSetting()">
+        <el-icon><Plus /></el-icon>创建设备类型
+      </el-button>
     </div>
-  </template>
-  
-  <script setup lang="ts">
-  import { reactive, computed, onMounted, toRefs } from 'vue'
-  import { useDeviceTypeStore } from '@/store/deviceType'
-  import { ElMessage, ElMessageBox } from 'element-plus'
-  import { useRouter } from 'vue-router';
-  import { DeviceType } from '@/types/models'
-  
-  const router = useRouter()
-  const deviceTypeStore = useDeviceTypeStore()
-  
-  // 状态
-  const state = reactive({
-    searchForm: {
-      modelName: ''
+
+    <!-- 搜索栏 -->
+    <el-card class="search-card" shadow="never">
+      <el-form :inline="true" :model="searchForm" class="search-form">
+        <el-form-item label="模型名称">
+          <el-input 
+            v-model="searchForm.modelName" 
+            placeholder="请输入模型名称" 
+            clearable
+            @keyup.enter="handleSearch"
+            style="width: 240px"
+          >
+            <template #prefix>
+              <el-icon><Search /></el-icon>
+            </template>
+          </el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button type="primary" @click="handleSearch">查询</el-button>
+          <el-button @click="resetSearch">重置</el-button>
+        </el-form-item>
+      </el-form>
+    </el-card>
+
+    <!-- 表格区域 -->
+    <el-table
+      v-loading="deviceTypeStore.loading"
+      :data="formattedDeviceTypes"
+      style="width: 100%; margin-top: 24px"
+      class="premium-table"
+      :header-cell-style="{ background: '#f5f7fa', color: '#606266', fontWeight: 'bold' }"
+    >
+      <el-table-column prop="id" label="ID" width="100" align="center" />
+      <el-table-column prop="modelName" label="模型名称" min-width="180">
+        <template #default="{ row }">
+          <span class="model-name-text">{{ row.modelName }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="category" label="品类" width="150" align="center">
+        <template #default="{ row }">
+          <el-tag v-if="row.category" size="small" effect="light" round>
+            {{ row.category }}
+          </el-tag>
+          <span v-else style="color: #c0c4cc">-</span>
+        </template>
+      </el-table-column>
+      <el-table-column prop="createTime" label="创建时间" min-width="180" align="center" />
+      <el-table-column prop="updateTime" label="更新时间" min-width="180" align="center" />
+      <el-table-column label="操作" width="180" fixed="right" align="center">
+        <template #default="scope">
+          <el-button link type="primary" @click="navigateToDeviceTypeSetting(scope.row)">编辑</el-button>
+          <el-button link type="danger" @click="handleDelete(scope.row)">删除</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <!-- 分页 -->
+    <div class="pagination-container">
+      <el-pagination
+        v-model:current-page="searchForm.current"
+        v-model:page-size="searchForm.size"
+        :page-sizes="[10, 20, 50, 100]"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="deviceTypeStore.deviceTypePage.total"
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+      />
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import { reactive, computed, onMounted } from 'vue'
+import { Plus, Search } from '@element-plus/icons-vue'
+import { useDeviceTypeStore } from '@/store/deviceType'
+import { ElMessage, ElMessageBox } from 'element-plus'
+import { useRouter } from 'vue-router'
+import { DeviceType } from '@/types/models'
+
+const router = useRouter()
+const deviceTypeStore = useDeviceTypeStore()
+
+const searchForm = reactive({
+  current: 1,
+  size: 10,
+  modelName: ''
+})
+
+const formattedDeviceTypes = computed(() => {
+  return deviceTypeStore.deviceTypePage.records.map((deviceType: any) => {
+    return {
+      ...deviceType,
+      updateTime: deviceType.updateTime?.split('.')[0].replace('T', ' '),
+      createTime: deviceType.createTime?.split('.')[0].replace('T', ' ')
     }
   })
-  
-  const { searchForm } = toRefs(state)
-  
-  // 过滤后的列表
-  const filteredDevicetypes = computed(() => {
-    if (!deviceTypeStore.allDeviceTypes) return []
-    
-    return deviceTypeStore.allDeviceTypes.filter((deviceType: DeviceType) => {
-      const nameMatch = !searchForm.value.modelName || deviceType.modelName.toLowerCase().includes(searchForm.value.modelName.toLowerCase())
-      return nameMatch
-    }).map((deviceType: any)=>{
-      return {
-        ...deviceType,
-        updateTime: deviceType.updateTime?.split('.')[0].replace('T', ' '),
-        createTime: deviceType.createTime?.split('.')[0].replace('T', ' ')
-      }
-  })
-  })
-  
-  // 初始化
-  onMounted(async () => {
-    await deviceTypeStore.fetchAllDeviceTypes()
-  })
-  
-  // 搜索处理
-  const handleSearch = () => {
-    // 过滤是在计算属性中完成的
+})
+
+onMounted(() => {
+  handleSearch()
+})
+
+const handleSearch = () => {
+  deviceTypeStore.fetchDeviceTypePage(searchForm)
+}
+
+const resetSearch = () => {
+  searchForm.modelName = ''
+  searchForm.current = 1
+  handleSearch()
+}
+
+const handleSizeChange = (val: number) => {
+  searchForm.size = val
+  searchForm.current = 1
+  handleSearch()
+}
+
+const handleCurrentChange = (val: number) => {
+  searchForm.current = val
+  handleSearch()
+}
+
+const navigateToDeviceTypeSetting = (deviceType?: DeviceType) => {
+  if (deviceType) {
+    deviceTypeStore.setCurrentDeviceType(deviceType)
+    router.push(`/meta/devicetype/setting?deviceTypeId=${deviceType.id}&mode=edit`)
+  } else {
+    router.push('/meta/devicetype/setting?mode=create')
   }
-  
-  // 重置搜索
-  const resetSearch = () => {
-    searchForm.value.modelName = ''
-  }
-  
-  // 导航到设备类型设置页面
-  const navigateToDeviceTypeSetting = (deviceType?: DeviceType) => {
-    if (deviceType) {
-      // 编辑设备类型
-      deviceTypeStore.setCurrentDeviceType(deviceType)
-      router.push(`/meta/devicetype/setting?deviceTypeId=${deviceType.id}&mode=edit`)
-    } else {
-      // 创建设备类型
-      router.push('/meta/devicetype/setting?mode=create')
+}
+
+const handleDelete = (row: DeviceType) => {
+  ElMessageBox.confirm(
+    `确定要删除设备类型 "${row.modelName}" 吗？`,
+    '警告',
+    {
+      confirmButtonText: '确定',
+      cancelButtonText: '取消',
+      type: 'warning'
     }
-  }
-  
-  // 删除设备类型
-  const handleDelete = (row: DeviceType) => {
-    ElMessageBox.confirm(
-      `确定要删除设备类型 "${row.modelName}" 吗？`,
-      '警告',
-      {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      }
-    )
-    .then(async () => {
-      try {
-        await deviceTypeStore.deleteDeviceType(row.id)
-        ElMessage.success('删除成功')
-      } catch (error) {
-        ElMessage.error('删除失败')
-      }
-    })
-    .catch(() => {
-      // 用户取消操作
-    })
-  }
-  </script>
-  
-  <style scoped>
-  .devicetype-list-container {
-    padding: 20px;
-  }
-  
-  .devicetype-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
-  }
-  
-  .devicetype-search {
-    margin-bottom: 20px;
-  }
-  
-  .search-form {
-    display: flex;
-    flex-wrap: wrap;
-  }
-  </style>
+  )
+  .then(async () => {
+    try {
+      await deviceTypeStore.deleteDeviceType(row.id)
+      ElMessage.success('删除成功')
+      handleSearch()
+    } catch (error) {
+      ElMessage.error('删除失败')
+    }
+  })
+  .catch(() => {})
+}
+</script>
+
+<style scoped>
+.devicetype-list-container {
+  padding: 24px;
+  background: #fcfcfd;
+  min-height: calc(100vh - 84px);
+}
+
+.header-section {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32px;
+}
+
+.main-title {
+  font-size: 24px;
+  font-weight: 600;
+  color: #1a1b1e;
+  margin: 0 0 8px 0;
+}
+
+.sub-title {
+  color: #909399;
+  font-size: 14px;
+  margin: 0;
+}
+
+.search-card {
+  border: none;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.premium-table {
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  border: none;
+}
+
+.pagination-container {
+  margin-top: 24px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.model-name-text {
+  font-weight: 500;
+  color: #303133;
+}
+
+:deep(.el-table__row) {
+  transition: all 0.3s;
+  height: 64px;
+}
+
+:deep(.el-table__row:hover) {
+  background-color: #f5f7fa !important;
+  transform: translateY(-1px);
+}
+</style>

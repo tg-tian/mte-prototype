@@ -1,11 +1,17 @@
 import { defineStore } from 'pinia'
-import { getMockDeviceTypes, createMockDeviceType, updateMockDeviceType, deleteMockDeviceType, getDeviceTypes, createDeviceType, updateDeviceType, deleteDeviceType, bindingDeviceType, unbindingDeviceType } from '@/api/deviceType'
+import { getMockDeviceTypes, createMockDeviceType, updateMockDeviceType, deleteMockDeviceType, getDeviceTypes, getDeviceTypePage, createDeviceType, updateDeviceType, deleteDeviceType, bindingDeviceType, unbindingDeviceType } from '@/api/deviceType'
 import { DeviceType } from '@/types/models'
 
 export const useDeviceTypeStore = defineStore('deviceType', {
     state: () => ({
         deviceTypes: [] as DeviceType[],
         allDeviceTypes: [] as DeviceType[],
+        deviceTypePage: {
+            records: [] as DeviceType[],
+            total: 0,
+            size: 10,
+            current: 1
+        },
         loading: false,
         currentDeviceType: null as DeviceType | null
     }),
@@ -20,6 +26,20 @@ export const useDeviceTypeStore = defineStore('deviceType', {
                 }
             } catch (error) {
                 console.error('Failed to fetch deviceTypes:', error)
+            } finally {
+                this.loading = false
+            }
+        },
+
+        async fetchDeviceTypePage(params: any) {
+            this.loading = true
+            try {
+                const res: any = await getDeviceTypePage(params)
+                if (res.status === 200) {
+                    this.deviceTypePage = res.data
+                }
+            } catch (error) {
+                console.error('Failed to fetch deviceType page:', error)
             } finally {
                 this.loading = false
             }

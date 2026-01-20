@@ -1,5 +1,6 @@
 package demo.lowcode.platform.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -12,6 +13,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
 import java.util.Map;
 
 @Data
@@ -55,4 +57,14 @@ public class DeviceLibrary {
     @Column(columnDefinition = "json")
     @ApiModelProperty(value = "属性映射 (设备属性 -> 设备类型属性)")
     private Map<String, String> propertyMap;
+
+    @TableField(value = "create_time", fill = FieldFill.INSERT)
+    @Column(name = "create_time")
+    @ApiModelProperty(value = "创建时间")
+    private LocalDateTime createTime;
+
+    @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
+    @Column(name = "update_time")
+    @ApiModelProperty(value = "更新时间")
+    private LocalDateTime updateTime;
 }

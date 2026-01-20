@@ -1,5 +1,7 @@
 package demo.lowcode.platform.controller;
 
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import demo.lowcode.platform.business.DeviceTypeV1Business;
 import demo.lowcode.platform.entity.DeviceTypeV1;
 import io.swagger.annotations.Api;
@@ -25,6 +27,25 @@ public class DeviceTypeV1Controller {
   public ResponseEntity<List<DeviceTypeV1>> list() {
     try {
       return new ResponseEntity<>(deviceTypeV1Business.list(), HttpStatus.OK);
+    } catch (Exception e) {
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @GetMapping("/page")
+  @ApiOperation("分页查询设备类型列表")
+  public ResponseEntity<?> page(
+      @RequestParam(defaultValue = "1") Integer current,
+      @RequestParam(defaultValue = "10") Integer size,
+      @RequestParam(required = false) String modelName) {
+    try {
+      Page<DeviceTypeV1> page = new Page<>(current, size);
+      QueryWrapper<DeviceTypeV1> queryWrapper = new QueryWrapper<>();
+      if (modelName != null && !modelName.isEmpty()) {
+        queryWrapper.like("modelName", modelName);
+      }
+      queryWrapper.orderByDesc("create_time");
+      return new ResponseEntity<>(deviceTypeV1Business.page(page, queryWrapper), HttpStatus.OK);
     } catch (Exception e) {
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }

@@ -68,8 +68,8 @@ export interface DeviceType {
     modelName: string;
     provider?: string;
     category: string;
-    createTime: string;
-    updateTime: string;
+    createTime?: string;
+    updateTime?: string;
     model: BaseDeviceModel;
     domainIds?: Array<number>;
 }
@@ -199,6 +199,8 @@ export interface DeviceLibrary {
     deviceName?: string; // 设备名称
     deviceMapperPath?: string; // 设备Mapper路径
     propertyMap?: Record<string, string>; // 属性映射规则
+    createTime?: string;
+    updateTime?: string;
 }
 
 // 保持向前兼容，如果 UI 仍然称其为 DeviceModel

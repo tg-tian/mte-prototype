@@ -11,6 +11,18 @@ export function getDeviceTypes(domainId?: number) {
     })
 }
 
+export function getDeviceTypePage(params: {
+    current: number;
+    size: number;
+    modelName?: string;
+}) {
+    return request({
+        url: '/api/v1/device-types/page',
+        method: 'get',
+        params
+    })
+}
+
 export function getDeviceTypeById(id: number) {
     return request({
         url: `/api/v1/device-types/${id}`,

@@ -36,10 +36,9 @@
       </el-form>
     </el-card>
 
-    <!-- 表格区域 -->
     <el-table
       v-loading="store.loading"
-      :data="store.deviceLibraryPage.records"
+      :data="formattedRecords"
       style="width: 100%; margin-top: 24px"
       class="premium-table"
       :header-cell-style="{ background: '#f5f7fa', color: '#606266', fontWeight: 'bold' }"
@@ -54,6 +53,8 @@
       <el-table-column prop="deviceTypeName" label="设备类型" min-width="150" />
       <el-table-column prop="deviceModel" label="设备型号" min-width="150" />
       <el-table-column prop="deviceName" label="设备名称" min-width="150" />
+      <el-table-column prop="createTime" label="创建时间" min-width="180" align="center" />
+      <el-table-column prop="updateTime" label="更新时间" min-width="180" align="center" />
       <el-table-column label="操作" width="200" fixed="right">
         <template #default="{ row }">
           <el-button link type="primary" @click="handleEdit(row)">编辑</el-button>
@@ -174,6 +175,14 @@ const searchForm = reactive({
   size: 10,
   provider: '',
   deviceTypeName: ''
+})
+
+const formattedRecords = computed(() => {
+  return store.deviceLibraryPage.records.map((item: any) => ({
+    ...item,
+    createTime: item.createTime?.split('.')[0].replace('T', ' '),
+    updateTime: item.updateTime?.split('.')[0].replace('T', ' ')
+  }))
 })
 
 const dialogVisible = ref(false)
