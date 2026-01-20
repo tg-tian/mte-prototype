@@ -7,9 +7,12 @@ import org.springframework.stereotype.Service;
 
 import java.util.Date;
 import java.util.List;
+import java.util.logging.Logger;
 
 @Service
 public class DeviceTypeV1Business {
+
+  private static final Logger logger = Logger.getLogger(DeviceTypeV1Business.class.getName());
 
   @Autowired
   private DeviceTypeV1Mapper deviceTypeV1Mapper;
@@ -23,9 +26,30 @@ public class DeviceTypeV1Business {
   }
 
   public DeviceTypeV1 save(DeviceTypeV1 deviceTypeV1) {
+    // 创建时确保ID为null，让数据库自动生成
+    deviceTypeV1.setId(null);
     if (deviceTypeV1.getCreateTime() == null) {
       deviceTypeV1.setCreateTime(new Date());
     }
+    
+    // 重置AUTO_INCREMENT，确保ID从当前最大ID+1开始（避免删除记录后ID跳跃）
+    Long maxId = deviceTypeV1Mapper.selectMaxId();
+    if (maxId == null) {
+      maxId = 0L;
+    }
+    Long nextId = maxId + 1;
+    
+    // 直接重置AUTO_INCREMENT为最大ID+1，确保新ID连续
+    try {
+      logger.info("重置AUTO_INCREMENT: 当前最大ID=" + maxId + ", 重置为=" + nextId);
+      deviceTypeV1Mapper.resetAutoIncrement(nextId);
+      logger.info("AUTO_INCREMENT重置成功");
+    } catch (Exception e) {
+      // 如果重置失败，记录日志但不影响插入操作
+      logger.warning("重置AUTO_INCREMENT失败: " + e.getMessage());
+      e.printStackTrace();
+    }
+    
     deviceTypeV1Mapper.insert(deviceTypeV1);
     return deviceTypeV1;
   }
@@ -37,6 +61,18 @@ public class DeviceTypeV1Business {
   }
 
   public boolean delete(Long id) {
-    return deviceTypeV1Mapper.deleteById(id) > 0;
+    boolean deleted = deviceTypeV1Mapper.deleteById(id) > 0;
+    
+    // 删除后重置AUTO_INCREMENT，确保新ID从当前最大ID+1开始
+    if (deleted) {
+      Long maxId = deviceTypeV1Mapper.selectMaxId();
+      if (maxId == null) {
+        maxId = 0L;
+      }
+      Long nextId = maxId + 1;
+      deviceTypeV1Mapper.resetAutoIncrement(nextId);
+    }
+    
+    return deleted;
   }
 }

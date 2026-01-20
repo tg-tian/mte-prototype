@@ -767,17 +767,21 @@ const submitForm = async () => {
         modelForm.value.modelName = deviceTypeForm.value.modelName!
         modelForm.value.category = deviceTypeForm.value.category!
 
-        const deviceTypeData = {
-          ...deviceTypeForm.value,
-          model: modelForm.value
-        } as DeviceType
-
         if (isEditMode.value && deviceTypeId.value) {
           // 更新设备类型 (包含模型)
+          const deviceTypeData = {
+            ...deviceTypeForm.value,
+            model: modelForm.value
+          } as DeviceType
           await deviceTypeStore.updateDeviceType(deviceTypeId.value, deviceTypeData)
           ElMessage.success('更新成功')
         } else {
-          // 创建设备类型
+          // 创建设备类型 - 明确排除 id 字段，让数据库自动生成
+          const { id, ...createData } = deviceTypeForm.value
+          const deviceTypeData = {
+            ...createData,
+            model: modelForm.value
+          } as DeviceType
           const result = await deviceTypeStore.createDeviceType(deviceTypeData)
           if (result && result.id) {
             currentDeviceTypeId.value = result.id
