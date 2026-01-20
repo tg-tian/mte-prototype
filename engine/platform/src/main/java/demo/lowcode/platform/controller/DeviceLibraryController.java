@@ -1,6 +1,7 @@
 package demo.lowcode.platform.controller;
 
 import demo.lowcode.platform.business.DeviceLibraryBusiness;
+import demo.lowcode.platform.dto.DeviceMapperResult;
 import demo.lowcode.platform.entity.DeviceLibrary;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
@@ -23,11 +24,10 @@ public class DeviceLibraryController {
 
     @GetMapping("/mapper")
     public ResponseEntity<?> getMapper(@RequestParam String provider,
-                                       @RequestParam String category,
                                        @RequestParam String deviceModel) {
         try {
-            String content = deviceLibraryBusiness.getMapperContent(provider, category, deviceModel);
-            return new ResponseEntity<>(content, HttpStatus.OK);
+            DeviceMapperResult result = deviceLibraryBusiness.getMapperContent(provider, deviceModel);
+            return new ResponseEntity<>(result, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }

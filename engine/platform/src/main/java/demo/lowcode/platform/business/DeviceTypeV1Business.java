@@ -22,6 +22,12 @@ public class DeviceTypeV1Business {
     return deviceTypeV1Mapper.selectById(id);
   }
 
+  public DeviceTypeV1 getByModelName(String modelName) {
+    com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<DeviceTypeV1> queryWrapper = new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<>();
+    queryWrapper.eq("modelName", modelName);
+    return deviceTypeV1Mapper.selectOne(queryWrapper);
+  }
+
   public DeviceTypeV1 save(DeviceTypeV1 deviceTypeV1) {
     if (deviceTypeV1.getCreateTime() == null) {
       deviceTypeV1.setCreateTime(new Date());
