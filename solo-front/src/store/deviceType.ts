@@ -46,7 +46,7 @@ export const useDeviceTypeStore = defineStore('deviceType', {
         async createDeviceType(deviceTypeData: any) {
             try {
                 const res: any = await createDeviceType(deviceTypeData)
-                if (res.data && res.status === 200) {
+                if (res.status === 201) {
                     await this.fetchAllDeviceTypes()
                     return res.data
                 } else {

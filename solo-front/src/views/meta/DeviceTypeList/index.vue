@@ -7,8 +7,8 @@
       
       <el-card class="devicetype-search">
         <el-form :inline="true" :model="searchForm" class="search-form">
-          <el-form-item label="设备类型名称">
-            <el-input v-model="searchForm.name" placeholder="请输入设备类型名称" clearable></el-input>
+          <el-form-item label="模型名称">
+            <el-input v-model="searchForm.modelName" placeholder="请输入模型名称" clearable></el-input>
           </el-form-item>
           <el-form-item>
             <el-button type="primary" @click="handleSearch">搜索</el-button>
@@ -23,9 +23,9 @@
         style="width: 100%; margin-top: 20px"
         border
       >
-        <el-table-column prop="code" label="设备类型编码" width="150"></el-table-column>
-        <el-table-column prop="name" label="设备类型名称" min-width="150"></el-table-column>
-        <el-table-column prop="description" label="描述" min-width="200"></el-table-column>
+        <el-table-column prop="id" label="ID" width="80"></el-table-column>
+        <el-table-column prop="modelName" label="模型名称" min-width="150"></el-table-column>
+        <el-table-column prop="category" label="品类" width="120"></el-table-column>
         <el-table-column prop="createTime" label="创建时间" min-width="150"></el-table-column>
         <el-table-column prop="updateTime" label="更新时间" min-width="150"></el-table-column>
         <el-table-column label="操作" width="220">
@@ -51,18 +51,18 @@
   // 状态
   const state = reactive({
     searchForm: {
-      name: ''
+      modelName: ''
     }
   })
   
   const { searchForm } = toRefs(state)
   
-  // 过滤后的领域列表
+  // 过滤后的列表
   const filteredDevicetypes = computed(() => {
     if (!deviceTypeStore.allDeviceTypes) return []
     
     return deviceTypeStore.allDeviceTypes.filter((deviceType: DeviceType) => {
-      const nameMatch = !searchForm.value.name || deviceType.name.toLowerCase().includes(searchForm.value.name.toLowerCase())
+      const nameMatch = !searchForm.value.modelName || deviceType.modelName.toLowerCase().includes(searchForm.value.modelName.toLowerCase())
       return nameMatch
     }).map((deviceType: any)=>{
       return {
@@ -85,7 +85,7 @@
   
   // 重置搜索
   const resetSearch = () => {
-    searchForm.value.name = ''
+    searchForm.value.modelName = ''
   }
   
   // 导航到设备类型设置页面
@@ -93,17 +93,17 @@
     if (deviceType) {
       // 编辑设备类型
       deviceTypeStore.setCurrentDeviceType(deviceType)
-      router.push(`/meta/deviceType/setting?deviceTypeId=${deviceType.id}&mode=edit`)
+      router.push(`/meta/devicetype/setting?deviceTypeId=${deviceType.id}&mode=edit`)
     } else {
       // 创建设备类型
-      router.push('/meta/deviceType/setting?mode=create')
+      router.push('/meta/devicetype/setting?mode=create')
     }
   }
   
   // 删除设备类型
   const handleDelete = (row: DeviceType) => {
     ElMessageBox.confirm(
-      `确定要删除设备类型 "${row.name}" 吗？`,
+      `确定要删除设备类型 "${row.modelName}" 吗？`,
       '警告',
       {
         confirmButtonText: '确定',
