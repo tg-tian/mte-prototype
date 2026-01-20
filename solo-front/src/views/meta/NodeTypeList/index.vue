@@ -1,7 +1,10 @@
 <template>
-    <div class="nodetype-list-container">
-      <div class="nodetype-header">
-        <h2>节点类型列表</h2>
+    <div class="page-container">
+      <div class="page-header">
+        <div class="page-title-group">
+          <h2 class="page-main-title">节点类型列表</h2>
+          <p class="page-sub-title">定义拓扑图中支持的各种物理或逻辑节点类型</p>
+        </div>
         <el-button type="primary" @click="navigateToNodeTypeSetting()">创建节点类型</el-button>
       </div>
       
@@ -126,15 +129,8 @@
   </script>
   
   <style scoped>
-  .nodetype-list-container {
-    padding: 20px;
-  }
-  
-  .nodetype-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 20px;
+  .page-container {
+    width: 100%;
   }
   
   .nodetype-search {

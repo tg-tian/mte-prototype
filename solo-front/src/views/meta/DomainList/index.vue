@@ -1,7 +1,10 @@
 <template>
-  <div class="domain-list-container">
-    <div class="domain-header">
-      <h2>领域平台列表</h2>
+  <div class="page-container">
+    <div class="page-header">
+      <div class="page-title-group">
+        <h2 class="page-main-title">领域平台列表</h2>
+        <p class="page-sub-title">管理和定制不同行业的物联网领域解决方案</p>
+      </div>
       <el-button type="primary" @click="handleCreate">创建领域</el-button>
     </div>
     
@@ -345,16 +348,8 @@ const handleCreate = () => {
 </script>
 
 <style scoped>
-
-.domain-list-container {
-  padding: 20px;
-}
-
-.domain-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+.page-container {
+  width: 100%;
 }
 
 .domain-search {

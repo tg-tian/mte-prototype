@@ -1,9 +1,9 @@
 <template>
-  <div class="devicetype-list-container">
-    <div class="header-section">
-      <div class="title-wrapper">
-        <h2 class="main-title">设备类型管理</h2>
-        <p class="sub-title">定义和管理平台支持的物联网设备元模型</p>
+  <div class="page-container">
+    <div class="page-header">
+      <div class="page-title-group">
+        <h2 class="page-main-title">设备类型管理</h2>
+        <p class="page-sub-title">定义和管理平台支持的物联网设备元模型</p>
       </div>
       <el-button type="primary" class="create-btn" @click="navigateToDeviceTypeSetting()">
         <el-icon><Plus /></el-icon>创建设备类型
@@ -217,30 +217,8 @@ const copyJson = () => {
 </script>
 
 <style scoped>
-.devicetype-list-container {
-  padding: 24px;
-  background: #fcfcfd;
-  min-height: calc(100vh - 84px);
-}
-
-.header-section {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 32px;
-}
-
-.main-title {
-  font-size: 24px;
-  font-weight: 600;
-  color: #1a1b1e;
-  margin: 0 0 8px 0;
-}
-
-.sub-title {
-  color: #909399;
-  font-size: 14px;
-  margin: 0;
+.page-container {
+  width: 100%;
 }
 
 .search-card {

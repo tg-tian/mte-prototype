@@ -1,7 +1,11 @@
 <template>
   <div class="device-type-setting">
-    <div class="devicetype-header">
-      <h2>{{ isEditMode ? '编辑设备类型——'+ deviceTypeForm.modelName : '创建设备类型' }}</h2>
+    <div class="page-header">
+      <div class="page-title-group">
+        <h2 class="page-main-title">{{ isEditMode ? '编辑设备类型' : '创建设备类型' }}</h2>
+        <p v-if="isEditMode" class="page-sub-title">{{ deviceTypeForm.modelName || '设备类型详情' }}</p>
+        <p v-else class="page-sub-title">定义新的物联网设备元模型及其属性、操作和事件</p>
+      </div>
       <div class="header-actions">
         <el-button @click="navigateBack">返回列表</el-button>
         <el-button type="primary" @click="submitForm" :loading="submitting">保存</el-button>
@@ -982,19 +986,12 @@ const copyModelJson = () => {
 
 <style scoped>
 .device-type-setting {
-  padding: 20px;
-}
-
-.devicetype-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+  width: 100%;
 }
 
 .header-actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
 .basic-info-card {

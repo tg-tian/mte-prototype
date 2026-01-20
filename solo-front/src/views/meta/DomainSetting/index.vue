@@ -1,7 +1,12 @@
 <template>
   <div class="domain-setting-container">
-    <div class="domain-header">
-      <h2>{{ isEditMode ? '编辑领域-'+domainForm.name : isFromTem ? '创建领域-从模板导入' : '创建领域' }}</h2>
+    <div class="page-header">
+      <div class="page-title-group">
+        <h2 class="page-main-title">{{ isEditMode ? '编辑领域' : isFromTem ? '创建领域' : '创建领域' }}</h2>
+        <p v-if="isEditMode" class="page-sub-title">{{ domainForm.name || '领域详情' }}</p>
+        <p v-else-if="isFromTem" class="page-sub-title">从模板快速创建领域及其预定义模型和组件</p>
+        <p v-else class="page-sub-title">定义新的物联网垂直领域及其专有的元工具集</p>
+      </div>
       <div class="header-actions">
         <el-button @click="navigateBack">返回列表</el-button>
         <el-button 
@@ -484,19 +489,12 @@ const loadDomainFromTemplate = (template: any) => {
 
 <style scoped>
 .domain-setting-container {
-  padding: 20px;
-}
-
-.domain-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+  width: 100%;
 }
 
 .header-actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
 .setting-content {

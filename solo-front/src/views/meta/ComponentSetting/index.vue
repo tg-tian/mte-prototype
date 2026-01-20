@@ -1,7 +1,11 @@
 <template>
   <div class="component-setting-container">
-    <div class="component-header">
-      <h2>{{ isEditMode ? '编辑组件' : '创建组件' }}</h2>
+    <div class="page-header">
+      <div class="page-title-group">
+        <h2 class="page-main-title">{{ isEditMode ? '编辑组件' : '创建组件' }}</h2>
+        <p v-if="isEditMode" class="page-sub-title">{{ componentForm.name || '组件详情' }}</p>
+        <p v-else class="page-sub-title">定义新的流程节点或连接边组件及其拓扑约束</p>
+      </div>
       <div class="header-actions">
         <el-button @click="navigateBack">返回列表</el-button>
         <el-button type="primary" @click="submitForm" :loading="submitting">保存</el-button>
@@ -365,19 +369,12 @@ const submitForm = async () => {
 
 <style scoped>
 .component-setting-container {
-  padding: 20px;
-}
-
-.component-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+  width: 100%;
 }
 
 .header-actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
 .setting-content {

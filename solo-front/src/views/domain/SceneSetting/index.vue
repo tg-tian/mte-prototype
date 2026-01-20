@@ -1,7 +1,11 @@
 <template>
   <div class="scene-setting-container">
-    <div class="scene-header">
-      <h2>{{ isEditMode ? '编辑场景-' + sceneForm.name : '创建场景' }} </h2>
+    <div class="page-header">
+      <div class="page-title-group">
+        <h2 class="page-main-title">{{ isEditMode ? '编辑场景' : '创建场景' }}</h2>
+        <p v-if="isEditMode" class="page-sub-title">{{ sceneForm.name || '场景详情' }}</p>
+        <p v-else class="page-sub-title">定义新的物联网应用场景，管理其中的区域划分和设备接入</p>
+      </div>
       <div class="header-actions">
         <el-button @click="navigateBack">返回列表</el-button>
         <el-button type="primary" @click="publishForm">{{ sceneForm.status === '1' ? '取消发布' : '发布' }}</el-button>
@@ -190,8 +194,8 @@
         </el-form-item>
         <el-form-item label="设备类型" prop="deviceTypeId">
           <el-select v-model="deviceForm.deviceTypeId" placeholder="请选择设备类型">
-            <el-option v-for="(item, index) in deviceTypeList" :value="item.id" :label="item.name"
-              :key="item.code"></el-option>
+            <el-option v-for="(item, index) in deviceTypeList" :value="item.id" :label="item.modelName"
+              :key="item.id"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="协议类型" prop="protocolType">
@@ -1480,9 +1484,12 @@ const availableDevices = computed(() => {
 const availablePositions = computed(() => {
   const usedPositions = (currentDevice.value.connections || []).map((d: any) => d.position);
   console.log("currentDevicesdf", currentDevice.value)
-  const positions = currentDevice.value.deviceType.model.properties
-    .filter(prop => prop.identify.startsWith('OBJECT'))
-    .map(prop => prop.name);
+  // properties is Record<string, PropertyDefinition>, we need both key (identify) and value (name)
+  // based on the usage in the original code, it seems 'identify' was expected to be a property of the value
+  // but looking at BaseDeviceModel, identify is likely the key in the Record.
+  const positions = Object.entries(currentDevice.value.deviceType.model.properties || {})
+    .filter(([key]) => key.startsWith('OBJECT'))
+    .map(([key, prop]) => prop.description || key);
   return positions.filter(pos => !usedPositions.includes(pos));
 });
 
@@ -1517,19 +1524,12 @@ const confirmAddInPoint = async () => {
 
 <style scoped>
 .scene-setting-container {
-  padding: 20px;
-}
-
-.scene-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+  width: 100%;
 }
 
 .header-actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
 .setting-content {

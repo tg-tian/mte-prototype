@@ -1,7 +1,10 @@
 <template>
-  <div class="component-list-container">
-    <div class="component-header">
-      <h2>组件类型</h2>
+  <div class="page-container">
+    <div class="page-header">
+      <div class="page-title-group">
+        <h2 class="page-main-title">组件类型管理</h2>
+        <p class="page-sub-title">定义和管理流程引擎使用的节点和连线组件</p>
+      </div>
       <el-button type="primary" @click="navigateToComponentSetting()">创建组件</el-button>
     </div>
     
@@ -11,13 +14,13 @@
           <el-input v-model="searchForm.name" placeholder="请输入组件名称" clearable></el-input>
         </el-form-item>
         <el-form-item label="组件类型">
-          <el-select v-model="searchForm.type" placeholder="请选择组件类型" clearable>
+          <el-select style="width: 180px;" v-model="searchForm.type" placeholder="请选择组件类型" clearable>
             <el-option label="节点" value="node"></el-option>
             <el-option label="边" value="edge"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="用途">
-          <el-select v-model="searchForm.purpose" placeholder="请选择用途" clearable>
+          <el-select style="width: 180px;" v-model="searchForm.purpose" placeholder="请选择用途" clearable>
             <el-option label="业务流" value="businessFlow"></el-option>
             <el-option label="界面流" value="interfaceFlow"></el-option>
             <el-option label="设备逻辑" value="deviceLogic"></el-option>
@@ -279,15 +282,8 @@ const getPurposeText = (purpose: string) => {
 </script>
 
 <style scoped>
-.component-list-container {
-  padding: 20px;
-}
-
-.component-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+.page-container {
+  width: 100%;
 }
 
 .component-search {
