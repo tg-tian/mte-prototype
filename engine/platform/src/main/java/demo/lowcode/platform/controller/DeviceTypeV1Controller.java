@@ -44,6 +44,20 @@ public class DeviceTypeV1Controller {
     }
   }
 
+  @GetMapping("/model/{modelName}")
+  @ApiOperation("根据模型名称查询设备类型")
+  public ResponseEntity<DeviceTypeV1> getByModelName(@PathVariable String modelName) {
+    try {
+      DeviceTypeV1 deviceTypeV1 = deviceTypeV1Business.getByModelName(modelName);
+      if (deviceTypeV1 == null) {
+        return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+      }
+      return new ResponseEntity<>(deviceTypeV1, HttpStatus.OK);
+    } catch (Exception e) {
+      return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
   @PostMapping
   @ApiOperation("新增设备类型")
   public ResponseEntity<?> save(@RequestBody DeviceTypeV1 deviceTypeV1) {
