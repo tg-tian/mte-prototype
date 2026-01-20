@@ -31,7 +31,6 @@
           <div v-if="isEditMode || currentDeviceTypeId" class="tab-content-wrapper">
             <div class="tab-actions">
               <el-button type="primary" :icon="Plus" @click="addProperty">添加属性</el-button>
-              <el-button @click="showModelJson">查看JSON</el-button>
             </div>
             
             <el-table :data="propertyList" border style="width: 100%;" header-align="center">

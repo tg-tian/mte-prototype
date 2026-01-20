@@ -57,9 +57,10 @@
       </el-table-column>
       <el-table-column prop="createTime" label="创建时间" min-width="180" align="center" />
       <el-table-column prop="updateTime" label="更新时间" min-width="180" align="center" />
-      <el-table-column label="操作" width="180" fixed="right" align="center">
+      <el-table-column label="操作" width="250" fixed="right" align="center">
         <template #default="scope">
           <el-button link type="primary" @click="navigateToDeviceTypeSetting(scope.row)">编辑</el-button>
+          <el-button link type="success" @click="viewJson(scope.row)">查看JSON</el-button>
           <el-button link type="danger" @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
@@ -77,19 +78,42 @@
         @current-change="handleCurrentChange"
       />
     </div>
+
+    <!-- JSON查看对话框 -->
+    <el-dialog v-model="jsonDialogVisible" title="设备类型JSON" width="60%">
+      <pre class="json-viewer">{{ formattedDeviceTypeJson }}</pre>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button type="primary" @click="copyJson">复制</el-button>
+          <el-button @click="jsonDialogVisible = false">关闭</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted } from 'vue'
+import { reactive, computed, onMounted, ref } from 'vue'
 import { Plus, Search } from '@element-plus/icons-vue'
 import { useDeviceTypeStore } from '@/store/deviceType'
+import { getDeviceTypeById } from '@/api/deviceType'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
 import { DeviceType } from '@/types/models'
 
 const router = useRouter()
 const deviceTypeStore = useDeviceTypeStore()
+
+// JSON对话框相关状态
+const jsonDialogVisible = ref(false)
+const jsonDeviceType = ref<DeviceType | null>(null)
+
+// 格式化JSON - 只显示model部分，和编辑页面保持一致
+const formattedDeviceTypeJson = computed(() => {
+  if (!jsonDeviceType.value) return ''
+  // 只显示model部分，和编辑页面的formattedModelJson保持一致
+  return JSON.stringify(jsonDeviceType.value.model || {}, null, 2)
+})
 
 const searchForm = reactive({
   current: 1,
@@ -162,6 +186,34 @@ const handleDelete = (row: DeviceType) => {
   })
   .catch(() => {})
 }
+
+// 查看设备类型JSON
+const viewJson = async (deviceType: DeviceType) => {
+  try {
+    // 如果列表中的数据不完整，需要重新获取完整数据
+    if (!deviceType.model) {
+      const res: any = await getDeviceTypeById(deviceType.id)
+      jsonDeviceType.value = res.data || deviceType
+    } else {
+      jsonDeviceType.value = deviceType
+    }
+    jsonDialogVisible.value = true
+  } catch (error) {
+    ElMessage.error('获取设备类型数据失败')
+  }
+}
+
+// 复制JSON
+const copyJson = () => {
+  navigator.clipboard.writeText(formattedDeviceTypeJson.value)
+    .then(() => {
+      ElMessage.success('JSON已复制到剪贴板')
+    })
+    .catch(err => {
+      console.error('复制失败:', err)
+      ElMessage.error('复制失败')
+    })
+}
 </script>
 
 <style scoped>
@@ -224,5 +276,17 @@ const handleDelete = (row: DeviceType) => {
 :deep(.el-table__row:hover) {
   background-color: #f5f7fa !important;
   transform: translateY(-1px);
+}
+
+.json-viewer {
+  background: #f5f7fa;
+  padding: 16px;
+  border-radius: 4px;
+  overflow-x: auto;
+  max-height: 500px;
+  font-family: 'Courier New', monospace;
+  font-size: 14px;
+  line-height: 1.6;
+  color: #303133;
 }
 </style>
