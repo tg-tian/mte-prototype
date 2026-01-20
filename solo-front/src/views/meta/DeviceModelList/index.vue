@@ -5,22 +5,28 @@
         <h2 class="page-main-title">设备型号管理</h2>
         <p class="page-sub-title">定义物理设备与平台设备类型之间的映射关系及驱动配置</p>
       </div>
-      <el-button type="primary" class="create-btn" @click="handleCreate">
-        <el-icon><Plus /></el-icon>创建设备型号
+      <el-button type="primary" size="large" @click="handleCreate">
+        <el-icon><Plus /></el-icon>创建型号
       </el-button>
     </div>
 
     <!-- 搜索栏 -->
     <el-card class="search-card" shadow="never">
+      <template #header>
+        <div class="search-header">
+          <el-icon><Search /></el-icon>
+          <span>筛选型号</span>
+        </div>
+      </template>
       <el-form :inline="true" :model="searchForm" class="search-form">
         <el-form-item label="供应商">
-          <el-select v-model="searchForm.provider" placeholder="选择供应商" clearable style="width: 180px">
+          <el-select v-model="searchForm.provider" placeholder="全部" clearable style="width: 150px">
             <el-option label="MQTT" value="mqtt" />
             <el-option label="浪潮 IOT" value="inspire_iot" />
           </el-select>
         </el-form-item>
         <el-form-item label="设备类型">
-          <el-select v-model="searchForm.deviceTypeName" placeholder="选择设备类型" clearable filterable style="width: 200px">
+          <el-select v-model="searchForm.deviceTypeName" placeholder="选择类型" clearable filterable style="width: 200px">
             <el-option
               v-for="item in deviceTypeStore.allDeviceTypes"
               :key="item.id"
@@ -147,12 +153,31 @@
     </el-dialog>
 
     <!-- 驱动内容对话框 -->
-    <el-dialog v-model="mapperVisible" title="驱动配置脚本 (Mapper)" width="800px">
-      <div class="code-container">
-        <pre><code>{{ mapperContent }}</code></pre>
+    <el-dialog 
+      v-model="mapperVisible" 
+      title="驱动配置脚本 (Mapper)" 
+      width="1000px"
+      class="premium-dialog mapper-dialog"
+      append-to-body
+      :lock-scroll="true"
+      modal-class="no-scroll-overlay"
+    >
+      <div class="mapper-container">
+        <div class="mapper-header">
+          <div class="mapper-info">
+            <el-tag size="small" type="info" effect="dark">JavaScript</el-tag>
+            <span class="file-path">device-mapper.js</span>
+          </div>
+          <el-button type="primary" link :icon="DocumentCopy" @click="copyMapper">复制脚本</el-button>
+        </div>
+        <div class="code-wrapper">
+          <pre class="code-block"><code>{{ mapperContent }}</code></pre>
+        </div>
       </div>
       <template #footer>
-        <el-button @click="mapperVisible = false">关闭</el-button>
+        <div class="dialog-footer">
+          <el-button @click="mapperVisible = false">关闭</el-button>
+        </div>
       </template>
     </el-dialog>
   </div>
@@ -160,7 +185,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, onMounted, computed } from 'vue'
-import { Plus, Right } from '@element-plus/icons-vue'
+import { Plus, Right, Search, DocumentCopy } from '@element-plus/icons-vue'
 import { useDeviceLibraryStore } from '@/store/deviceLibrary'
 import { useDeviceTypeStore } from '@/store/deviceType'
 import { ElMessage, ElMessageBox } from 'element-plus'
@@ -325,6 +350,15 @@ const viewMapper = async (row: any) => {
     ElMessage.error(error.message || '获取驱动失败')
   }
 }
+
+const copyMapper = () => {
+  if (!mapperContent.value) return
+  navigator.clipboard.writeText(mapperContent.value).then(() => {
+    ElMessage.success('已成功复制到剪贴板')
+  }).catch(() => {
+    ElMessage.error('复制失败')
+  })
+}
 </script>
 
 <style scoped>
@@ -402,18 +436,94 @@ const viewMapper = async (row: any) => {
   padding: 20px;
 }
 
-.code-container {
-  background: #282c34;
-  color: #abb2bf;
-  padding: 16px;
+.mapper-container {
+  background-color: #1e1e1e;
   border-radius: 8px;
-  max-height: 600px;
+  overflow: hidden;
+  border: 1px solid #333333;
+}
+
+.mapper-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 16px;
+  background-color: #2d2d2d;
+  border-bottom: 1px solid #3d3d3d;
+}
+
+.mapper-info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.file-path {
+  color: #858585;
+  font-size: 13px;
+  font-family: 'Monaco', 'Menlo', monospace;
+}
+
+.code-wrapper {
+  padding: 16px;
+  max-height: 62vh; /* Reduced from 70vh to ensure total dialog fits in viewport */
   overflow: auto;
 }
 
-pre {
+/* Custom premium scrollbar for code viewing */
+.code-wrapper::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+.code-wrapper::-webkit-scrollbar-track {
+  background: #1e1e1e;
+}
+
+.code-wrapper::-webkit-scrollbar-thumb {
+  background: #444444;
+  border-radius: 3px;
+}
+
+.code-wrapper::-webkit-scrollbar-thumb:hover {
+  background: #555555;
+}
+
+.code-block {
   margin: 0;
-  font-family: 'Fira Code', 'Courier New', Courier, monospace;
+  color: #d4d4d4;
+  font-family: 'Fira Code', 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  white-space: pre; 
+}
+
+.mapper-dialog :deep(.el-dialog) {
+  margin-top: 4vh !important;
+  max-height: 92vh;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.mapper-dialog :deep(.el-dialog__body) {
+  padding: 20px;
+  flex: 1;
+  overflow: hidden;
+}
+
+.mapper-dialog :deep(.el-dialog__footer) {
+  padding-bottom: 20px;
+}
+
+
+.search-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #303133;
 }
 
 :deep(.el-table__row) {
