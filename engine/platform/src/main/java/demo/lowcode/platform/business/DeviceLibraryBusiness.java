@@ -15,10 +15,9 @@ import java.nio.charset.StandardCharsets;
 @Service
 public class DeviceLibraryBusiness extends ServiceImpl<DeviceLibraryMapper, DeviceLibrary> {
 
-    public String getMapperContent(String provider, String category, String deviceModel) {
+    public String getMapperContent(String provider, String deviceModel) {
         QueryWrapper<DeviceLibrary> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("provider", provider)
-                    .eq("category", category)
                     .eq("device_model", deviceModel);
         
         DeviceLibrary deviceLibrary = this.getOne(queryWrapper);

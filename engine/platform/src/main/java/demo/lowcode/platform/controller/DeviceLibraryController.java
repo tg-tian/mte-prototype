@@ -22,11 +22,9 @@ public class DeviceLibraryController {
 
     @GetMapping("/mapper")
     @ApiOperation("获取设备Mapper内容")
-    public ResponseEntity<?> getMapper(@RequestParam String provider,
-            @RequestParam String deviceTypeName,
-            @RequestParam String deviceModel) {
+    public ResponseEntity<?> getMapper(@RequestParam String provider, @RequestParam String deviceModel) {
         try {
-            String content = deviceLibraryBusiness.getMapperContent(provider, deviceTypeName, deviceModel);
+            String content = deviceLibraryBusiness.getMapperContent(provider, deviceModel);
             return new ResponseEntity<>(content, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
