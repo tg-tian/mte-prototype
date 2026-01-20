@@ -65,58 +65,47 @@ export interface ProtocolConfig {
 //设备类型
 export interface DeviceType {
     id: number;
-    code: string;
-    name: string;
-    description: string;
+    modelName: string;
+    provider?: string;
+    category: string;
     createTime: string;
     updateTime: string;
-    domainIds?: Array<number>,
-    model: Model
+    model: BaseDeviceModel;
+    domainIds?: Array<number>;
 }
 
-//设备型号
-export interface DeviceModel {
-    id: number;
-    code: string;
-    name: string;
-    deviceTypeId: number;
-    deviceType?: DeviceType; //获取设备型号时会返回
-    mapper: Record<string, any>; // mapper配置
-    description: string;
-    createTime: string;
-    updateTime: string;
+export interface PropertyDefinition {
+    type: "string" | "number" | "boolean" | "enum" | "object" | "array";
+    unit?: string;
+    readOnly?: boolean;
+    min?: number;
+    max?: number;
+    enumValues?: string[];
+    description?: string;
 }
 
-export interface Model {
-    properties: Array<Property>
-    services: Array<Service>
-    events: Array<Event>
+export interface ActionDefinition {
+    arguments: Record<string, PropertyDefinition>;
+    description?: string;
 }
 
-export interface Property {
-    identify: string;//属性标识符
-    name: string;//属性名称
-    accessMode?: string;//属性读写类型
-    dataType: DataType;//属性数据类型
+export interface EventDefinition {
+    fields: Record<string, PropertyDefinition>;
+    level: "info" | "warning" | "error";
+    description?: string;
 }
 
-export interface DataType {
-    type: string;//类型：int\float\bool\string
-    specs: Record<string, any>;//对象，int&float类型包括min\max\step属性，bool类型包括0\1，string类型包括length
-}
-
-export interface Service {
-    identify: string;//服务标识符
-    name: string;//服务名称
-    inputData: Array<Property>;//输入参数
-    outputData: Array<Property>;//输出参数
-}
-
-export interface Event {
-    identify: string;//事件标识符
-    name: string;//事件名称
-    type: string;//事件类型：信息info、告警warning、故障error
-    outputData: Array<Property>;//输出参数，指事件的返回值类型
+export interface BaseDeviceModel {
+    modelName: string;
+    provider?: string;
+    category: string;
+    properties: Record<string, PropertyDefinition>;
+    actions: Record<string, ActionDefinition>;
+    events: Record<string, EventDefinition>;
+    extensions?: {
+        rawModel?: any;
+        extraMeta?: any;
+    }
 }
 
 export interface User {

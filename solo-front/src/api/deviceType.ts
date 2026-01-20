@@ -5,7 +5,7 @@ import { DeviceType } from '@/types/models'
 // 实际环境下的API接口
 export function getDeviceTypes(domainId?: number) {
     return request({
-        url: '/devicetypes',
+        url: '/api/v1/device-types',
         method: 'get',
         params: { domainId }
     })
@@ -13,7 +13,7 @@ export function getDeviceTypes(domainId?: number) {
 
 export function getDeviceTypeById(id: number) {
     return request({
-        url: `/devicetypes/${id}`,
+        url: `/api/v1/device-types/${id}`,
         method: 'get'
     })
 }
@@ -21,7 +21,7 @@ export function getDeviceTypeById(id: number) {
 // 确保创建设备类型接口与文档一致
 export function createDeviceType(data: any) {
     return request({
-        url: '/devicetypes',
+        url: '/api/v1/device-types',
         method: 'post',
         data
     })
@@ -30,27 +30,15 @@ export function createDeviceType(data: any) {
 // 添加更新设备类型接口
 export function updateDeviceType(id: number, data: any) {
     return request({
-        url: `/devicetypes/${id}`,
+        url: `/api/v1/device-types/${id}`,
         method: 'put',
         data
     })
 }
 
-// 确保更新设备类型模型接口与文档一致
-export function updateDeviceTypeModel(id: number, model: any) {
-    return request({
-        url: `/devicetypes/model`,
-        method: 'post',
-        data: {
-            deviceTypeId: id,
-            model: model
-        }
-    })
-}
-
 export function deleteDeviceType(id: number) {
     return request({
-        url: `/devicetypes/${id}`,
+        url: `/api/v1/device-types/${id}`,
         method: 'delete'
     })
 }
