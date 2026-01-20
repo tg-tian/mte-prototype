@@ -188,6 +188,7 @@ const form = reactive({
   deviceTypeName: '',
   deviceModel: '',
   deviceName: '',
+  deviceMapperPath: undefined as string | undefined,
   propertyMap: {} as Record<string, string>
 })
 
@@ -222,6 +223,7 @@ const handleCreate = () => {
     deviceTypeName: '',
     deviceModel: '',
     deviceName: '',
+    deviceMapperPath: undefined,
     propertyMap: {}
   })
   dialogVisible.value = true
