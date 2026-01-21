@@ -344,7 +344,7 @@ const viewMapper = async (row: any) => {
       deviceTypeName: row.deviceTypeName,
       deviceModel: row.deviceModel
     })
-    mapperContent.value = res.data
+    mapperContent.value = res.data?.content
     mapperVisible.value = true
   } catch (error: any) {
     ElMessage.error(error.message || '获取驱动失败')
