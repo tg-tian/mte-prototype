@@ -24,8 +24,8 @@ public class DeviceLibraryBusiness extends ServiceImpl<DeviceLibraryMapper, Devi
     public DeviceMapperResult getMapperContent(String provider, String deviceModel) {
         QueryWrapper<DeviceLibrary> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("provider", provider)
-                    .eq("device_model", deviceModel);
-        
+                .eq("device_model", deviceModel);
+
         DeviceLibrary deviceLibrary = this.getOne(queryWrapper);
         if (deviceLibrary == null) {
             throw new RuntimeException("未找到对应的设备库信息");
@@ -99,7 +99,14 @@ public class DeviceLibraryBusiness extends ServiceImpl<DeviceLibraryMapper, Devi
         String propertyMapStr = "{}";
         if (entity.getPropertyMap() != null) {
             propertyMapStr = "{\n" + entity.getPropertyMap().entrySet().stream()
-                    .map(e -> "    " + e.getKey() + ": '" + e.getValue() + "'")
+                    .map(e -> "    \"" + e.getKey() + "\": \"" + e.getValue() + "\"")
+                    .collect(Collectors.joining(",\n")) + "\n  }";
+        }
+
+        String actionMapStr = "{}";
+        if (entity.getActionMap() != null) {
+            actionMapStr = "{\n" + entity.getActionMap().entrySet().stream()
+                    .map(e -> "    \"" + e.getKey() + "\": `" + e.getValue().replace("`", "\\`") + "`")
                     .collect(Collectors.joining(",\n")) + "\n  }";
         }
 
@@ -116,6 +123,7 @@ public class DeviceLibraryBusiness extends ServiceImpl<DeviceLibraryMapper, Devi
                   private client: mqtt.MqttClient;
                   private cfg: ProviderConfig;
                   propertyMap: Record<string, string> = %s;
+                  actionMap: Record<string, string> = %s;
 
                   constructor(config: ProviderConfig , metaModel: BaseDeviceModel) {
                     this.cfg = config;
@@ -139,8 +147,27 @@ public class DeviceLibraryBusiness extends ServiceImpl<DeviceLibraryMapper, Devi
                   mapEvent(rawEvent: any): any | null {
                     return null;
                   }
+
+                  async callAction(actionId: string, params: any): Promise<any> {
+                    const impl = this.actionMap[actionId];
+                    if (impl) {
+                      try {
+                        // 创建一个函数并执行
+                        const fn = new Function('params', 'device', impl);
+                        return await fn(params, this);
+                      } catch (e) {
+                        console.error(`Execute action ${actionId} failed:`, e);
+                        throw e;
+                      }
+                    }
+                    return null;
+                  }
+
+                  match(rawDevice: any): boolean {
+                    return true;
+                  }
                 }
-                """.formatted(className, entity.getDeviceModel(), entity.getProvider(), propertyMapStr);
+                """.formatted(className, entity.getDeviceModel(), entity.getProvider(), propertyMapStr, actionMapStr);
 
         try (FileWriter writer = new FileWriter(file)) {
             writer.write(content);
