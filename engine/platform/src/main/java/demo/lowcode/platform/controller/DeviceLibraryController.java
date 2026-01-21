@@ -1,6 +1,7 @@
 package demo.lowcode.platform.controller;
 
 import demo.lowcode.platform.business.DeviceLibraryBusiness;
+import demo.lowcode.platform.dto.DeviceMapperResult;
 import demo.lowcode.platform.entity.DeviceLibrary;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -24,8 +25,8 @@ public class DeviceLibraryController {
     @ApiOperation("获取设备Mapper内容")
     public ResponseEntity<?> getMapper(@RequestParam String provider, @RequestParam String deviceModel) {
         try {
-            String content = deviceLibraryBusiness.getMapperContent(provider, deviceModel);
-            return new ResponseEntity<>(content, HttpStatus.OK);
+            DeviceMapperResult result = deviceLibraryBusiness.getMapperContent(provider, deviceModel);
+            return new ResponseEntity<>(result, HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
