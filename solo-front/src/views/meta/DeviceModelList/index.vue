@@ -145,6 +145,34 @@
             </div>
           </div>
         </div>
+
+        <el-divider content-position="left">操作实现 (Action Implementation)</el-divider>
+        <div class="property-mapping-section">
+          <div v-if="!form.actionMap || Object.keys(form.actionMap).length === 0" class="empty-state">
+            请先选择设备类型以加载操作
+          </div>
+          <div v-else class="mapping-list">
+            <div v-for="(value, key) in form.actionMap" :key="key" class="mapping-item-vertical">
+              <div class="mapping-item-header">
+                <span class="platform-prop">{{ key }}</span>
+                <span class="prop-desc" v-if="deviceTypeStore.allDeviceTypes.find(t => t.id === form.deviceTypeId)?.model?.actions[key]?.description">
+                  ({{ deviceTypeStore.allDeviceTypes.find(t => t.id === form.deviceTypeId)?.model?.actions[key]?.description }})
+                </span>
+              </div>
+              <div class="editor-wrapper">
+                <codemirror
+                  v-model="form.actionMap[key]"
+                  placeholder="请输入自定义操作实现代码 (例如: return params.value + 1;)"
+                  :style="{ height: '150px' }"
+                  :autofocus="false"
+                  :indent-with-tab="true"
+                  :tab-size="2"
+                  :extensions="extensions"
+                />
+              </div>
+            </div>
+          </div>
+        </div>
       </el-form>
       <template #footer>
         <el-button @click="dialogVisible = false">取消</el-button>
@@ -191,6 +219,11 @@ import { useDeviceTypeStore } from '@/store/deviceType'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { getMapperContent } from '@/api/deviceLibrary'
 import type { FormInstance, FormRules } from 'element-plus'
+import { Codemirror } from 'vue-codemirror'
+import { javascript } from '@codemirror/lang-javascript'
+import { oneDark } from '@codemirror/theme-one-dark'
+
+const extensions = [javascript(), oneDark]
 
 const store = useDeviceLibraryStore()
 const deviceTypeStore = useDeviceTypeStore()
@@ -223,7 +256,8 @@ const form = reactive({
   deviceModel: '',
   deviceName: '',
   deviceMapperPath: undefined as string | undefined,
-  propertyMap: {} as Record<string, string>
+  propertyMap: {} as Record<string, string>,
+  actionMap: {} as Record<string, string>
 })
 
 const rules = reactive<FormRules>({
@@ -258,7 +292,8 @@ const handleCreate = () => {
     deviceModel: '',
     deviceName: '',
     deviceMapperPath: undefined,
-    propertyMap: {}
+    propertyMap: {},
+    actionMap: {}
   })
   dialogVisible.value = true
 }
@@ -267,7 +302,8 @@ const handleEdit = (row: any) => {
   isEdit.value = true
   Object.assign(form, {
     ...row,
-    propertyMap: row.propertyMap ? { ...row.propertyMap } : {}
+    propertyMap: row.propertyMap ? { ...row.propertyMap } : {},
+    actionMap: row.actionMap ? { ...row.actionMap } : {}
   })
   dialogVisible.value = true
 }
@@ -284,6 +320,15 @@ const handleDeviceTypeChange = (id: number) => {
       })
     }
     form.propertyMap = mapping
+
+    // 初始化操作实现
+    const actionMapping = {} as Record<string, string>
+    if (selectedType.model && selectedType.model.actions) {
+      Object.keys(selectedType.model.actions).forEach(key => {
+        actionMapping[key] = '' // 默认空，用户自定义
+      })
+    }
+    form.actionMap = actionMapping
   }
 }
 
@@ -428,6 +473,43 @@ const copyMapper = () => {
 
 .physical-input {
   flex: 1.5;
+}
+
+.mapping-item-vertical {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  background: white;
+  padding: 12px;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+.mapping-item-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.prop-desc {
+  font-size: 12px;
+  color: #909399;
+}
+
+.action-input {
+  width: 100%;
+}
+
+.editor-wrapper {
+  width: 100%;
+  border-radius: 4px;
+  overflow: hidden;
+  border: 1px solid #dcdfe6;
+}
+
+:deep(.cm-editor) {
+  font-size: 13px;
+  font-family: 'Fira Code', 'Monaco', 'Menlo', 'Consolas', monospace;
 }
 
 .empty-state {
