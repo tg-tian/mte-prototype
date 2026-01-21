@@ -1,8 +1,11 @@
 package demo.lowcode.platform.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 import jakarta.persistence.*;
@@ -10,10 +13,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+import java.util.Map;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("device_library1")
+@TableName(value = "device_library1", autoResultMap = true)
 @Entity
 @ApiModel(value = "设备库", description = "设备库信息")
 public class DeviceLibrary {
@@ -27,11 +33,11 @@ public class DeviceLibrary {
     @ApiModelProperty(value = "设备厂商")
     private String provider;
 
-    @Column(name = "deviceType_id", nullable = false)
-    @ApiModelProperty(value = "设备类型ID")
-    private Long deviceTypeId;
+    @Column(name = "device_type_id")
+    @ApiModelProperty(value = "设备类型id")
+    private Integer deviceTypeId;
 
-    @Column(name = "deviceType_name")
+    @Column(name = "device_type_name", nullable = false)
     @ApiModelProperty(value = "设备类型名称")
     private String deviceTypeName;
 
@@ -46,4 +52,19 @@ public class DeviceLibrary {
     @Column(name = "device_mapper_path")
     @ApiModelProperty(value = "设备Mapper路径")
     private String deviceMapperPath;
+
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    @Column(columnDefinition = "json")
+    @ApiModelProperty(value = "属性映射 (设备属性 -> 设备类型属性)")
+    private Map<String, String> propertyMap;
+
+    @TableField(value = "create_time", fill = FieldFill.INSERT)
+    @Column(name = "create_time")
+    @ApiModelProperty(value = "创建时间")
+    private LocalDateTime createTime;
+
+    @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
+    @Column(name = "update_time")
+    @ApiModelProperty(value = "更新时间")
+    private LocalDateTime updateTime;
 }

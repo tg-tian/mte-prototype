@@ -1,31 +1,40 @@
 <template>
-  <div class="component-list-container">
-    <div class="component-header">
-      <h2>组件类型</h2>
+  <div class="page-container">
+    <div class="page-header">
+      <div class="page-title-group">
+        <h2 class="page-main-title">组件类型管理</h2>
+        <p class="page-sub-title">定义和管理流程引擎使用的节点和连线组件</p>
+      </div>
       <el-button type="primary" @click="navigateToComponentSetting()">创建组件</el-button>
     </div>
     
-    <el-card class="component-search">
+    <el-card class="component-search" shadow="never">
+      <template #header>
+        <div class="card-header">
+          <el-icon><Filter /></el-icon>
+          <span>筛选条件</span>
+        </div>
+      </template>
       <el-form :inline="true" :model="searchForm" class="search-form">
         <el-form-item label="组件名称">
-          <el-input v-model="searchForm.name" placeholder="请输入组件名称" clearable></el-input>
+          <el-input v-model="searchForm.name" placeholder="名称或编码" clearable></el-input>
         </el-form-item>
         <el-form-item label="组件类型">
-          <el-select v-model="searchForm.type" placeholder="请选择组件类型" clearable>
+          <el-select v-model="searchForm.type" placeholder="全部" clearable style="width: 150px">
             <el-option label="节点" value="node"></el-option>
             <el-option label="边" value="edge"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item label="用途">
-          <el-select v-model="searchForm.purpose" placeholder="请选择用途" clearable>
+          <el-select v-model="searchForm.purpose" placeholder="全部" clearable style="width: 150px">
             <el-option label="业务流" value="businessFlow"></el-option>
             <el-option label="界面流" value="interfaceFlow"></el-option>
             <el-option label="设备逻辑" value="deviceLogic"></el-option>
           </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleSearch">搜索</el-button>
-          <el-button @click="resetSearch">重置</el-button>
+          <el-button type="primary" :icon="Search" @click="handleSearch">查询</el-button>
+          <el-button :icon="Refresh" @click="resetSearch">重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
@@ -126,6 +135,7 @@ import { useComponentStore } from '@/store/component'
 import { Component, ComponentType, PurposeType } from '@/types/models'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
+import { Filter, Search, Refresh } from '@element-plus/icons-vue'
 
 const router = useRouter()
 const componentStore = useComponentStore()
@@ -279,24 +289,8 @@ const getPurposeText = (purpose: string) => {
 </script>
 
 <style scoped>
-.component-list-container {
-  padding: 20px;
-}
-
-.component-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.component-search {
-  margin-bottom: 20px;
-}
-
-.search-form {
-  display: flex;
-  flex-wrap: wrap;
+.page-container {
+  width: 100%;
 }
 
 .json-viewer {

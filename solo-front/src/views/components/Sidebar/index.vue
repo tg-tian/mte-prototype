@@ -16,32 +16,52 @@
       <div style="margin-top: 10px" v-if="!routerPath.startsWith('/domain') && !routerPath.startsWith('/scene')">
         <el-sub-menu index="0" class="nav-item">
           <template #title>
-            <el-icon><Monitor /></el-icon>
+            <el-icon><Management /></el-icon>
             <div class="menu-item">元建模</div>
           </template>
-          <el-menu-item index="meta-devicetype-list" class="sub-menu-item">设备类型</el-menu-item>
-          <el-menu-item index="meta-devicemodel-list" class="sub-menu-item">设备型号列表</el-menu-item>
-          <el-menu-item index="meta-nodetype-list" class="sub-menu-item">节点类型</el-menu-item>
-          <el-menu-item index="meta-component-list" class="sub-menu-item">组件类型</el-menu-item>
+          <el-menu-item index="meta-devicetype-list" class="sub-menu-item">
+            <el-icon><Cpu /></el-icon>
+            <span>设备类型</span>
+          </el-menu-item>
+          <el-menu-item index="meta-devicemodel-list" class="sub-menu-item">
+            <el-icon><PriceTag /></el-icon>
+            <span>设备型号</span>
+          </el-menu-item>
+          <el-menu-item index="meta-nodetype-list" class="sub-menu-item">
+            <el-icon><Link /></el-icon>
+            <span>节点类型</span>
+          </el-menu-item>
+          <el-menu-item index="meta-component-list" class="sub-menu-item">
+            <el-icon><Grid /></el-icon>
+            <span>组件类型</span>
+          </el-menu-item>
         </el-sub-menu>
         <el-sub-menu index="1" class="nav-item">
           <template #title>
-            <el-icon><Monitor /></el-icon>
+            <el-icon><Coordinate /></el-icon>
             <div class="menu-item">定制领域</div>
           </template>
-          <el-menu-item index="meta-domain-list" class="sub-menu-item">领域平台列表</el-menu-item>
-          <!--el-menu-item index="meta-domain-setting" class="sub-menu-item">创建领域平台</el-menu-item-->
+          <el-menu-item index="meta-domain-list" class="sub-menu-item">
+            <el-icon><Platform /></el-icon>
+            <span>领域平台列表</span>
+          </el-menu-item>
         </el-sub-menu>
       </div>
       <!-- 领域平台 -->
       <div style="margin-top: 10px" v-if="routerPath.startsWith('/domain')">
         <el-sub-menu index="0" class="nav-item">
           <template #title>
-            <el-icon><Monitor /></el-icon>
+            <el-icon><OfficeBuilding /></el-icon>
             <div class="menu-item">场景管理</div>
           </template>
-          <el-menu-item index="domain-scene-list" class="sub-menu-item">场景平台列表</el-menu-item>
-          <el-menu-item index="domain-scene-setting" class="sub-menu-item">创建场景平台</el-menu-item>
+          <el-menu-item index="domain-scene-list" class="sub-menu-item">
+            <el-icon><MapLocation /></el-icon>
+            <span>场景平台列表</span>
+          </el-menu-item>
+          <el-menu-item index="domain-scene-setting" class="sub-menu-item">
+            <el-icon><CirclePlus /></el-icon>
+            <span>创建场景平台</span>
+          </el-menu-item>
         </el-sub-menu>
       </div>
     </el-menu>
@@ -49,7 +69,19 @@
 </template>
   
 <script setup lang="ts">
-import { Monitor } from '@element-plus/icons-vue'
+import { 
+  Monitor, 
+  Management, 
+  Coordinate, 
+  OfficeBuilding, 
+  Cpu, 
+  PriceTag, 
+  Link, 
+  Grid, 
+  Platform, 
+  MapLocation, 
+  CirclePlus 
+} from '@element-plus/icons-vue'
 import router from '@/router/index.ts'
 import logoImage from '@/assets/LOGO_dark.jpg'
 import { reactive, watchEffect, ref } from 'vue'
@@ -198,22 +230,39 @@ const handleMenuSelect = (key: string, _keyPath: string[]) => {
 }
 
 .sub-menu-item {
-  text-align: center;
-  font-size: 16px;
+  display: flex !important;
+  align-items: center !important;
+  padding-left: 45px !important;
+  font-size: 15px;
+  margin: 4px 10px !important;
+  width: calc(100% - 20px) !important;
+  border-radius: 8px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  height: 44px !important;
+  line-height: 44px !important;
+}
+
+.sub-menu-item :deep(.el-icon) {
+  margin-right: 12px;
+  font-size: 18px;
 }
 
 :deep(.nav-item .el-menu-item.is-active) {
-  background-color: #e4ecfc;
-  margin: 5px;
-  border-radius: 5px;
-  color: #0454c4;
+  background-color: #e4ecfc !important;
+  color: #0454c4 !important;
 }
 
-:deep(.nav-item .el-menu-item:hover) {
-  color: #0454c4;
+/* :deep(.nav-item .el-menu-item:not(.is-active)) {
+  background-color: transparent !important;
+} */
+
+:deep(.nav-item .el-menu-item:hover), :deep(.nav-item .el-sub-menu__title){
+  background-color:transparent;
+  color: #ffffff;
 }
 
-:deep(.nav-item .el-sub-menu__title:hover) {
-  color: #0454c4;
-}
+/* :deep(.nav-item .el-sub-menu__title:hover) {
+  background-color: rgba(255, 255, 255, 0.1) !important;
+  color: #ffffff !important;
+} */
 </style>

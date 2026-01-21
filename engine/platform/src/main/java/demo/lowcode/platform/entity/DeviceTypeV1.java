@@ -1,5 +1,6 @@
 package demo.lowcode.platform.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -11,7 +12,7 @@ import io.swagger.annotations.ApiModelProperty;
 import jakarta.persistence.*;
 import lombok.Data;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 
 @Entity
 @TableName(value = "devicetype_new", autoResultMap = true)
@@ -38,14 +39,14 @@ public class DeviceTypeV1 {
   private String category;
 
   @Column(name = "create_time")
-  @TableField("create_time")
+  @TableField(value = "create_time", fill = FieldFill.INSERT)
   @ApiModelProperty(value = "创建时间")
-  private Date createTime;
+  private LocalDateTime createTime;
 
   @Column(name = "update_time")
-  @TableField("update_time")
+  @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
   @ApiModelProperty(value = "更新时间")
-  private Date updateTime;
+  private LocalDateTime updateTime;
 
   @TableField(value = "model", typeHandler = JacksonTypeHandler.class)
   @ApiModelProperty(value = "模型协议定义")

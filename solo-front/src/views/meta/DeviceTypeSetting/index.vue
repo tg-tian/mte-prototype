@@ -1,7 +1,11 @@
 <template>
   <div class="device-type-setting">
-    <div class="devicetype-header">
-      <h2>{{ isEditMode ? '编辑设备类型——'+ deviceTypeForm.modelName : '创建设备类型' }}</h2>
+    <div class="page-header">
+      <div class="page-title-group">
+        <h2 class="page-main-title">{{ isEditMode ? '编辑设备类型' : '创建设备类型' }}</h2>
+        <p v-if="isEditMode" class="page-sub-title">{{ deviceTypeForm.modelName || '设备类型详情' }}</p>
+        <p v-else class="page-sub-title">定义新的物联网设备元模型及其属性、操作和事件</p>
+      </div>
       <div class="header-actions">
         <el-button @click="navigateBack">返回列表</el-button>
         <el-button type="primary" @click="submitForm" :loading="submitting">保存</el-button>
@@ -9,29 +13,46 @@
     </div>
 
     <!-- 基本信息表单 - 提到最上面 -->
-    <el-card class="basic-info-card">
+    <el-card class="basic-info-card" shadow="never">
+      <template #header>
+        <div class="card-header">
+          <el-icon><InfoFilled /></el-icon>
+          <span>基础配置</span>
+        </div>
+      </template>
       <el-form 
         :model="deviceTypeForm" 
         :rules="basicRules"
         ref="deviceTypeFormRef"
-        label-width="120px">
-        <el-form-item label="模型名称" prop="modelName">
-          <el-input v-model="deviceTypeForm.modelName" placeholder="请输入模型名称"></el-input>
-        </el-form-item>
-        <el-form-item label="品类" prop="category">
-          <el-input v-model="deviceTypeForm.category" placeholder="请输入品类"></el-input>
-        </el-form-item>
+        label-position="top">
+        <el-row :gutter="32">
+          <el-col :span="12">
+            <el-form-item label="模型名称" prop="modelName">
+              <el-input v-model="deviceTypeForm.modelName" placeholder="例如：智能空调、工业传感器"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="品类" prop="category">
+              <el-input v-model="deviceTypeForm.category" placeholder="例如：家用电器、生产设备"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
       </el-form>
     </el-card>
 
     <!-- Tab页面：属性、服务、事件 -->
-    <el-card class="setting-content">
+    <el-card class="setting-content" shadow="never">
+      <template #header>
+        <div class="card-header">
+          <el-icon><Operation /></el-icon>
+          <span>物模型定义</span>
+        </div>
+      </template>
       <el-tabs v-model="activeTab">
         <el-tab-pane label="属性" name="property" :disabled="!isEditMode && !currentDeviceTypeId">
           <div v-if="isEditMode || currentDeviceTypeId" class="tab-content-wrapper">
             <div class="tab-actions">
               <el-button type="primary" :icon="Plus" @click="addProperty">添加属性</el-button>
-              <el-button @click="showModelJson">查看JSON</el-button>
             </div>
             
             <el-table :data="propertyList" border style="width: 100%;" header-align="center">
@@ -154,83 +175,128 @@
     </el-card>
 
     <!-- 属性对话框 -->
-    <el-dialog v-model="propertyDialogVisible" :title="isPropertyEdit ? '编辑属性' : '添加属性'" width="50%">
-      <el-form :model="propertyForm" :rules="propertyRules" ref="propertyFormRef" label-width="120px">
-        <el-form-item label="标识符" prop="identify">
-          <el-input v-model="propertyForm.identify" placeholder="请输入属性标识符" :disabled="isPropertyEdit"></el-input>
-        </el-form-item>
-        <el-form-item label="名称/描述" prop="description">
-          <el-input v-model="propertyForm.description" placeholder="请输入属性名称或描述"></el-input>
-        </el-form-item>
-        <el-form-item label="只读" prop="readOnly">
-          <el-switch v-model="propertyForm.readOnly"></el-switch>
-        </el-form-item>
-        <el-form-item label="数据类型" prop="type">
-          <el-select v-model="propertyForm.type" placeholder="请选择数据类型" @change="handleTypeChange">
-            <el-option label="字符串" value="string"></el-option>
-            <el-option label="数值" value="number"></el-option>
-            <el-option label="布尔值" value="boolean"></el-option>
-            <el-option label="枚举" value="enum"></el-option>
-            <el-option label="对象" value="object"></el-option>
-            <el-option label="数组" value="array"></el-option>
-          </el-select>
-        </el-form-item>
+    <el-dialog 
+      v-model="propertyDialogVisible" 
+      :title="isPropertyEdit ? '编辑属性' : '添加属性'" 
+      width="600px"
+      class="premium-dialog"
+    >
+      <el-form :model="propertyForm" :rules="propertyRules" ref="propertyFormRef" label-position="top">
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="标识符" prop="identify">
+              <el-input v-model="propertyForm.identify" placeholder="例如：temperature" :disabled="isPropertyEdit"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="显示名称" prop="description">
+              <el-input v-model="propertyForm.description" placeholder="例如：当前温度"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="数据类型" prop="type">
+              <el-select v-model="propertyForm.type" placeholder="选择类型" @change="handleTypeChange" style="width: 100%">
+                <el-option label="字符串 (String)" value="string"></el-option>
+                <el-option label="数值 (Number)" value="number"></el-option>
+                <el-option label="布尔值 (Boolean)" value="boolean"></el-option>
+                <el-option label="枚举 (Enum)" value="enum"></el-option>
+                <el-option label="对象 (Object)" value="object"></el-option>
+                <el-option label="数组 (Array)" value="array"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="是否只读" prop="readOnly">
+              <el-radio-group v-model="propertyForm.readOnly">
+                <el-radio :label="true">是</el-radio>
+                <el-radio :label="false">否</el-radio>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        
+        <el-divider v-if="propertyForm.type === 'number' || propertyForm.type === 'enum'"></el-divider>
         
         <template v-if="propertyForm.type === 'number'">
-          <el-form-item label="最小值" prop="min">
-            <el-input-number v-model="propertyForm.min"></el-input-number>
-          </el-form-item>
-          <el-form-item label="最大值" prop="max">
-            <el-input-number v-model="propertyForm.max"></el-input-number>
-          </el-form-item>
-          <el-form-item label="单位" prop="unit">
-            <el-input v-model="propertyForm.unit" placeholder="例如：℃、kg"></el-input>
-          </el-form-item>
+          <el-row :gutter="20">
+            <el-col :span="8">
+              <el-form-item label="最小值" prop="min">
+                <el-input-number v-model="propertyForm.min" style="width: 100%"></el-input-number>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="最大值" prop="max">
+                <el-input-number v-model="propertyForm.max" style="width: 100%"></el-input-number>
+              </el-form-item>
+            </el-col>
+            <el-col :span="8">
+              <el-form-item label="单位" prop="unit">
+                <el-input v-model="propertyForm.unit" placeholder="℃、%"></el-input>
+              </el-form-item>
+            </el-col>
+          </el-row>
         </template>
         
-        <template v-if="propertyForm.type === 'enum' || propertyForm.type === 'string'">
-          <el-form-item label="枚举值" v-if="propertyForm.type === 'enum'">
+        <template v-if="propertyForm.type === 'enum'">
+          <el-form-item label="允许的枚举值">
             <div class="enum-list-container">
               <div v-for="(val, index) in propertyForm.enumValues" :key="index" class="enum-item">
-                <el-input v-model="propertyForm.enumValues[index]" placeholder="请输入枚举值" style="width: 100%;"></el-input>
-                <el-button type="danger" :icon="Delete" link @click="propertyForm.enumValues.splice(index, 1)" title="删除"></el-button>
+                <el-input v-model="propertyForm.enumValues[index]" placeholder="枚举项值" style="flex: 1"></el-input>
+                <el-button type="danger" :icon="Delete" circle @click="propertyForm.enumValues.splice(index, 1)"></el-button>
               </div>
               <div class="enum-add-btn">
-                <el-button type="primary" :icon="Plus" link @click="propertyForm.enumValues.push('')">添加枚举值</el-button>
+                <el-button type="primary" :icon="Plus" link @click="propertyForm.enumValues.push('')">添加选项</el-button>
               </div>
             </div>
           </el-form-item>
         </template>
       </el-form>
       <template #footer>
-        <span class="dialog-footer">
+        <div class="dialog-footer">
           <el-button @click="propertyDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitPropertyForm">确认</el-button>
-        </span>
+          <el-button type="primary" @click="submitPropertyForm">确认保存</el-button>
+        </div>
       </template>
     </el-dialog>
 
     <!-- 操作 (Action) 对话框 -->
-    <el-dialog v-model="actionDialogVisible" :title="isActionEdit ? '编辑操作' : '添加操作'" width="60%">
-      <el-form :model="actionForm" :rules="actionRules" ref="actionFormRef" label-width="120px">
-        <el-form-item label="标识符" prop="identify">
-          <el-input v-model="actionForm.identify" placeholder="请输入操作标识符" :disabled="isActionEdit"></el-input>
-        </el-form-item>
-        <el-form-item label="名称/描述" prop="description">
-          <el-input v-model="actionForm.description" placeholder="请输入操作名称及描述"></el-input>
-        </el-form-item>
-        <el-divider content-position="left">参数 (Arguments)</el-divider>
-        <div class="params-section">
-           <el-button type="primary" size="small" :icon="Plus" @click="addParam('argument')">添加参数</el-button>
-          <el-table :data="argumentList" border style="width: 100%; margin-top: 10px;" header-align="center">
-            <el-table-column prop="identify" label="标识符" min-width="120" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="description" label="描述" min-width="150" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="type" label="数据类型" width="100" align="center">
+    <el-dialog 
+      v-model="actionDialogVisible" 
+      :title="isActionEdit ? '编辑操作' : '添加操作'" 
+      width="700px"
+      class="premium-dialog"
+    >
+      <el-form :model="actionForm" :rules="actionRules" ref="actionFormRef" label-position="top">
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="标识符 (Command)" prop="identify">
+              <el-input v-model="actionForm.identify" placeholder="例如：open_door" :disabled="isActionEdit"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="操作显示名称" prop="description">
+              <el-input v-model="actionForm.description" placeholder="例如：远程开门"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        
+        <div class="dialog-section">
+          <div class="section-header">
+            <span class="section-title">参数定义 (Arguments)</span>
+            <el-button type="primary" size="small" :icon="Plus" @click="addParam('argument')">新增参数</el-button>
+          </div>
+          <el-table :data="argumentList" border style="width: 100%; margin-top: 12px">
+            <el-table-column prop="identify" label="参数标识" width="120" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="description" label="描述" min-width="120" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="type" label="类型" width="100" align="center">
               <template #default="scope">
                 <el-tag size="small" effect="plain">{{ getDataTypeLabel(scope.row.type) }}</el-tag>
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="130" align="center" fixed="right">
+            <el-table-column label="操作" width="120" align="center" fixed="right">
               <template #default="scope">
                 <div class="table-ops">
                   <el-button type="primary" :icon="Edit" link @click="editParam('argument', scope.row.identify)">编辑</el-button>
@@ -239,44 +305,61 @@
               </template>
             </el-table-column>
           </el-table>
+          <el-empty v-if="argumentList.length === 0" :image-size="60" description="暂无参数"></el-empty>
         </div>
       </el-form>
       <template #footer>
-        <span class="dialog-footer">
+        <div class="dialog-footer">
           <el-button @click="actionDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitActionForm">确认</el-button>
-        </span>
+          <el-button type="primary" @click="submitActionForm">保存操作</el-button>
+        </div>
       </template>
     </el-dialog>
 
     <!-- 事件对话框 -->
-    <el-dialog v-model="eventDialogVisible" :title="isEventEdit ? '编辑事件' : '添加事件'" width="60%">
-      <el-form :model="eventForm" :rules="eventRules" ref="eventFormRef" label-width="120px">
-        <el-form-item label="标识符" prop="identify">
-          <el-input v-model="eventForm.identify" placeholder="请输入事件标识符" :disabled="isEventEdit"></el-input>
-        </el-form-item>
-        <el-form-item label="名称/描述" prop="description">
-          <el-input v-model="eventForm.description" placeholder="请输入事件名称及描述"></el-input>
-        </el-form-item>
-        <el-form-item label="事件级别" prop="level">
-          <el-select v-model="eventForm.level" placeholder="请选择事件级别">
-            <el-option label="信息" value="info"></el-option>
-            <el-option label="告警" value="warning"></el-option>
-            <el-option label="故障" value="error"></el-option>
-          </el-select>
-        </el-form-item>
-        <el-divider content-position="left">字段 (Fields)</el-divider>
-        <div class="params-section">
-           <el-button type="primary" size="small" :icon="Plus" @click="addParam('field')">添加字段</el-button>
-          <el-table :data="fieldList" border style="width: 100%; margin-top: 10px;" header-align="center">
-            <el-table-column prop="identify" label="标识符" min-width="120" show-overflow-tooltip></el-table-column>
-            <el-table-column prop="description" label="描述" min-width="150" show-overflow-tooltip></el-table-column>
+    <el-dialog 
+      v-model="eventDialogVisible" 
+      :title="isEventEdit ? '编辑事件' : '添加事件'" 
+      width="700px"
+      class="premium-dialog"
+    >
+      <el-form :model="eventForm" :rules="eventRules" ref="eventFormRef" label-position="top">
+        <el-row :gutter="20">
+          <el-col :span="8">
+            <el-form-item label="事件标识符" prop="identify">
+              <el-input v-model="eventForm.identify" placeholder="例如：alarm" :disabled="isEventEdit"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="显示名称" prop="description">
+              <el-input v-model="eventForm.description" placeholder="例如：异常告警"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="事件级别" prop="level">
+              <el-select v-model="eventForm.level" placeholder="请选择级别" style="width: 100%">
+                <el-option label="信息 (Info)" value="info"></el-option>
+                <el-option label="告警 (Warning)" value="warning"></el-option>
+                <el-option label="故障 (Error)" value="error"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <div class="dialog-section">
+          <div class="section-header">
+            <span class="section-title">事件字段 (Fields)</span>
+            <el-button type="primary" size="small" :icon="Plus" @click="addParam('field')">新增字段</el-button>
+          </div>
+          <el-table :data="fieldList" border style="width: 100%; margin-top: 12px">
+            <el-table-column prop="identify" label="字段标识" width="120" show-overflow-tooltip></el-table-column>
+            <el-table-column prop="description" label="描述" min-width="120" show-overflow-tooltip></el-table-column>
             <el-table-column prop="type" label="数据类型" width="100" align="center">
               <template #default="scope">
                 <el-tag size="small" effect="plain">{{ getDataTypeLabel(scope.row.type) }}</el-tag>
               </template>
             </el-table-column>
-            <el-table-column label="操作" width="130" align="center" fixed="right">
+            <el-table-column label="操作" width="120" align="center" fixed="right">
               <template #default="scope">
                 <div class="table-ops">
                   <el-button type="primary" :icon="Edit" link @click="editParam('field', scope.row.identify)">编辑</el-button>
@@ -285,67 +368,87 @@
               </template>
             </el-table-column>
           </el-table>
+          <el-empty v-if="fieldList.length === 0" :image-size="60" description="暂无字段"></el-empty>
         </div>
       </el-form>
       <template #footer>
-        <span class="dialog-footer">
+        <div class="dialog-footer">
           <el-button @click="eventDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitEventForm">确认</el-button>
-        </span>
+          <el-button type="primary" @click="submitEventForm">保存事件</el-button>
+        </div>
       </template>
     </el-dialog>
 
     <!-- 参数/字段编辑对话框 -->
-    <el-dialog v-model="paramDialogVisible" :title="isParamEdit ? '编辑参数' : '添加参数'" width="50%" append-to-body>
-      <el-form :model="paramForm" :rules="propertyRules" ref="paramFormRef" label-width="120px">
+    <el-dialog 
+      v-model="paramDialogVisible" 
+      :title="isParamEdit ? '编辑参数项' : '添加参数项'" 
+      width="500px" 
+      append-to-body
+      class="premium-dialog"
+    >
+      <el-form :model="paramForm" :rules="propertyRules" ref="paramFormRef" label-position="top">
         <el-form-item label="标识符" prop="identify">
-          <el-input v-model="paramForm.identify" placeholder="请输入标识符" :disabled="isParamEdit"></el-input>
+          <el-input v-model="paramForm.identify" placeholder="例如：mode" :disabled="isParamEdit"></el-input>
         </el-form-item>
         <el-form-item label="名称/描述" prop="description">
-          <el-input v-model="paramForm.description" placeholder="请输入描述"></el-input>
-        </el-form-item>
-        <el-form-item label="数据类型" prop="type">
-          <el-select v-model="paramForm.type" placeholder="请选择数据类型" @change="handleParamTypeChange">
-            <el-option label="字符串" value="string"></el-option>
-            <el-option label="数值" value="number"></el-option>
-            <el-option label="布尔值" value="boolean"></el-option>
-            <el-option label="枚举" value="enum"></el-option>
-            <el-option label="对象" value="object"></el-option>
-            <el-option label="数组" value="array"></el-option>
-          </el-select>
+          <el-input v-model="paramForm.description" placeholder="例如：运行模式"></el-input>
         </el-form-item>
         
+        <el-row :gutter="20">
+          <el-col :span="12">
+            <el-form-item label="数据类型" prop="type">
+              <el-select v-model="paramForm.type" placeholder="请选择" @change="handleParamTypeChange" style="width: 100%">
+                <el-option label="字符串" value="string"></el-option>
+                <el-option label="数值" value="number"></el-option>
+                <el-option label="布尔值" value="boolean"></el-option>
+                <el-option label="枚举" value="enum"></el-option>
+                <el-option label="对象" value="object"></el-option>
+                <el-option label="数组" value="array"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+          <el-col :span="12" v-if="paramForm.type === 'number'">
+            <el-form-item label="单位" prop="unit">
+              <el-input v-model="paramForm.unit" placeholder="℃、kg"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        
         <template v-if="paramForm.type === 'number'">
-          <el-form-item label="最小值" prop="min">
-            <el-input-number v-model="paramForm.min"></el-input-number>
-          </el-form-item>
-          <el-form-item label="最大值" prop="max">
-            <el-input-number v-model="paramForm.max"></el-input-number>
-          </el-form-item>
-          <el-form-item label="单位" prop="unit">
-            <el-input v-model="paramForm.unit" placeholder="例如：℃、kg"></el-input>
-          </el-form-item>
+          <el-row :gutter="20">
+            <el-col :span="12">
+              <el-form-item label="最小值" prop="min">
+                <el-input-number v-model="paramForm.min" style="width: 100%"></el-input-number>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="最大值" prop="max">
+                <el-input-number v-model="paramForm.max" style="width: 100%"></el-input-number>
+              </el-form-item>
+            </el-col>
+          </el-row>
         </template>
         
         <template v-if="paramForm.type === 'enum'">
-          <el-form-item label="枚举值">
+          <el-form-item label="枚举选项">
             <div class="enum-list-container">
               <div v-for="(val, index) in paramForm.enumValues" :key="index" class="enum-item">
-                <el-input v-model="paramForm.enumValues[index]" placeholder="请输入枚举值" style="width: 100%;"></el-input>
-                <el-button type="danger" :icon="Delete" link @click="paramForm.enumValues.splice(index, 1)" title="删除"></el-button>
+                <el-input v-model="paramForm.enumValues[index]" placeholder="选项内容" style="flex: 1"></el-input>
+                <el-button type="danger" :icon="Delete" circle @click="paramForm.enumValues.splice(index, 1)"></el-button>
               </div>
               <div class="enum-add-btn">
-                <el-button type="primary" :icon="Plus" link @click="paramForm.enumValues.push('')">添加枚举值</el-button>
+                <el-button type="primary" :icon="Plus" link @click="paramForm.enumValues.push('')">添加选项</el-button>
               </div>
             </div>
           </el-form-item>
         </template>
       </el-form>
       <template #footer>
-        <span class="dialog-footer">
+        <div class="dialog-footer">
           <el-button @click="paramDialogVisible = false">取消</el-button>
-          <el-button type="primary" @click="submitParamForm">确认</el-button>
-        </span>
+          <el-button type="primary" @click="submitParamForm">保存配置</el-button>
+        </div>
       </template>
     </el-dialog>
 
@@ -364,7 +467,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, watch, toRefs } from 'vue'
-import { Delete, Plus, Edit, Pointer } from '@element-plus/icons-vue'
+import { Delete, Plus, Edit, Pointer, InfoFilled, Operation } from '@element-plus/icons-vue'
 import { useDeviceTypeStore } from '@/store/deviceType'
 import { ElMessage, type FormInstance } from 'element-plus'
 import { getDeviceTypeById } from '@/api/deviceType'
@@ -983,19 +1086,12 @@ const copyModelJson = () => {
 
 <style scoped>
 .device-type-setting {
-  padding: 20px;
-}
-
-.devicetype-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+  width: 100%;
 }
 
 .header-actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
 .basic-info-card {
@@ -1053,6 +1149,50 @@ const copyModelJson = () => {
   justify-content: flex-end;
   gap: 12px;
   margin-bottom: 16px;
+}
+
+.dialog-section {
+  margin-top: 24px;
+  padding: 16px;
+  background-color: #f8fafd;
+  border-radius: 8px;
+  border: 1px solid #edf2f9;
+}
+
+.dialog-section .section-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+.section-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #475669;
+}
+
+.premium-dialog :deep(.el-dialog__header) {
+  margin-right: 0;
+  padding-bottom: 20px;
+  border-bottom: 1px solid #f2f4f7;
+}
+
+.premium-dialog :deep(.el-dialog__title) {
+  font-size: 18px;
+  font-weight: 600;
+  color: #1d1e23;
+}
+
+.premium-dialog :deep(.el-dialog__footer) {
+  padding-top: 20px;
+  border-top: 1px solid #f2f4f7;
+}
+
+.dialog-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
 }
 
 .table-ops {

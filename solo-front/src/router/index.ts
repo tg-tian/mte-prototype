@@ -40,7 +40,7 @@ const routes: RouteRecordRaw[] = [
                     },
                     {
                         path: 'devicemodel/list',
-                        name: '设备型号列表',
+                        name: '设备型号',
                         component: () => import('@/views/meta/DeviceModelList/index.vue')
                     },
                     {

@@ -1,7 +1,13 @@
 <template>
-  <div class="scene-list-container">
-    <div class="scene-header">
-      <h2>场景列表 <small v-if="currentDomain"> {{ currentDomain.domainName }}</small></h2>
+  <div class="page-container">
+    <div class="page-header">
+      <div class="page-title-group">
+        <h2 class="page-main-title">
+          场景列表 
+          <span v-if="currentDomain" class="page-sub-title" style="display:inline; margin-left: 8px;"> {{ currentDomain.domainName }}</span>
+        </h2>
+        <p class="page-sub-title">管理领域平台内的具体应用场景和部署节点</p>
+      </div>
       <div class="header-actions">
         <el-button type="primary" @click="navigateToSceneSetting()">创建场景</el-button>
       </div>
@@ -450,16 +456,8 @@ const getLocation = (scene: any) => {
 }
 </script>
 
-<style scoped>
-.scene-list-container {
-  padding: 20px;
-}
-
-.scene-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+<style scoped>.page-container {
+  width: 100%;
 }
 
 .scene-search {

@@ -1,114 +1,177 @@
 <template>
   <div class="component-setting-container">
-    <div class="component-header">
-      <h2>{{ isEditMode ? '编辑组件' : '创建组件' }}</h2>
+    <div class="page-header">
+      <div class="page-title-group">
+        <h2 class="page-main-title">{{ isEditMode ? '编辑组件' : '创建组件' }}</h2>
+        <p v-if="isEditMode" class="page-sub-title">{{ componentForm.name || '组件详情' }}</p>
+        <p v-else class="page-sub-title">定义新的流程节点或连接边组件及其拓扑约束</p>
+      </div>
       <div class="header-actions">
         <el-button @click="navigateBack">返回列表</el-button>
         <el-button type="primary" @click="submitForm" :loading="submitting">保存</el-button>
       </div>
     </div>
 
-    <el-card class="setting-content">
+    <el-card class="setting-card" shadow="never">
+      <template #header>
+        <div class="card-header">
+          <el-icon><InfoFilled /></el-icon>
+          <span>基础配置</span>
+        </div>
+      </template>
       <el-form 
         :model="componentForm" 
         :rules="rules"
         ref="componentFormRef"
-        label-width="120px">
-        <el-form-item label="组件编码" prop="code">
-          <el-input v-model="componentForm.code" placeholder="请输入组件编码"></el-input>
-        </el-form-item>
-        <el-form-item label="组件名称" prop="name">
-          <el-input v-model="componentForm.name" placeholder="请输入组件名称"></el-input>
-        </el-form-item>
-        <el-form-item label="组件描述" prop="description">
-          <el-input type="textarea" :rows="3" v-model="componentForm.description" placeholder="请输入组件描述"></el-input>
-        </el-form-item>
-        <el-form-item label="组件类型" prop="type">
-          <el-radio-group v-model="componentForm.type" @change="handleTypeChange">
-            <el-radio :label="ComponentType.Node">节点</el-radio>
-            <el-radio :label="ComponentType.Edge">边</el-radio>
-          </el-radio-group>
-        </el-form-item>
-        <el-form-item label="用途" prop="purpose">
-          <el-select v-model="componentForm.purpose" placeholder="请选择用途">
-            <el-option :label="'业务流'" :value="PurposeType.BusinessFlow"></el-option>
-            <el-option :label="'界面流'" :value="PurposeType.InterfaceFlow"></el-option>
-            <el-option :label="'设备逻辑'" :value="PurposeType.DeviceLogic"></el-option>
-          </el-select>
-        </el-form-item>
+        label-position="top">
+        <el-row :gutter="32">
+          <el-col :span="8">
+            <el-form-item label="组件编码" prop="code">
+              <el-input v-model="componentForm.code" placeholder="例如：temp_sensor" :disabled="isEditMode"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="组件名称" prop="name">
+              <el-input v-model="componentForm.name" placeholder="例如：温度传感器"></el-input>
+            </el-form-item>
+          </el-col>
+          <el-col :span="8">
+            <el-form-item label="用途" prop="purpose">
+              <el-select v-model="componentForm.purpose" placeholder="选择用途" style="width: 100%">
+                <el-option :label="'业务流'" :value="PurposeType.BusinessFlow"></el-option>
+                <el-option :label="'界面流'" :value="PurposeType.InterfaceFlow"></el-option>
+                <el-option :label="'设备逻辑'" :value="PurposeType.DeviceLogic"></el-option>
+              </el-select>
+            </el-form-item>
+          </el-col>
+        </el-row>
+        
+        <el-row :gutter="32">
+          <el-col :span="8">
+            <el-form-item label="组件类型" prop="type">
+              <el-radio-group v-model="componentForm.type" @change="handleTypeChange">
+                <el-radio-button :label="ComponentType.Node">节点 (Node)</el-radio-button>
+                <el-radio-button :label="ComponentType.Edge">边 (Edge)</el-radio-button>
+              </el-radio-group>
+            </el-form-item>
+          </el-col>
+          <el-col :span="16">
+            <el-form-item label="组件描述" prop="description">
+              <el-input type="textarea" :rows="1" v-model="componentForm.description" placeholder="请输入组件的功能说明"></el-input>
+            </el-form-item>
+          </el-col>
+        </el-row>
+
+        <!-- 约束配置 -->
+        <div class="constraint-divider">
+          <span>拓扑约束配置</span>
+        </div>
         
         <!-- 节点约束 -->
         <template v-if="componentForm.type === ComponentType.Node">
-          <h3>入口约束</h3>
-          <el-form-item label="数量" prop="inputConstraint.quantity">
-            <el-input-number 
-              v-model="componentForm.inputConstraint.quantity" 
-              :min="-1" 
-              :max="100"
-              :controls="true"
-              placeholder="请输入约束数量（-1表示无限制）"
-            ></el-input-number>
-          </el-form-item>
-          <el-form-item label="类型" prop="inputConstraint.type">
-            <el-input v-model="componentForm.inputConstraint.type" placeholder="请输入约束类型"></el-input>
-          </el-form-item>
-          
-          <h3>出口约束</h3>
-          <el-form-item label="数量" prop="outputConstraint.quantity">
-            <el-input-number 
-              v-model="componentForm.outputConstraint.quantity" 
-              :min="-1" 
-              :max="100"
-              :controls="true"
-              placeholder="请输入约束数量（-1表示无限制）"
-            ></el-input-number>
-          </el-form-item>
-          <el-form-item label="类型" prop="outputConstraint.type">
-            <el-input v-model="componentForm.outputConstraint.type" placeholder="请输入约束类型"></el-input>
-          </el-form-item>
+          <div class="constraint-section">
+            <el-row :gutter="40">
+              <el-col :span="12">
+                <div class="constraint-group">
+                  <div class="group-title">入口约束 (Input)</div>
+                  <el-row :gutter="20">
+                    <el-col :span="12">
+                      <el-form-item label="数量上限" prop="inputConstraint.quantity">
+                        <el-input-number 
+                          v-model="componentForm.inputConstraint.quantity" 
+                          :min="-1" 
+                          style="width: 100%"
+                        ></el-input-number>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                      <el-form-item label="允许类型" prop="inputConstraint.type">
+                        <el-input v-model="componentForm.inputConstraint.type" placeholder="any / none"></el-input>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                  <div class="form-tip">数量为 -1 表示无限制，0 表示不允许接入</div>
+                </div>
+              </el-col>
+
+              <el-col :span="12">
+                <div class="constraint-group">
+                  <div class="group-title">出口约束 (Output)</div>
+                  <el-row :gutter="20">
+                    <el-col :span="12">
+                      <el-form-item label="数量上限" prop="outputConstraint.quantity">
+                        <el-input-number 
+                          v-model="componentForm.outputConstraint.quantity" 
+                          :min="-1" 
+                          style="width: 100%"
+                        ></el-input-number>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                      <el-form-item label="允许类型" prop="outputConstraint.type">
+                        <el-input v-model="componentForm.outputConstraint.type" placeholder="any / none"></el-input>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                </div>
+              </el-col>
+            </el-row>
+          </div>
         </template>
         
         <!-- 边约束 -->
         <template v-if="componentForm.type === ComponentType.Edge">
-          <h3>起点约束</h3>
-          <el-form-item label="数量" prop="startConstraint.quantity">
-            <el-input-number 
-              v-model="componentForm.startConstraint.quantity" 
-              :min="-1" 
-              :max="100"
-              :controls="true"
-              placeholder="请输入约束数量（-1表示无限制）"
-            ></el-input-number>
-          </el-form-item>
-          <el-form-item label="类型" prop="startConstraint.type">
-            <el-input v-model="componentForm.startConstraint.type" placeholder="请输入约束类型"></el-input>
-          </el-form-item>
-          
-          <h3>终点约束</h3>
-          <el-form-item label="数量" prop="endConstraint.quantity">
-            <el-input-number 
-              v-model="componentForm.endConstraint.quantity" 
-              :min="-1" 
-              :max="100"
-              :controls="true"
-              placeholder="请输入约束数量（-1表示无限制）"
-            ></el-input-number>
-          </el-form-item>
-          <el-form-item label="类型" prop="endConstraint.type">
-            <el-input v-model="componentForm.endConstraint.type" placeholder="请输入约束类型"></el-input>
-          </el-form-item>
+          <div class="constraint-section">
+            <el-row :gutter="40">
+              <el-col :span="12">
+                <div class="constraint-group">
+                  <div class="group-title">起点约束 (Start)</div>
+                  <el-row :gutter="20">
+                    <el-col :span="12">
+                      <el-form-item label="数量上限" prop="startConstraint.quantity">
+                        <el-input-number v-model="componentForm.startConstraint.quantity" :min="-1" style="width: 100%"></el-input-number>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                      <el-form-item label="节点属性" prop="startConstraint.type">
+                        <el-input v-model="componentForm.startConstraint.type" placeholder="node / 标识符"></el-input>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                </div>
+              </el-col>
+
+              <el-col :span="12">
+                <div class="constraint-group">
+                  <div class="group-title">终点约束 (End)</div>
+                  <el-row :gutter="20">
+                    <el-col :span="12">
+                      <el-form-item label="数量上限" prop="endConstraint.quantity">
+                        <el-input-number v-model="componentForm.endConstraint.quantity" :min="-1" style="width: 100%"></el-input-number>
+                      </el-form-item>
+                    </el-col>
+                    <el-col :span="12">
+                      <el-form-item label="节点属性" prop="endConstraint.type">
+                        <el-input v-model="componentForm.endConstraint.type" placeholder="node / 标识符"></el-input>
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
+                </div>
+              </el-col>
+            </el-row>
+          </div>
         </template>
       </el-form>
     </el-card>
 
     <!-- JSON查看对话框 -->
-    <el-dialog v-model="jsonDialogVisible" title="组件JSON" width="60%">
+    <el-dialog v-model="jsonDialogVisible" title="组件JSON" width="60%" class="premium-dialog">
       <pre class="json-viewer">{{ formattedJson }}</pre>
       <template #footer>
-        <span class="dialog-footer">
+        <div class="dialog-footer">
           <el-button type="primary" @click="copyJson">复制</el-button>
           <el-button @click="jsonDialogVisible = false">关闭</el-button>
-        </span>
+        </div>
       </template>
     </el-dialog>
   </div>
@@ -116,6 +179,7 @@
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted, watch, toRefs } from 'vue'
+import { InfoFilled } from '@element-plus/icons-vue'
 import { useComponentStore } from '@/store/component'
 import { Component, ComponentType, PurposeType } from '@/types/models'
 import { ElMessage, type FormInstance } from 'element-plus'
@@ -132,8 +196,8 @@ const state = reactive({
     code: '',
     name: '',
     description: '',
-    type: ComponentType.Node, // Default to Node type
-    purpose: PurposeType.BusinessFlow, // Default to Business Flow
+    type: ComponentType.Node,
+    purpose: PurposeType.BusinessFlow,
     inputConstraint: {
       quantity: 0,
       type: 'none'
@@ -172,7 +236,7 @@ const formattedJson = computed(() => {
   return JSON.stringify(componentForm.value, null, 2)
 })
 
-// Rules for form validation
+// Rules
 const rules = {
   code: [
     { required: true, message: '请输入组件编码', trigger: 'blur' },
@@ -182,18 +246,12 @@ const rules = {
     { required: true, message: '请输入组件名称', trigger: 'blur' },
     { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
   ],
-  description: [
-    { required: true, message: '请输入组件描述', trigger: 'blur' }
-  ],
-  type: [
-    { required: true, message: '请选择组件类型', trigger: 'change' }
-  ],
   purpose: [
     { required: true, message: '请选择用途', trigger: 'change' }
   ]
 }
 
-// Reset form for creation mode
+// Reset form
 const resetFormData = () => {
   componentForm.value = {
     code: '',
@@ -222,139 +280,74 @@ const resetFormData = () => {
 
 // Handle component type change
 const handleTypeChange = (value: any) => {
-  // Reset constraints based on component type
   if (value === ComponentType.Node) {
-    componentForm.value.inputConstraint = {
-      quantity: 0,
-      type: 'none'
-    }
-    componentForm.value.outputConstraint = {
-      quantity: 1,
-      type: 'any'
-    }
+    componentForm.value.inputConstraint = { quantity: 0, type: 'none' }
+    componentForm.value.outputConstraint = { quantity: 1, type: 'any' }
   } else {
-    componentForm.value.startConstraint = {
-      quantity: 1,
-      type: 'node'
-    }
-    componentForm.value.endConstraint = {
-      quantity: 1,
-      type: 'node'
-    }
+    componentForm.value.startConstraint = { quantity: 1, type: 'node' }
+    componentForm.value.endConstraint = { quantity: 1, type: 'node' }
   }
 }
 
-// Copy JSON to clipboard
+// Copy JSON
 const copyJson = () => {
   navigator.clipboard.writeText(formattedJson.value)
-    .then(() => {
-      ElMessage.success('JSON已复制到剪贴板')
-    })
-    .catch(err => {
-      console.error('复制失败:', err)
-      ElMessage.error('复制失败')
-    })
+    .then(() => ElMessage.success('JSON已复制'))
+    .catch(() => ElMessage.error('复制失败'))
 }
 
 const loadComponent = (data : any) => {
   const comp = JSON.parse(JSON.stringify(data))
-  if(comp.type === ComponentType.Node && comp.inputConstraint === null){
-    comp.inputConstraint = {
-        quantity: 0,
-        type: 'none'
-    }
-  }
-  if(comp.type === ComponentType.Node && comp.outputConstraint === null){
-    comp.outputConstraint = {
-      quantity: 1,
-      type: 'any'
-    }
-  }
-  if(comp.type === ComponentType.Edge && comp.startConstraint === null){
-    comp.startConstraint = {
-      quantity: 1,
-      type: 'node'
-    }
-  }
-  if(comp.type === ComponentType.Edge && comp.endConstraint === null){
-    comp.endConstraint = {
-      quantity: 1,
-      type: 'node'
-    }
+  if(comp.type === ComponentType.Node){
+    if(!comp.inputConstraint) comp.inputConstraint = { quantity: 0, type: 'none' }
+    if(!comp.outputConstraint) comp.outputConstraint = { quantity: 1, type: 'any' }
+  } else {
+    if(!comp.startConstraint) comp.startConstraint = { quantity: 1, type: 'node' }
+    if(!comp.endConstraint) comp.endConstraint = { quantity: 1, type: 'node' }
   }
   componentForm.value = comp
 }
 
-// Watch for changes in route params to update form data accordingly
-watch([() => route.query.componentId, () => route.query.mode], async ([newComponentId, newMode]) => {
+watch([() => route.query.componentId, () => route.query.mode], async ([newId, newMode]) => {
   if (newMode === 'create') {
-    // Clear form data when switching to create mode
     resetFormData()
-  } else if (newMode === 'edit' && newComponentId) {
-    // Load component data when switching to edit mode or changing component ID
-    if (componentId.value) {
-      await componentStore.fetchComponentById(componentId.value)
-      if (componentStore.currentComponent) {
-        // Deep copy to avoid reference issues
-        loadComponent(componentStore.currentComponent)
-      } else {
-        ElMessage.warning('组件数据不存在或获取失败')
-        navigateBack()
-      }
+  } else if (newMode === 'edit' && newId) {
+    await componentStore.fetchComponentById(parseInt(newId as string))
+    if (componentStore.currentComponent) {
+      loadComponent(componentStore.currentComponent)
     }
   }
 }, { immediate: true })
 
-// Load component data if in edit mode
 onMounted(async () => {
-  // Clear form when in create mode
-  if (!isEditMode.value) {
-    resetFormData()
-  }
-  // If in edit mode, load component data if not already loaded by the watcher
-  else if (isEditMode.value && componentId.value && !componentStore.currentComponent) {
-    try {
-      await componentStore.fetchComponentById(componentId.value)
-      if (componentStore.currentComponent) {
-        // Deep copy to avoid reference issues
-        loadComponent(componentStore.currentComponent)
-      } else {
-        ElMessage.warning('组件数据不存在或获取失败')
-        navigateBack()
-      }
-    } catch (error) {
-      ElMessage.warning('加载组件数据失败')
-      navigateBack()
+  if (isEditMode.value && componentId.value && !componentStore.currentComponent) {
+    await componentStore.fetchComponentById(componentId.value)
+    if (componentStore.currentComponent) {
+      loadComponent(componentStore.currentComponent)
     }
   }
 })
 
-// Navigate back to component list
 const navigateBack = () => {
   router.push('/meta/component/list')
 }
 
-// Submit form - either create or update component
 const submitForm = async () => {
   if (!componentFormRef.value) return
-  
   await componentFormRef.value.validate(async (valid) => {
     if (valid) {
       submitting.value = true
       try {
         if (isEditMode.value && componentId.value) {
-          // Update existing component
           await componentStore.updateComponent(componentId.value, componentForm.value)
           ElMessage.success('更新成功')
         } else {
-          // Create new component
           await componentStore.createComponent(componentForm.value)
           ElMessage.success('创建成功')
         }
-        // Navigate back to list after successful operation
         navigateBack()
       } catch (error) {
-        ElMessage.error(isEditMode.value ? '更新失败' : '创建失败')
+        ElMessage.error('保存失败')
       } finally {
         submitting.value = false
       }
@@ -365,34 +358,83 @@ const submitForm = async () => {
 
 <style scoped>
 .component-setting-container {
-  padding: 20px;
-}
-
-.component-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
+  width: 100%;
 }
 
 .header-actions {
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
-.setting-content {
+.setting-card {
+  margin-bottom: 20px;
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 600;
+}
+
+.constraint-divider {
+  margin: 32px 0 24px;
+  position: relative;
+  text-align: center;
+}
+
+.constraint-divider:before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: #ebeef5;
+}
+
+.constraint-divider span {
+  position: relative;
   background: #fff;
-  padding: 20px;
-  border-radius: 4px;
+  padding: 0 16px;
+  color: #909399;
+  font-size: 14px;
+  font-weight: 500;
 }
 
-h3 {
-  margin-top: 20px;
-  margin-bottom: 10px;
-  color: #606266;
-  font-size: 16px;
-  border-bottom: 1px solid #ebeef5;
-  padding-bottom: 8px;
+.constraint-section {
+  background: #f8fafd;
+  padding: 24px;
+  border-radius: 8px;
+  border: 1px solid #edf2f9;
+}
+
+.constraint-group {
+  margin-bottom: 0;
+}
+
+.group-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #475669;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+}
+
+.group-title:before {
+  content: "";
+  width: 4px;
+  height: 16px;
+  background: #409eff;
+  border-radius: 2px;
+  margin-right: 8px;
+}
+
+.form-tip {
+  font-size: 12px;
+  color: #909399;
+  margin-top: 4px;
 }
 
 .json-viewer {
@@ -400,12 +442,11 @@ h3 {
   color: #606266;
   padding: 16px;
   border-radius: 4px;
-  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', monospace;
   font-size: 14px;
   line-height: 1.5;
   overflow: auto;
   max-height: 60vh;
   white-space: pre-wrap;
-  word-break: break-word;
 }
 </style>
