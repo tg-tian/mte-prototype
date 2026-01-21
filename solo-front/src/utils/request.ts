@@ -23,7 +23,7 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   (response) => {
     if (response.status !== 200) {
-      ElMessage.error(response.data.message || '出现异常情况')
+      console.log(response.data.message || '出现异常情况')
     }
     return response
   },
@@ -31,16 +31,15 @@ service.interceptors.response.use(
     // 网络超时
     if (error.message && error.message.includes('timeout')) {
       console.error('请求超时')
-      return error.response
+      throw error
     }
-    if (error.response && error.response.status && error.response.status === 500) {
-      ElMessage.error(error.response.data.message)
+    if (error.response && error.response.status) {
       console.log(error.response)
-      return error.response
+      throw error
     }
     // ElMessage.warning(error.response.data)
     console.log(error.response)
-    return error.response
+    throw error
   }
 )
 export default service

@@ -1,13 +1,19 @@
 package demo.lowcode.platform.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import demo.lowcode.platform.dto.DeviceWithPosition;
 import demo.lowcode.platform.entity.Device;
+import demo.lowcode.platform.entity.DeviceType;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
+import java.util.List;
+
 @Mapper
 public interface DeviceMapper extends BaseMapper<Device> {
-    void insertDevice(@Param("deviceCode") String deviceCode , @Param("deviceName") String deviceName, @Param("deviceTypeId") long deviceTypeId,@Param("versionNumber") String versionNumber,@Param("manufacturer") String manufacturer);
-    int countByDeviceCode(@Param("deviceCode") String deviceCode);
-    long getDeviceId(@Param("deviceCode") String deviceCode);
+    List<Device> selectBySceneId(@Param("sceneId") Long sceneId);
+
+    List<DeviceWithPosition> selectBySceneIdWithIntelligent(@Param("sceneId") Long sceneId);
+
+    Device selectByCodeAndScene(@Param("code") String code, @Param("sceneId") Long sceneId);
 }

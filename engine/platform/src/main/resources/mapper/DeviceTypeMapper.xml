@@ -4,43 +4,40 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="demo.lowcode.platform.mapper.DeviceTypeMapper">
+    <resultMap id="deviceTypeResultMap" type="demo.lowcode.platform.entity.DeviceType">
+        <id column="id" property="id"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="description" property="description"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="model" property="model" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+    </resultMap>
 
-    <!--设备计数-->
-    <select id="countByDeviceTypeCode" resultType="int">
-        SELECT COUNT(1) FROM devicetype WHERE deviceTypeCode = #{deviceTypeCode}
+    <!--获取领域设备类型列表-->
+    <select id="selectByDomainId" resultMap="deviceTypeResultMap">
+        SELECT * FROM devicetype
+        WHERE id IN (
+            SELECT component_id FROM domain_component
+            WHERE domain_id = #{domainId} AND component_type = 'devicetype'
+        )
     </select>
 
-    <!-- 插入操作 -->
-    <insert id="insertDeviceType"  keyProperty="deviceTypeId">
-        INSERT IGNORE INTO devicetype (deviceTypeCode, deviceTypeName, imgPath, isPublish)
-        VALUES (#{deviceTypeCode}, #{deviceTypeName}, #{imgPath} , 0)
-    </insert>
-
-    <!-- 查询单个设备ID -->
-    <select id="loadDeviceId" resultType="java.lang.Long">
-        SELECT deviceTypeId FROM devicetype WHERE deviceTypeCode = #{deviceTypeCode}
+    <!--根据code获取设备类型-->
+    <select id="selectByCode" resultMap="deviceTypeResultMap">
+        SELECT * FROM devicetype
+        WHERE code = #{code}
     </select>
 
-    <!-- 自定义 selectBatchIds -->
-    <select id="selectBatchIds" resultType="demo.lowcode.platform.entity.DeviceType">
-        SELECT * FROM devicetype WHERE deviceTypeId IN
-        <foreach collection="deviceTypeIdList" item="id" open="(" separator="," close=")">
-            #{id}
-        </foreach>
+    <!--获取场景设备类型列表-->
+    <select id="selectBySceneId" resultMap="deviceTypeResultMap">
+        SELECT * FROM devicetype
+        WHERE id IN (
+            SELECT component_id FROM domain_component
+            WHERE domain_id = (
+                SELECT domain_id FROM scene WHERE scene_id = #{sceneId}
+            )
+            AND component_type = 'devicetype'
+        )
     </select>
-
-    <!--查询设备类型码-->
-    <select id="getDeviceTypeCode" resultType="String">
-        SELECT deviceTypeCode FROM devicetype WHERE deviceTypeId = #{deviceTypeId}
-    </select>
-
-    <!--查询设备类型数据-->
-    <select id="selectByCode" resultType="demo.lowcode.platform.entity.DeviceType">
-        SELECT * FROM devicetype WHERE deviceTypeCode = #{deviceTypeCode}
-    </select>
-
-    <!--修改设备发布状态-->
-    <update id="updatePublish">
-        UPDATE  devicetype SET isPublish = 1 WHERE deviceTypeCode = #{deviceTypeCode}
-    </update>
 </mapper>

@@ -10,7 +10,7 @@ import java.util.Map;
 @org.springframework.stereotype.Service
 public class ActionBusiness {
     @Resource
-    ScenarioBusiness scenarioBusiness;
+    SceneBusiness sceneBusiness;
 
     public Action getAction(String scenarioId, String scePath, ActionMeta actionMeta, Map<String, Object> executeArgs) throws Exception {
         return new Action() {

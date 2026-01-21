@@ -6,6 +6,9 @@
     "module": "ESNext",
     "lib": ["ES2020", "DOM", "DOM.Iterable"],
     "skipLibCheck": true,
+    "strict": true,
+    "noImplicitAny": true,
+    "strictNullChecks": true,
 
     /* Bundler mode */
     "allowJs": true,
@@ -28,7 +31,6 @@
     "paths": {
       "@/*": ["src/*"]
     },
-
     "typeRoots": ["./node_modules/@types", "./types"]
   },
   "include": ["src/**/*.ts", "src/**/*.d.ts", "src/**/*.tsx", "src/**/*.vue"],

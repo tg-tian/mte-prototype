@@ -4,23 +4,35 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="demo.lowcode.platform.mapper.DeviceMapper">
+    <resultMap id="deviceResultMap" type="demo.lowcode.platform.entity.Device">
+        <id column="id" property="id"/>
+        <result column="device_code" property="deviceCode"/>
+        <result column="device_name" property="deviceName"/>
+        <result column="device_type_id" property="deviceTypeId"/>
+        <result column="scene_id" property="sceneId"/>
+        <result column="status" property="status"/>
+        <result column="protocol_type" property="protocolType"/>
+        <result column="protocol_config" property="protocolConfig" typeHandler="com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="last_online_time" property="lastOnlineTime"/>
+        <result column="device_location" property="deviceLocation"/>
+        <result column="device_position" property="devicePosition"/>
+    </resultMap>
 
-    <!--上传设备信息-->
-    <insert id="insertDevice" keyProperty="deviceId">
-        INSERT IGNORE INTO device(deviceCode,deviceName,deviceTypeId,versionNumber,manufacturer)
-            VALUES (#{deviceCode},#{deviceName},#{deviceTypeId},#{versionNumber},#{manufacturer})
-    </insert>
-
-    <select id="countByDeviceCode" resultType="int">
-        SELECT COUNT(1) FROM device WHERE deviceCode = #{deviceCode}
+    <!--获取场景设备列表-->
+    <select id="selectBySceneId" resultMap="deviceResultMap">
+        SELECT * FROM device
+        WHERE scene_id = #{sceneId}
     </select>
 
-    <!--根据code获取id-->
-    <select id="getDeviceId" resultType="java.lang.Long">
-        SELECT deviceId FROM device WHERE deviceCode = #{deviceCode}
+    <!--获取场景设备-->
+    <select id="selectByCodeAndScene" resultMap="deviceResultMap">
+        SELECT * FROM device
+        WHERE scene_id = #{sceneId} AND device_code = #{code}
     </select>
-
-    <select id="selectById" resultType="demo.lowcode.platform.entity.Device">
-        SELECT * FROM device WHERE deviceId = #{deviceId}
+    <select id="selectBySceneIdWithIntelligent" resultType="demo.lowcode.platform.dto.DeviceWithPosition">
+        SELECT * FROM device
+        WHERE scene_id = #{sceneId}
     </select>
 </mapper>

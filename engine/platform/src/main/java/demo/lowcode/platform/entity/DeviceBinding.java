@@ -28,7 +28,7 @@ public class DeviceBinding {
 
     @ManyToOne  // 多个 Binding 可以对应一个 DeviceType
     @JoinColumn(name = "deviceTypeId", referencedColumnName = "deviceTypeId", insertable = false, updatable = false)
-    private DeviceType deviceType;  // 引用到 DeviceType 实体
+    private DeviceTypeOld deviceType;  // 引用到 DeviceType 实体
 
     @Id
     @Column(name = "domainId", nullable = false)

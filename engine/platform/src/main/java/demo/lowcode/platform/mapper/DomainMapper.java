@@ -8,5 +8,5 @@ import org.apache.ibatis.annotations.Param;
 @Mapper
 public interface DomainMapper extends BaseMapper<Domain> {
     long getDomainIdByName(@Param("domainName") String domainName);
-    long getDomainIdByCode(@Param("domainCode") String domainCode);
+    Domain getDomainByCode(@Param("domainCode") String domainCode);
 }
