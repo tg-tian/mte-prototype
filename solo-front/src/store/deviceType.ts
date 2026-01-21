@@ -46,7 +46,7 @@ export const useDeviceTypeStore = defineStore('deviceType', {
         },
 
         async fetchDeviceTypes(domainId?: number) {
-            if(domainId === null){
+            if (domainId === null) {
                 this.deviceTypes = []
                 return
             }
@@ -68,6 +68,11 @@ export const useDeviceTypeStore = defineStore('deviceType', {
                 const res: any = await createDeviceType(deviceTypeData)
                 if (res.status === 201) {
                     await this.fetchAllDeviceTypes()
+                    // 同时刷新分页数据，确保列表页面能显示最新数据
+                    await this.fetchDeviceTypePage({
+                        current: this.deviceTypePage.current,
+                        size: this.deviceTypePage.size
+                    })
                     return res.data
                 } else {
                     throw new Error(res.message || '创建设备类型失败')
