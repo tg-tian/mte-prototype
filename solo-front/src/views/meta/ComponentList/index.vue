@@ -19,7 +19,7 @@
         <el-form-item label="组件名称">
           <el-input v-model="searchForm.name" placeholder="名称或编码" clearable></el-input>
         </el-form-item>
-        <el-form-item label="组件类型">
+        <el-form-item label="节点类型">
           <el-select v-model="searchForm.type" placeholder="全部" clearable style="width: 150px">
             <el-option label="节点" value="node"></el-option>
             <el-option label="边" value="edge"></el-option>
