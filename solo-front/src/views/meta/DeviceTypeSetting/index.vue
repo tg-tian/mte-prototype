@@ -2,9 +2,9 @@
   <div class="device-type-setting">
     <div class="page-header">
       <div class="page-title-group">
-        <h2 class="page-main-title">{{ isEditMode ? '编辑设备类型' : '创建设备类型' }}</h2>
-        <p v-if="isEditMode" class="page-sub-title">{{ deviceTypeForm.modelName || '设备类型详情' }}</p>
-        <p v-else class="page-sub-title">定义新的物联网设备元模型及其属性、操作和事件</p>
+        <h2 class="page-main-title">{{ isEditMode ? (deviceTypeCategory === 'component' ? '编辑组件类型' : '编辑设备类型') : (deviceTypeCategory === 'component' ? '创建组件类型' : '创建设备类型') }}</h2>
+        <p v-if="isEditMode" class="page-sub-title">{{ deviceTypeForm.modelName || (deviceTypeCategory === 'component' ? '组件类型详情' : '设备类型详情') }}</p>
+        <p v-else class="page-sub-title">{{ deviceTypeCategory === 'component' ? '定义组件及其属性、操作和事件' : '定义新的物联网设备元模型及其属性、操作和事件' }}</p>
       </div>
       <div class="header-actions">
         <el-button @click="navigateBack">返回列表</el-button>
@@ -32,8 +32,8 @@
             </el-form-item>
           </el-col>
           <el-col :span="12">
-            <el-form-item label="品类" prop="category">
-              <el-input v-model="deviceTypeForm.category" placeholder="例如：家用电器、生产设备"></el-input>
+            <el-form-item label="模型标识符" prop="category">
+              <el-input v-model="deviceTypeForm.category" placeholder="例如：smart_ac, industrial_sensor"></el-input>
             </el-form-item>
           </el-col>
         </el-row>
@@ -637,6 +637,11 @@ const deviceTypeId = computed(() => {
   return parseInt(route.query.deviceTypeId as string) || null
 })
 
+// 获取类型（device 或 component）
+const deviceTypeCategory = computed(() => {
+  return route.query.type as string || 'device'
+})
+
 // 验证规则
 const basicRules = {
   modelName: [
@@ -644,7 +649,8 @@ const basicRules = {
     { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
   ],
   category: [
-    { required: true, message: '请输入品类', trigger: 'blur' }
+    { required: true, message: '请输入模型标识符', trigger: 'blur' },
+    { pattern: /^[a-zA-Z_][a-zA-Z0-9_]*$/, message: '只能包含英文字母、数字和下划线，且必须以字母或下划线开头', trigger: 'blur' }
   ]
 }
 
@@ -847,7 +853,12 @@ onMounted(async () => {
 
 // 返回列表
 const navigateBack = () => {
-  router.push('/meta/deviceType/list')
+  // 根据类型返回对应的列表页面
+  if (deviceTypeCategory.value === 'component') {
+    router.push('/meta/component/list')
+  } else {
+    router.push('/meta/deviceType/list')
+  }
 }
 
 // 保存模型（不再需要单独方法）
@@ -876,14 +887,19 @@ const submitForm = async () => {
           const { id, ...createData } = deviceTypeForm.value
           const deviceTypeData = {
             ...createData,
+            type: deviceTypeCategory.value, // 根据来源页面设置 type 字段
             model: modelForm.value
-          } as DeviceType
+          } as any as DeviceType
           const result = await deviceTypeStore.createDeviceType(deviceTypeData)
           if (result && result.id) {
             currentDeviceTypeId.value = result.id
             ElMessage.success('创建成功')
-            // 如果是新建，可能需要跳转到编辑模式或列表
-            router.push('/meta/deviceType/list')
+            // 根据类型返回对应的列表页面
+            if (deviceTypeCategory.value === 'component') {
+              router.push('/meta/component/list')
+            } else {
+              router.push('/meta/deviceType/list')
+            }
           }
         }
       } catch (error) {
@@ -1244,3 +1260,5 @@ const copyModelJson = () => {
   word-break: break-word;
 }
 </style>
+1	AC	mqtt	ac	2026-01-19 17:00:59	2026-01-20 11:32:23	{"events": {}, "actions": {"setMode": {"arguments": {"mode": {"max": null, "min": null, "type": "enum", "unit": null, "readOnly": null, "enumValues": ["cool", "heat", "fan", "dry", "auto"], "description": "模式"}}, "description": "设置模式"}, "setTemperature": {"arguments": {"temp": {"max": 30.0, "min": 16.0, "type": "number", "unit": null, "readOnly": null, "enumValues": null, "description": "温度"}}, "description": "设置温度"}}, "category": "ac", "provider": "template", "modelName": "AC", "extensions": {"rawModel": null, "extraMeta": null}, "properties": {"hvacMode": {"max": null, "min": null, "type": "enum", "unit": null, "readOnly": null, "enumValues": ["cool", "heat", "fan", "dry", "auto"], "description": "模式"}, "tempTarget": {"max": 30.0, "min": 16.0, "type": "number", "unit": "C", "readOnly": null, "enumValues": null, "description": "目标温度"}, "tempCurrent": {"max": 60.0, "min": -20.0, "type": "number", "unit": "C", "readOnly": null, "enumValues": null, "description": "当前温度"}}}	device
+2	Thermostat	mqtt	thermometer	2026-01-19 17:01:00	2026-01-20 11:24:31	{"events": {"overheating": {"level": "warning", "fields": {"level": {"max": null, "min": null, "type": "string", "unit": null, "readOnly": null, "enumValues": null, "description": null}}, "description": null}}, "actions": {}, "category": "thermometer", "provider": "template", "modelName": "Thermostat", "extensions": {"rawModel": null, "extraMeta": null}, "properties": {"tempCurrent": {"max": 4.0, "min": 1.0, "type": "number", "unit": "C", "readOnly": true, "enumValues": null, "description": "温度"}}}	device

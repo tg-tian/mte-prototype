@@ -75,8 +75,19 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentMapper, Component
             }
 
             component.setConstraints(objectMapper.writeValueAsString(constraintsMap));
+
+            // Convert properties, inputs, outputs to JSON
+            if (componentDto.getProperties() != null) {
+                component.setProperties(objectMapper.writeValueAsString(componentDto.getProperties()));
+            }
+            if (componentDto.getInputs() != null) {
+                component.setInputs(objectMapper.writeValueAsString(componentDto.getInputs()));
+            }
+            if (componentDto.getOutputs() != null) {
+                component.setOutputs(objectMapper.writeValueAsString(componentDto.getOutputs()));
+            }
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Error converting constraints to JSON", e);
+            throw new RuntimeException("Error converting data to JSON", e);
         }
 
         component.setCreateTime(new Date());
@@ -113,8 +124,19 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentMapper, Component
             }
 
             component.setConstraints(objectMapper.writeValueAsString(constraintsMap));
+
+            // Convert properties, inputs, outputs to JSON
+            if (componentDto.getProperties() != null) {
+                component.setProperties(objectMapper.writeValueAsString(componentDto.getProperties()));
+            }
+            if (componentDto.getInputs() != null) {
+                component.setInputs(objectMapper.writeValueAsString(componentDto.getInputs()));
+            }
+            if (componentDto.getOutputs() != null) {
+                component.setOutputs(objectMapper.writeValueAsString(componentDto.getOutputs()));
+            }
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Error converting constraints to JSON", e);
+            throw new RuntimeException("Error converting data to JSON", e);
         }
 
         component.setUpdateTime(new Date());
@@ -205,6 +227,17 @@ public class ComponentServiceImpl extends ServiceImpl<ComponentMapper, Component
                                 demo.lowcode.platform.dto.ConstraintDto.class));
                     }
                 }
+            }
+
+            // Parse properties, inputs, outputs from JSON
+            if (component.getProperties() != null && !component.getProperties().isEmpty()) {
+                dto.setProperties(objectMapper.readValue(component.getProperties(), Map.class));
+            }
+            if (component.getInputs() != null && !component.getInputs().isEmpty()) {
+                dto.setInputs(objectMapper.readValue(component.getInputs(), List.class));
+            }
+            if (component.getOutputs() != null && !component.getOutputs().isEmpty()) {
+                dto.setOutputs(objectMapper.readValue(component.getOutputs(), List.class));
             }
         } catch (JsonProcessingException e) {
             // Log error but don't fail

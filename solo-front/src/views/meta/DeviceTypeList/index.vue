@@ -136,7 +136,8 @@ onMounted(() => {
 })
 
 const handleSearch = () => {
-  deviceTypeStore.fetchDeviceTypePage(searchForm)
+  // 设备类型页面只显示 type=device 的数据
+  deviceTypeStore.fetchDeviceTypePage({ ...searchForm, type: 'device' })
 }
 
 const resetSearch = () => {
@@ -159,9 +160,9 @@ const handleCurrentChange = (val: number) => {
 const navigateToDeviceTypeSetting = (deviceType?: DeviceType) => {
   if (deviceType) {
     deviceTypeStore.setCurrentDeviceType(deviceType)
-    router.push(`/meta/devicetype/setting?deviceTypeId=${deviceType.id}&mode=edit`)
+    router.push(`/meta/devicetype/setting?deviceTypeId=${deviceType.id}&mode=edit&type=device`)
   } else {
-    router.push('/meta/devicetype/setting?mode=create')
+    router.push('/meta/devicetype/setting?mode=create&type=device')
   }
 }
 
