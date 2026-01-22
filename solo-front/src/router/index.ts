@@ -59,9 +59,9 @@ const routes: RouteRecordRaw[] = [
                         component: () => import('@/views/meta/ComponentList/index.vue')
                     },
                     {
-                        path: 'component/setting',
-                        name: '组件定制',
-                        component: () => import('@/views/meta/ComponentSetting/index.vue')
+                        path: 'node/setting',
+                        name: '节点定制',
+                        component: () => import('@/views/meta/NodeSetting/index.vue')
                     },
                     {
                         path: 'nodetype/list',
@@ -113,3 +113,4 @@ router.beforeEach((to, _from, next) => {
 })
 
 export default router
+
