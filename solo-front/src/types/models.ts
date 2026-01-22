@@ -119,39 +119,50 @@ export interface User {
 
 // Component types
 export enum ComponentType {
-  Node = 'node',
-  Edge = 'edge'
+    Node = 'node',
+    Edge = 'edge'
 }
 
 // Purpose types
 export enum PurposeType {
-  BusinessFlow = 'businessFlow',
-  InterfaceFlow = 'interfaceFlow',
-  DeviceLogic = 'deviceLogic'
+    BusinessFlow = 'businessFlow',
+    InterfaceFlow = 'interfaceFlow',
+    DeviceLogic = 'deviceLogic'
 }
 
 // Constraint interface
 export interface Constraint {
-  quantity: number;
-  type: string;
+    quantity: number;
+    type: string;
+}
+
+// Input parameter interface
+export interface InputParam {
+    name: string;
+    type: string;
 }
 
 // Component interface
 export interface Component {
-  id?: number;
-  code: string;
-  name: string;
-  description: string;
-  type: ComponentType; // 'node' or 'edge'
-  purpose: PurposeType; // 'businessFlow', 'interfaceFlow', or 'deviceLogic'
-  createTime?: string;
-  updateTime?: string;
-  // For Node type
-  inputConstraint: Constraint;
-  outputConstraint: Constraint;
-  // For Edge type
-  startConstraint: Constraint;
-  endConstraint: Constraint;
+    id?: number;
+    code: string;
+    name: string;
+    description: string;
+    type: string; // 'start', 'end', 'process', 'condition', 'device'
+    purpose: PurposeType; // 'businessFlow', 'interfaceFlow', or 'deviceLogic'
+    createTime?: string;
+    updateTime?: string;
+    // 入口参数列表
+    inputs?: InputParam[];
+    // 出口类型
+    outputType?: string;
+    // 属性定义
+    properties?: Record<string, PropertyDefinition>;
+    // 旧字段保留向后兼容 (可选)
+    inputConstraint?: Constraint;
+    outputConstraint?: Constraint;
+    startConstraint?: Constraint;
+    endConstraint?: Constraint;
 }
 
 // area interface

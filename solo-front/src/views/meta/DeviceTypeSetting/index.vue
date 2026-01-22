@@ -1178,6 +1178,11 @@ const copyModelJson = () => {
   border-bottom: 1px solid #f2f4f7;
 }
 
+.premium-dialog :deep(.el-dialog__body) {
+  max-height: 60vh;
+  overflow-y: auto;
+}
+
 .premium-dialog :deep(.el-dialog__title) {
   font-size: 18px;
   font-weight: 600;

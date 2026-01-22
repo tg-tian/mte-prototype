@@ -28,13 +28,15 @@
             <span>设备型号</span>
           </el-menu-item>
           <el-menu-item index="meta-nodetype-list" class="sub-menu-item">
-             <el-icon><Grid /></el-icon>
-            <span>组件类型</span>
-          </el-menu-item>
-          <el-menu-item index="meta-component-list" class="sub-menu-item">
-              <el-icon><Link /></el-icon>
+           <el-icon><Link /></el-icon>
             <span>节点类型</span>
           </el-menu-item>
+          <el-menu-item index="meta-component-list" class="sub-menu-item">
+              
+              <el-icon><Grid /></el-icon>
+            <span>组件类型</span>
+          </el-menu-item>
+          
         </el-sub-menu>
         <el-sub-menu index="1" class="nav-item">
           <template #title>

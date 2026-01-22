@@ -2,86 +2,126 @@
   <div class="page-container">
     <div class="page-header">
       <div class="page-title-group">
-        <h2 class="page-main-title">组件类型管理</h2>
-        <p class="page-sub-title">定义组件</p>
+        <h2 class="page-main-title">节点类型管理</h2>
+        <p class="page-sub-title">定义和管理流程引擎使用的节点</p>
       </div>
-      <el-button type="primary" class="create-btn" @click="navigateToDeviceTypeSetting()">
-        <el-icon><Plus /></el-icon>创建组件类型
-      </el-button>
+      <el-button type="primary" @click="navigateToComponentSetting()">创建节点</el-button>
     </div>
-
-    <!-- 搜索栏 -->
-    <el-card class="search-card" shadow="never">
+    
+    <el-card class="component-search" shadow="never">
+      <template #header>
+        <div class="card-header">
+          <el-icon><Filter /></el-icon>
+          <span>筛选条件</span>
+        </div>
+      </template>
       <el-form :inline="true" :model="searchForm" class="search-form">
-        <el-form-item label="组件名称">
-          <el-input 
-            v-model="searchForm.modelName" 
-            placeholder="请输入组件名称" 
-            clearable
-            @keyup.enter="handleSearch"
-            style="width: 240px"
-          >
-            <template #prefix>
-              <el-icon><Search /></el-icon>
-            </template>
-          </el-input>
+        <el-form-item label="节点名称">
+          <el-input v-model="searchForm.name" placeholder="名称或编码" clearable></el-input>
+        </el-form-item>
+        <el-form-item label="节点类型">
+          <el-select v-model="searchForm.type" placeholder="全部" clearable style="width: 150px">
+            <el-option label="开始节点" value="start"></el-option>
+            <el-option label="结束节点" value="end"></el-option>
+            <el-option label="处理节点" value="process"></el-option>
+            <el-option label="条件节点" value="condition"></el-option>
+            <el-option label="设备节点" value="device"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="用途">
+          <el-select v-model="searchForm.purpose" placeholder="全部" clearable style="width: 150px">
+            <el-option label="业务流" value="businessFlow"></el-option>
+            <el-option label="界面流" value="interfaceFlow"></el-option>
+            <el-option label="设备逻辑" value="deviceLogic"></el-option>
+          </el-select>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" @click="handleSearch">查询</el-button>
-          <el-button @click="resetSearch">重置</el-button>
+          <el-button type="primary" :icon="Search" @click="handleSearch">查询</el-button>
+          <el-button :icon="Refresh" @click="resetSearch">重置</el-button>
         </el-form-item>
       </el-form>
     </el-card>
-
-    <!-- 表格区域 -->
+    
     <el-table
-      v-loading="deviceTypeStore.loading"
-      :data="formattedDeviceTypes"
-      style="width: 100%; margin-top: 24px"
-      class="premium-table"
-      :header-cell-style="{ background: '#f5f7fa', color: '#606266', fontWeight: 'bold' }"
+      v-loading="componentStore.loading"
+      :data="filteredComponents"
+      style="width: 100%; margin-top: 20px"
+      border
     >
-      <el-table-column prop="id" label="ID" width="100" align="center" />
-      <el-table-column prop="modelName" label="组件名称" min-width="180">
-        <template #default="{ row }">
-          <span class="model-name-text">{{ row.modelName }}</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="category" label="品类" width="150" align="center">
-        <template #default="{ row }">
-          <el-tag v-if="row.category" size="small" effect="light" round>
-            {{ row.category }}
-          </el-tag>
-          <span v-else style="color: #c0c4cc">-</span>
-        </template>
-      </el-table-column>
-      <el-table-column prop="createTime" label="创建时间" min-width="180" align="center" />
-      <el-table-column prop="updateTime" label="更新时间" min-width="180" align="center" />
-      <el-table-column label="操作" width="250" fixed="right" align="center">
+      <el-table-column prop="code" label="节点编码" width="150"></el-table-column>
+      <el-table-column prop="name" label="节点名称" min-width="50"></el-table-column>
+      <el-table-column prop="description" label="描述" min-width="100"></el-table-column>
+      <el-table-column prop="type" label="类型" width="120">
         <template #default="scope">
-          <el-button link type="primary" @click="navigateToDeviceTypeSetting(scope.row)">编辑</el-button>
-          <el-button link type="success" @click="viewJson(scope.row)">查看JSON</el-button>
-          <el-button link type="danger" @click="handleDelete(scope.row)">删除</el-button>
+          <el-tag :type="getTypeTagType(scope.row.type)">
+            {{ getTypeText(scope.row.type) }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="purpose" label="用途" width="120">
+        <template #default="scope">
+          <el-tag :type="getPurposeTagType(scope.row.purpose)">
+            {{ getPurposeText(scope.row.purpose) }}
+          </el-tag>
+        </template>
+      </el-table-column>
+      <el-table-column prop="createTime" label="创建时间" width="150"></el-table-column>
+      <el-table-column prop="updateTime" label="更新时间" width="150"></el-table-column>
+      <el-table-column label="约束" width="150">
+        <template #default="scope">
+          <el-button 
+            type="primary" 
+            size="small" 
+            @click="showConstraints(scope.row)"
+            plain
+          >查看约束</el-button>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" width="250">
+        <template #default="scope">
+          <el-button type="primary" size="small" @click="navigateToComponentSetting(scope.row)">编辑</el-button>
+          <el-button type="success" size="small" @click="viewJson(scope.row)">查看JSON</el-button>
+          <el-button type="danger" size="small" @click="handleDelete(scope.row)">删除</el-button>
         </template>
       </el-table-column>
     </el-table>
 
-    <!-- 分页 -->
-    <div class="pagination-container">
-      <el-pagination
-        v-model:current-page="searchForm.current"
-        v-model:page-size="searchForm.size"
-        :page-sizes="[10, 20, 50, 100]"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="deviceTypeStore.deviceTypePage.total"
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-      />
-    </div>
+    <!-- 约束信息对话框 -->
+    <el-dialog v-model="constraintDialogVisible" :title="selectedComponent ? `${selectedComponent.name} 的约束` : '约束信息'" width="500px">
+      <div v-if="selectedComponent">
+        <template v-if="selectedComponent.type === 'node'">
+          <h4>入口约束</h4>
+          <el-descriptions :column="2" border>
+            <el-descriptions-item label="数量">{{ selectedComponent.inputConstraint?.quantity === -1 ? '无限制' : selectedComponent.inputConstraint?.quantity }}</el-descriptions-item>
+            <el-descriptions-item label="类型">{{ selectedComponent.inputConstraint?.type }}</el-descriptions-item>
+          </el-descriptions>
+          
+          <h4 style="margin-top: 20px">出口约束</h4>
+          <el-descriptions :column="2" border>
+            <el-descriptions-item label="数量">{{ selectedComponent.outputConstraint?.quantity === -1 ? '无限制' : selectedComponent.outputConstraint?.quantity }}</el-descriptions-item>
+            <el-descriptions-item label="类型">{{ selectedComponent.outputConstraint?.type }}</el-descriptions-item>
+          </el-descriptions>
+        </template>
+        
+        <template v-else>
+          <h4>起点约束</h4>
+          <el-descriptions :column="2" border>
+            <el-descriptions-item label="数量">{{ selectedComponent.startConstraint?.quantity === -1 ? '无限制' : selectedComponent.startConstraint?.quantity }}</el-descriptions-item>
+            <el-descriptions-item label="类型">{{ selectedComponent.startConstraint?.type }}</el-descriptions-item>
+          </el-descriptions>
+          
+          <h4 style="margin-top: 20px">终点约束</h4>
+          <el-descriptions :column="2" border>
+            <el-descriptions-item label="数量">{{ selectedComponent.endConstraint?.quantity === -1 ? '无限制' : selectedComponent.endConstraint?.quantity }}</el-descriptions-item>
+            <el-descriptions-item label="类型">{{ selectedComponent.endConstraint?.type }}</el-descriptions-item>
+          </el-descriptions>
+        </template>
+      </div>
+    </el-dialog>
 
     <!-- JSON查看对话框 -->
-    <el-dialog v-model="jsonDialogVisible" title="组件类型JSON" width="60%">
-      <pre class="json-viewer">{{ formattedDeviceTypeJson }}</pre>
+    <el-dialog v-model="jsonDialogVisible" title="节点JSON" width="60%">
+      <pre class="json-viewer">{{ formattedComponentJson }}</pre>
       <template #footer>
         <span class="dialog-footer">
           <el-button type="primary" @click="copyJson">复制</el-button>
@@ -93,81 +133,121 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, computed, onMounted, ref } from 'vue'
-import { Plus, Search } from '@element-plus/icons-vue'
-import { useDeviceTypeStore } from '@/store/deviceType'
-import { getDeviceTypeById } from '@/api/deviceType'
+import { reactive, computed, onMounted, ref, toRefs } from 'vue'
+import { useComponentStore } from '@/store/component'
+import { Component, ComponentType, PurposeType } from '@/types/models'
 import { ElMessage, ElMessageBox } from 'element-plus'
 import { useRouter } from 'vue-router'
-import { DeviceType } from '@/types/models'
+import { Filter, Search, Refresh } from '@element-plus/icons-vue'
 
 const router = useRouter()
-const deviceTypeStore = useDeviceTypeStore()
+const componentStore = useComponentStore()
 
-// JSON对话框相关状态
-const jsonDialogVisible = ref(false)
-const jsonDeviceType = ref<DeviceType | null>(null)
-
-// 格式化JSON - 只显示model部分，和编辑页面保持一致
-const formattedDeviceTypeJson = computed(() => {
-  if (!jsonDeviceType.value) return ''
-  // 只显示model部分，和编辑页面的formattedModelJson保持一致
-  return JSON.stringify(jsonDeviceType.value.model || {}, null, 2)
+// 状态
+const state = reactive({
+  searchForm: {
+    name: '',
+    type: '',
+    purpose: ''
+  },
+  constraintDialogVisible: false,
+  jsonDialogVisible: false,
+  selectedComponent: null as Component | null,
+  jsonComponent: null as Component | null
 })
 
-const searchForm = reactive({
-  current: 1,
-  size: 10,
-  modelName: ''
-})
+const { searchForm, constraintDialogVisible, jsonDialogVisible, selectedComponent, jsonComponent } = toRefs(state)
 
-const formattedDeviceTypes = computed(() => {
-  return deviceTypeStore.deviceTypePage.records.map((deviceType: any) => {
-    return {
-      ...deviceType,
-      updateTime: deviceType.updateTime?.split('.')[0].replace('T', ' '),
-      createTime: deviceType.createTime?.split('.')[0].replace('T', ' ')
+// 格式化JSON
+const formattedComponentJson = computed(() => {
+  if(!jsonComponent.value) return ''
+  let formatJson = jsonComponent.value
+  if(formatJson.type === ComponentType.Node){
+    formatJson = {
+      ...formatJson,
+      startConstraint: {} as any,
+      endConstraint: {} as any
     }
+  }else{
+    formatJson = {
+      ...formatJson,
+      inputConstraint: {} as any,
+      outputConstraint: {} as any
+    }
+  }
+  return JSON.stringify(formatJson, null, 2)
+})
+
+// 过滤后的节点列表
+const filteredComponents = computed(() => {
+  if (!componentStore.allComponents) return []
+  return componentStore.allComponents.filter((component: Component) => {
+    const nameMatch = !searchForm.value.name || 
+                     component.name.toLowerCase().includes(searchForm.value.name.toLowerCase()) || 
+                     component.code.toLowerCase().includes(searchForm.value.name.toLowerCase())
+    const typeMatch = !searchForm.value.type || component.type === searchForm.value.type
+    const purposeMatch = !searchForm.value.purpose || component.purpose === searchForm.value.purpose
+    return nameMatch && typeMatch && purposeMatch
   })
 })
 
-onMounted(() => {
-  handleSearch()
+// 初始化
+onMounted(async () => {
+  await componentStore.fetchAllComponents()
 })
 
+// 搜索处理
 const handleSearch = () => {
-  deviceTypeStore.fetchDeviceTypePage(searchForm)
+  // 过滤是在计算属性中完成的
 }
 
+// 重置搜索
 const resetSearch = () => {
-  searchForm.modelName = ''
-  searchForm.current = 1
-  handleSearch()
+  searchForm.value.name = ''
+  searchForm.value.type = ''
+  searchForm.value.purpose = ''
 }
 
-const handleSizeChange = (val: number) => {
-  searchForm.size = val
-  searchForm.current = 1
-  handleSearch()
-}
-
-const handleCurrentChange = (val: number) => {
-  searchForm.current = val
-  handleSearch()
-}
-
-const navigateToDeviceTypeSetting = (deviceType?: DeviceType) => {
-  if (deviceType) {
-    deviceTypeStore.setCurrentDeviceType(deviceType)
-    router.push(`/meta/devicetype/setting?deviceTypeId=${deviceType.id}&mode=edit`)
+// 导航到节点设置页面
+const navigateToComponentSetting = (component?: Component) => {
+  if (component) {
+    // 编辑节点
+    componentStore.setCurrentComponent(component)
+    router.push(`/meta/node/setting?mode=edit&componentId=${component.id}`)
   } else {
-    router.push('/meta/devicetype/setting?mode=create')
+    // 创建节点
+    router.push('/meta/node/setting?mode=create')
   }
 }
 
-const handleDelete = (row: DeviceType) => {
+// 显示约束信息
+const showConstraints = (component: Component) => {
+  selectedComponent.value = component
+  constraintDialogVisible.value = true
+}
+
+// 查看节点JSON
+const viewJson = (component: Component) => {
+  jsonComponent.value = component
+  jsonDialogVisible.value = true
+}
+
+// 复制JSON
+const copyJson = () => {
+  navigator.clipboard.writeText(formattedComponentJson.value)
+    .then(() => {
+      ElMessage.success('JSON已复制到剪贴板')
+    })
+    .catch(err => {
+      console.error('复制失败:', err)
+      ElMessage.error('复制失败')
+    })
+}
+
+// 删除节点
+const handleDelete = (row: Component) => {
   ElMessageBox.confirm(
-    `确定要删除组件类型 "${row.modelName}" 吗？`,
+    `确定要删除节点 "${row.name}" 吗？`,
     '警告',
     {
       confirmButtonText: '确定',
@@ -177,42 +257,61 @@ const handleDelete = (row: DeviceType) => {
   )
   .then(async () => {
     try {
-      await deviceTypeStore.deleteDeviceType(row.id)
-      ElMessage.success('删除成功')
-      handleSearch()
+      if (row.id) {
+        await componentStore.deleteComponent(row.id)
+        ElMessage.success('删除成功')
+      }
     } catch (error) {
       ElMessage.error('删除失败')
     }
   })
-  .catch(() => {})
+  .catch(() => {
+    // 用户取消操作
+  })
 }
 
-// 查看组件类型JSON
-const viewJson = async (deviceType: DeviceType) => {
-  try {
-    // 如果列表中的数据不完整，需要重新获取完整数据
-    if (!deviceType.model) {
-      const res: any = await getDeviceTypeById(deviceType.id)
-      jsonDeviceType.value = res.data || deviceType
-    } else {
-      jsonDeviceType.value = deviceType
-    }
-    jsonDialogVisible.value = true
-  } catch (error) {
-    ElMessage.error('获取组件类型数据失败')
+// 获取用途对应的标签类型
+const getPurposeTagType = (purpose: string) => {
+  switch(purpose) {
+    case PurposeType.BusinessFlow: return 'primary'
+    case PurposeType.InterfaceFlow: return 'warning'
+    case PurposeType.DeviceLogic: return 'success'
+    default: return 'info'
   }
 }
 
-// 复制JSON
-const copyJson = () => {
-  navigator.clipboard.writeText(formattedDeviceTypeJson.value)
-    .then(() => {
-      ElMessage.success('JSON已复制到剪贴板')
-    })
-    .catch(err => {
-      console.error('复制失败:', err)
-      ElMessage.error('复制失败')
-    })
+// 获取用途文本
+const getPurposeText = (purpose: string) => {
+  switch(purpose) {
+    case PurposeType.BusinessFlow: return '业务流'
+    case PurposeType.InterfaceFlow: return '界面流'
+    case PurposeType.DeviceLogic: return '设备逻辑'
+    default: return purpose
+  }
+}
+
+// 获取节点类型对应的标签类型
+const getTypeTagType = (type: string) => {
+  switch(type) {
+    case 'start': return 'success'
+    case 'end': return 'danger'
+    case 'process': return 'primary'
+    case 'condition': return 'warning'
+    case 'device': return 'info'
+    default: return 'info'
+  }
+}
+
+// 获取节点类型文本
+const getTypeText = (type: string) => {
+  switch(type) {
+    case 'start': return '开始节点'
+    case 'end': return '结束节点'
+    case 'process': return '处理节点'
+    case 'condition': return '条件节点'
+    case 'device': return '设备节点'
+    default: return type
+  }
 }
 </script>
 
@@ -221,50 +320,17 @@ const copyJson = () => {
   width: 100%;
 }
 
-.search-card {
-  border: none;
-  background: white;
-  border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-}
-
-.premium-table {
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-  border: none;
-}
-
-.pagination-container {
-  margin-top: 24px;
-  display: flex;
-  justify-content: flex-end;
-}
-
-.model-name-text {
-  font-weight: 500;
-  color: #303133;
-}
-
-:deep(.el-table__row) {
-  transition: all 0.3s;
-  height: 64px;
-}
-
-:deep(.el-table__row:hover) {
-  background-color: #f5f7fa !important;
-  transform: translateY(-1px);
-}
-
 .json-viewer {
-  background: #f5f7fa;
+  background-color: #f5f7fa;
+  color: #606266;
   padding: 16px;
   border-radius: 4px;
-  overflow-x: auto;
-  max-height: 500px;
-  font-family: 'Courier New', monospace;
+  font-family: 'Monaco', 'Menlo', 'Ubuntu Mono', 'Consolas', 'source-code-pro', monospace;
   font-size: 14px;
-  line-height: 1.6;
-  color: #303133;
+  line-height: 1.5;
+  overflow: auto;
+  max-height: 60vh;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 </style>

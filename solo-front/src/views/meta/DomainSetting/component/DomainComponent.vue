@@ -140,7 +140,7 @@ const displayComponents = computed(() => {
 const navigateToComponentSetting = (row?: any) => {
   if (row) {
     componentStore.setCurrentComponent(row)
-    router.push(`/meta/component/setting?mode=edit&componentId=${row.id}`)
+    router.push(`/meta/node/setting?mode=edit&componentId=${row.id}`)
   }
 }
 

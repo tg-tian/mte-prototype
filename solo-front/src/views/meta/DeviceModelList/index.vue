@@ -90,6 +90,8 @@
       width="700px"
       destroy-on-close
       custom-class="premium-dialog"
+      height="50vh"
+      body-class="premium-dialog-body"
     >
       <el-form
         ref="formRef"
@@ -516,6 +518,31 @@ const copyMapper = () => {
   text-align: center;
   color: #909399;
   padding: 20px;
+}
+
+/* 编辑/创建对话框样式 */
+:deep(.premium-dialog) {
+  margin-top: 5vh !important;
+  max-height: 60vh;
+  display: flex;
+  flex-direction: column;
+}
+
+:deep(.premium-dialog .el-dialog__header) {
+  padding: 16px 20px;
+  border-bottom: 1px solid #f0f0f0;
+  margin-right: 0;
+}
+
+:deep(.premium-dialog .el-dialog__body) {
+  max-height: 65vh;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+:deep(.premium-dialog .el-dialog__footer) {
+  padding: 12px 20px;
+  border-top: 1px solid #f0f0f0;
 }
 
 .mapper-container {
