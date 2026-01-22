@@ -199,6 +199,7 @@ export interface DeviceLibrary {
     deviceName?: string; // 设备名称
     deviceMapperPath?: string; // 设备Mapper路径
     propertyMap?: Record<string, string>; // 属性映射规则
+    actionMap?: Record<string, string>; // 操作实现映射
     createTime?: string;
     updateTime?: string;
 }

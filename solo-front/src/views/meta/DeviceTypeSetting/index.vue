@@ -49,8 +49,8 @@
         </div>
       </template>
       <el-tabs v-model="activeTab">
-        <el-tab-pane label="属性" name="property" :disabled="!isEditMode && !currentDeviceTypeId">
-          <div v-if="isEditMode || currentDeviceTypeId" class="tab-content-wrapper">
+        <el-tab-pane label="属性" name="property">
+          <div class="tab-content-wrapper">
             <div class="tab-actions">
               <el-button type="primary" :icon="Plus" @click="addProperty">添加属性</el-button>
             </div>
@@ -88,8 +88,8 @@
           </div>
         </el-tab-pane>
         
-        <el-tab-pane label="操作" name="action" :disabled="!isEditMode && !currentDeviceTypeId">
-          <div v-if="isEditMode || currentDeviceTypeId" class="tab-content-wrapper">
+        <el-tab-pane label="操作" name="action">
+          <div class="tab-content-wrapper">
             <div class="tab-actions">
               <el-button type="primary" :icon="Plus" @click="addAction">添加操作</el-button>
             </div>
@@ -140,8 +140,8 @@
           </div>
         </el-tab-pane>
         
-        <el-tab-pane label="事件" name="event" :disabled="!isEditMode && !currentDeviceTypeId">
-          <div v-if="isEditMode || currentDeviceTypeId" class="tab-content-wrapper">
+        <el-tab-pane label="事件" name="event">
+          <div class="tab-content-wrapper">
             <div class="tab-actions">
               <el-button type="primary" :icon="Plus" @click="addEvent">添加事件</el-button>
             </div>

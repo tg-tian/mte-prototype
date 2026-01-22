@@ -61,6 +61,7 @@ public class DeviceLibraryController {
         if (deviceTypeName != null && !deviceTypeName.isEmpty()) {
             queryWrapper.like("device_type_name", deviceTypeName);
         }
+        queryWrapper.orderByDesc("create_time");
         return new ResponseEntity<>(deviceLibraryBusiness.page(page, queryWrapper), HttpStatus.OK);
     }
 
