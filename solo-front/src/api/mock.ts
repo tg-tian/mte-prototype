@@ -129,7 +129,7 @@ export const mockDevices = reactive<Device[]>([
 ])
 
 // Mock deviceTypeData
-export const mockDeviceTypes = reactive<DeviceType[]>([
+export const mockDeviceTypes = reactive<any[]>([
     {
         id: 1,
         code: "CoffeeMaker",
