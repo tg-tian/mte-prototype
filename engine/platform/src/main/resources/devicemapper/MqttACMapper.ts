@@ -113,10 +113,8 @@ export class MqttACMapper implements DeviceMapper {
       'auto': 4
     };
     const modeVal = modeMap[args.mode];
-    if (modeVal !== undefined) {
-      const payload = { action: 'setMode', args: { mode: modeVal } };
-      this.client.publish(`devices/${deviceId}/command`, JSON.stringify(payload));
-    }
+    const payload = { action: 'setMode', args: { mode: modeVal } };
+    this.client.publish(`devices/${deviceId}/command`, JSON.stringify(payload));
   }
   setTemperature(deviceId: string, args: { temp: number }): void {
     const payload = { action: 'setTemperature', args };
