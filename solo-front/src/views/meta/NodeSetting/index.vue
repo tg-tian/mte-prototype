@@ -147,24 +147,26 @@
               <div class="constraint-group">
                 <div class="group-title">
                   <span>出口约束 (Output)</span>
+                  <el-button type="primary" size="small" :icon="Plus" @click="addOutputParam" style="margin-left: auto">添加</el-button>
                 </div>
-                <el-form-item label="输出类型">
-                  <el-select v-model="componentForm.outputType" placeholder="选择输出类型" style="width: 100%">
-                    <el-option label="字符串 (String)" value="string"></el-option>
-                    <el-option label="数字 (Number)" value="number"></el-option>
-                    <el-option label="布尔 (Boolean)" value="boolean"></el-option>
-                    <el-option label="对象 (Object)" value="object"></el-option>
-                    <el-option label="数组 (Array)" value="array"></el-option>
-                    <el-option label="任意 (Any)" value="any"></el-option>
-                    <el-option label="无 (Void)" value="void"></el-option>
-                  </el-select>
-                </el-form-item>
+                <div v-if="componentForm.outputs && componentForm.outputs.length > 0" class="param-list">
+                  <div v-for="(param, index) in componentForm.outputs" :key="index" class="param-item">
+                    <el-select v-model="param.type" placeholder="类型" style="width: 40%">
+                      <el-option label="字符串 (String)" value="string"></el-option>
+                      <el-option label="数字 (Number)" value="number"></el-option>
+                      <el-option label="布尔 (Boolean)" value="boolean"></el-option>
+                      <el-option label="对象 (Object)" value="object"></el-option>
+                      <el-option label="数组 (Array)" value="array"></el-option>
+                      <el-option label="任意 (Any)" value="any"></el-option>
+                    </el-select>
+                    <el-button type="danger" :icon="Delete" circle size="small" @click="removeOutputParam(index)"></el-button>
+                  </div>
+                </div>
+                <el-empty v-else description="暂无出口参数" :image-size="60"></el-empty>
               </div>
             </el-col>
           </el-row>
         </div>
-
-      
 
       </el-form>
     </el-card>
@@ -201,14 +203,6 @@
                 <el-option label="对象 (Object)" value="object"></el-option>
                 <el-option label="数组 (Array)" value="array"></el-option>
               </el-select>
-            </el-form-item>
-          </el-col>
-          <el-col :span="12">
-            <el-form-item label="是否只读" prop="readOnly">
-              <el-radio-group v-model="propertyForm.readOnly">
-                <el-radio :label="true">是</el-radio>
-                <el-radio :label="false">否</el-radio>
-              </el-radio-group>
             </el-form-item>
           </el-col>
         </el-row>
@@ -293,7 +287,7 @@ const state = reactive({
     type: 'process',
     purpose: PurposeType.BusinessFlow,
     inputs: [] as Array<{ name: string; type: string }>,
-    outputType: 'any',
+    outputs: [] as Array<{ type: string }>,
     properties: {} as Record<string, PropertyDefinition>
   } as Component,
   submitting: false,
@@ -355,7 +349,7 @@ const resetFormData = () => {
     type: 'process',
     purpose: PurposeType.BusinessFlow,
     inputs: [],
-    outputType: 'any',
+    outputs: [],
     properties: {}
   }
 }
@@ -365,10 +359,10 @@ const handleTypeChange = (value: any) => {
   // 根据节点类型初始化默认参数
   if (value === 'start') {
     componentForm.value.inputs = []
-    componentForm.value.outputType = 'any'
+    componentForm.value.outputs = [{ type: 'any' }]
   } else if (value === 'end') {
     componentForm.value.inputs = [{ name: 'input', type: 'any' }]
-    componentForm.value.outputType = 'void'
+    componentForm.value.outputs = []
   } else {
     // process, condition, device 等节点保持默认值
   }
@@ -385,6 +379,19 @@ const addInputParam = () => {
 // 删除入口参数
 const removeInputParam = (index: number) => {
   componentForm.value.inputs.splice(index, 1)
+}
+
+// 添加出口参数
+const addOutputParam = () => {
+  if (!componentForm.value.outputs) {
+    componentForm.value.outputs = []
+  }
+  componentForm.value.outputs.push({ type: 'any' })
+}
+
+// 删除出口参数
+const removeOutputParam = (index: number) => {
+  componentForm.value.outputs.splice(index, 1)
 }
 
 // Copy JSON
@@ -549,7 +556,7 @@ const submitForm = async () => {
         const submitData = {
           ...componentForm.value,
           inputs: componentForm.value.inputs || [],
-          outputType: componentForm.value.outputType || 'any',
+          outputs: componentForm.value.outputs || [],
           properties: componentForm.value.properties || {}
         }
         
