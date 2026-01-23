@@ -86,7 +86,14 @@ public class DeviceLibraryController {
     @PutMapping
     @ApiOperation("更新设备库")
     public ResponseEntity<?> update(@RequestBody DeviceLibrary deviceLibrary) {
+        System.out.println("收到更新请求，设备库数据: " + deviceLibrary);
+        System.out.println("设备库ID: " + deviceLibrary.getId());
+        if (deviceLibrary.getId() == null) {
+            System.err.println("错误：设备库ID为空，无法更新");
+            return new ResponseEntity<>("更新失败：设备库ID为空", HttpStatus.BAD_REQUEST);
+        }
         boolean success = deviceLibraryBusiness.updateById(deviceLibrary);
+        System.out.println("更新结果: " + success);
         return success ? new ResponseEntity<>(deviceLibrary, HttpStatus.OK)
                 : new ResponseEntity<>("更新失败", HttpStatus.INTERNAL_SERVER_ERROR);
     }

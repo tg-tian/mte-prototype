@@ -302,11 +302,22 @@ const handleCreate = () => {
 
 const handleEdit = (row: any) => {
   isEdit.value = true
-  Object.assign(form, {
-    ...row,
-    propertyMap: row.propertyMap ? { ...row.propertyMap } : {},
-    actionMap: row.actionMap ? { ...row.actionMap } : {}
-  })
+  console.log('编辑设备型号，原始数据:', row)
+  console.log('原始数据ID:', row.id, '类型:', typeof row.id)
+  
+  // 确保所有字段都被正确复制，特别是 id
+  form.id = row.id
+  form.provider = row.provider
+  form.deviceTypeId = row.deviceTypeId
+  form.deviceTypeName = row.deviceTypeName
+  form.deviceModel = row.deviceModel
+  form.deviceName = row.deviceName
+  form.deviceMapperPath = row.deviceMapperPath
+  form.propertyMap = row.propertyMap ? { ...row.propertyMap } : {}
+  form.actionMap = row.actionMap ? { ...row.actionMap } : {}
+  
+  console.log('表单数据:', form)
+  console.log('表单ID:', form.id, '类型:', typeof form.id)
   dialogVisible.value = true
 }
 
@@ -349,8 +360,10 @@ const submitForm = async () => {
       try {
         let success = false
         if (isEdit.value) {
+          console.log('提交更新，表单数据:', form)
           success = await store.updateDevice(form as any)
         } else {
+          console.log('提交创建，表单数据:', form)
           success = await store.saveDevice(form as any)
         }
 
@@ -358,9 +371,13 @@ const submitForm = async () => {
           ElMessage.success(isEdit.value ? '更新成功' : '创建成功')
           dialogVisible.value = false
           handleSearch()
+        } else {
+          console.error('操作返回失败状态')
+          ElMessage.error('操作失败：服务器返回失败')
         }
-      } catch (error) {
-        ElMessage.error('操作失败')
+      } catch (error: any) {
+        console.error('操作异常:', error)
+        ElMessage.error('操作失败：' + (error.message || '未知错误'))
       } finally {
         submitting.value = false
       }
