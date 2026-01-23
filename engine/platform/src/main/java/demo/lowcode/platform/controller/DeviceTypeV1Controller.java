@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/v1/device-types")
+@RequestMapping("/meta/v1/device-types")
 @CrossOrigin
 @Api(value = "设备类型V1接口", tags = { "设备类型V1管理" })
 public class DeviceTypeV1Controller {
