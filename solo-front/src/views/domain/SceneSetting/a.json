@@ -1,0 +1,88 @@
+{
+    "events": [
+        {
+            "name": "咖啡制作完成",
+            "type": "info",
+            "identify": "makeCoffeeDone",
+            "outputData": [
+                {
+                    "name": "消息",
+                    "dataType": {
+                        "type": "string",
+                        "specs": {
+                            "length": "200"
+                        }
+                    },
+                    "identify": "message",
+                    "accessMode": null
+                }
+            ]
+        },
+        {
+            "name": "设备错误",
+            "type": "error",
+            "identify": "onError",
+            "outputData": [
+                {
+                    "name": "错误消息",
+                    "dataType": {
+                        "type": "string",
+                        "specs": {
+                            "length": "255"
+                        }
+                    },
+                    "identify": "errorMessage",
+                    "accessMode": null
+                },
+                {
+                    "name": "出错码",
+                    "dataType": {
+                        "type": "int",
+                        "specs": {
+                            "max": "-1",
+                            "min": "-99",
+                            "step": "1",
+                            "unit": ""
+                        }
+                    },
+                    "identify": "errorCode",
+                    "accessMode": null
+                }
+            ]
+        }
+    ],
+    "services": [
+        {
+            "name": "制作咖啡",
+            "identify": "makeCoffee",
+            "inputData": [
+                {
+                    "name": "咖啡类型",
+                    "dataType": {
+                        "type": "string",
+                        "specs": {
+                            "length": "200"
+                        }
+                    },
+                    "identify": "coffeeType",
+                    "accessMode": null
+                }
+            ],
+            "outputData": []
+        }
+    ],
+    "properties": [
+        {
+            "name": "糖量",
+            "dataType": {
+                "type": "float",
+                "specs": {
+                    "max": "100",
+                    "min": "0"
+                }
+            },
+            "identify": "sugar",
+            "accessMode": "rw"
+        }
+    ]
+}

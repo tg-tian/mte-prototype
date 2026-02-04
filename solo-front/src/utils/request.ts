@@ -8,10 +8,7 @@ const service = axios.create({
 // http request 拦截器
 service.interceptors.request.use(
   (config: any) => {
-    // 全局添加 token
-    if (getToken()) {
-      config.headers['token'] = getToken()
-    }
+    // 移除token校验
     return config
   },
   (error) => {

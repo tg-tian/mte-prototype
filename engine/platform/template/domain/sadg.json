@@ -1,0 +1,16 @@
+{
+  "domainData" : {
+    "code" : "sadg",
+    "name" : "sadg",
+    "description" : "asdg",
+    "status" : "0",
+    "url" : "sdga",
+    "codeEditor" : "default",
+    "modelEditor" : "default",
+    "baseFramework" : "springboot",
+    "dslStandard" : "default"
+  },
+  "templates" : [ ],
+  "deviceTypes" : [ ],
+  "components" : [ ]
+}

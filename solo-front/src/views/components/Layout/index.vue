@@ -1,9 +1,6 @@
 <template>
     <div class="common-layout">
       <el-container class="app-container">
-        <el-aside width="200px" class="aside-menu">
-          <Sidebar />
-        </el-aside>
         <el-container class="main-wrapper">
           <el-header class="app-header">
             <Header />
@@ -23,7 +20,6 @@
   </template>
   
   <script setup lang="ts">
-  import Sidebar from '../Sidebar/index.vue'
   import Header from '../Header/index.vue'
   </script>
   

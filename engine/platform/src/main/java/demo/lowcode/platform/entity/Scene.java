@@ -82,4 +82,5 @@ public class Scene {
     @JoinColumn(name = "domainId", referencedColumnName = "domainId", insertable = false, updatable = false)
     @ApiModelProperty(value = "关联的领域对象")
     private Domain domain;
+
 }

@@ -1,0 +1,312 @@
+{
+  "domainData" : {
+    "code" : "AgriTechManagement",
+    "name" : "农业科技园运营管理",
+    "description" : "农业科技园是一种以现代农业为核心，把 农业生产、科技研发、示范推广、成果转化、人才培训 等多种功能集成在一个园区内的综合性区域",
+    "status" : "0",
+    "url" : "1",
+    "codeEditor" : "default",
+    "modelEditor" : "default",
+    "baseFramework" : "springboot",
+    "dslStandard" : "default"
+  },
+  "templates" : [ {
+    "id" : 22,
+    "template_id" : 11979,
+    "name" : "鱼菜共生生产分析看板",
+    "description" : "该模板用于分析统计鱼菜共生系统的种植品种投入量、养殖品种的投入量，通过两个饼图进行展现了种植品种投入量比、养殖品种投入量占比，通过折线图、直方图，分析种植品种投入量、养殖品种投入量和趋势，可以用于智慧农场或者鱼菜共生系统中的生产分析。",
+    "category" : "PageBuilder",
+    "tags" : "鱼菜共生、生产分析、养殖投入量、种植投入量、数据分析看板",
+    "domain" : "智慧农场",
+    "image_url" : "https://ddst.sjtu.edu.cn/lctemplate/鱼菜共生/鱼菜共生投入量分析2.jpg",
+    "describing_the_model" : "AnyBuilder",
+    "url" : "http://lctemplates.gitlink.org.cn/templates/11979.json"
+  }, {
+    "id" : 24,
+    "template_id" : 11978,
+    "name" : "鱼菜共生生产分析两栏",
+    "description" : "该模板用于分析统计鱼菜共生系统的种植品种投入量占比和养殖品种的投入量占比，通过两个饼图进行展现，可以用于智慧农场或者鱼菜共生系统中的生产分析。",
+    "category" : "PageBuilder",
+    "tags" : "鱼菜共生、生产分析、养殖投入量、种植投入量、数据分析两栏",
+    "domain" : "智慧农场",
+    "image_url" : "https://ddst.sjtu.edu.cn/lctemplate/鱼菜共生/鱼菜共生投入量分析1.png",
+    "describing_the_model" : "AnyBuilder",
+    "url" : "http://lctemplates.gitlink.org.cn/templates/11978.json"
+  }, {
+    "id" : 25,
+    "template_id" : 11972,
+    "name" : "鱼菜共生-制氧机控制-能效分析",
+    "description" : "能效分析子模块通过实时监测制氧设备的能源消耗与氧气产出效率，构建智能化的能效评估体系。系统采用多维度数据分析技术，自动识别能耗异常并提供优化建议，在保障溶氧需求的前提下，实现节能 15%-25%的运行目标。",
+    "category" : "PageBuilder",
+    "tags" : "鱼菜共生、制氧机控制、能效分析",
+    "domain" : "智慧农场",
+    "image_url" : "https://ddst.sjtu.edu.cn/lctemplate/鱼菜共生/鱼菜共生制氧机能效分析后设备更新.svg",
+    "describing_the_model" : "AnyBuilder",
+    "url" : "http://lctemplates.gitlink.org.cn/templates/11972.json"
+  } ],
+  "deviceTypes" : [ {
+    "id" : 54,
+    "code" : "Pump",
+    "name" : "水泵",
+    "description" : "控制液体在管道中流动的状态",
+    "createTime" : 1751872751000,
+    "updateTime" : 1752559304000,
+    "model" : {
+      "properties" : [ {
+        "identify" : "OBJECT1",
+        "name" : "入口",
+        "accessMode" : "rw",
+        "dataType" : {
+          "type" : "object",
+          "specs" : {
+            "max" : "100",
+            "min" : "0",
+            "step" : "1",
+            "unit" : ""
+          }
+        }
+      }, {
+        "identify" : "OBJECT2",
+        "name" : "出口",
+        "accessMode" : "rw",
+        "dataType" : {
+          "type" : "bool",
+          "specs" : {
+            "0" : "关",
+            "1" : "开"
+          }
+        }
+      }, {
+        "identify" : "STATE",
+        "name" : "开光状态",
+        "accessMode" : "rw",
+        "dataType" : {
+          "type" : "bool",
+          "specs" : {
+            "0" : "关",
+            "1" : "开"
+          }
+        }
+      } ],
+      "services" : [ {
+        "identify" : "START",
+        "name" : "启动",
+        "inputData" : [ ],
+        "outputData" : [ ]
+      }, {
+        "identify" : "STOP",
+        "name" : "停止",
+        "inputData" : [ ],
+        "outputData" : [ ]
+      } ],
+      "events" : [ ]
+    }
+  }, {
+    "id" : 55,
+    "code" : "Valve",
+    "name" : "水阀",
+    "description" : " 控制液体在管道中流动的状态",
+    "createTime" : 1751872825000,
+    "updateTime" : 1752559335000,
+    "model" : {
+      "properties" : [ {
+        "identify" : "STATE",
+        "name" : "开光状态",
+        "accessMode" : "rw",
+        "dataType" : {
+          "type" : "bool",
+          "specs" : {
+            "0" : "关",
+            "1" : "开"
+          }
+        }
+      }, {
+        "identify" : "OBJECT1",
+        "name" : "端1",
+        "accessMode" : "rw",
+        "dataType" : {
+          "type" : "string",
+          "specs" : {
+            "length" : "255"
+          }
+        }
+      }, {
+        "identify" : "OBJECT2",
+        "name" : "端2",
+        "accessMode" : "rw",
+        "dataType" : {
+          "type" : "string",
+          "specs" : {
+            "length" : "255"
+          }
+        }
+      } ],
+      "services" : [ {
+        "identify" : "START",
+        "name" : "启动",
+        "inputData" : [ ],
+        "outputData" : [ ]
+      }, {
+        "identify" : "STOP",
+        "name" : "停止",
+        "inputData" : [ ],
+        "outputData" : [ ]
+      } ],
+      "events" : [ ]
+    }
+  }, {
+    "id" : 56,
+    "code" : "FishFeedDispenser",
+    "name" : "鱼饲料投喂机",
+    "description" : "给鱼塘中的鱼类提供饵料",
+    "createTime" : 1751873060000,
+    "updateTime" : 1751880791000,
+    "model" : {
+      "properties" : [ {
+        "identify" : "LINK",
+        "name" : "投喂口",
+        "accessMode" : "rw",
+        "dataType" : {
+          "type" : "string",
+          "specs" : {
+            "length" : "255"
+          }
+        }
+      } ],
+      "services" : [ ],
+      "events" : [ ]
+    }
+  }, {
+    "id" : 57,
+    "code" : "OxygenConcentrator",
+    "name" : "制氧机",
+    "description" : "制造并提供氧气",
+    "createTime" : 1751873200000,
+    "updateTime" : 1751873244000,
+    "model" : {
+      "properties" : [ {
+        "identify" : "LINK",
+        "name" : "氧气出口",
+        "accessMode" : "rw",
+        "dataType" : {
+          "type" : "bool",
+          "specs" : {
+            "0" : "关",
+            "1" : "开"
+          }
+        }
+      } ],
+      "services" : [ ],
+      "events" : [ ]
+    }
+  }, {
+    "id" : 58,
+    "code" : "IntegratedMachine",
+    "name" : "一体机",
+    "description" : "灌溉水过滤和杀菌一体机",
+    "createTime" : 1751873307000,
+    "updateTime" : 1752113984000,
+    "model" : {
+      "properties" : [ {
+        "identify" : "LINK_IN",
+        "name" : "入口",
+        "accessMode" : "rw",
+        "dataType" : {
+          "type" : "string",
+          "specs" : {
+            "length" : "255"
+          }
+        }
+      }, {
+        "identify" : "LINK_OUT",
+        "name" : "出口",
+        "accessMode" : "rw",
+        "dataType" : {
+          "type" : "string",
+          "specs" : {
+            "length" : "255"
+          }
+        }
+      } ],
+      "services" : [ {
+        "identify" : "start",
+        "name" : "启动",
+        "inputData" : [ ],
+        "outputData" : [ ]
+      }, {
+        "identify" : "stop",
+        "name" : "停止",
+        "inputData" : [ ],
+        "outputData" : [ ]
+      } ],
+      "events" : [ ]
+    }
+  }, {
+    "id" : 59,
+    "code" : "WaterStorageArea",
+    "name" : "蓄水区域",
+    "description" : "储存水的空间或场所",
+    "createTime" : 1751873412000,
+    "updateTime" : 1751873493000,
+    "model" : {
+      "properties" : [ ],
+      "services" : [ ],
+      "events" : [ ]
+    }
+  }, {
+    "id" : 60,
+    "code" : "FishPond",
+    "name" : "鱼塘",
+    "description" : "饲养鱼类",
+    "createTime" : 1751873477000,
+    "updateTime" : null,
+    "model" : null
+  }, {
+    "id" : 61,
+    "code" : "PlantingTrough",
+    "name" : "种植槽",
+    "description" : "用来栽种植物的槽状容器，可用于农业、园艺、屋顶绿化、温室、立体种植、无土栽培等",
+    "createTime" : 1751873580000,
+    "updateTime" : null,
+    "model" : null
+  }, {
+    "id" : 65,
+    "code" : "Pipe",
+    "name" : "管道",
+    "description" : "水管连通设备",
+    "createTime" : 1752129591000,
+    "updateTime" : 1752473552000,
+    "model" : {
+      "properties" : [ {
+        "identify" : "LINK",
+        "name" : "端1",
+        "accessMode" : "rw",
+        "dataType" : {
+          "type" : "int",
+          "specs" : {
+            "max" : "100",
+            "min" : "0",
+            "step" : "1",
+            "unit" : ""
+          }
+        }
+      }, {
+        "identify" : "LINK",
+        "name" : "端2",
+        "accessMode" : "rw",
+        "dataType" : {
+          "type" : "int",
+          "specs" : {
+            "max" : "100",
+            "min" : "0",
+            "step" : "1",
+            "unit" : ""
+          }
+        }
+      } ],
+      "services" : [ ],
+      "events" : [ ]
+    }
+  } ],
+  "components" : [ ]
+}
