@@ -378,7 +378,9 @@ const addInputParam = () => {
 
 // 删除入口参数
 const removeInputParam = (index: number) => {
-  componentForm.value.inputs.splice(index, 1)
+  if (componentForm.value.inputs) {
+    componentForm.value.inputs.splice(index, 1)
+  }
 }
 
 // 添加出口参数
@@ -391,7 +393,9 @@ const addOutputParam = () => {
 
 // 删除出口参数
 const removeOutputParam = (index: number) => {
-  componentForm.value.outputs.splice(index, 1)
+  if (componentForm.value.outputs) {
+    componentForm.value.outputs.splice(index, 1)
+  }
 }
 
 // Copy JSON

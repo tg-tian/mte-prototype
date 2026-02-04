@@ -142,6 +142,11 @@ export interface InputParam {
     type: string;
 }
 
+// Output parameter interface
+export interface OutputParam {
+    type: string;
+}
+
 // Component interface
 export interface Component {
     id?: number;
@@ -154,6 +159,8 @@ export interface Component {
     updateTime?: string;
     // 入口参数列表
     inputs?: InputParam[];
+    // 出口参数列表
+    outputs?: OutputParam[];
     // 出口类型
     outputType?: string;
     // 属性定义
