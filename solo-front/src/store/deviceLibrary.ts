@@ -47,7 +47,13 @@ export const useDeviceLibraryStore = defineStore('deviceLibrary', {
 
         async updateDevice(data: DeviceLibrary) {
             try {
+                console.log('更新设备库数据:', data)
+                if (!data.id) {
+                    console.error('设备库ID不存在，无法更新')
+                    throw new Error('设备库ID不存在')
+                }
                 const res: any = await updateDeviceLibrary(data)
+                console.log('更新设备库响应:', res)
                 return res.status === 200
             } catch (error) {
                 console.error('Failed to update device library:', error)

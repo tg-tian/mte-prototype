@@ -15,6 +15,7 @@ export function getDeviceTypePage(params: {
     current: number;
     size: number;
     modelName?: string;
+    type?: string;
 }) {
     return request({
         url: '/api/v1/device-types/page',

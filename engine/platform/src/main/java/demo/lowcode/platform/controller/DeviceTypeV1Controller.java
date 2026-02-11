@@ -37,12 +37,16 @@ public class DeviceTypeV1Controller {
   public ResponseEntity<?> page(
       @RequestParam(defaultValue = "1") Integer current,
       @RequestParam(defaultValue = "10") Integer size,
-      @RequestParam(required = false) String modelName) {
+      @RequestParam(required = false) String modelName,
+      @RequestParam(required = false) String type) {
     try {
       Page<DeviceTypeV1> page = new Page<>(current, size);
       QueryWrapper<DeviceTypeV1> queryWrapper = new QueryWrapper<>();
       if (modelName != null && !modelName.isEmpty()) {
         queryWrapper.like("modelName", modelName);
+      }
+      if (type != null && !type.isEmpty()) {
+        queryWrapper.eq("type", type);
       }
       queryWrapper.orderByDesc("create_time");
       return new ResponseEntity<>(deviceTypeV1Business.page(page, queryWrapper), HttpStatus.OK);

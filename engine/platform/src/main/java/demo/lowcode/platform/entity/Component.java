@@ -49,6 +49,15 @@ public class Component {
     @TableField("constraints")
     private String constraints; // JSON string to store constraints
 
+    @TableField("properties")
+    private String properties; // JSON string to store properties
+
+    @TableField("inputs")
+    private String inputs; // JSON string to store inputs
+
+    @TableField("outputs")
+    private String outputs; // JSON string to store outputs
+
     @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss", timezone = "GMT+8")
     @TableField("create_time")
     private Date createTime;
