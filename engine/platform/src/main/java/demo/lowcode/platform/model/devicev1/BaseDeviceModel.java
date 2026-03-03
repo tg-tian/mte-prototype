@@ -6,6 +6,7 @@ import java.util.Map;
 
 @Data
 public class BaseDeviceModel implements Serializable {
+  private String modelId;
   private String modelName;
   private String provider;
   private String category;

@@ -44,7 +44,7 @@ public class DeviceLibraryBusiness extends ServiceImpl<DeviceLibraryMapper, Devi
 
         try (InputStream inputStream = resource.getInputStream()) {
             String content = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
-            return new DeviceMapperResult(content, deviceLibrary.getDeviceTypeName());
+            return new DeviceMapperResult(content, deviceLibrary.getModelId());
         } catch (IOException e) {
             throw new RuntimeException("读取Mapper文件失败", e);
         }

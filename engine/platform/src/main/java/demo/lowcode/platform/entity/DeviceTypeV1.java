@@ -25,6 +25,11 @@ public class DeviceTypeV1 {
   @ApiModelProperty(value = "自增主键")
   private Long id;
 
+  @Column(name = "model_id")
+  @TableField("model_id")
+  @ApiModelProperty(value = "模型编号")
+  private String modelId;
+
   @Column(name = "modelName")
   @TableField("modelName")
   @ApiModelProperty(value = "模型名称")

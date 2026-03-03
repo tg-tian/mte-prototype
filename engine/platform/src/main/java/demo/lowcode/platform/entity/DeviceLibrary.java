@@ -37,9 +37,9 @@ public class DeviceLibrary {
     @ApiModelProperty(value = "设备类型id")
     private Integer deviceTypeId;
 
-    @Column(name = "device_type_name", nullable = false)
-    @ApiModelProperty(value = "设备类型名称")
-    private String deviceTypeName;
+    @Column(name = "model_id", nullable = false)
+    @ApiModelProperty(value = "设备模型id")
+    private String modelId;
 
     @Column(name = "device_model", nullable = false)
     @ApiModelProperty(value = "设备型号")

@@ -9,5 +9,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class DeviceMapperResult {
     private String content;
-    private String deviceTypeName;
+    private String modelId;
 }

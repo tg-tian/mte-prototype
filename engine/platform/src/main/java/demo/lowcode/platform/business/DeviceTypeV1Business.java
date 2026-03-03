@@ -31,9 +31,9 @@ public class DeviceTypeV1Business {
     return deviceTypeV1Mapper.selectById(id);
   }
 
-  public DeviceTypeV1 getByModelName(String modelName) {
+  public DeviceTypeV1 getByModelId(String modelId) {
     com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<DeviceTypeV1> queryWrapper = new com.baomidou.mybatisplus.core.conditions.query.QueryWrapper<>();
-    queryWrapper.eq("modelName", modelName);
+    queryWrapper.eq("model_id", modelId);
     return deviceTypeV1Mapper.selectOne(queryWrapper);
   }
 
