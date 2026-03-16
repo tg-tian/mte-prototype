@@ -5,8 +5,13 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import demo.lowcode.platform.dto.DeviceWithPosition;
 import demo.lowcode.platform.dto.NewDevice;
-import demo.lowcode.platform.entity.*;
-import demo.lowcode.platform.mapper.*;
+import demo.lowcode.platform.entity.Device;
+import demo.lowcode.platform.entity.DeviceType;
+import demo.lowcode.platform.entity.Scene;
+import demo.lowcode.platform.mapper.DeviceConnectionMapper;
+import demo.lowcode.platform.mapper.DeviceMapper;
+import demo.lowcode.platform.mapper.DeviceTypeMapper;
+import demo.lowcode.platform.mapper.SceneMapper;
 import demo.lowcode.platform.model.device.Property;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -16,7 +21,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service
-public class DeviceBusiness extends ServiceImpl<DeviceOldMapper, DeviceOld> implements IService<DeviceOld> {
+public class DeviceBusiness extends ServiceImpl<DeviceMapper, Device> implements IService<Device> {
     private final DeviceMapper deviceMapper;
     private final DeviceTypeMapper deviceTypeMapper;
     private final SceneMapper sceneMapper;

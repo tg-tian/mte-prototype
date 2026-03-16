@@ -19,7 +19,7 @@ import java.util.Map;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName(value = "device_library1", autoResultMap = true)
+@TableName(value = "device_library", autoResultMap = true)
 @Entity
 @ApiModel(value = "设备库", description = "设备库信息")
 public class DeviceLibrary {

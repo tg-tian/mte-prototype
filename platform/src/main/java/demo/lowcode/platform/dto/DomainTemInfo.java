@@ -1,7 +1,6 @@
 package demo.lowcode.platform.dto;
 
 import demo.lowcode.platform.entity.DeviceType;
-import demo.lowcode.platform.entity.DeviceTypeOld;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 

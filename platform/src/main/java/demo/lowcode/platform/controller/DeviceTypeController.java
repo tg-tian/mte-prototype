@@ -5,7 +5,6 @@ import demo.lowcode.platform.dto.BindInfo;
 import demo.lowcode.platform.dto.ModelInfo;
 import demo.lowcode.platform.dto.NewDeviceType;
 import demo.lowcode.platform.entity.DeviceType;
-import demo.lowcode.platform.entity.DeviceTypeOld;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import jakarta.annotation.Resource;
@@ -31,7 +30,7 @@ public class DeviceTypeController {
      */
     @PostMapping("/device-type/upload")  //应该改成/info
     @ApiOperation(value = "设备类型数据同步", notes = "上传数据类型到数据库")
-    public ResponseEntity<?> deviceInfoUpload(@RequestBody DeviceTypeOld deviceType){
+    public ResponseEntity<?> deviceInfoUpload(@RequestBody DeviceType deviceType){
         try {
             return new ResponseEntity<>("设备类型同步成功",HttpStatus.OK);
         }catch (RuntimeException e)
