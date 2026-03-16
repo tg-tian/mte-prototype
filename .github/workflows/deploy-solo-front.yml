@@ -1,0 +1,58 @@
+name: Deploy Solo Front
+
+on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - 'solo-front/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '18'
+        cache: 'npm'
+        cache-dependency-path: solo-front/package-lock.json
+
+    - name: Install and Build
+      run: |
+        npm install
+        npm run build
+      working-directory: solo-front
+
+    - name: Clean previous dist
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.MTE_PROTOTYPE_SSH_HOST }}
+        username: ${{ secrets.MTE_PROTOTYPE_SSH_USERNAME }}
+        password: ${{ secrets.MTE_PROTOTYPE_SSH_PASSWORD }}
+        port: ${{ secrets.MTE_PROTOTYPE_SSH_PORT }}
+        script: |
+          rm -rf /home/app/platform-frontend/dist
+
+    - name: Copy files to server
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.MTE_PROTOTYPE_SSH_HOST }}
+        username: ${{ secrets.MTE_PROTOTYPE_SSH_USERNAME }}
+        password: ${{ secrets.MTE_PROTOTYPE_SSH_PASSWORD }}
+        port: ${{ secrets.MTE_PROTOTYPE_SSH_PORT }}
+        source: "solo-front/dist"
+        target: "/home/app/platform-frontend"
+        strip_components: 1
+
+    - name: Start Application
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.MTE_PROTOTYPE_SSH_HOST }}
+        username: ${{ secrets.MTE_PROTOTYPE_SSH_USERNAME }}
+        password: ${{ secrets.MTE_PROTOTYPE_SSH_PASSWORD }}
+        port: ${{ secrets.MTE_PROTOTYPE_SSH_PORT }}
+        script: |
+          cd /home/app/platform-frontend
+          sh startup-front.sh

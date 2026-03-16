@@ -1,0 +1,56 @@
+name: Deploy Platform
+
+on:
+  push:
+    branches: [ "master" ]
+    paths:
+      - 'platform/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+
+    - name: Set up JDK 17
+      uses: actions/setup-java@v3
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+
+    - name: Build with Maven
+      run: mvn clean package -DskipTests
+      working-directory: platform
+
+    - name: Clean previous JARs
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.MTE_PROTOTYPE_SSH_HOST }}
+        username: ${{ secrets.MTE_PROTOTYPE_SSH_USERNAME }}
+        password: ${{ secrets.MTE_PROTOTYPE_SSH_PASSWORD }}
+        port: ${{ secrets.MTE_PROTOTYPE_SSH_PORT }}
+        script: |
+          rm -f /home/app/platform-backend/*.jar
+
+    - name: Copy JAR to server
+      uses: appleboy/scp-action@master
+      with:
+        host: ${{ secrets.MTE_PROTOTYPE_SSH_HOST }}
+        username: ${{ secrets.MTE_PROTOTYPE_SSH_USERNAME }}
+        password: ${{ secrets.MTE_PROTOTYPE_SSH_PASSWORD }}
+        port: ${{ secrets.MTE_PROTOTYPE_SSH_PORT }}
+        source: "platform/target/*.jar"
+        target: "/home/app/platform-backend"
+        strip_components: 2
+
+    - name: Start Application
+      uses: appleboy/ssh-action@master
+      with:
+        host: ${{ secrets.MTE_PROTOTYPE_SSH_HOST }}
+        username: ${{ secrets.MTE_PROTOTYPE_SSH_USERNAME }}
+        password: ${{ secrets.MTE_PROTOTYPE_SSH_PASSWORD }}
+        port: ${{ secrets.MTE_PROTOTYPE_SSH_PORT }}
+        script: |
+          cd /home/app/platform-backend
+          sh startup-back.sh
