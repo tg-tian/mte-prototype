@@ -1,7 +1,7 @@
 package demo.lowcode.platform.controller;
 
-import demo.lowcode.common.CommonConfig;
-import demo.lowcode.common.util.StringUtil;
+import demo.lowcode.platform.common.CommonConfig;
+import demo.lowcode.platform.common.util.StringUtil;
 import demo.lowcode.platform.service.FileService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;

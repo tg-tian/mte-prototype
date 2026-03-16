@@ -15,10 +15,10 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Entity
-@TableName(value = "devicetype_new", autoResultMap = true)
+@TableName(value = "device_model", autoResultMap = true)
 @Data
-@ApiModel(value = "设备类型V1对象", description = "新版本设备类型定义的详细信息")
-public class DeviceTypeV1 {
+@ApiModel(value = "设备模型对象", description = "设备模型定义的详细信息")
+public class DeviceModel {
   @Id
   @TableId(type = IdType.AUTO)
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -57,3 +57,5 @@ public class DeviceTypeV1 {
   @ApiModelProperty(value = "模型协议定义")
   private BaseDeviceModel model;
 }
+
+

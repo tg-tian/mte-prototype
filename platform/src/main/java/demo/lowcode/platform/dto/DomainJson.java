@@ -1,6 +1,6 @@
 package demo.lowcode.platform.dto;
 
-import demo.lowcode.common.Property;
+import demo.lowcode.platform.common.Property;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 

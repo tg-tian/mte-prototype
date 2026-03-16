@@ -1,6 +1,6 @@
 package demo.lowcode.platform.controller;
 
-import demo.lowcode.common.Param;
+import demo.lowcode.platform.common.Param;
 import demo.lowcode.platform.business.ProcessBusiness;
 import jakarta.annotation.Resource;
 import org.springframework.http.HttpStatus;

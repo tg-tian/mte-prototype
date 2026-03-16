@@ -3,7 +3,7 @@ package demo.lowcode.platform.business;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import demo.lowcode.common.CommonConfig;
+import demo.lowcode.platform.common.CommonConfig;
 import demo.lowcode.platform.dto.DomainTemInfo;
 import demo.lowcode.platform.dto.NewScene;
 import demo.lowcode.platform.dto.ScenePubInfo;

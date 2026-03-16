@@ -1,7 +1,7 @@
 package demo.lowcode.platform.business;
 
-import demo.lowcode.common.Action;
-import demo.lowcode.common.ActionExecResult;
+import demo.lowcode.platform.common.Action;
+import demo.lowcode.platform.common.ActionExecResult;
 import demo.lowcode.platform.model.ActionMeta;
 import jakarta.annotation.Resource;
 

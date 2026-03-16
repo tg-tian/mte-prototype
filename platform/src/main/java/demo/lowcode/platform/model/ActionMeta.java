@@ -1,6 +1,6 @@
 package demo.lowcode.platform.model;
 
-import demo.lowcode.common.Param;
+import demo.lowcode.platform.common.Param;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

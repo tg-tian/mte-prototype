@@ -1,6 +1,6 @@
 package demo.lowcode.platform.config;
 
-import demo.lowcode.common.CommonConfig;
+import demo.lowcode.platform.common.CommonConfig;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
