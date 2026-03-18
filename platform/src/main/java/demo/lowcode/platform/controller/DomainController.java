@@ -1,6 +1,5 @@
 package demo.lowcode.platform.controller;
 
-import demo.lowcode.platform.business.DeviceTypeBusiness;
 import demo.lowcode.platform.business.DomainBusiness;
 import demo.lowcode.platform.dto.*;
 import demo.lowcode.platform.entity.Domain;
@@ -22,8 +21,6 @@ import java.util.List;
 public class DomainController {
     @Resource
     DomainBusiness domainBusiness;
-    @Resource
-    DeviceTypeBusiness deviceTypeBusiness ;
 
     // load领域json文件
     @GetMapping(value = "/load-domain-json")

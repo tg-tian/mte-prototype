@@ -375,19 +375,7 @@ public class DomainBusiness {
             templateMapper.batchInsertDomainTemplateRelations(domainId, templateIds);
         }
 
-        // step3：存入和设备类型的绑定关系到数据库
-        List<Long> deviceTypeIds = new ArrayList<>();
-        for(DeviceType deviceType : domainTemInfo.getDeviceTypes()){
-            // 收集所有设备类型ID
-            deviceTypeIds.add(deviceType.getId());
-        }
-
-        // 批量插入领域-设备类型关系
-        if (!deviceTypeIds.isEmpty()) {
-            domainComponentMapper.batchInsertDomainDeviceTypes(domainId, deviceTypeIds);
-        }
-
-        // step4：存入和组件的绑定关系到数据库
+        // step3：存入和组件的绑定关系到数据库
         List<Long> componentIds = new ArrayList<>();
         for(ComponentDto component : domainTemInfo.getComponents()){
             // 收集所有组件ID

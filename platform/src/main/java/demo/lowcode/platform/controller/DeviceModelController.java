@@ -55,7 +55,7 @@ public class DeviceModelController {
     }
   }
 
-  @GetMapping("/model/{modelId}")
+  @GetMapping("/{modelId}")
   @ApiOperation("根据模型编号查询设备模型")
   public ResponseEntity<DeviceModel> getByModelId(@PathVariable String modelId) {
     try {

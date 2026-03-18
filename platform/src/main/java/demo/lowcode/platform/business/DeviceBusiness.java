@@ -1,180 +1,179 @@
 package demo.lowcode.platform.business;
 
-import com.baomidou.mybatisplus.extension.service.IService;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import demo.lowcode.platform.dto.DeviceWithPosition;
-import demo.lowcode.platform.dto.NewDevice;
+import demo.lowcode.platform.dto.DeviceMapperResult;
 import demo.lowcode.platform.entity.Device;
-import demo.lowcode.platform.entity.DeviceType;
-import demo.lowcode.platform.entity.Scene;
-import demo.lowcode.platform.mapper.DeviceConnectionMapper;
 import demo.lowcode.platform.mapper.DeviceMapper;
-import demo.lowcode.platform.mapper.DeviceTypeMapper;
-import demo.lowcode.platform.mapper.SceneMapper;
-import demo.lowcode.platform.model.device.Property;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.Date;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.util.StreamUtils;
+
+import java.io.File;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
-public class DeviceBusiness extends ServiceImpl<DeviceMapper, Device> implements IService<Device> {
-    private final DeviceMapper deviceMapper;
-    private final DeviceTypeMapper deviceTypeMapper;
-    private final SceneMapper sceneMapper;
-    private final DeviceConnectionMapper deviceConnectionMapper;
+public class DeviceBusiness extends ServiceImpl<DeviceMapper, Device> {
 
-    @Autowired
-    public DeviceBusiness(DeviceMapper deviceMapper, DeviceTypeMapper deviceTypeMapper, SceneMapper sceneMapper, DeviceConnectionMapper deviceConnectionMapper) {
-        this.deviceMapper = deviceMapper;
-        this.deviceTypeMapper = deviceTypeMapper;
-        this.sceneMapper = sceneMapper;
-        this.deviceConnectionMapper = deviceConnectionMapper;
-    }
+    public DeviceMapperResult getMapperContent(String provider, String deviceId) {
+        QueryWrapper<Device> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("provider", provider)
+                .eq("device_id", deviceId);
 
-    public List<Device> getDeviceListByScene(Long sceneId) {
-        List<Device> deviceList = deviceMapper.selectBySceneId(sceneId);
-        for (Device device : deviceList) {
-            device.setDeviceType(deviceTypeMapper.selectById(device.getDeviceTypeId()));
-            device.setScene(sceneMapper.selectById(device.getSceneId()));
-        }
-        return deviceList;
-    }
-
-    public Device createDevice(NewDevice newDevice) {
-        Device device = new Device();
-        device.setIntelligent(true);
-        if (newDevice.getDeviceTypeId() != null) {
-            DeviceType deviceType = deviceTypeMapper.selectById(newDevice.getDeviceTypeId());
-            if (deviceType == null) {
-                throw new RuntimeException("该设备类型不存在");
-            }
-            device.setDeviceType(deviceType);
-            device.setDeviceTypeId(newDevice.getDeviceTypeId());
-            List<Property> properties = null;
-            if (deviceType.getModel() != null) {
-                properties = deviceType.getModel().getProperties();
-            }
-            if (properties != null) {
-                boolean hasObjectProperty = properties.stream()
-                        .anyMatch(p -> p.getIdentify() != null && p.getIdentify().startsWith("OBJECT"));
-                if (hasObjectProperty) {
-                    device.setIntelligent(false);
-                }
-            }
-        } else {
-            throw new RuntimeException("请选择设备类型");
-        }
-
-        if (newDevice.getSceneId() != null) {
-            Scene scene = sceneMapper.selectById(newDevice.getSceneId());
-            if (scene == null) {
-                throw new RuntimeException("该领域不存在");
-            }
-            device.setScene(scene);
-            device.setSceneId(scene.getSceneId());
-        } else {
-            throw new RuntimeException("请选择领域");
-        }
-        if (deviceMapper.selectByCodeAndScene(newDevice.getCode(), newDevice.getSceneId()) != null) {
-            throw new RuntimeException("对应设备编码已存在");
-        }
-
-        device.setDeviceCode(newDevice.getCode());
-        device.setDeviceName(newDevice.getName());
-        device.setProtocolType(newDevice.getProtocolType());
-        device.setProtocolConfig(newDevice.getProtocolConfig());
-        device.setCreateTime(new Date());
-        device.setStatus(2);
-        device.setDeviceLocation(newDevice.getDeviceLocation());
-        device.setDevicePosition(newDevice.getDevicePosition());
-        deviceMapper.insert(device);
-
-        return device;
-    }
-
-    public List<DeviceType> getDeviceTypeListByScene(Long sceneId) {
-        return deviceTypeMapper.selectBySceneId(sceneId);
-    }
-
-    public Device updateDevice(Long id, NewDevice newDevice) {
-        Device device = deviceMapper.selectById(id);
+        Device device = this.getOne(queryWrapper);
         if (device == null) {
-            throw new RuntimeException("设备不存在");
+            throw new RuntimeException("未找到对应的设备信息");
         }
 
-        if (newDevice.getDeviceTypeId() != null) {
-            DeviceType deviceType = deviceTypeMapper.selectById(newDevice.getDeviceTypeId());
-            if (deviceType == null) {
-                throw new RuntimeException("该设备类型不存在");
-            }
-            device.setDeviceType(deviceType);
-            device.setDeviceTypeId(newDevice.getDeviceTypeId());
-        } else {
-            throw new RuntimeException("请选择设备类型");
+        String mapperPath = device.getDeviceMapperPath();
+        if (mapperPath == null || mapperPath.isEmpty()) {
+            throw new RuntimeException("设备Mapper路径为空");
+        }
+        String fileName = mapperPath;
+        ClassPathResource resource = new ClassPathResource("devicemapper/" + fileName);
+
+        if (!resource.exists()) {
+            throw new RuntimeException("Mapper文件不存在: " + fileName);
         }
 
-        device.setDeviceName(newDevice.getName());
-        device.setDeviceCode(newDevice.getCode());
-        device.setProtocolType(newDevice.getProtocolType());
-        device.setProtocolConfig(newDevice.getProtocolConfig());
-        device.setDeviceLocation(newDevice.getDeviceLocation());
-        device.setDevicePosition(newDevice.getDevicePosition());
-
-        deviceMapper.updateById(device);
-
-        return device;
+        try (InputStream inputStream = resource.getInputStream()) {
+            String content = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
+            return new DeviceMapperResult(content, device.getModelId());
+        } catch (IOException e) {
+            throw new RuntimeException("读取Mapper文件失败", e);
+        }
     }
 
-    public void deleteDeviceByID(Long id) {
-        Device device = deviceMapper.selectById(id);
-        if (device == null) {
-            throw new RuntimeException("该设备不存在");
-        }
-
-        deviceMapper.deleteById(device.getId());
+    public List<Device> listAll() {
+        return this.list();
     }
 
-    public List<NewDevice> getDeviceConnectionsListByScene(Long sceneId) {
-        List<NewDevice> newDevices = new ArrayList<>();
-        List<DeviceWithPosition> devices = deviceMapper.selectBySceneIdWithIntelligent(sceneId);
-        for (DeviceWithPosition device : devices) {
-            device.setDeviceType(deviceTypeMapper.selectById(device.getDeviceTypeId()));
-            NewDevice newDevice = new NewDevice();
-            newDevice.setId(device.getId());
-            newDevice.setName(device.getDeviceName());
-            newDevice.setDeviceType(device.getDeviceType());
-            newDevice.setConnections(new ArrayList<>());
-            newDevice.setIntelligent(device.isIntelligent());
-            deviceConnectionMapper.selectConnectionsByDeviceId(device.getId()).forEach(
-                    inDevice -> {
-                        NewDevice.Connection conn = new NewDevice.Connection();
-                        conn.setId(inDevice.getId());
-                        conn.setDeviceName(inDevice.getDeviceName());
-                        conn.setPosition(inDevice.getPosition());
-                        newDevice.getConnections().add(conn);
+    @Override
+    public boolean save(Device entity) {
+        processMapperFile(entity);
+        return super.save(entity);
+    }
+
+    @Override
+    public boolean updateById(Device entity) {
+        processMapperFile(entity);
+        return super.updateById(entity);
+    }
+
+    private void processMapperFile(Device entity) {
+        if (entity.getDeviceMapperPath() == null || entity.getDeviceMapperPath().isEmpty()) {
+            String fileName = generateFileName(entity.getProvider(), entity.getDeviceId());
+            entity.setDeviceMapperPath(fileName);
+        }
+
+        generatePhysicalFile(entity);
+    }
+
+    private String generateFileName(String provider, String model) {
+        String sanitizedModel = model.replaceAll("[^a-zA-Z0-9]", "");
+        String capitalizedProvider = provider.substring(0, 1).toUpperCase() + provider.substring(1);
+        return capitalizedProvider + sanitizedModel + "Mapper.ts";
+    }
+
+    private void generatePhysicalFile(Device entity) {
+        String fileName = entity.getDeviceMapperPath();
+        String projectPath = System.getProperty("user.dir");
+        String resourcesPath = "/src/main/resources/devicemapper/";
+        File directory = new File(projectPath + resourcesPath);
+        if (!directory.exists()) {
+            directory.mkdirs();
+        }
+
+        File file = new File(directory, fileName);
+        if (file.exists()) {
+            // return;
+        }
+
+        String className = fileName.replace(".ts", "");
+        String propertyMapStr = "{}";
+        if (entity.getPropertyMap() != null) {
+            propertyMapStr = "{\n" + entity.getPropertyMap().entrySet().stream()
+                    .map(e -> "    \"" + e.getKey() + "\": \"" + e.getValue() + "\"")
+                    .collect(Collectors.joining(",\n")) + "\n  }";
+        }
+
+        String actionMapStr = "{}";
+        if (entity.getActionMap() != null) {
+            actionMapStr = "{\n" + entity.getActionMap().entrySet().stream()
+                    .map(e -> "    \"" + e.getKey() + "\": `" + e.getValue().replace("`", "\\`") + "`")
+                    .collect(Collectors.joining(",\n")) + "\n  }";
+        }
+
+        String content = """
+                import mqtt from 'mqtt';
+                import { DeviceMapper} from '../device-mapper';
+                import { ProviderConfig } from '../../domain/provider-config';
+                import { BaseDeviceModel } from '../../domain/model';
+
+                export class %s implements DeviceMapper {
+                  metaModel : BaseDeviceModel;
+                  deviceModel = '%s';
+                  provider = '%s';
+                  private client: mqtt.MqttClient;
+                  private cfg: ProviderConfig;
+                  propertyMap: Record<string, string> = %s;
+                  actionMap: Record<string, string> = %s;
+
+                  constructor(config: ProviderConfig , metaModel: BaseDeviceModel) {
+                    this.cfg = config;
+                    this.metaModel = metaModel;
+                    this.client = mqtt.connect(this.cfg.communication.baseUrl);
+                  }
+
+                  mapProperties(rawProps: any): Record<string, any> {
+                    const mapped: Record<string, any> = {};
+                    for (const [key, value] of Object.entries(rawProps)) {
+                      const target = this.propertyMap[key as keyof typeof this.propertyMap];
+                      if (target) {
+                        mapped[target] = value;
+                      } else {
+                        mapped[key] = value;
+                      }
                     }
-            );
-            newDevices.add(newDevice);
-        }
-        return newDevices;
-    }
+                    return mapped;
+                  }
 
-    public void deleteConnection(Long sourceId, Long targetId) {
+                  mapEvent(rawEvent: any): any | null {
+                    return null;
+                  }
 
-        deviceConnectionMapper.delteConnection(sourceId, targetId);
+                  async callAction(actionId: string, params: any): Promise<any> {
+                    const impl = this.actionMap[actionId];
+                    if (impl) {
+                      try {
+                        // 创建一个函数并执行
+                        const fn = new Function('params', 'device', impl);
+                        return await fn(params, this);
+                      } catch (e) {
+                        console.error(`Execute action ${actionId} failed:`, e);
+                        throw e;
+                      }
+                    }
+                    return null;
+                  }
 
-    }
+                  match(rawDevice: any): boolean {
+                    return true;
+                  }
+                }
+                """.formatted(className, entity.getDeviceId(), entity.getProvider(), propertyMapStr, actionMapStr);
 
-    public void addConnection(Long sourceId, Long targetId,String position) {
-        Device sDevice = deviceMapper.selectById(sourceId);
-        Device tDevice = deviceMapper.selectById(targetId);
-        if (!deviceConnectionMapper.addConnection(sourceId, sDevice.getDeviceName(),
-                targetId,tDevice.getDeviceName(), position)) {
-            throw new RuntimeException("添加连接失败");
+        try (FileWriter writer = new FileWriter(file)) {
+            writer.write(content);
+        } catch (IOException e) {
+            throw new RuntimeException("生成Mapper文件失败: " + e.getMessage());
         }
     }
 }
+

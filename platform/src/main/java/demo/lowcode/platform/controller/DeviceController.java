@@ -1,117 +1,106 @@
 package demo.lowcode.platform.controller;
 
 import demo.lowcode.platform.business.DeviceBusiness;
-import demo.lowcode.platform.dto.NewDevice;
-import demo.lowcode.platform.dto.NewDeviceType;
+import demo.lowcode.platform.dto.DeviceMapperResult;
 import demo.lowcode.platform.entity.Device;
-import demo.lowcode.platform.entity.DeviceType;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import jakarta.annotation.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
-import java.util.Map;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
-@CrossOrigin
-@Api(value = "设备接口",tags={"设备实例管理"})
+@RequestMapping("/device")
+@Api(value = "设备接口", tags = { "设备管理" })
 public class DeviceController {
+
     @Resource
     private DeviceBusiness deviceBusiness;
 
-    @GetMapping("/devices")
-    @ApiOperation(value = "获取当前场景的设备列表")
-    public ResponseEntity<?> getDevices(@RequestParam Long sceneId){
+    @GetMapping("/mapper")
+    @ApiOperation("获取设备Mapper内容")
+    public ResponseEntity<?> getMapper(@RequestParam String provider, @RequestParam String deviceId) {
         try {
-            List<Device> deviceList = deviceBusiness.getDeviceListByScene(sceneId);
-            return new ResponseEntity<>(deviceList, HttpStatus.OK);
-        }catch (RuntimeException e){
-            System.err.println("设备读取失败: " + e.getMessage());
-            return new ResponseEntity<>("未查询到设备列表",HttpStatus.NOT_FOUND);
+            DeviceMapperResult result = deviceBusiness.getMapperContent(provider, deviceId);
+            return new ResponseEntity<>(result, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.NOT_FOUND);
         }
     }
 
-    @GetMapping("/devices/devicetype-list")
-    @ApiOperation(value = "获取当前场景可添加的设备类型列表")
-    public ResponseEntity<?> getDeviceTypesByScene(@RequestParam Long sceneId){
-        try {
-            List<DeviceType> deviceTypeList = deviceBusiness.getDeviceTypeListByScene(sceneId);
-            return new ResponseEntity<>(deviceTypeList, HttpStatus.OK);
-        }catch (RuntimeException e){
-            System.err.println("设备类型读取失败: " + e.getMessage());
-            return new ResponseEntity<>("未查询到设备类型列表",HttpStatus.NOT_FOUND);
-        }
+    @PostMapping("/mapper")
+    @ApiOperation("上传设备Mapper文件")
+    public ResponseEntity<?> uploadMapper(@RequestParam("file") MultipartFile file,
+            @RequestParam String provider,
+            @RequestParam String deviceName,
+            @RequestParam String deviceId) {
+        return new ResponseEntity<>("暂未实现", HttpStatus.NOT_IMPLEMENTED);
     }
 
-    @PostMapping("/devices")
-    @ApiOperation(value = "添加设备")
-    public ResponseEntity<?> createDevice(@RequestBody NewDevice newDevice){
-        try {
-            Device device=deviceBusiness.createDevice(newDevice);
-            return new ResponseEntity<>(device,HttpStatus.OK);
-        }catch (RuntimeException e){
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.CONFLICT);
-        }
+    @GetMapping("/list")
+    @ApiOperation("获取所有设备列表")
+    public ResponseEntity<?> list() {
+        return new ResponseEntity<>(deviceBusiness.list(), HttpStatus.OK);
     }
 
-    @PutMapping("/devices/{id}")
-    @ApiOperation(value = "修改设备信息")
-    public ResponseEntity<?> updateDevice(@PathVariable("id") Long id, @RequestBody NewDevice newDevice){
-        try {
-            Device device = deviceBusiness.updateDevice(id, newDevice);
-            return new ResponseEntity<>(device,HttpStatus.OK);
-        }catch (RuntimeException e){
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.CONFLICT);
+    @GetMapping("/page")
+    @ApiOperation("分页获取设备列表")
+    public ResponseEntity<?> page(@RequestParam(defaultValue = "1") Integer current,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) String provider,
+            @RequestParam(required = false) String deviceName) {
+        Page<Device> page = new Page<>(current, size);
+        QueryWrapper<Device> queryWrapper = new QueryWrapper<>();
+        if (provider != null && !provider.isEmpty()) {
+            queryWrapper.like("provider", provider);
         }
+        if (deviceName != null && !deviceName.isEmpty()) {
+            queryWrapper.like("device_name", deviceName);
+        }
+        queryWrapper.orderByDesc("create_time");
+        return new ResponseEntity<>(deviceBusiness.page(page, queryWrapper), HttpStatus.OK);
     }
 
-    @DeleteMapping("/devices/{id}")
-    @ApiOperation(value = "删除设备")
-    public ResponseEntity<?> deleteDevice(@PathVariable("id") Long id){
-        try {
-            deviceBusiness.deleteDeviceByID(id);
-            return new ResponseEntity<>("删除成功",HttpStatus.OK);
-        }catch (RuntimeException e){
-            return new ResponseEntity<>(e.getMessage(),HttpStatus.CONFLICT);
+    @GetMapping("/{id}")
+    @ApiOperation("获取设备详情")
+    public ResponseEntity<?> getById(@PathVariable Long id) {
+        Device device = deviceBusiness.getById(id);
+        if (device == null) {
+            return new ResponseEntity<>("未找到该设备信息", HttpStatus.NOT_FOUND);
         }
+        return new ResponseEntity<>(device, HttpStatus.OK);
     }
 
-    @GetMapping("/devices/connections")
-    @ApiOperation(value = "获取当前场景的设备连接列表")
-    public ResponseEntity<?> getDeviceConnectionsByScene(@RequestParam Long sceneId){
-        try {
-            List<NewDevice> deviceConnections = deviceBusiness.getDeviceConnectionsListByScene(sceneId);
-            return new ResponseEntity<>(deviceConnections, HttpStatus.OK);
-        }catch (RuntimeException e){
-            System.err.println("设备连接读取失败: " + e.getMessage());
-            return new ResponseEntity<>("未查询到设备连接列表",HttpStatus.NOT_FOUND);
-        }
+    @PostMapping
+    @ApiOperation("添加设备")
+    public ResponseEntity<?> save(@RequestBody Device device) {
+        boolean success = deviceBusiness.save(device);
+        return success ? new ResponseEntity<>(device, HttpStatus.CREATED)
+                : new ResponseEntity<>("添加失败", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @PostMapping("/devices/add-connection")
-    @ApiOperation(value = "增加当前场景的设备连接列表")
-    public ResponseEntity<?> addDeviceConnection(@RequestParam Long sourceId,@RequestParam Long targetId,@RequestParam String position){
-        try {
-            deviceBusiness.addConnection(sourceId,targetId,position);
-            return new ResponseEntity<>("增加连接成功", HttpStatus.OK);
-        }catch (RuntimeException e){
-            System.err.println("设备连接读取失败: " + e.getMessage());
-            return new ResponseEntity<>("未查询到设备连接列表",HttpStatus.NOT_FOUND);
+    @PutMapping
+    @ApiOperation("更新设备")
+    public ResponseEntity<?> update(@RequestBody Device device) {
+        if (device.getId() == null) {
+            return new ResponseEntity<>("更新失败：设备ID为空", HttpStatus.BAD_REQUEST);
         }
+        boolean success = deviceBusiness.updateById(device);
+        return success ? new ResponseEntity<>(device, HttpStatus.OK)
+                : new ResponseEntity<>("更新失败", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
-    @DeleteMapping("/devices/delete-connection")
-    @ApiOperation(value = "删除当前场景的设备连接列表")
-    public ResponseEntity<?> deleteDeviceConnection(@RequestParam Long sourceId,@RequestParam Long targetId){
-        try {
-            deviceBusiness.deleteConnection(sourceId,targetId);
-            return new ResponseEntity<>("删除成功", HttpStatus.OK);
-        }catch (RuntimeException e){
-            System.err.println("设备连接读取失败: " + e.getMessage());
-            return new ResponseEntity<>("未查询到设备连接列表",HttpStatus.NOT_FOUND);
-        }
+    @DeleteMapping("/{id}")
+    @ApiOperation("删除设备")
+    public ResponseEntity<?> delete(@PathVariable Long id) {
+        boolean success = deviceBusiness.removeById(id);
+        return success ? new ResponseEntity<>("删除成功", HttpStatus.OK)
+                : new ResponseEntity<>("删除失败", HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
+
+

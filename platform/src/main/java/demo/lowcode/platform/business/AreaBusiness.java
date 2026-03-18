@@ -7,8 +7,6 @@ import demo.lowcode.platform.dto.NewArea;
 import demo.lowcode.platform.entity.Area;
 import demo.lowcode.platform.entity.Scene;
 import demo.lowcode.platform.mapper.AreaMapper;
-import demo.lowcode.platform.mapper.DeviceMapper;
-import demo.lowcode.platform.mapper.DeviceTypeMapper;
 import demo.lowcode.platform.mapper.SceneMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -23,7 +21,7 @@ public class AreaBusiness extends ServiceImpl<AreaMapper, Area> implements IServ
     private final SceneMapper sceneMapper;
 
     @Autowired
-    public AreaBusiness(AreaMapper areaMapper, DeviceMapper deviceMapper, DeviceTypeMapper deviceTypeMapper, SceneMapper sceneMapper) {
+    public AreaBusiness(AreaMapper areaMapper, SceneMapper sceneMapper) {
         this.areaMapper = areaMapper;
         this.sceneMapper = sceneMapper;
     }

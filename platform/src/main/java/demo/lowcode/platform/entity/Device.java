@@ -1,96 +1,74 @@
 package demo.lowcode.platform.entity;
 
+import com.baomidou.mybatisplus.annotation.FieldFill;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
-import demo.lowcode.platform.model.device.ProtocolConfig;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-import jakarta.annotation.Resource;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Date;
-import java.util.List;
+import java.time.LocalDateTime;
+import java.util.Map;
 
-@Entity
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-@Resource
-@TableName(value="device", autoResultMap = true)
-@ApiModel(value = "设备实例类",description = "属于某个设备类型的真实设备实例")
+@TableName(value = "device", autoResultMap = true)
+@Entity
+@Table(name = "device")
+@ApiModel(value = "设备", description = "设备信息")
 public class Device {
     @Id
     @TableId(type = IdType.AUTO)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @ApiModelProperty(value = "设备实例编号", example = "1")
+    @ApiModelProperty(value = "主键ID")
     private Long id;
 
-    @Column(name = "device_code", nullable = false)
-    @ApiModelProperty(value = "设备实例代码",example = "CoffeeMakerA")
-    private String deviceCode;
+    @Column(nullable = false)
+    @ApiModelProperty(value = "设备厂商")
+    private String provider;
 
-    @Column(name = "device_name", nullable = false)
-    @ApiModelProperty(value = "设备实例名称",example = "咖啡机A")
+    @Column(name = "modelId", nullable = false)
+    @TableField("modelId")
+    @ApiModelProperty(value = "设备模型id")
+    private String modelId;
+
+    @Column(name = "device_id", nullable = false)
+    @ApiModelProperty(value = "设备ID")
+    private String deviceId;
+
+    @Column(name = "device_name")
+    @ApiModelProperty(value = "设备名称")
     private String deviceName;
 
-    @Column(name = "device_type_id")
-    @ApiModelProperty(value = "设备类型编号",example = "1")
-    private Long deviceTypeId;
+    @Column(name = "device_mapper_path")
+    @ApiModelProperty(value = "设备Mapper路径")
+    private String deviceMapperPath;
 
-    @ManyToOne  // 多个 device 可以对应一个 DeviceType
-    @TableField(exist = false)  //设置不管理数据库
-    @JoinColumn(name = "device_type_id", referencedColumnName = "device_type_id", insertable = false)
-    private DeviceType deviceType;  // 引用到 DeviceType 实体
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    @Column(columnDefinition = "json")
+    @ApiModelProperty(value = "属性映射 (设备属性 -> 设备类型属性)")
+    private Map<String, String> propertyMap;
 
-    @Column(name = "scene_id")
-    @ApiModelProperty(value = "所在场景编号",example = "1")
-    private Long sceneId;
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    @Column(columnDefinition = "json")
+    @ApiModelProperty(value = "操作实现 (操作ID -> 自定义实现代码)")
+    private Map<String, String> actionMap;
 
-    @ManyToOne  // 多个 device 可以对应一个 Scene
-    @TableField(exist = false)  //设置不管理数据库
-    @JoinColumn(name = "scene_id", referencedColumnName = "scene_id", insertable = false)
-    private Scene scene;
-
-    @Column(name = "status")
-    @ApiModelProperty(value = "设备状态",example = "1")
-    private int status;
-
-    @Column(name = "protocol_type")
-    @ApiModelProperty(value = "协议类型",example = "HTTP")
-    private String protocolType;
-
-    @ApiModelProperty(value = "协议配置",example = "HTTP")
-    @TableField(value = "protocol_config", typeHandler = JacksonTypeHandler.class)
-    private ProtocolConfig protocolConfig;
-
-    @Column(name = "create_time", nullable = false)
+    @TableField(value = "create_time", fill = FieldFill.INSERT)
+    @Column(name = "create_time")
     @ApiModelProperty(value = "创建时间")
-    private Date createTime;
+    private LocalDateTime createTime;
 
-    @Column(name = "update_time", nullable = false)
+    @TableField(value = "update_time", fill = FieldFill.INSERT_UPDATE)
+    @Column(name = "update_time")
     @ApiModelProperty(value = "更新时间")
-    private Date updateTime;
-
-    @Column(name = "last_online_time", nullable = false)
-    @ApiModelProperty(value = "上次在线时间")
-    private Date lastOnlineTime;
-
-    @Column(name = "device_location", nullable = false)
-    @ApiModelProperty(value = "设备位置")
-    private String deviceLocation;
-
-    @Column(name = "device_position", nullable = false)
-    @ApiModelProperty(value = "设备坐标")
-    private String devicePosition;
-
-    @Column(name = "intelligent", nullable = false)
-    @ApiModelProperty(value = "智能化")
-    private boolean intelligent;
-
+    private LocalDateTime updateTime;
 }
+

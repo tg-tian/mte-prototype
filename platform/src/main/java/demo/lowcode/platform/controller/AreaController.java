@@ -1,7 +1,6 @@
 package demo.lowcode.platform.controller;
 
 import demo.lowcode.platform.business.AreaBusiness;
-import demo.lowcode.platform.business.DeviceBusiness;
 import demo.lowcode.platform.dto.NewArea;
 import demo.lowcode.platform.entity.Area;
 import io.swagger.annotations.Api;

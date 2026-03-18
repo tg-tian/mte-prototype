@@ -1,10 +1,8 @@
 package demo.lowcode.platform.controller;
 
 import demo.lowcode.platform.business.TemplateBusiness;
-import demo.lowcode.platform.dto.BindInfo;
 import demo.lowcode.platform.dto.TemplateBindInfo;
 import demo.lowcode.platform.dto.TemplateUnbindInfo;
-import demo.lowcode.platform.entity.DeviceType;
 import demo.lowcode.platform.entity.Template;
 import io.swagger.annotations.ApiOperation;
 import jakarta.annotation.Resource;
