@@ -145,17 +145,25 @@ public class DomainBusiness {
 
 
     public Domain createDomain(NewDomain newDomain){
+        if (newDomain.getCode() == null || newDomain.getCode().trim().isEmpty()) {
+            throw new RuntimeException("领域编码不能为空");
+        }
+        if (newDomain.getName() == null || newDomain.getName().trim().isEmpty()) {
+            throw new RuntimeException("领域名称不能为空");
+        }
         Domain existDomain = domainMapper.getDomainByCode(newDomain.getCode());
         if (existDomain != null) {
             throw new RuntimeException("领域编码已存在");
         }
 
         Domain domain = new Domain();
-        domain.setDomainCode(newDomain.getCode());
-        domain.setDomainName(newDomain.getName());
+        domain.setDomainCode(newDomain.getCode().trim());
+        domain.setDomainName(newDomain.getName().trim());
         domain.setDomainDescription(newDomain.getDescription());
-        domain.setStatus(newDomain.getStatus());
-        domain.setCreateTime(new Date());
+        domain.setStatus(DomainStatus.DEVELOPING.getCode());
+        Date now = new Date();
+        domain.setCreateTime(now);
+        domain.setUpdateTime(now);
         domain.setCodeEditor(newDomain.getCodeEditor());
         domain.setModelEditor(newDomain.getModelEditor());
         domain.setFramework(newDomain.getBaseFramework());
@@ -175,7 +183,7 @@ public class DomainBusiness {
         domain.setDomainCode(newDomain.getCode());
         domain.setDomainName(newDomain.getName());
         domain.setDomainDescription(newDomain.getDescription());
-        domain.setStatus(newDomain.getStatus());
+        domain.setStatus(DomainStatus.normalizeCode(newDomain.getStatus()));
         domain.setUpdateTime(new Date());
         domain.setUrl(newDomain.getUrl());
         domain.setCodeEditor(newDomain.getCodeEditor());
@@ -206,11 +214,11 @@ public class DomainBusiness {
         }
 
         // 取消发布，删除领域配置文件
-        if (Objects.equals(pubInfo.getStatus(), "0")){
+        if (DomainStatus.isDeveloping(pubInfo.getStatus())){
             deleteDomainInfo(existDomain.getDomainCode());
         }
 
-        existDomain.setStatus(pubInfo.getStatus());
+        existDomain.setStatus(DomainStatus.normalizeCode(pubInfo.getStatus()));
         existDomain.setUrl(pubInfo.getUrl());
         existDomain.setUpdateTime(new Date());
         domainMapper.updateById(existDomain);
@@ -256,8 +264,6 @@ public class DomainBusiness {
                 } else {
                     throw new RuntimeException("文件删除失败: " + file.getAbsolutePath());
                 }
-            } else {
-                throw new RuntimeException("文件不存在，无法删除: " + file.getAbsolutePath());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -334,7 +340,7 @@ public class DomainBusiness {
         domain.setDomainCode(domainTemInfo.getDomainData().getCode());
         domain.setDomainName(domainTemInfo.getDomainData().getName());
         domain.setDomainDescription(domainTemInfo.getDomainData().getDescription());
-        domain.setStatus(domainTemInfo.getDomainData().getStatus());
+        domain.setStatus(DomainStatus.normalizeCode(domainTemInfo.getDomainData().getStatus()));
         domain.setCreateTime(new Date());
         domain.setCodeEditor(domainTemInfo.getDomainData().getCodeEditor());
         domain.setModelEditor(domainTemInfo.getDomainData().getModelEditor());

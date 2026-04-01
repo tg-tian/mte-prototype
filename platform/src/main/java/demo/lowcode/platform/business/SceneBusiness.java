@@ -10,6 +10,7 @@ import demo.lowcode.platform.dto.ScenePubInfo;
 import demo.lowcode.platform.dto.SceneTemInfo;
 import demo.lowcode.platform.entity.Domain;
 import demo.lowcode.platform.entity.Scene;
+import demo.lowcode.platform.mapper.DomainMapper;
 import demo.lowcode.platform.mapper.SceneMapper;
 import demo.lowcode.platform.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,9 +28,13 @@ import java.util.*;
 public class SceneBusiness {
 
     private final SceneMapper sceneMapper;
+    private final DomainMapper domainMapper;
 
     @Autowired
-    public SceneBusiness(SceneMapper sceneMapper) { this.sceneMapper = sceneMapper;}
+    public SceneBusiness(SceneMapper sceneMapper, DomainMapper domainMapper) {
+        this.sceneMapper = sceneMapper;
+        this.domainMapper = domainMapper;
+    }
 
     public ScenarioJson addScenarioJson(String scenarioId, String scenarioName, String domainId, String mapPath, List<Map<String,String>> mapList)
     {
@@ -89,22 +94,41 @@ public class SceneBusiness {
     }
 
     public Scene createScene(NewScene newScene){
-        Scene existingScene = sceneMapper.selectBySceneCode(newScene.getCode());
+        String code = newScene.getCode() == null ? "" : newScene.getCode().trim();
+        String name = newScene.getName() == null ? "" : newScene.getName().trim();
+        if (code.isEmpty()) {
+            throw new IllegalArgumentException("场景编码不能为空");
+        }
+        if (name.isEmpty()) {
+            throw new IllegalArgumentException("场景名称不能为空");
+        }
+        if (newScene.getDomainId() == null) {
+            throw new IllegalArgumentException("领域ID不能为空");
+        }
+        Domain domain = domainMapper.selectById(newScene.getDomainId());
+        if (domain == null) {
+            throw new IllegalArgumentException("领域不存在");
+        }
+
+        Scene existingScene = sceneMapper.selectBySceneCode(code);
         if (existingScene != null) {
             throw new IllegalArgumentException("场景已存在");
         }
 
         Scene scene = new Scene();
-        scene.setSceneCode(newScene.getCode());
-        scene.setSceneName(newScene.getName());
+        scene.setSceneCode(code);
+        scene.setSceneName(name);
         scene.setSceneDescription(newScene.getDescription());
-        scene.setStatus(newScene.getStatus());
+        scene.setStatus(normalizeStatus(newScene.getStatus()));
         scene.setDomainId(newScene.getDomainId());
         if(newScene.getLocation()!=null){
             scene.setLongitude(newScene.getLocation().getLng());
             scene.setLatitude(newScene.getLocation().getLat());
         }
-        scene.setCreateTime(new Date());
+        Date now = new Date();
+        scene.setCreateTime(now);
+        scene.setUpdateTime(now);
+        scene.setUrl(newScene.getUrl());
         scene.setImageUrl(newScene.getImageUrl());
         sceneMapper.insert(scene);
         return scene;
@@ -117,10 +141,25 @@ public class SceneBusiness {
             throw new IllegalArgumentException("场景不存在");
         }
 
-        existingScene.setSceneId(id);        existingScene.setSceneCode(newScene.getCode());
-        existingScene.setSceneName(newScene.getName());
+        String code = newScene.getCode() == null ? "" : newScene.getCode().trim();
+        String name = newScene.getName() == null ? "" : newScene.getName().trim();
+        if (code.isEmpty()) {
+            throw new IllegalArgumentException("场景编码不能为空");
+        }
+        if (name.isEmpty()) {
+            throw new IllegalArgumentException("场景名称不能为空");
+        }
+
+        Scene sceneWithSameCode = sceneMapper.selectBySceneCode(code);
+        if (sceneWithSameCode != null && !Objects.equals(sceneWithSameCode.getSceneId(), id)) {
+            throw new IllegalArgumentException("场景编码已存在");
+        }
+
+        existingScene.setSceneId(id);
+        existingScene.setSceneCode(code);
+        existingScene.setSceneName(name);
         existingScene.setSceneDescription(newScene.getDescription());
-        existingScene.setStatus(newScene.getStatus());
+        existingScene.setStatus(normalizeStatus(newScene.getStatus()));
         existingScene.setUrl(newScene.getUrl());
         if(newScene.getLocation() != null){
             existingScene.setLongitude(newScene.getLocation().getLng());
@@ -129,8 +168,14 @@ public class SceneBusiness {
         if(newScene.getImageUrl() != null){
             existingScene.setImageUrl(newScene.getImageUrl());
         }
+        if (newScene.getDomainId() != null) {
+            Domain domain = domainMapper.selectById(newScene.getDomainId());
+            if (domain == null) {
+                throw new IllegalArgumentException("领域不存在");
+            }
+            existingScene.setDomainId(newScene.getDomainId());
+        }
         existingScene.setUpdateTime(new Date());
-        existingScene.setDomainId(existingScene.getDomainId());
         sceneMapper.updateById(existingScene);
         return existingScene;
     }
@@ -145,17 +190,19 @@ public class SceneBusiness {
             throw new RuntimeException("场景不存在");
         }
 
-        if (pubInfo.getDslData() != null){
+        String normalizedStatus = normalizeStatus(pubInfo.getStatus());
+
+        if (pubInfo.getDslData() != null && Objects.equals(normalizedStatus, "1")){
             // 存储场景配置文件
             writeSceneInfo(pubInfo.getDslData());
         }
 
         // Unpublish - delete scene configuration file
-        if (Objects.equals(pubInfo.getStatus(), "0")) {
+        if (Objects.equals(normalizedStatus, "0")) {
             deleteSceneInfo(existingScene.getSceneCode());
         }
 
-        existingScene.setStatus(pubInfo.getStatus());
+        existingScene.setStatus(normalizedStatus);
         existingScene.setUrl(pubInfo.getUrl());
         existingScene.setUpdateTime(new Date());
         sceneMapper.updateById(existingScene);
@@ -197,8 +244,6 @@ public class SceneBusiness {
                 if (!file.delete()) {
                     throw new RuntimeException("文件删除失败: " + file.getAbsolutePath());
                 }
-            } else {
-                throw new RuntimeException("文件不存在，无法删除: " + file.getAbsolutePath());
             }
         } catch (Exception e) {
             e.printStackTrace();
@@ -216,10 +261,27 @@ public class SceneBusiness {
             String projectRoot = System.getProperty("user.dir");
             String targetDir = Paths.get(projectRoot, "template", "scene").toString();
             Path filePath = Paths.get(targetDir, existScene.getSceneCode() + ".json");
+            if (!filePath.toFile().exists()) {
+                throw new RuntimeException("场景配置文件不存在");
+            }
             return new FileSystemResource(filePath);
         }catch (Exception e){
             e.printStackTrace();
             throw new RuntimeException("场景配置文件不存在: " + e.getMessage());
         }
+    }
+
+    private String normalizeStatus(String status) {
+        if (status == null) {
+            return "0";
+        }
+        String value = status.trim().toLowerCase();
+        if (value.isEmpty()) {
+            return "0";
+        }
+        if (Objects.equals(value, "1") || Objects.equals(value, "published")) {
+            return "1";
+        }
+        return "0";
     }
 }
