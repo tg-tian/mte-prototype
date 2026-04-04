@@ -4,12 +4,11 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import demo.lowcode.platform.common.CommonConfig;
-import demo.lowcode.platform.dto.DomainTemInfo;
-import demo.lowcode.platform.dto.NewScene;
-import demo.lowcode.platform.dto.ScenePubInfo;
-import demo.lowcode.platform.dto.SceneTemInfo;
+import demo.lowcode.platform.dto.*;
 import demo.lowcode.platform.entity.Domain;
 import demo.lowcode.platform.entity.Scene;
+import demo.lowcode.platform.entity.Area;
+import demo.lowcode.platform.entity.DomainStatus;
 import demo.lowcode.platform.mapper.DomainMapper;
 import demo.lowcode.platform.mapper.SceneMapper;
 import demo.lowcode.platform.model.*;
@@ -23,17 +22,22 @@ import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class SceneBusiness {
 
     private final SceneMapper sceneMapper;
     private final DomainMapper domainMapper;
+    private final DomainBusiness domainBusiness;
+    private final AreaBusiness areaBusiness;
 
     @Autowired
-    public SceneBusiness(SceneMapper sceneMapper, DomainMapper domainMapper) {
+    public SceneBusiness(SceneMapper sceneMapper, DomainMapper domainMapper, DomainBusiness domainBusiness, AreaBusiness areaBusiness) {
         this.sceneMapper = sceneMapper;
         this.domainMapper = domainMapper;
+        this.domainBusiness = domainBusiness;
+        this.areaBusiness = areaBusiness;
     }
 
     public ScenarioJson addScenarioJson(String scenarioId, String scenarioName, String domainId, String mapPath, List<Map<String,String>> mapList)
@@ -190,12 +194,19 @@ public class SceneBusiness {
             throw new RuntimeException("场景不存在");
         }
 
-        String normalizedStatus = normalizeStatus(pubInfo.getStatus());
+        String currentStatus = normalizeStatus(existingScene.getStatus());
+        String targetStatus;
+        if (Objects.equals(currentStatus, "0")) {
+            targetStatus = "1";
+        } else {
+            targetStatus = "0";
+        }
+        
         String targetUrl = pubInfo.getUrl() != null ? pubInfo.getUrl() : existingScene.getUrl();
 
         Object result = existingScene;
 
-        if (Objects.equals(normalizedStatus, "1")){
+        if (Objects.equals(targetStatus, "1")){
             SceneTemInfo exportInfo = buildSceneExportInfo(existingScene, targetUrl);
             writeSceneInfo(exportInfo);
             result = exportInfo;
@@ -204,7 +215,7 @@ public class SceneBusiness {
             deleteSceneInfo(existingScene.getSceneCode());
         }
 
-        existingScene.setStatus(normalizedStatus);
+        existingScene.setStatus(targetStatus);
         existingScene.setUrl(targetUrl);
         existingScene.setUpdateTime(new Date());
         sceneMapper.updateById(existingScene);
@@ -230,10 +241,55 @@ public class SceneBusiness {
         }
         sceneData.setImageUrl(scene.getImageUrl());
         exportInfo.setSceneData(sceneData);
+
+        // Fetch Domain Information
+        if (scene.getDomainId() != null) {
+            Domain domain = domainMapper.selectById(scene.getDomainId());
+            if (domain != null) {
+                DomainTemInfo domainInfo = domainBusiness.buildDomainExportInfo(domain, null, DomainStatus.PUBLISHED.getCode(), domain.getUrl());
+                exportInfo.setDomainInfo(domainInfo);
+            }
+        }
         
-        exportInfo.setDevices(new ArrayList<>());
+        // Fetch Area Tree
+        List<Area> areas = areaBusiness.getAreaListByScene(scene.getSceneId());
+        if (areas != null && !areas.isEmpty()) {
+            List<NewArea> areaTree = buildAreaTree(areas);
+            exportInfo.setAreaTree(areaTree);
+        } else {
+            exportInfo.setAreaTree(new ArrayList<>());
+        }
         
         return exportInfo;
+    }
+
+    private List<NewArea> buildAreaTree(List<Area> allAreas) {
+        List<NewArea> result = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
+        
+        Map<Long, NewArea> areaMap = new HashMap<>();
+        for (Area area : allAreas) {
+            NewArea newArea = mapper.convertValue(area, NewArea.class);
+            areaMap.put(area.getId(), newArea);
+        }
+        
+        for (Area area : allAreas) {
+            NewArea newArea = areaMap.get(area.getId());
+            if (area.getParentId() == null || area.getParentId() == -1) {
+                result.add(newArea);
+            } else {
+                NewArea parent = areaMap.get(area.getParentId());
+                if (parent != null) {
+                    if (parent.getChildren() == null) {
+                        parent.setChildren(new ArrayList<>());
+                    }
+                    parent.getChildren().add(newArea);
+                } else {
+                    result.add(newArea); // If parent not found, add to root
+                }
+            }
+        }
+        return result;
     }
 
     public void writeSceneInfo(SceneTemInfo temInfo){
@@ -305,7 +361,7 @@ public class SceneBusiness {
         if (value.isEmpty()) {
             return "0";
         }
-        if (Objects.equals(value, "1") || Objects.equals(value, "published")) {
+        if (Objects.equals(value, "1") || Objects.equals(value, "published") || Objects.equals(value, "true")) {
             return "1";
         }
         return "0";
