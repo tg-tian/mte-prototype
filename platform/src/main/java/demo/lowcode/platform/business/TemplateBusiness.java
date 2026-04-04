@@ -45,4 +45,11 @@ public class TemplateBusiness {
         // 删除领域模板关系
         domainTemplateMapper.deleteDomainTemplateRelation(domainId, template.getId());
     }
+
+    public List<Template> getTemplateList(Long domainId) {
+        if (domainId == null) {
+            throw new RuntimeException("领域ID不能为空");
+        }
+        return templateMapper.getDomainTemplate(domainId);
+    }
 }
