@@ -151,13 +151,13 @@ public class SceneController {
     }
 
     @PostMapping(value = "/scenes/publish")
-    @ApiOperation(value = "发布场景")
+    @ApiOperation(value = "发布/取消发布场景")
     public ResponseEntity<?> publishScene(@RequestBody ScenePubInfo pubInfo){
         try {
-            Scene scene = sceneBusiness.publishScene(pubInfo);
-            return new ResponseEntity<>(scene,HttpStatus.OK);
+            Object result = sceneBusiness.publishScene(pubInfo);
+            return new ResponseEntity<>(result, HttpStatus.OK);
         }catch (RuntimeException e){
-            return new ResponseEntity<>("发布失败",HttpStatus.CONFLICT);
+            return new ResponseEntity<>("操作失败：" + e.getMessage(), HttpStatus.CONFLICT);
         }
     }
 

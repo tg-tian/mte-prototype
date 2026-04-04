@@ -184,30 +184,56 @@ public class SceneBusiness {
         sceneMapper.deleteById(id);
     }
 
-    public Scene publishScene(ScenePubInfo pubInfo) {
+    public Object publishScene(ScenePubInfo pubInfo) {
         Scene existingScene = sceneMapper.selectById(pubInfo.getSceneId());
         if (existingScene == null) {
             throw new RuntimeException("场景不存在");
         }
 
         String normalizedStatus = normalizeStatus(pubInfo.getStatus());
+        String targetUrl = pubInfo.getUrl() != null ? pubInfo.getUrl() : existingScene.getUrl();
 
-        if (pubInfo.getDslData() != null && Objects.equals(normalizedStatus, "1")){
-            // 存储场景配置文件
-            writeSceneInfo(pubInfo.getDslData());
-        }
+        Object result = existingScene;
 
-        // Unpublish - delete scene configuration file
-        if (Objects.equals(normalizedStatus, "0")) {
+        if (Objects.equals(normalizedStatus, "1")){
+            SceneTemInfo exportInfo = buildSceneExportInfo(existingScene, targetUrl);
+            writeSceneInfo(exportInfo);
+            result = exportInfo;
+        } else {
+            // Unpublish - delete scene configuration file
             deleteSceneInfo(existingScene.getSceneCode());
         }
 
         existingScene.setStatus(normalizedStatus);
-        existingScene.setUrl(pubInfo.getUrl());
+        existingScene.setUrl(targetUrl);
         existingScene.setUpdateTime(new Date());
         sceneMapper.updateById(existingScene);
 
-        return existingScene;
+        return result;
+    }
+
+    private SceneTemInfo buildSceneExportInfo(Scene scene, String targetUrl) {
+        SceneTemInfo exportInfo = new SceneTemInfo();
+        
+        NewScene sceneData = new NewScene();
+        sceneData.setCode(scene.getSceneCode());
+        sceneData.setName(scene.getSceneName());
+        sceneData.setDescription(scene.getSceneDescription());
+        sceneData.setStatus("1");
+        sceneData.setUrl(targetUrl);
+        sceneData.setDomainId(scene.getDomainId());
+        if (scene.getLongitude() != null && scene.getLatitude() != null) {
+            demo.lowcode.platform.dto.Location loc = new demo.lowcode.platform.dto.Location();
+            loc.setLng(scene.getLongitude());
+            loc.setLat(scene.getLatitude());
+            sceneData.setLocation(loc);
+        }
+        sceneData.setImageUrl(scene.getImageUrl());
+        exportInfo.setSceneData(sceneData);
+        
+        exportInfo.setDevices(new ArrayList<>());
+        
+        return exportInfo;
     }
 
     public void writeSceneInfo(SceneTemInfo temInfo){

@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Service
 public class FileService {
-    private final String uploadDir = Paths.get(System.getProperty("user.dir"),  "uploads").toString();
+    private final String uploadDir = Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "image").toString();
 
     public String saveImage(MultipartFile file) {
         try {
@@ -32,7 +32,7 @@ public class FileService {
             Files.copy(file.getInputStream(), filePath);
 
             // 返回文件访问URL
-            return "/uploads/" + filename;
+            return "/image/" + filename;
         } catch (IOException e) {
             throw new RuntimeException("Failed to store file", e);
         }
