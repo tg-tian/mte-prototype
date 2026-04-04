@@ -55,11 +55,11 @@ public class DeviceModelController {
     }
   }
 
-  @GetMapping("/{modelId}")
-  @ApiOperation("根据模型编号查询设备模型")
-  public ResponseEntity<DeviceModel> getByModelId(@PathVariable String modelId) {
+  @GetMapping("/{id}")
+  @ApiOperation("根据ID查询设备模型")
+  public ResponseEntity<DeviceModel> getById(@PathVariable Long id) {
     try {
-      DeviceModel deviceModel = deviceModelBusiness.getByModelId(modelId);
+      DeviceModel deviceModel = deviceModelBusiness.getById(id);
       if (deviceModel == null) {
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
       }
