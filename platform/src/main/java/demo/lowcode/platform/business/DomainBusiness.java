@@ -228,7 +228,7 @@ public class DomainBusiness {
         domainMapper.deleteById(id);
     }
 
-    public Domain publishDomain(Long domainId) {
+    public Object publishDomain(Long domainId) {
         if (domainId == null) {
             throw new RuntimeException("领域ID不能为空");
         }
@@ -237,12 +237,23 @@ public class DomainBusiness {
             throw new RuntimeException("领域不存在");
         }
 
-        String targetStatus = DomainStatus.PUBLISHED.getCode();
+        String currentStatus = existDomain.getStatus();
+        String targetStatus;
+        if (DomainStatus.isDeveloping(currentStatus)) {
+            targetStatus = DomainStatus.PUBLISHED.getCode();
+        } else {
+            targetStatus = DomainStatus.DEVELOPING.getCode();
+        }
+        
         String targetUrl = existDomain.getUrl();
+
+        Object result = existDomain;
 
         // 发布时由后端统一组装导出数据，确保携带模板/设备模型/组件绑定信息。
         if (!DomainStatus.isDeveloping(targetStatus)) {
-            writeDomainInfo(buildDomainExportInfo(existDomain, null, targetStatus, targetUrl));
+            DomainTemInfo exportInfo = buildDomainExportInfo(existDomain, null, targetStatus, targetUrl);
+            writeDomainInfo(exportInfo);
+            result = exportInfo;
         }
 
         // 取消发布，删除领域配置文件
@@ -255,7 +266,7 @@ public class DomainBusiness {
         existDomain.setUpdateTime(new Date());
         domainMapper.updateById(existDomain);
 
-        return existDomain;
+        return result;
     }
 
 
