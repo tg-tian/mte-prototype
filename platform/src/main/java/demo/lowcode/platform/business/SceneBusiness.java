@@ -295,6 +295,7 @@ public class SceneBusiness {
     public void writeSceneInfo(SceneTemInfo temInfo){
         try {
             ObjectMapper mapper = new ObjectMapper();
+            mapper.findAndRegisterModules();
             mapper.enable(SerializationFeature.INDENT_OUTPUT); // 格式化 JSON
 
             // 计算目标路径
