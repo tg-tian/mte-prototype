@@ -461,7 +461,7 @@ public class DomainBusiness {
         return domain;
     }
 
-    private DomainTemInfo buildDomainExportInfo(Domain domain, DomainTemInfo requestDslData, String targetStatus, String targetUrl) {
+    public DomainTemInfo buildDomainExportInfo(Domain domain, DomainTemInfo requestDslData, String targetStatus, String targetUrl) {
         DomainTemInfo exportInfo = new DomainTemInfo();
         exportInfo.setDomainData(buildDomainData(domain, requestDslData, targetStatus, targetUrl));
         exportInfo.setTemplates(buildTemplateExportList(domain.getDomainId()));
