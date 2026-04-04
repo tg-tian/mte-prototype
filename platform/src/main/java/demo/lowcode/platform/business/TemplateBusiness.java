@@ -18,8 +18,8 @@ public class TemplateBusiness {
         this.domainTemplateMapper = domainTemplateMapper;
     }
 
-    public List<Template> getTemplateList(Long domainId) {
-        return templateMapper.getDomainTemplate(domainId);
+    public List<Template> getAllTemplates() {
+        return templateMapper.selectList(null);
     }
 
     @Transactional

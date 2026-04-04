@@ -28,6 +28,17 @@ public class TemplateController {
         }
     }
 
+    @GetMapping("/templates")
+    @ApiOperation(value = "获取所有模板列表")
+    public ResponseEntity<?> getAllTemplates(){
+        try {
+            List<Template> templateList = templateBusiness.getAllTemplates();
+            return new ResponseEntity<>(templateList, HttpStatus.OK);
+        }catch (RuntimeException e){
+            return new ResponseEntity<>("未查询到模板列表",HttpStatus.NOT_FOUND);
+        }
+    }
+
     @PostMapping("/templates/binding")
     @ApiOperation(value = "领域绑定模板")
     public ResponseEntity<?> bindTemplate(@RequestBody TemplateBindInfo bindInfo){
