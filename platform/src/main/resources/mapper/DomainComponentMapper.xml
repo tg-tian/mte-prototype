@@ -18,4 +18,14 @@
         SELECT * FROM domain_component
         WHERE component_id = #{componentId} AND domain_id = #{domainId} AND component_type = 'component'
     </select>
+
+    <select id="selectByDomainAndComponentWithType" resultType="demo.lowcode.platform.entity.DomainComponent">
+        SELECT * FROM domain_component
+        WHERE component_id = #{componentId} AND domain_id = #{domainId} AND component_type = #{componentType}
+    </select>
+
+    <delete id="deleteDomainComponentsByDomainId">
+        DELETE FROM domain_component
+        WHERE domain_id = #{domainId}
+    </delete>
 </mapper>

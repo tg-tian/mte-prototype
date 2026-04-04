@@ -22,36 +22,14 @@
     <select id="getDomainTemplate" resultMap="templateResultMap">
         SELECT * FROM template
         WHERE id IN (
-            SELECT component_id FROM domain_component
-            WHERE domain_id = #{domainId} AND component_type = 'template'
+            SELECT template_id FROM domain_template
+            WHERE domain_id = #{domainId}
         )
     </select>
-
-    <!--插入领域模板关系-->
-    <insert id="insertDomainTemplateRelation">
-        INSERT INTO domain_component (domain_id, component_id, component_type)
-        VALUES (#{domainId}, #{templateId}, 'template')
-    </insert>
-
-    <!--批量插入领域模板关系-->
-    <insert id="batchInsertDomainTemplateRelations">
-        INSERT INTO domain_component (domain_id, component_id, component_type)
-        VALUES 
-        <foreach collection="templateIds" item="templateId" separator=",">
-            (#{domainId}, #{templateId}, 'template')
-        </foreach>
-    </insert>
 
     <!--根据template_id查询模板-->
     <select id="selectByTemplateId" resultMap="templateResultMap">
         SELECT * FROM template WHERE template_id = #{templateId}
     </select>
 
-    <!--删除领域模板关系-->
-    <delete id="deleteDomainTemplateRelation">
-        DELETE FROM domain_component 
-        WHERE domain_id = #{domainId} 
-        AND component_id = #{templateId} 
-        AND component_type = 'template'
-    </delete>
 </mapper>

@@ -2,6 +2,7 @@ package demo.lowcode.platform.business;
 
 import demo.lowcode.platform.dto.NewTemplate;
 import demo.lowcode.platform.entity.Template;
+import demo.lowcode.platform.mapper.DomainTemplateMapper;
 import demo.lowcode.platform.mapper.TemplateMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,9 +12,11 @@ import java.util.List;
 @Service
 public class TemplateBusiness {
     private final TemplateMapper templateMapper;
+    private final DomainTemplateMapper domainTemplateMapper;
 
-    public TemplateBusiness(TemplateMapper templateMapper) {
+    public TemplateBusiness(TemplateMapper templateMapper, DomainTemplateMapper domainTemplateMapper) {
         this.templateMapper = templateMapper;
+        this.domainTemplateMapper = domainTemplateMapper;
     }
 
     public List<Template> getTemplateList(Long domainId) {
@@ -45,7 +48,7 @@ public class TemplateBusiness {
             }
 
             // 将新模板id与领域对应关系存入关系表中
-            templateMapper.insertDomainTemplateRelation(domainId, existingTemplate.getId());
+            domainTemplateMapper.insertDomainTemplateRelation(domainId, existingTemplate.getId());
         }
     }
 
@@ -58,6 +61,6 @@ public class TemplateBusiness {
         }
 
         // 删除领域模板关系
-        templateMapper.deleteDomainTemplateRelation(domainId, template.getId());
+        domainTemplateMapper.deleteDomainTemplateRelation(domainId, template.getId());
     }
 }

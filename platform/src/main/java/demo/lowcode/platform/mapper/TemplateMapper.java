@@ -11,11 +11,5 @@ import java.util.List;
 public interface TemplateMapper extends BaseMapper<Template> {
     List<Template> getDomainTemplate(@Param("domainId") Long domainId);
     
-    void insertDomainTemplateRelation(@Param("domainId") Long domainId, @Param("templateId") Long templateId);
-    
     Template selectByTemplateId(@Param("templateId") Long templateId);
-    
-    void deleteDomainTemplateRelation(@Param("domainId") Long domainId, @Param("templateId") Long templateId);
-
-    void batchInsertDomainTemplateRelations(@Param("domainId") Long domainId, @Param("templateIds") List<Long> templateIds);
 }

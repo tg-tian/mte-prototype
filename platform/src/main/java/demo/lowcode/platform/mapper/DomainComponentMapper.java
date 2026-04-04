@@ -11,4 +11,6 @@ import java.util.List;
 public interface DomainComponentMapper extends BaseMapper<DomainComponent> {
     void batchInsertDomainComponents(@Param("domainId") Long domainId, @Param("componentIds") List<Long> dcomponentIds);
     DomainComponent selectByDomainAndComponent(@Param("domainId") Long domainId, @Param("componentId") Long componentId);
+    DomainComponent selectByDomainAndComponentWithType(@Param("domainId") Long domainId, @Param("componentId") Long componentId, @Param("componentType") String componentType);
+    void deleteDomainComponentsByDomainId(@Param("domainId") Long domainId);
 }

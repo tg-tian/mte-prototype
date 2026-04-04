@@ -73,8 +73,5 @@ public class Domain {
     @ApiModelProperty(value = "发布url")
     private String url;
 
-    @Column(name = "domain_template_id")
-    @ApiModelProperty(value = "领域模板id", example = "1")
-    private Long domainTemplateId;
 
 }

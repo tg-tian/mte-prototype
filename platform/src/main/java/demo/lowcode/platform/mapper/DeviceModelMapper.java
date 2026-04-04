@@ -6,6 +6,8 @@ import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
+import java.util.List;
+
 @Mapper
 public interface DeviceModelMapper extends BaseMapper<DeviceModel> {
   /**
@@ -25,6 +27,9 @@ public interface DeviceModelMapper extends BaseMapper<DeviceModel> {
    */
   @Update("ALTER TABLE device_model AUTO_INCREMENT = #{nextId}")
   void resetAutoIncrement(Long nextId);
+
+  @Select("SELECT dm.* FROM device_model dm INNER JOIN domain_component dc ON dc.component_id = dm.id WHERE dc.domain_id = #{domainId} AND dc.component_type = 'deviceType'")
+  List<DeviceModel> selectByDomainId(Long domainId);
 }
 
 
