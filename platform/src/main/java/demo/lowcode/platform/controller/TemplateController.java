@@ -32,7 +32,7 @@ public class TemplateController {
     @ApiOperation(value = "领域绑定模板")
     public ResponseEntity<?> bindTemplate(@RequestBody TemplateBindInfo bindInfo){
         try {
-            templateBusiness.bindDomainAndTemplate(bindInfo.getDomainId(), bindInfo.getTemplates());
+            templateBusiness.bindDomainAndTemplate(bindInfo.getDomainId(), bindInfo.getTemplateId());
             return new ResponseEntity<>("绑定成功",HttpStatus.OK);
         }catch (RuntimeException e){
             return new ResponseEntity<>(e.getMessage(),HttpStatus.CONFLICT);

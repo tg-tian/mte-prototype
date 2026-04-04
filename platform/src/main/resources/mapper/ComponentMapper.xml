@@ -6,7 +6,20 @@
 <mapper namespace="demo.lowcode.platform.mapper.ComponentMapper">
     <!--获取领域组件列表-->
     <select id="selectByDomainId" resultType="demo.lowcode.platform.entity.Component">
-        SELECT * FROM component
+        SELECT
+            component_id,
+            component_code,
+            component_name,
+            component_description,
+            component_type,
+            component_purpose,
+            CAST(constraints AS CHAR) AS constraints,
+            CAST(properties AS CHAR) AS properties,
+            CAST(inputs AS CHAR) AS inputs,
+            CAST(outputs AS CHAR) AS outputs,
+            create_time,
+            update_time
+        FROM component
         WHERE component_id IN (
             SELECT component_id FROM domain_component
             WHERE domain_id = #{domainId} AND component_type = 'component'

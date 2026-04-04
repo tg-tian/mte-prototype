@@ -13,6 +13,7 @@ import demo.lowcode.platform.mapper.TemplateMapper;
 import demo.lowcode.platform.mapper.DomainComponentMapper;
 import demo.lowcode.platform.mapper.ComponentMapper;
 import demo.lowcode.platform.mapper.DeviceModelMapper;
+import demo.lowcode.platform.mapper.DomainDeviceModelMapper;
 import demo.lowcode.platform.model.DomainMeta;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
@@ -38,6 +39,7 @@ public class DomainBusiness {
     private final DomainComponentMapper domainComponentMapper;
     private final ComponentMapper componentMapper;
     private final DeviceModelMapper deviceModelMapper;
+    private final DomainDeviceModelMapper domainDeviceModelMapper;
 
     @Autowired
     public  DomainBusiness(
@@ -46,7 +48,8 @@ public class DomainBusiness {
             DomainTemplateMapper domainTemplateMapper,
             DomainComponentMapper domainComponentMapper,
             ComponentMapper componentMapper,
-            DeviceModelMapper deviceModelMapper
+            DeviceModelMapper deviceModelMapper,
+            DomainDeviceModelMapper domainDeviceModelMapper
     ) {
         this.domainMapper = domainMapper;
         this.templateMapper = templateMapper;
@@ -54,6 +57,7 @@ public class DomainBusiness {
         this.domainComponentMapper = domainComponentMapper;
         this.componentMapper = componentMapper;
         this.deviceModelMapper = deviceModelMapper;
+        this.domainDeviceModelMapper = domainDeviceModelMapper;
     }
 
     // domain增删改查
@@ -220,36 +224,45 @@ public class DomainBusiness {
         }
         domainTemplateMapper.deleteDomainTemplateRelationsByDomainId(id);
         domainComponentMapper.deleteDomainComponentsByDomainId(id);
+        domainDeviceModelMapper.deleteDomainDeviceModelRelationsByDomainId(id);
         domainMapper.deleteById(id);
     }
 
-    public Domain publishDomain(DomainPubInfo pubInfo) {
-        Domain existDomain = domainMapper.selectById(pubInfo.getDomainId());
+    public Domain publishDomain(Long domainId) {
+        if (domainId == null) {
+            throw new RuntimeException("领域ID不能为空");
+        }
+        Domain existDomain = domainMapper.selectById(domainId);
         if (existDomain == null) {
             throw new RuntimeException("领域不存在");
         }
 
+        String targetStatus = DomainStatus.PUBLISHED.getCode();
+        String targetUrl = existDomain.getUrl();
+
         // 发布时由后端统一组装导出数据，确保携带模板/设备模型/组件绑定信息。
-        if (!DomainStatus.isDeveloping(pubInfo.getStatus())) {
-            writeDomainInfo(buildDomainExportInfo(existDomain, pubInfo.getDslData(), pubInfo.getStatus(), pubInfo.getUrl()));
+        if (!DomainStatus.isDeveloping(targetStatus)) {
+            writeDomainInfo(buildDomainExportInfo(existDomain, null, targetStatus, targetUrl));
         }
 
         // 取消发布，删除领域配置文件
-        if (DomainStatus.isDeveloping(pubInfo.getStatus())){
+        if (DomainStatus.isDeveloping(targetStatus)){
             deleteDomainInfo(existDomain.getDomainCode());
         }
 
-        existDomain.setStatus(DomainStatus.normalizeCode(pubInfo.getStatus()));
-        existDomain.setUrl(pubInfo.getUrl());
+        existDomain.setStatus(DomainStatus.normalizeCode(targetStatus));
+        existDomain.setUrl(targetUrl);
         existDomain.setUpdateTime(new Date());
         domainMapper.updateById(existDomain);
 
         return existDomain;
     }
 
+
     public void writeDomainInfo(DomainTemInfo temInfo){
         try {
             ObjectMapper mapper = new ObjectMapper();
+            mapper.findAndRegisterModules();
             mapper.enable(SerializationFeature.INDENT_OUTPUT); // 格式化 JSON
 
             // 计算目标路径
@@ -316,6 +329,7 @@ public class DomainBusiness {
     public List<DomainTemInfo> getDomainTemplates(){
         List<DomainTemInfo> domainTemInfoList = new ArrayList<>();
         ObjectMapper mapper = new ObjectMapper();
+        mapper.findAndRegisterModules();
 
         try {
             // 获取模板目录路径
@@ -426,14 +440,10 @@ public class DomainBusiness {
                 if (deviceType.getId() == null) {
                     continue;
                 }
-                if (domainComponentMapper.selectByDomainAndComponentWithType(domainId, deviceType.getId(), "deviceType") != null) {
+                if (domainDeviceModelMapper.selectByDomainAndDeviceModel(domainId, deviceType.getId()) != null) {
                     continue;
                 }
-                DomainComponent relation = new DomainComponent();
-                relation.setDomainId(domainId);
-                relation.setComponentId(deviceType.getId());
-                relation.setComponentType("deviceType");
-                domainComponentMapper.insert(relation);
+                domainDeviceModelMapper.insertDomainDeviceModelRelation(domainId, deviceType.getId());
             }
         }
 

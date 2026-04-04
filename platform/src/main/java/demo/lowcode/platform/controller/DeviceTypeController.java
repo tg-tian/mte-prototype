@@ -4,11 +4,11 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import demo.lowcode.platform.business.DeviceModelBusiness;
-import demo.lowcode.platform.dto.BindInfo;
+import demo.lowcode.platform.dto.DeviceModelBindInfo;
 import demo.lowcode.platform.entity.DeviceModel;
-import demo.lowcode.platform.entity.DomainComponent;
+import demo.lowcode.platform.entity.DomainDeviceModel;
 import demo.lowcode.platform.mapper.DeviceModelMapper;
-import demo.lowcode.platform.mapper.DomainComponentMapper;
+import demo.lowcode.platform.mapper.DomainDeviceModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -22,17 +22,17 @@ public class DeviceTypeController {
 
     private final DeviceModelBusiness deviceModelBusiness;
     private final DeviceModelMapper deviceModelMapper;
-    private final DomainComponentMapper domainComponentMapper;
+    private final DomainDeviceModelMapper domainDeviceModelMapper;
 
     @Autowired
     public DeviceTypeController(
             DeviceModelBusiness deviceModelBusiness,
             DeviceModelMapper deviceModelMapper,
-            DomainComponentMapper domainComponentMapper
+            DomainDeviceModelMapper domainDeviceModelMapper
     ) {
         this.deviceModelBusiness = deviceModelBusiness;
         this.deviceModelMapper = deviceModelMapper;
-        this.domainComponentMapper = domainComponentMapper;
+        this.domainDeviceModelMapper = domainDeviceModelMapper;
     }
 
     @GetMapping("/api/v1/device-types")
@@ -83,21 +83,16 @@ public class DeviceTypeController {
     }
 
     @PostMapping("/domain/devicetype/binding")
-    public ResponseEntity<?> bindDeviceType(@RequestBody BindInfo bindInfo) {
+    public ResponseEntity<?> bindDeviceType(@RequestBody DeviceModelBindInfo bindInfo) {
         try {
-            DomainComponent existed = domainComponentMapper.selectByDomainAndComponentWithType(
+            DomainDeviceModel existed = domainDeviceModelMapper.selectByDomainAndDeviceModel(
                     bindInfo.getDomainId(),
-                    bindInfo.getDeviceTypeId(),
-                    "deviceType"
+                    bindInfo.getDeviceModelId()
             );
             if (existed != null) {
                 throw new RuntimeException("绑定失败：该设备类型已绑定");
             }
-            DomainComponent relation = new DomainComponent();
-            relation.setDomainId(bindInfo.getDomainId());
-            relation.setComponentId(bindInfo.getDeviceTypeId());
-            relation.setComponentType("deviceType");
-            domainComponentMapper.insert(relation);
+            domainDeviceModelMapper.insertDomainDeviceModelRelation(bindInfo.getDomainId(), bindInfo.getDeviceModelId());
             return new ResponseEntity<>("绑定成功", HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
@@ -105,17 +100,16 @@ public class DeviceTypeController {
     }
 
     @PostMapping("/domain/devicetype/unbinding")
-    public ResponseEntity<?> unbindDeviceType(@RequestBody BindInfo bindInfo) {
+    public ResponseEntity<?> unbindDeviceType(@RequestBody DeviceModelBindInfo bindInfo) {
         try {
-            DomainComponent existed = domainComponentMapper.selectByDomainAndComponentWithType(
+            DomainDeviceModel existed = domainDeviceModelMapper.selectByDomainAndDeviceModel(
                     bindInfo.getDomainId(),
-                    bindInfo.getDeviceTypeId(),
-                    "deviceType"
+                    bindInfo.getDeviceModelId()
             );
             if (existed == null) {
                 throw new RuntimeException("两者未绑定");
             }
-            domainComponentMapper.deleteById(existed.getId());
+            domainDeviceModelMapper.deleteDomainDeviceModelRelation(bindInfo.getDomainId(), bindInfo.getDeviceModelId());
             return new ResponseEntity<>("取消绑定成功", HttpStatus.OK);
         } catch (RuntimeException e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);

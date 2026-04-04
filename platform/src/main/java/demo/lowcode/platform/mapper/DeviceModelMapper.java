@@ -28,7 +28,7 @@ public interface DeviceModelMapper extends BaseMapper<DeviceModel> {
   @Update("ALTER TABLE device_model AUTO_INCREMENT = #{nextId}")
   void resetAutoIncrement(Long nextId);
 
-  @Select("SELECT dm.* FROM device_model dm INNER JOIN domain_component dc ON dc.component_id = dm.id WHERE dc.domain_id = #{domainId} AND dc.component_type = 'deviceType'")
+  @Select("SELECT dm.* FROM device_model dm INNER JOIN domain_device_model ddm ON ddm.device_model_id = dm.id WHERE ddm.domain_id = #{domainId}")
   List<DeviceModel> selectByDomainId(Long domainId);
 }
 

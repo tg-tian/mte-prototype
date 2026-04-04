@@ -99,12 +99,12 @@ public class DomainController {
 
     @PostMapping(value = "/domains/publish")
     @ApiOperation(value = "发布领域")
-    public ResponseEntity<?> publishDomain(@RequestBody DomainPubInfo pubInfo){
+    public ResponseEntity<?> publishDomain(@RequestBody Long domainId){
         try {
-            Domain domain = domainBusiness.publishDomain(pubInfo);
+            Domain domain = domainBusiness.publishDomain(domainId);
             return new ResponseEntity<>(domain,HttpStatus.OK);
         }catch (RuntimeException e){
-            return new ResponseEntity<>("发布失败",HttpStatus.CONFLICT);
+            return new ResponseEntity<>("发布失败：" + e.getMessage(),HttpStatus.CONFLICT);
         }
     }
 

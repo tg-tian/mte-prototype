@@ -1,6 +1,5 @@
 package demo.lowcode.platform.controller;
 
-import demo.lowcode.platform.dto.BindInfo;
 import demo.lowcode.platform.dto.ComponentBindInfo;
 import demo.lowcode.platform.dto.ComponentDto;
 import demo.lowcode.platform.service.ComponentService;
