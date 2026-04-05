@@ -18,6 +18,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 
 @Service
@@ -40,15 +41,23 @@ public class DeviceBusiness extends ServiceImpl<DeviceMapper, Device> {
             throw new RuntimeException("设备Mapper路径为空");
         }
         String fileName = mapperPath;
-        ClassPathResource resource = new ClassPathResource("devicemapper/" + fileName);
+        File mapperFile = resolveMapperFile(fileName);
 
-        if (!resource.exists()) {
-            throw new RuntimeException("Mapper文件不存在: " + fileName);
-        }
+        try {
+            if (mapperFile.exists()) {
+                String content = Files.readString(mapperFile.toPath(), StandardCharsets.UTF_8);
+                return new DeviceMapperResult(content, device.getModelId());
+            }
 
-        try (InputStream inputStream = resource.getInputStream()) {
-            String content = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
-            return new DeviceMapperResult(content, device.getModelId());
+            ClassPathResource resource = new ClassPathResource("devicemapper/" + fileName);
+            if (!resource.exists()) {
+                throw new RuntimeException("Mapper文件不存在: " + fileName);
+            }
+
+            try (InputStream inputStream = resource.getInputStream()) {
+                String content = StreamUtils.copyToString(inputStream, StandardCharsets.UTF_8);
+                return new DeviceMapperResult(content, device.getModelId());
+            }
         } catch (IOException e) {
             throw new RuntimeException("读取Mapper文件失败", e);
         }
@@ -97,26 +106,26 @@ public class DeviceBusiness extends ServiceImpl<DeviceMapper, Device> {
     private void generatePhysicalFile(Device entity) {
         String fileName = entity.getDeviceMapperPath();
         DeviceMapperGenerator generator = deviceMapperGeneratorFactory.getGenerator(entity.getProvider());
-        String projectPath = System.getProperty("user.dir");
-        String resourcesPath = "/src/main/resources/devicemapper/";
-        File directory = new File(projectPath + resourcesPath);
-        if (!directory.exists()) {
-            directory.mkdirs();
-        }
-
-        File file = new File(directory, fileName);
-        if (file.exists()) {
-            // return;
+        File file = resolveMapperFile(fileName);
+        File directory = file.getParentFile();
+        if (!directory.exists() && !directory.mkdirs()) {
+            throw new RuntimeException("创建设备Mapper目录失败: " + directory.getAbsolutePath());
         }
 
         String className = fileName.replace(".ts", "");
         String content = generator.generateContent(entity, className);
 
-        try (FileWriter writer = new FileWriter(file)) {
+        try (FileWriter writer = new FileWriter(file, false)) {
             writer.write(content);
         } catch (IOException e) {
             throw new RuntimeException("生成Mapper文件失败: " + e.getMessage());
         }
+    }
+
+    private File resolveMapperFile(String fileName) {
+        String projectPath = System.getProperty("user.dir");
+        File directory = new File(projectPath, "src/main/resources/devicemapper");
+        return new File(directory, fileName);
     }
 }
 
