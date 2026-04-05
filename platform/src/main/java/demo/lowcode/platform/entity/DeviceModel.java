@@ -35,7 +35,7 @@ public class DeviceModel {
   @ApiModelProperty(value = "模型名称")
   private String modelName;
 
-  @Column(name = "provider", nullable = false)
+  @Column(name = "provider")
   @ApiModelProperty(value = "供应商")
   private String provider;
 

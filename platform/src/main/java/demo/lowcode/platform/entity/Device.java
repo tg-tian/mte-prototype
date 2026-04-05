@@ -61,6 +61,11 @@ public class Device {
     @ApiModelProperty(value = "操作实现 (操作ID -> 自定义实现代码)")
     private Map<String, String> actionMap;
 
+    @TableField(typeHandler = JacksonTypeHandler.class)
+    @Column(columnDefinition = "json")
+    @ApiModelProperty(value = "事件映射 (设备事件 -> 设备类型事件)")
+    private Map<String, String> eventMap;
+
     @TableField(value = "create_time", fill = FieldFill.INSERT)
     @Column(name = "create_time")
     @ApiModelProperty(value = "创建时间")

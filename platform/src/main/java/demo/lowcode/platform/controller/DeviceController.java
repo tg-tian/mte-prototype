@@ -32,6 +32,17 @@ public class DeviceController {
         }
     }
 
+    @PostMapping("/mapper/{id}/generate")
+    @ApiOperation("根据现有配置重新生成设备的 Mapper 文件")
+    public ResponseEntity<?> generateMapper(@PathVariable Long id) {
+        try {
+            deviceBusiness.generateMapper(id);
+            return new ResponseEntity<>("生成成功", HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     @PostMapping("/mapper")
     @ApiOperation("上传设备Mapper文件")
     public ResponseEntity<?> uploadMapper(@RequestParam("file") MultipartFile file,
