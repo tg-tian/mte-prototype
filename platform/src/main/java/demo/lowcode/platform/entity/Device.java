@@ -54,7 +54,7 @@ public class Device {
     @TableField(typeHandler = JacksonTypeHandler.class)
     @Column(columnDefinition = "json")
     @ApiModelProperty(value = "属性映射 (设备属性 -> 设备类型属性)")
-    private Map<String, String> propertyMap;
+    private Map<String, Object> propertyMap;
 
     @TableField(typeHandler = JacksonTypeHandler.class)
     @Column(columnDefinition = "json")
@@ -64,7 +64,7 @@ public class Device {
     @TableField(typeHandler = JacksonTypeHandler.class)
     @Column(columnDefinition = "json")
     @ApiModelProperty(value = "事件映射 (设备事件 -> 设备类型事件)")
-    private Map<String, String> eventMap;
+    private Map<String, Object> eventMap;
 
     @TableField(value = "create_time", fill = FieldFill.INSERT)
     @Column(name = "create_time")
