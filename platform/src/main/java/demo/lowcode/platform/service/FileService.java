@@ -1,44 +1,59 @@
 package demo.lowcode.platform.service;
 
-import org.springframework.beans.factory.annotation.Value;
+import demo.lowcode.platform.entity.StoredFile;
+import demo.lowcode.platform.mapper.StoredFileMapper;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Date;
 import java.util.Objects;
 import java.util.UUID;
 
 @Service
 public class FileService {
-    private final String uploadDir = Paths.get(System.getProperty("user.dir"), "src", "main", "resources", "image").toString();
+
+    private final StoredFileMapper storedFileMapper;
+
+    @Autowired
+    public FileService(StoredFileMapper storedFileMapper) {
+        this.storedFileMapper = storedFileMapper;
+    }
 
     public String saveImage(MultipartFile file) {
         try {
-            // 创建上传目录
-            Path uploadPath = Paths.get(uploadDir);
-            if (!Files.exists(uploadPath)) {
-                Files.createDirectories(uploadPath);
-            }
-
-            // 生成唯一文件名
-            String filename = UUID.randomUUID().toString() + getFileExtension(Objects.requireNonNull(file.getOriginalFilename()));
-
-            // 保存文件
-            Path filePath = uploadPath.resolve(filename);
-            Files.copy(file.getInputStream(), filePath);
-
-            // 返回文件访问URL
-            return "/image/" + filename;
+            StoredFile storedFile = new StoredFile();
+            storedFile.setFileName(UUID.randomUUID() + getFileExtension(Objects.requireNonNull(file.getOriginalFilename())));
+            storedFile.setOriginalName(file.getOriginalFilename());
+            storedFile.setContentType(resolveContentType(file.getContentType()));
+            storedFile.setFileSize(file.getSize());
+            storedFile.setFileData(file.getBytes());
+            storedFile.setBizType("image");
+            Date now = new Date();
+            storedFile.setCreatedAt(now);
+            storedFile.setUpdatedAt(now);
+            storedFileMapper.insert(storedFile);
+            return "/file/image/" + storedFile.getId();
         } catch (IOException e) {
             throw new RuntimeException("Failed to store file", e);
         }
     }
 
+    public StoredFile getFileById(Long id) {
+        return storedFileMapper.selectById(id);
+    }
+
     private String getFileExtension(String filename) {
-        return filename.substring(filename.lastIndexOf("."));
+        int index = filename.lastIndexOf(".");
+        return index >= 0 ? filename.substring(index) : "";
+    }
+
+    private String resolveContentType(String contentType) {
+        if (contentType == null || contentType.isBlank()) {
+            return MediaType.APPLICATION_OCTET_STREAM_VALUE;
+        }
+        return contentType;
     }
 }

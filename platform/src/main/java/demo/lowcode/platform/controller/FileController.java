@@ -2,11 +2,14 @@ package demo.lowcode.platform.controller;
 
 import demo.lowcode.platform.common.CommonConfig;
 import demo.lowcode.platform.common.util.StringUtil;
+import demo.lowcode.platform.entity.StoredFile;
 import demo.lowcode.platform.service.FileService;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -24,9 +27,6 @@ public class FileController {
 
     @Autowired
     private FileService fileService;
-
-    // 设置文件存储的本地目录
-    private static String UPLOADED_FOLDER = CommonConfig.getProjectPath()+"img/";
 
     @GetMapping("/data")
     public String getJsonData(@RequestParam String filePath) throws IOException {
@@ -63,9 +63,30 @@ public class FileController {
     }
 
     @PostMapping("/upload")
-    @ApiOperation(value = "上传图片", notes = "上传场景图片")
+    @ApiOperation(value = "上传图片", notes = "上传场景图片并存入数据库")
     public ResponseEntity<?> uploadFile(@RequestParam("file") MultipartFile file) {
         String fileUrl = fileService.saveImage(file);
         return ResponseEntity.ok(fileUrl);
+    }
+
+    @GetMapping("/file/image/{id}")
+    @ApiOperation(value = "读取数据库中的图片")
+    public ResponseEntity<?> getImage(@PathVariable Long id) {
+        StoredFile storedFile = fileService.getFileById(id);
+        if (storedFile == null || storedFile.getFileData() == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        MediaType mediaType;
+        try {
+            mediaType = MediaType.parseMediaType(storedFile.getContentType());
+        } catch (Exception e) {
+            mediaType = MediaType.APPLICATION_OCTET_STREAM;
+        }
+
+        return ResponseEntity.ok()
+                .contentType(mediaType)
+                .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(storedFile.getFileSize() == null ? storedFile.getFileData().length : storedFile.getFileSize()))
+                .body(storedFile.getFileData());
     }
 }
