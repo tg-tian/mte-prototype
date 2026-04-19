@@ -27,10 +27,11 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: .
-          file: ./Dockerfile
+          context: ./platform
+          file: ./platform/Dockerfile
           push: true
           tags: |
             ${{ secrets.DOCKER_USERNAME }}/platform:latest
+            ${{ secrets.DOCKER_USERNAME }}/platform:${{ github.sha }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
