@@ -162,15 +162,14 @@ public class SceneController {
     }
 
     @GetMapping(value = "/scenes/download/{id}")
-    @ApiOperation(value = "下载场景配置文件")
+    @ApiOperation(value = "下载场景配置压缩包")
     public ResponseEntity<?> downloadScene(@PathVariable Long id){
         try {
-            org.springframework.core.io.Resource scene = sceneBusiness.downloadScene(id);
+            byte[] zipBytes = sceneBusiness.downloadScene(id);
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION,
-                            "attachment; filename=\"" + scene.getFilename() + "\"")
-                    .contentType(MediaType.APPLICATION_JSON)
-                    .body(scene);
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"config.zip\"")
+                    .contentType(MediaType.APPLICATION_OCTET_STREAM)
+                    .body(zipBytes);
         }catch (RuntimeException e){
             return new ResponseEntity<>("文件下载失败",HttpStatus.CONFLICT);
         }

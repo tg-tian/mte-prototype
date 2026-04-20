@@ -25,6 +25,8 @@ import java.util.Map;
 @Api(value = "文件上传接口", tags = {"文件上传管理"})
 public class FileController {
 
+    private static final String EXPORTED_SQL_FILE_NAME = "lowcodeDemo.sql";
+
     @Autowired
     private FileService fileService;
 
@@ -88,5 +90,33 @@ public class FileController {
                 .contentType(mediaType)
                 .header(HttpHeaders.CONTENT_LENGTH, String.valueOf(storedFile.getFileSize() == null ? storedFile.getFileData().length : storedFile.getFileSize()))
                 .body(storedFile.getFileData());
+    }
+
+    @PostMapping("/file/sql/upload")
+    @ApiOperation(value = "上传数据库 SQL 文件")
+    public ResponseEntity<?> uploadSqlFile(@RequestParam("file") MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            return new ResponseEntity<>("请选择要上传的 SQL 文件", HttpStatus.BAD_REQUEST);
+        }
+
+        String originalFilename = file.getOriginalFilename();
+        if (originalFilename == null || !originalFilename.toLowerCase().endsWith(".sql")) {
+            return new ResponseEntity<>("只允许上传 .sql 文件", HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            Path path = getExportedSqlPath();
+            Files.createDirectories(path.getParent());
+            Files.write(path, file.getBytes());
+            return ResponseEntity.ok("/file/sql");
+        } catch (IOException e) {
+            e.printStackTrace();
+            return new ResponseEntity<>("SQL 文件上传失败", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    private Path getExportedSqlPath() {
+        String projectRoot = System.getProperty("user.dir");
+        return Paths.get(projectRoot, "template", "sql", EXPORTED_SQL_FILE_NAME);
     }
 }

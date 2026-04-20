@@ -13,16 +13,19 @@ import demo.lowcode.platform.mapper.DomainMapper;
 import demo.lowcode.platform.mapper.SceneMapper;
 import demo.lowcode.platform.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.FileSystemResource;
-import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 @Service
 public class SceneBusiness {
@@ -334,24 +337,57 @@ public class SceneBusiness {
         }
     }
 
-    public Resource downloadScene(Long id) {
+    public byte[] downloadScene(Long id) {
         Scene existScene = sceneMapper.selectById(id);
         if (existScene == null) {
             throw new RuntimeException("场景不存在");
         }
 
         try {
-            String projectRoot = System.getProperty("user.dir");
-            String targetDir = Paths.get(projectRoot, "template", "scene").toString();
-            Path filePath = Paths.get(targetDir, existScene.getSceneCode() + ".json");
-            if (!filePath.toFile().exists()) {
-                throw new RuntimeException("场景配置文件不存在");
+            String sceneCode = existScene.getSceneCode();
+            if (sceneCode == null || sceneCode.isBlank()) {
+                throw new RuntimeException("场景编码不存在");
             }
-            return new FileSystemResource(filePath);
-        }catch (Exception e){
+
+            SceneTemInfo exportInfo = buildSceneExportInfo(existScene, existScene.getUrl());
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.findAndRegisterModules();
+            mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+            byte[] configBytes = mapper.writeValueAsBytes(exportInfo);
+            byte[] sqlBytes = buildMergedSqlBytes();
+
+            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+                 ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream, StandardCharsets.UTF_8)) {
+                writeZipEntry(zipOutputStream, sceneCode + ".config", configBytes);
+                writeZipEntry(zipOutputStream, "lowcodeDemo.sql", sqlBytes);
+                zipOutputStream.finish();
+                return outputStream.toByteArray();
+            }
+        } catch (Exception e) {
             e.printStackTrace();
-            throw new RuntimeException("场景配置文件不存在: " + e.getMessage());
+            throw new RuntimeException("场景配置压缩包生成失败: " + e.getMessage(), e);
         }
+    }
+
+    private byte[] buildMergedSqlBytes() throws IOException {
+        Path sqlFilePath = getUploadedSqlFilePath();
+        if (!Files.exists(sqlFilePath)) {
+            throw new RuntimeException("尚未上传数据库 SQL 文件");
+        }
+        return Files.readAllBytes(sqlFilePath);
+    }
+
+    private Path getUploadedSqlFilePath() {
+        String projectRoot = System.getProperty("user.dir");
+        return Paths.get(projectRoot, "template", "sql", "lowcodeDemo.sql");
+    }
+
+    private void writeZipEntry(ZipOutputStream zipOutputStream, String entryName, byte[] content) throws IOException {
+        ZipEntry zipEntry = new ZipEntry(entryName);
+        zipOutputStream.putNextEntry(zipEntry);
+        zipOutputStream.write(content);
+        zipOutputStream.closeEntry();
     }
 
     private String normalizeStatus(String status) {
