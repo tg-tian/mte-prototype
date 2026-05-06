@@ -30,6 +30,9 @@ public interface DeviceModelMapper extends BaseMapper<DeviceModel> {
 
   @Select("SELECT dm.* FROM device_model dm INNER JOIN domain_device_model ddm ON ddm.device_model_id = dm.id WHERE ddm.domain_id = #{domainId}")
   List<DeviceModel> selectByDomainId(Long domainId);
+
+  @Select("SELECT * FROM device_model WHERE modelId = #{modelId} LIMIT 1")
+  DeviceModel selectByModelId(String modelId);
 }
 
 

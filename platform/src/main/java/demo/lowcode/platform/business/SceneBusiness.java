@@ -5,15 +5,13 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
 import demo.lowcode.platform.common.CommonConfig;
 import demo.lowcode.platform.dto.*;
-import demo.lowcode.platform.entity.Domain;
-import demo.lowcode.platform.entity.Scene;
-import demo.lowcode.platform.entity.Area;
-import demo.lowcode.platform.entity.DomainStatus;
-import demo.lowcode.platform.mapper.DomainMapper;
-import demo.lowcode.platform.mapper.SceneMapper;
+import demo.lowcode.platform.entity.*;
+import demo.lowcode.platform.mapper.*;
 import demo.lowcode.platform.model.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -22,6 +20,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
@@ -34,13 +33,39 @@ public class SceneBusiness {
     private final DomainMapper domainMapper;
     private final DomainBusiness domainBusiness;
     private final AreaBusiness areaBusiness;
+    private final AreaMapper areaMapper;
+    private final TemplateMapper templateMapper;
+    private final DomainTemplateMapper domainTemplateMapper;
+    private final ComponentMapper componentMapper;
+    private final DomainComponentMapper domainComponentMapper;
+    private final DeviceModelMapper deviceModelMapper;
+    private final DomainDeviceModelMapper domainDeviceModelMapper;
 
     @Autowired
-    public SceneBusiness(SceneMapper sceneMapper, DomainMapper domainMapper, DomainBusiness domainBusiness, AreaBusiness areaBusiness) {
+    public SceneBusiness(
+            SceneMapper sceneMapper,
+            DomainMapper domainMapper,
+            DomainBusiness domainBusiness,
+            AreaBusiness areaBusiness,
+            AreaMapper areaMapper,
+            TemplateMapper templateMapper,
+            DomainTemplateMapper domainTemplateMapper,
+            ComponentMapper componentMapper,
+            DomainComponentMapper domainComponentMapper,
+            DeviceModelMapper deviceModelMapper,
+            DomainDeviceModelMapper domainDeviceModelMapper
+    ) {
         this.sceneMapper = sceneMapper;
         this.domainMapper = domainMapper;
         this.domainBusiness = domainBusiness;
         this.areaBusiness = areaBusiness;
+        this.areaMapper = areaMapper;
+        this.templateMapper = templateMapper;
+        this.domainTemplateMapper = domainTemplateMapper;
+        this.componentMapper = componentMapper;
+        this.domainComponentMapper = domainComponentMapper;
+        this.deviceModelMapper = deviceModelMapper;
+        this.domainDeviceModelMapper = domainDeviceModelMapper;
     }
 
     public ScenarioJson addScenarioJson(String scenarioId, String scenarioName, String domainId, String mapPath, List<Map<String,String>> mapList)
@@ -344,23 +369,16 @@ public class SceneBusiness {
         }
 
         try {
-            String sceneCode = existScene.getSceneCode();
-            if (sceneCode == null || sceneCode.isBlank()) {
-                throw new RuntimeException("场景编码不存在");
-            }
-
             SceneTemInfo exportInfo = buildSceneExportInfo(existScene, existScene.getUrl());
             ObjectMapper mapper = new ObjectMapper();
             mapper.findAndRegisterModules();
             mapper.enable(SerializationFeature.INDENT_OUTPUT);
-
-            byte[] configBytes = mapper.writeValueAsBytes(exportInfo);
-            byte[] sqlBytes = buildMergedSqlBytes();
+            byte[] sceneJsonBytes = mapper.writeValueAsBytes(exportInfo);
 
             try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
                  ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream, StandardCharsets.UTF_8)) {
-                writeZipEntry(zipOutputStream, sceneCode + ".config", configBytes);
-                writeZipEntry(zipOutputStream, "lowcodeDemo.sql", sqlBytes);
+                writeZipEntry(zipOutputStream, "scene.json", sceneJsonBytes);
+                appendSqlDirectory(zipOutputStream);
                 zipOutputStream.finish();
                 return outputStream.toByteArray();
             }
@@ -370,17 +388,24 @@ public class SceneBusiness {
         }
     }
 
-    private byte[] buildMergedSqlBytes() throws IOException {
-        Path sqlFilePath = getUploadedSqlFilePath();
-        if (!Files.exists(sqlFilePath)) {
-            throw new RuntimeException("尚未上传数据库 SQL 文件");
+    private void appendSqlDirectory(ZipOutputStream zipOutputStream) throws IOException {
+        Path sqlDir = getSqlDirectoryPath();
+        if (!Files.exists(sqlDir) || !Files.isDirectory(sqlDir)) {
+            return;
         }
-        return Files.readAllBytes(sqlFilePath);
+
+        try (var stream = Files.walk(sqlDir)) {
+            for (Path path : stream.filter(Files::isRegularFile).toList()) {
+                Path relativePath = sqlDir.relativize(path);
+                String entryName = "sql/" + relativePath.toString().replace('\\', '/');
+                writeZipEntry(zipOutputStream, entryName, Files.readAllBytes(path));
+            }
+        }
     }
 
-    private Path getUploadedSqlFilePath() {
+    private Path getSqlDirectoryPath() {
         String projectRoot = System.getProperty("user.dir");
-        return Paths.get(projectRoot, "template", "sql", "lowcodeDemo.sql");
+        return Paths.get(projectRoot, "template", "sql");
     }
 
     private void writeZipEntry(ZipOutputStream zipOutputStream, String entryName, byte[] content) throws IOException {
@@ -388,6 +413,274 @@ public class SceneBusiness {
         zipOutputStream.putNextEntry(zipEntry);
         zipOutputStream.write(content);
         zipOutputStream.closeEntry();
+    }
+
+    @Transactional
+    public Scene importScene(MultipartFile file) {
+        if (file == null || file.isEmpty()) {
+            throw new RuntimeException("导入文件不能为空");
+        }
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.findAndRegisterModules();
+            SceneTemInfo sceneTemInfo = mapper.readValue(file.getInputStream(), SceneTemInfo.class);
+            return importScene(sceneTemInfo);
+        } catch (IOException e) {
+            throw new RuntimeException("场景配置解析失败: " + e.getMessage(), e);
+        }
+    }
+
+    @Transactional
+    public Scene importScene(SceneTemInfo sceneTemInfo) {
+        if (sceneTemInfo == null || sceneTemInfo.getSceneData() == null) {
+            throw new RuntimeException("场景配置不能为空");
+        }
+
+        NewScene sceneData = sceneTemInfo.getSceneData();
+        if (sceneData.getCode() == null || sceneData.getCode().trim().isEmpty()) {
+            throw new RuntimeException("场景编码不能为空");
+        }
+        if (sceneMapper.selectBySceneCode(sceneData.getCode().trim()) != null) {
+            throw new RuntimeException("场景编码已存在");
+        }
+
+        Long domainId = resolveImportedDomain(sceneTemInfo.getDomainInfo(), sceneData.getDomainId());
+        sceneData.setDomainId(domainId);
+        Scene scene = createScene(sceneData);
+
+        if (sceneTemInfo.getAreaTree() != null) {
+            for (NewArea rootArea : sceneTemInfo.getAreaTree()) {
+                importAreaTree(scene.getSceneId(), rootArea, -1L);
+            }
+        }
+        return scene;
+    }
+
+    private Long resolveImportedDomain(DomainTemInfo domainInfo, Long fallbackDomainId) {
+        if (domainInfo != null && domainInfo.getDomainData() != null) {
+            String domainCode = domainInfo.getDomainData().getCode();
+            if (domainCode == null || domainCode.trim().isEmpty()) {
+                throw new RuntimeException("导出中的领域编码不能为空");
+            }
+            Domain existingDomain = domainMapper.getDomainByCode(domainCode.trim());
+            if (existingDomain == null) {
+                existingDomain = createImportedDomain(domainInfo);
+            } else {
+                syncImportedDomainResources(existingDomain, domainInfo);
+            }
+            return existingDomain.getDomainId();
+        }
+        if (fallbackDomainId == null) {
+            throw new RuntimeException("场景缺少关联领域信息");
+        }
+        Domain domain = domainMapper.selectById(fallbackDomainId);
+        if (domain == null) {
+            throw new RuntimeException("场景关联领域不存在");
+        }
+        return domain.getDomainId();
+    }
+
+    private Domain createImportedDomain(DomainTemInfo domainInfo) {
+        NewDomain domainData = domainInfo.getDomainData();
+        Domain domain = new Domain();
+        domain.setDomainCode(domainData.getCode());
+        domain.setDomainName(domainData.getName());
+        domain.setDomainDescription(domainData.getDescription());
+        domain.setStatus(DomainStatus.normalizeCode(domainData.getStatus()));
+        domain.setCodeEditor(domainData.getCodeEditor());
+        domain.setModelEditor(domainData.getModelEditor());
+        domain.setFramework(domainData.getBaseFramework());
+        domain.setDsl(domainData.getDslStandard());
+        domain.setUrl(domainData.getUrl());
+        Date now = new Date();
+        domain.setCreateTime(now);
+        domain.setUpdateTime(now);
+        domainMapper.insert(domain);
+        syncImportedDomainResources(domain, domainInfo);
+        return domain;
+    }
+
+    private void syncImportedDomainResources(Domain domain, DomainTemInfo domainInfo) {
+        Long domainId = domain.getDomainId();
+
+        if (domainInfo.getTemplates() != null) {
+            for (NewTemplate templateInfo : domainInfo.getTemplates()) {
+                Template template = upsertTemplate(templateInfo);
+                if (template != null && template.getId() != null) {
+                    try {
+                        domainTemplateMapper.insertDomainTemplateRelation(domainId, template.getId());
+                    } catch (Exception ignored) {
+                    }
+                }
+            }
+        }
+
+        if (domainInfo.getComponents() != null) {
+            for (ComponentDto componentInfo : domainInfo.getComponents()) {
+                Component component = upsertComponent(componentInfo);
+                if (component != null && component.getComponentId() != null
+                        && domainComponentMapper.selectByDomainAndComponent(domainId, component.getComponentId()) == null) {
+                    domainComponentMapper.batchInsertDomainComponents(domainId, java.util.Collections.singletonList(component.getComponentId()));
+                }
+            }
+        }
+
+        if (domainInfo.getDeviceTypes() != null) {
+            for (DeviceModel deviceModelInfo : domainInfo.getDeviceTypes()) {
+                DeviceModel deviceModel = upsertDeviceModel(deviceModelInfo);
+                if (deviceModel != null && deviceModel.getId() != null
+                        && domainDeviceModelMapper.selectByDomainAndDeviceModel(domainId, deviceModel.getId()) == null) {
+                    domainDeviceModelMapper.insertDomainDeviceModelRelation(domainId, deviceModel.getId());
+                }
+            }
+        }
+    }
+
+    private Template upsertTemplate(NewTemplate templateInfo) {
+        if (templateInfo == null) {
+            return null;
+        }
+        Template existing = null;
+        if (templateInfo.getId() != null) {
+            existing = templateMapper.selectByTemplateId(templateInfo.getId());
+        }
+        if (existing == null && templateInfo.getTemplate_id() != null) {
+            existing = templateMapper.selectById(templateInfo.getTemplate_id());
+        }
+        if (existing == null) {
+            existing = new Template();
+        }
+        if (templateInfo.getId() != null) {
+            existing.setTemplate_id(templateInfo.getId());
+        } else if (existing.getTemplate_id() == null && templateInfo.getTemplate_id() != null) {
+            existing.setTemplate_id(templateInfo.getTemplate_id());
+        }
+        existing.setName(templateInfo.getName());
+        existing.setDescription(templateInfo.getDescription());
+        existing.setCategory(templateInfo.getCategory());
+        existing.setTags(templateInfo.getTags());
+        existing.setDomain(templateInfo.getDomain());
+        existing.setImage_url(templateInfo.getImage_url());
+        existing.setDescribing_the_model(templateInfo.getDescribing_the_model());
+        existing.setUrl(templateInfo.getUrl());
+        if (existing.getId() == null) {
+            templateMapper.insert(existing);
+        } else {
+            templateMapper.updateById(existing);
+        }
+        return existing;
+    }
+
+    private Component upsertComponent(ComponentDto componentInfo) {
+        if (componentInfo == null) {
+            return null;
+        }
+        Component existing = null;
+        if (componentInfo.getCode() != null && !componentInfo.getCode().isBlank()) {
+            existing = componentMapper.selectByCode(componentInfo.getCode());
+        }
+        if (existing == null && componentInfo.getId() != null) {
+            existing = componentMapper.selectById(componentInfo.getId());
+        }
+        if (existing == null) {
+            existing = new Component();
+            existing.setCreateTime(new Date());
+        }
+        existing.setComponentCode(componentInfo.getCode());
+        existing.setComponentName(componentInfo.getName());
+        existing.setComponentDescription(componentInfo.getDescription());
+        existing.setComponentType(componentInfo.getType());
+        existing.setComponentPurpose(componentInfo.getPurpose());
+        existing.setConstraints(buildComponentConstraintsJson(componentInfo));
+        existing.setProperties(toJson(componentInfo.getProperties()));
+        existing.setInputs(toJson(componentInfo.getInputs()));
+        existing.setOutputs(toJson(componentInfo.getOutputs()));
+        existing.setUpdateTime(new Date());
+        if (existing.getComponentId() == null) {
+            componentMapper.insert(existing);
+        } else {
+            componentMapper.updateById(existing);
+        }
+        return existing;
+    }
+
+    private DeviceModel upsertDeviceModel(DeviceModel deviceModelInfo) {
+        if (deviceModelInfo == null) {
+            return null;
+        }
+        DeviceModel existing = null;
+        if (deviceModelInfo.getModelId() != null && !deviceModelInfo.getModelId().isBlank()) {
+            existing = deviceModelMapper.selectByModelId(deviceModelInfo.getModelId());
+        }
+        if (existing == null && deviceModelInfo.getId() != null) {
+            existing = deviceModelMapper.selectById(deviceModelInfo.getId());
+        }
+        if (existing == null) {
+            existing = new DeviceModel();
+            existing.setCreateTime(LocalDateTime.now());
+        }
+        existing.setModelId(deviceModelInfo.getModelId());
+        existing.setModelName(deviceModelInfo.getModelName());
+        existing.setProvider(deviceModelInfo.getProvider());
+        existing.setCategory(deviceModelInfo.getCategory());
+        existing.setModel(deviceModelInfo.getModel());
+        existing.setUpdateTime(LocalDateTime.now());
+        if (existing.getId() == null) {
+            deviceModelMapper.insert(existing);
+        } else {
+            deviceModelMapper.updateById(existing);
+        }
+        return existing;
+    }
+
+    private void importAreaTree(Long sceneId, NewArea areaInfo, Long parentId) {
+        if (areaInfo == null) {
+            return;
+        }
+        Area area = new Area();
+        area.setName(areaInfo.getName());
+        area.setSceneId(sceneId);
+        area.setDescription(areaInfo.getDescription());
+        area.setImage(areaInfo.getImage());
+        area.setPosition(areaInfo.getPosition());
+        area.setParentId(parentId == null ? -1L : parentId);
+        areaMapper.insert(area);
+
+        if (areaInfo.getChildren() != null) {
+            for (NewArea child : areaInfo.getChildren()) {
+                importAreaTree(sceneId, child, area.getId());
+            }
+        }
+    }
+
+    private String buildComponentConstraintsJson(ComponentDto componentInfo) {
+        Map<String, Object> constraints = new LinkedHashMap<>();
+        if (componentInfo.getInputConstraint() != null) {
+            constraints.put("inputConstraint", componentInfo.getInputConstraint());
+        }
+        if (componentInfo.getOutputConstraint() != null) {
+            constraints.put("outputConstraint", componentInfo.getOutputConstraint());
+        }
+        if (componentInfo.getStartConstraint() != null) {
+            constraints.put("startConstraint", componentInfo.getStartConstraint());
+        }
+        if (componentInfo.getEndConstraint() != null) {
+            constraints.put("endConstraint", componentInfo.getEndConstraint());
+        }
+        return toJson(constraints.isEmpty() ? null : constraints);
+    }
+
+    private String toJson(Object value) {
+        if (value == null) {
+            return null;
+        }
+        try {
+            ObjectMapper mapper = new ObjectMapper();
+            mapper.findAndRegisterModules();
+            return mapper.writeValueAsString(value);
+        } catch (Exception e) {
+            throw new RuntimeException("JSON 序列化失败: " + e.getMessage(), e);
+        }
     }
 
     private String normalizeStatus(String status) {

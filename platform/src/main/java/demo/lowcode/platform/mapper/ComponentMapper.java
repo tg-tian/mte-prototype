@@ -10,4 +10,6 @@ import java.util.List;
 @Mapper
 public interface ComponentMapper extends BaseMapper<Component> {
     List<Component> selectByDomainId(@Param("domainId") Long domainId);
+
+    Component selectByCode(@Param("componentCode") String componentCode);
 }

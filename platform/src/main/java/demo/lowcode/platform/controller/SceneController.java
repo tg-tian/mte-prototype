@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -165,13 +166,28 @@ public class SceneController {
     @ApiOperation(value = "下载场景配置压缩包")
     public ResponseEntity<?> downloadScene(@PathVariable Long id){
         try {
+            Scene scene = sceneBusiness.getSceneById(id);
             byte[] zipBytes = sceneBusiness.downloadScene(id);
+            String fileName = (scene != null && scene.getSceneCode() != null && !scene.getSceneCode().isBlank())
+                    ? scene.getSceneCode() + ".zip"
+                    : "scene-export.zip";
             return ResponseEntity.ok()
-                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"config.zip\"")
+                    .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + fileName + "\"")
                     .contentType(MediaType.APPLICATION_OCTET_STREAM)
                     .body(zipBytes);
         }catch (RuntimeException e){
             return new ResponseEntity<>("文件下载失败",HttpStatus.CONFLICT);
+        }
+    }
+
+    @PostMapping(value = "/scenes/import", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @ApiOperation(value = "导入场景配置JSON")
+    public ResponseEntity<?> importScene(@RequestParam("file") MultipartFile file) {
+        try {
+            Scene scene = sceneBusiness.importScene(file);
+            return new ResponseEntity<>(scene, HttpStatus.OK);
+        } catch (RuntimeException e) {
+            return new ResponseEntity<>("导入失败：" + e.getMessage(), HttpStatus.CONFLICT);
         }
     }
 

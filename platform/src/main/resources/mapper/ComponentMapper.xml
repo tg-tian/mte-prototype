@@ -25,4 +25,23 @@
             WHERE domain_id = #{domainId} AND component_type = 'component'
         )
     </select>
+
+    <select id="selectByCode" resultType="demo.lowcode.platform.entity.Component">
+        SELECT
+            component_id,
+            component_code,
+            component_name,
+            component_description,
+            component_type,
+            component_purpose,
+            CAST(constraints AS CHAR) AS constraints,
+            CAST(properties AS CHAR) AS properties,
+            CAST(inputs AS CHAR) AS inputs,
+            CAST(outputs AS CHAR) AS outputs,
+            create_time,
+            update_time
+        FROM component
+        WHERE component_code = #{componentCode}
+        LIMIT 1
+    </select>
 </mapper>
