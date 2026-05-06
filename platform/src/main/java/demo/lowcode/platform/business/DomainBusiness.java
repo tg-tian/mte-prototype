@@ -165,7 +165,6 @@ public class DomainBusiness {
         return domainMapper.selectById(id);
     }
 
-
     public Domain createDomain(NewDomain newDomain){
         if (newDomain.getCode() == null || newDomain.getCode().trim().isEmpty()) {
             throw new RuntimeException("领域编码不能为空");

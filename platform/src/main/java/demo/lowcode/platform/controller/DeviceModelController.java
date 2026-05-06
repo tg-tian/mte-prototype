@@ -24,9 +24,9 @@ public class DeviceModelController {
 
   @GetMapping
   @ApiOperation("查询设备模型列表")
-  public ResponseEntity<List<DeviceModel>> list() {
+  public ResponseEntity<List<DeviceModel>> list(@RequestParam(required = false) Long domainId) {
     try {
-      return new ResponseEntity<>(deviceModelBusiness.list(), HttpStatus.OK);
+      return new ResponseEntity<>(deviceModelBusiness.list(domainId), HttpStatus.OK);
     } catch (Exception e) {
       return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
     }
@@ -38,8 +38,13 @@ public class DeviceModelController {
       @RequestParam(defaultValue = "1") Integer current,
       @RequestParam(defaultValue = "10") Integer size,
       @RequestParam(required = false) String modelName,
-      @RequestParam(required = false) String category) {
+      @RequestParam(required = false) String category,
+      @RequestParam(required = false) Long domainId) {
     try {
+      if (domainId != null) {
+        return new ResponseEntity<>(deviceModelBusiness.pageByDomainId(current, size, domainId), HttpStatus.OK);
+      }
+
       Page<DeviceModel> page = new Page<>(current, size);
       QueryWrapper<DeviceModel> queryWrapper = new QueryWrapper<>();
       if (modelName != null && !modelName.isEmpty()) {
@@ -113,6 +118,28 @@ public class DeviceModelController {
       }
     } catch (Exception e) {
       return new ResponseEntity<>(e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  @PostMapping("/{deviceModelId}/domains/{domainId}")
+  @ApiOperation("绑定设备模型到领域")
+  public ResponseEntity<?> bindDomain(@PathVariable Long deviceModelId, @PathVariable Long domainId) {
+    try {
+      deviceModelBusiness.bindDomain(deviceModelId, domainId);
+      return new ResponseEntity<>("绑定成功", HttpStatus.OK);
+    } catch (RuntimeException e) {
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
+    }
+  }
+
+  @DeleteMapping("/{deviceModelId}/domains/{domainId}")
+  @ApiOperation("解绑设备模型与领域")
+  public ResponseEntity<?> unbindDomain(@PathVariable Long deviceModelId, @PathVariable Long domainId) {
+    try {
+      deviceModelBusiness.unbindDomain(deviceModelId, domainId);
+      return new ResponseEntity<>("取消绑定成功", HttpStatus.OK);
+    } catch (RuntimeException e) {
+      return new ResponseEntity<>(e.getMessage(), HttpStatus.CONFLICT);
     }
   }
 }

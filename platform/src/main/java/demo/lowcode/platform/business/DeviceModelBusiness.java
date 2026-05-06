@@ -4,10 +4,16 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import demo.lowcode.platform.entity.DeviceModel;
+import demo.lowcode.platform.entity.Domain;
+import demo.lowcode.platform.entity.DomainDeviceModel;
 import demo.lowcode.platform.mapper.DeviceModelMapper;
+import demo.lowcode.platform.mapper.DomainDeviceModelMapper;
+import demo.lowcode.platform.mapper.DomainMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -19,12 +25,35 @@ public class DeviceModelBusiness {
   @Autowired
   private DeviceModelMapper deviceModelMapper;
 
+  @Autowired
+  private DomainMapper domainMapper;
+
+  @Autowired
+  private DomainDeviceModelMapper domainDeviceModelMapper;
+
   public List<DeviceModel> list() {
     return deviceModelMapper.selectList(null);
   }
 
+  public List<DeviceModel> list(Long domainId) {
+    if (domainId == null) {
+      return list();
+    }
+    return deviceModelMapper.selectByDomainId(domainId);
+  }
+
   public IPage<DeviceModel> page(Page<DeviceModel> page, QueryWrapper<DeviceModel> queryWrapper) {
     return deviceModelMapper.selectPage(page, queryWrapper);
+  }
+
+  public List<DeviceModel> pageByDomainId(Integer current, Integer size, Long domainId) {
+    List<DeviceModel> all = deviceModelMapper.selectByDomainId(domainId);
+    int fromIndex = Math.max((current - 1) * size, 0);
+    if (fromIndex >= all.size()) {
+      return Collections.emptyList();
+    }
+    int toIndex = Math.min(fromIndex + size, all.size());
+    return all.subList(fromIndex, toIndex);
   }
 
   public DeviceModel getById(Long id) {
@@ -82,6 +111,36 @@ public class DeviceModelBusiness {
     }
 
     return deleted;
+  }
+
+  @Transactional
+  public void bindDomain(Long deviceModelId, Long domainId) {
+    Domain domain = domainMapper.selectById(domainId);
+    if (domain == null) {
+      throw new RuntimeException("领域不存在");
+    }
+    DeviceModel deviceModel = deviceModelMapper.selectById(deviceModelId);
+    if (deviceModel == null) {
+      throw new RuntimeException("设备模型不存在");
+    }
+    DomainDeviceModel existed = domainDeviceModelMapper.selectByDomainAndDeviceModel(domainId, deviceModelId);
+    if (existed != null) {
+      throw new RuntimeException("绑定失败：该设备类型已绑定");
+    }
+    domainDeviceModelMapper.insertDomainDeviceModelRelation(domainId, deviceModelId);
+  }
+
+  @Transactional
+  public void unbindDomain(Long deviceModelId, Long domainId) {
+    Domain domain = domainMapper.selectById(domainId);
+    if (domain == null) {
+      throw new RuntimeException("领域不存在");
+    }
+    DomainDeviceModel existed = domainDeviceModelMapper.selectByDomainAndDeviceModel(domainId, deviceModelId);
+    if (existed == null) {
+      throw new RuntimeException("两者未绑定");
+    }
+    domainDeviceModelMapper.deleteDomainDeviceModelRelation(domainId, deviceModelId);
   }
 }
 
