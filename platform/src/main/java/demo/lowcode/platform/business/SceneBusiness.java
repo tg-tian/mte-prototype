@@ -320,6 +320,7 @@ public class SceneBusiness {
         Map<Long, NewArea> areaMap = new HashMap<>();
         for (Area area : allAreas) {
             NewArea newArea = mapper.convertValue(area, NewArea.class);
+            newArea.setImageRef(buildFileRefFromUrl(area.getImage()));
             areaMap.put(area.getId(), newArea);
         }
         
@@ -438,6 +439,11 @@ public class SceneBusiness {
         if (exportInfo.getDomainInfo() != null && exportInfo.getDomainInfo().getTemplates() != null) {
             for (NewTemplate template : exportInfo.getDomainInfo().getTemplates()) {
                 collectFileReference(refToId, template.getImage_url());
+            }
+        }
+        if (exportInfo.getAreaTree() != null) {
+            for (NewArea area : exportInfo.getAreaTree()) {
+                collectAreaFileReferences(refToId, area);
             }
         }
 
@@ -582,6 +588,11 @@ public class SceneBusiness {
                 }
             }
         }
+        if (sceneTemInfo.getAreaTree() != null) {
+            for (NewArea area : sceneTemInfo.getAreaTree()) {
+                applyImportedAreaFileUrls(area, importedFileUrls);
+            }
+        }
     }
 
     private void collectFileReference(Map<String, Long> refToId, String imageUrl) {
@@ -590,6 +601,46 @@ public class SceneBusiness {
             return;
         }
         refToId.putIfAbsent("file-" + fileId, fileId);
+    }
+
+    private void collectAreaFileReferences(Map<String, Long> refToId, NewArea area) {
+        if (area == null) {
+            return;
+        }
+        collectFileReference(refToId, area.getImage());
+        area.setImageRef(buildFileRefFromUrl(area.getImage()));
+        if (area.getChildren() != null) {
+            for (NewArea child : area.getChildren()) {
+                collectAreaFileReferences(refToId, child);
+            }
+        }
+    }
+
+    private void applyImportedAreaFileUrls(NewArea area, Map<String, String> importedFileUrls) {
+        if (area == null) {
+            return;
+        }
+        area.setImage(resolveImportedAreaImageUrl(area, importedFileUrls));
+        if (area.getChildren() != null) {
+            for (NewArea child : area.getChildren()) {
+                applyImportedAreaFileUrls(child, importedFileUrls);
+            }
+        }
+    }
+
+    private String resolveImportedAreaImageUrl(NewArea area) {
+        return resolveImportedAreaImageUrl(area, Collections.emptyMap());
+    }
+
+    private String resolveImportedAreaImageUrl(NewArea area, Map<String, String> importedFileUrls) {
+        if (area == null) {
+            return null;
+        }
+        String imageRef = area.getImageRef();
+        if (imageRef != null && importedFileUrls.containsKey(imageRef)) {
+            return importedFileUrls.get(imageRef);
+        }
+        return area.getImage();
     }
 
     private String resolveImportedSceneImageUrl(NewScene sceneData) {
@@ -915,7 +966,7 @@ public class SceneBusiness {
         area.setName(areaInfo.getName());
         area.setSceneId(sceneId);
         area.setDescription(areaInfo.getDescription());
-        area.setImage(areaInfo.getImage());
+        area.setImage(resolveImportedAreaImageUrl(areaInfo));
         area.setPosition(areaInfo.getPosition());
         area.setParentId(parentId == null ? -1L : parentId);
         areaMapper.insert(area);
