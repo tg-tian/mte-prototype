@@ -800,7 +800,6 @@ public class SceneBusiness {
 
         Long domainId = resolveImportedDomain(sceneTemInfo.getDomainInfo(), sceneData.getDomainId());
         sceneData.setDomainId(domainId);
-        sceneData.setImageUrl(resolveImportedSceneImageUrl(sceneData));
         Scene scene = createScene(sceneData);
 
         if (sceneTemInfo.getAreaTree() != null) {
@@ -996,7 +995,7 @@ public class SceneBusiness {
         area.setName(areaInfo.getName());
         area.setSceneId(sceneId);
         area.setDescription(areaInfo.getDescription());
-        area.setImage(resolveImportedAreaImageUrl(areaInfo));
+        area.setImage(areaInfo.getImage());
         area.setPosition(areaInfo.getPosition());
         area.setParentId(parentId == null ? -1L : parentId);
         areaMapper.insert(area);
