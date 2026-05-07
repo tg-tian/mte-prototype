@@ -1,8 +1,12 @@
 package demo.lowcode.platform.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import demo.lowcode.platform.entity.DeviceModel;
 import org.apache.ibatis.annotations.Mapper;
+import org.apache.ibatis.annotations.Result;
+import org.apache.ibatis.annotations.ResultMap;
+import org.apache.ibatis.annotations.Results;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
 
@@ -29,9 +33,13 @@ public interface DeviceModelMapper extends BaseMapper<DeviceModel> {
   void resetAutoIncrement(Long nextId);
 
   @Select("SELECT dm.* FROM device_model dm INNER JOIN domain_device_model ddm ON ddm.device_model_id = dm.id WHERE ddm.domain_id = #{domainId}")
+  @Results(id = "deviceModelResultMap", value = {
+      @Result(column = "model", property = "model", typeHandler = JacksonTypeHandler.class)
+  })
   List<DeviceModel> selectByDomainId(Long domainId);
 
   @Select("SELECT * FROM device_model WHERE modelId = #{modelId} LIMIT 1")
+  @ResultMap("deviceModelResultMap")
   DeviceModel selectByModelId(String modelId);
 }
 
