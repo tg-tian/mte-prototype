@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NewScene {
+    private Long sceneId;
     private String code;
     private String name;
     private String description;

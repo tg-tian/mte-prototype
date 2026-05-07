@@ -276,6 +276,7 @@ public class SceneBusiness {
         SceneTemInfo exportInfo = new SceneTemInfo();
         
         NewScene sceneData = new NewScene();
+        sceneData.setSceneId(scene.getSceneId());
         sceneData.setCode(scene.getSceneCode());
         sceneData.setName(scene.getSceneName());
         sceneData.setDescription(scene.getSceneDescription());
