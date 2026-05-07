@@ -8,6 +8,7 @@ import demo.lowcode.platform.dto.*;
 import demo.lowcode.platform.entity.*;
 import demo.lowcode.platform.mapper.*;
 import demo.lowcode.platform.model.*;
+import demo.lowcode.platform.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -16,18 +17,32 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 import java.util.zip.ZipOutputStream;
 
 @Service
 public class SceneBusiness {
+
+    private static final Pattern IMAGE_FILE_URL_PATTERN = Pattern.compile("^/file/image/(\\d+)$");
+    private static final String PACKAGE_MANIFEST_FILE = "manifest.json";
+    private static final String PACKAGE_SCENE_FILE = "scene.json";
+    private static final String PACKAGE_FILES_FILE = "files.json";
+    private static final String PACKAGE_BLOBS_DIR = "blobs/";
 
     private final SceneMapper sceneMapper;
     private final DomainMapper domainMapper;
@@ -40,6 +55,8 @@ public class SceneBusiness {
     private final DomainComponentMapper domainComponentMapper;
     private final DeviceModelMapper deviceModelMapper;
     private final DomainDeviceModelMapper domainDeviceModelMapper;
+    private final StoredFileMapper storedFileMapper;
+    private final FileService fileService;
 
     @Autowired
     public SceneBusiness(
@@ -53,7 +70,9 @@ public class SceneBusiness {
             ComponentMapper componentMapper,
             DomainComponentMapper domainComponentMapper,
             DeviceModelMapper deviceModelMapper,
-            DomainDeviceModelMapper domainDeviceModelMapper
+            DomainDeviceModelMapper domainDeviceModelMapper,
+            StoredFileMapper storedFileMapper,
+            FileService fileService
     ) {
         this.sceneMapper = sceneMapper;
         this.domainMapper = domainMapper;
@@ -66,6 +85,8 @@ public class SceneBusiness {
         this.domainComponentMapper = domainComponentMapper;
         this.deviceModelMapper = deviceModelMapper;
         this.domainDeviceModelMapper = domainDeviceModelMapper;
+        this.storedFileMapper = storedFileMapper;
+        this.fileService = fileService;
     }
 
     public ScenarioJson addScenarioJson(String scenarioId, String scenarioName, String domainId, String mapPath, List<Map<String,String>> mapList)
@@ -268,6 +289,7 @@ public class SceneBusiness {
             sceneData.setLocation(loc);
         }
         sceneData.setImageUrl(scene.getImageUrl());
+        sceneData.setImageRef(buildFileRefFromUrl(scene.getImageUrl()));
         exportInfo.setSceneData(sceneData);
 
         // Fetch Domain Information
@@ -370,18 +392,8 @@ public class SceneBusiness {
 
         try {
             SceneTemInfo exportInfo = buildSceneExportInfo(existScene, existScene.getUrl());
-            ObjectMapper mapper = new ObjectMapper();
-            mapper.findAndRegisterModules();
-            mapper.enable(SerializationFeature.INDENT_OUTPUT);
-            byte[] sceneJsonBytes = mapper.writeValueAsBytes(exportInfo);
-
-            try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-                 ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream, StandardCharsets.UTF_8)) {
-                writeZipEntry(zipOutputStream, "scene.json", sceneJsonBytes);
-                appendSqlDirectory(zipOutputStream);
-                zipOutputStream.finish();
-                return outputStream.toByteArray();
-            }
+            DomainPackageFiles packageFiles = buildScenePackageFiles(exportInfo);
+            return buildScenePackageZip(existScene, exportInfo, packageFiles);
         } catch (Exception e) {
             e.printStackTrace();
             throw new RuntimeException("场景配置压缩包生成失败: " + e.getMessage(), e);
@@ -415,12 +427,273 @@ public class SceneBusiness {
         zipOutputStream.closeEntry();
     }
 
+    private DomainPackageFiles buildScenePackageFiles(SceneTemInfo exportInfo) {
+        DomainPackageFiles files = new DomainPackageFiles();
+        files.setVersion(1);
+        Map<String, Long> refToId = new LinkedHashMap<>();
+
+        if (exportInfo.getSceneData() != null) {
+            collectFileReference(refToId, exportInfo.getSceneData().getImageUrl());
+        }
+        if (exportInfo.getDomainInfo() != null && exportInfo.getDomainInfo().getTemplates() != null) {
+            for (NewTemplate template : exportInfo.getDomainInfo().getTemplates()) {
+                collectFileReference(refToId, template.getImage_url());
+            }
+        }
+
+        for (Map.Entry<String, Long> entry : refToId.entrySet()) {
+            StoredFile storedFile = storedFileMapper.selectById(entry.getValue());
+            if (storedFile == null || storedFile.getFileData() == null) {
+                continue;
+            }
+            ExportedStoredFile exportedStoredFile = new ExportedStoredFile();
+            exportedStoredFile.setRef(entry.getKey());
+            exportedStoredFile.setSourceId(storedFile.getId());
+            exportedStoredFile.setFileName(storedFile.getFileName());
+            exportedStoredFile.setOriginalName(storedFile.getOriginalName());
+            exportedStoredFile.setContentType(storedFile.getContentType());
+            exportedStoredFile.setFileSize(storedFile.getFileSize());
+            exportedStoredFile.setBizType(storedFile.getBizType());
+            exportedStoredFile.setBizId(storedFile.getBizId());
+            exportedStoredFile.setBlobPath(buildBlobPath(entry.getKey(), storedFile));
+            exportedStoredFile.setSha256(calculateSha256(storedFile.getFileData()));
+            files.getFiles().add(exportedStoredFile);
+        }
+        return files;
+    }
+
+    private byte[] buildScenePackageZip(Scene scene, SceneTemInfo exportInfo, DomainPackageFiles packageFiles) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.findAndRegisterModules();
+        mapper.enable(SerializationFeature.INDENT_OUTPUT);
+
+        DomainPackageManifest manifest = new DomainPackageManifest();
+        manifest.setVersion(1);
+        manifest.setDomainCode(scene.getSceneCode());
+        manifest.setExportedAt(OffsetDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
+        manifest.setIncludesDomain(true);
+        manifest.setIncludesFiles(packageFiles.getFiles() != null && !packageFiles.getFiles().isEmpty());
+
+        byte[] sceneJsonBytes = mapper.writeValueAsBytes(exportInfo);
+        byte[] filesJsonBytes = mapper.writeValueAsBytes(packageFiles);
+        byte[] manifestJsonBytes = mapper.writeValueAsBytes(manifest);
+
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+             ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream, StandardCharsets.UTF_8)) {
+            writeZipEntry(zipOutputStream, PACKAGE_MANIFEST_FILE, manifestJsonBytes);
+            writeZipEntry(zipOutputStream, PACKAGE_SCENE_FILE, sceneJsonBytes);
+            writeZipEntry(zipOutputStream, PACKAGE_FILES_FILE, filesJsonBytes);
+            if (packageFiles.getFiles() != null) {
+                for (ExportedStoredFile storedFile : packageFiles.getFiles()) {
+                    StoredFile source = storedFileMapper.selectById(storedFile.getSourceId());
+                    if (source == null || source.getFileData() == null) {
+                        continue;
+                    }
+                    writeZipEntry(zipOutputStream, storedFile.getBlobPath(), source.getFileData());
+                }
+            }
+            appendSqlDirectory(zipOutputStream);
+            zipOutputStream.finish();
+            return outputStream.toByteArray();
+        }
+    }
+
+    private ImportedScenePackage readScenePackage(InputStream inputStream) throws IOException {
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.findAndRegisterModules();
+
+        SceneTemInfo sceneTemInfo = null;
+        DomainPackageFiles packageFiles = null;
+        Map<String, byte[]> blobBytes = new HashMap<>();
+
+        try (ZipInputStream zipInputStream = new ZipInputStream(inputStream, StandardCharsets.UTF_8)) {
+            ZipEntry entry;
+            while ((entry = zipInputStream.getNextEntry()) != null) {
+                if (entry.isDirectory()) {
+                    continue;
+                }
+                byte[] entryBytes = zipInputStream.readAllBytes();
+                if (PACKAGE_SCENE_FILE.equals(entry.getName())) {
+                    sceneTemInfo = mapper.readValue(entryBytes, SceneTemInfo.class);
+                } else if (PACKAGE_FILES_FILE.equals(entry.getName())) {
+                    packageFiles = mapper.readValue(entryBytes, DomainPackageFiles.class);
+                } else if (entry.getName().startsWith(PACKAGE_BLOBS_DIR)) {
+                    blobBytes.put(entry.getName(), entryBytes);
+                }
+            }
+        }
+
+        if (sceneTemInfo == null) {
+            throw new RuntimeException("资源包缺少 scene.json");
+        }
+        if (packageFiles == null) {
+            packageFiles = new DomainPackageFiles();
+            packageFiles.setVersion(1);
+        }
+
+        ImportedScenePackage importedScenePackage = new ImportedScenePackage();
+        importedScenePackage.setSceneTemInfo(sceneTemInfo);
+        importedScenePackage.setFiles(packageFiles);
+        importedScenePackage.setBlobBytes(blobBytes);
+        return importedScenePackage;
+    }
+
+    private Map<String, String> importPackageFiles(DomainPackageFiles packageFiles, Map<String, byte[]> blobBytes) {
+        Map<String, String> importedFileUrls = new HashMap<>();
+        if (packageFiles == null || packageFiles.getFiles() == null) {
+            return importedFileUrls;
+        }
+        for (ExportedStoredFile exportedFile : packageFiles.getFiles()) {
+            byte[] bytes = blobBytes.get(exportedFile.getBlobPath());
+            if (bytes == null || bytes.length == 0) {
+                continue;
+            }
+            if (exportedFile.getSha256() != null && !exportedFile.getSha256().isBlank()) {
+                String actualSha256 = calculateSha256(bytes);
+                if (!exportedFile.getSha256().equalsIgnoreCase(actualSha256)) {
+                    throw new RuntimeException("资源文件校验失败: " + exportedFile.getBlobPath());
+                }
+            }
+            StoredFile storedFile = fileService.saveImportedFile(
+                    exportedFile.getFileName(),
+                    exportedFile.getOriginalName(),
+                    exportedFile.getContentType(),
+                    exportedFile.getFileSize(),
+                    bytes,
+                    exportedFile.getBizType(),
+                    exportedFile.getBizId()
+            );
+            importedFileUrls.put(exportedFile.getRef(), "/file/image/" + storedFile.getId());
+        }
+        return importedFileUrls;
+    }
+
+    private void applyImportedFileUrls(SceneTemInfo sceneTemInfo, Map<String, String> importedFileUrls) {
+        if (sceneTemInfo == null) {
+            return;
+        }
+        if (sceneTemInfo.getSceneData() != null) {
+            sceneTemInfo.getSceneData().setImageUrl(resolveImportedSceneImageUrl(sceneTemInfo.getSceneData(), importedFileUrls));
+        }
+        if (sceneTemInfo.getDomainInfo() != null && sceneTemInfo.getDomainInfo().getTemplates() != null) {
+            for (NewTemplate template : sceneTemInfo.getDomainInfo().getTemplates()) {
+                if (template.getImage_ref() != null && importedFileUrls.containsKey(template.getImage_ref())) {
+                    template.setImage_url(importedFileUrls.get(template.getImage_ref()));
+                }
+            }
+        }
+    }
+
+    private void collectFileReference(Map<String, Long> refToId, String imageUrl) {
+        Long fileId = extractFileId(imageUrl);
+        if (fileId == null) {
+            return;
+        }
+        refToId.putIfAbsent("file-" + fileId, fileId);
+    }
+
+    private String resolveImportedSceneImageUrl(NewScene sceneData) {
+        return resolveImportedSceneImageUrl(sceneData, Collections.emptyMap());
+    }
+
+    private String resolveImportedSceneImageUrl(NewScene sceneData, Map<String, String> importedFileUrls) {
+        if (sceneData == null) {
+            return null;
+        }
+        String imageRef = sceneData.getImageRef();
+        if (imageRef != null && importedFileUrls.containsKey(imageRef)) {
+            return importedFileUrls.get(imageRef);
+        }
+        return sceneData.getImageUrl();
+    }
+
+    private String buildFileRefFromUrl(String imageUrl) {
+        Long fileId = extractFileId(imageUrl);
+        return fileId == null ? null : "file-" + fileId;
+    }
+
+    private Long extractFileId(String imageUrl) {
+        if (imageUrl == null || imageUrl.isBlank()) {
+            return null;
+        }
+        Matcher matcher = IMAGE_FILE_URL_PATTERN.matcher(imageUrl.trim());
+        if (!matcher.matches()) {
+            return null;
+        }
+        return Long.parseLong(matcher.group(1));
+    }
+
+    private String buildBlobPath(String fileRef, StoredFile storedFile) {
+        return PACKAGE_BLOBS_DIR + fileRef + resolveFileExtension(storedFile.getOriginalName(), storedFile.getFileName());
+    }
+
+    private String resolveFileExtension(String originalName, String fileName) {
+        String candidate = originalName != null && originalName.contains(".") ? originalName : fileName;
+        if (candidate == null) {
+            return ".bin";
+        }
+        int index = candidate.lastIndexOf('.');
+        return index >= 0 ? candidate.substring(index) : ".bin";
+    }
+
+    private String calculateSha256(byte[] bytes) {
+        try {
+            MessageDigest digest = MessageDigest.getInstance("SHA-256");
+            byte[] hash = digest.digest(bytes);
+            StringBuilder sb = new StringBuilder();
+            for (byte b : hash) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException("SHA-256 不可用", e);
+        }
+    }
+
+    private static class ImportedScenePackage {
+        private SceneTemInfo sceneTemInfo;
+        private DomainPackageFiles files;
+        private Map<String, byte[]> blobBytes;
+
+        public SceneTemInfo getSceneTemInfo() {
+            return sceneTemInfo;
+        }
+
+        public void setSceneTemInfo(SceneTemInfo sceneTemInfo) {
+            this.sceneTemInfo = sceneTemInfo;
+        }
+
+        public DomainPackageFiles getFiles() {
+            return files;
+        }
+
+        public void setFiles(DomainPackageFiles files) {
+            this.files = files;
+        }
+
+        public Map<String, byte[]> getBlobBytes() {
+            return blobBytes;
+        }
+
+        public void setBlobBytes(Map<String, byte[]> blobBytes) {
+            this.blobBytes = blobBytes;
+        }
+    }
+
     @Transactional
     public Scene importScene(MultipartFile file) {
         if (file == null || file.isEmpty()) {
             throw new RuntimeException("导入文件不能为空");
         }
         try {
+            String originalFilename = file.getOriginalFilename();
+            if (originalFilename != null && originalFilename.toLowerCase().endsWith(".zip")) {
+                ImportedScenePackage importedPackage = readScenePackage(file.getInputStream());
+                Map<String, String> importedFileUrls = importPackageFiles(importedPackage.getFiles(), importedPackage.getBlobBytes());
+                applyImportedFileUrls(importedPackage.getSceneTemInfo(), importedFileUrls);
+                return importScene(importedPackage.getSceneTemInfo());
+            }
+
             ObjectMapper mapper = new ObjectMapper();
             mapper.findAndRegisterModules();
             SceneTemInfo sceneTemInfo = mapper.readValue(file.getInputStream(), SceneTemInfo.class);
@@ -446,6 +719,7 @@ public class SceneBusiness {
 
         Long domainId = resolveImportedDomain(sceneTemInfo.getDomainInfo(), sceneData.getDomainId());
         sceneData.setDomainId(domainId);
+        sceneData.setImageUrl(resolveImportedSceneImageUrl(sceneData));
         Scene scene = createScene(sceneData);
 
         if (sceneTemInfo.getAreaTree() != null) {

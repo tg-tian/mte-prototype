@@ -2,15 +2,13 @@ package demo.lowcode.platform.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
-import org.springframework.stereotype.Component;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Data
-@Component
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class SceneTemInfo {
-    private NewScene sceneData;
-    private DomainTemInfo domainInfo;
-    private List<NewArea> areaTree;
+public class DomainPackageFiles {
+    private Integer version;
+    private List<ExportedStoredFile> files = new ArrayList<>();
 }

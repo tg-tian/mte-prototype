@@ -45,6 +45,28 @@ public class FileService {
         return storedFileMapper.selectById(id);
     }
 
+    public StoredFile saveImportedFile(String fileName,
+                                       String originalName,
+                                       String contentType,
+                                       Long fileSize,
+                                       byte[] fileData,
+                                       String bizType,
+                                       Long bizId) {
+        StoredFile storedFile = new StoredFile();
+        storedFile.setFileName(fileName);
+        storedFile.setOriginalName(originalName);
+        storedFile.setContentType(resolveContentType(contentType));
+        storedFile.setFileSize(fileSize == null ? (long) fileData.length : fileSize);
+        storedFile.setFileData(fileData);
+        storedFile.setBizType(bizType);
+        storedFile.setBizId(bizId);
+        Date now = new Date();
+        storedFile.setCreatedAt(now);
+        storedFile.setUpdatedAt(now);
+        storedFileMapper.insert(storedFile);
+        return storedFile;
+    }
+
     private String getFileExtension(String filename) {
         int index = filename.lastIndexOf(".");
         return index >= 0 ? filename.substring(index) : "";

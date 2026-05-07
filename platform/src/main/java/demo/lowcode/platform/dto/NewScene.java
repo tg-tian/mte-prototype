@@ -1,10 +1,12 @@
 package demo.lowcode.platform.dto;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import lombok.Data;
 import org.springframework.stereotype.Component;
 
 @Data
 @Component
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class NewScene {
     private String code;
     private String name;
@@ -14,4 +16,5 @@ public class NewScene {
     private Long domainId;
     private Location location;
     private String imageUrl;
+    private String imageRef;
 }

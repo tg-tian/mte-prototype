@@ -7,13 +7,13 @@ import demo.lowcode.platform.common.CommonConfig;
 import demo.lowcode.platform.common.Property;
 import demo.lowcode.platform.dto.*;
 import demo.lowcode.platform.entity.*;
-import demo.lowcode.platform.mapper.DomainTemplateMapper;
-import demo.lowcode.platform.mapper.DomainMapper;
-import demo.lowcode.platform.mapper.TemplateMapper;
-import demo.lowcode.platform.mapper.DomainComponentMapper;
 import demo.lowcode.platform.mapper.ComponentMapper;
 import demo.lowcode.platform.mapper.DeviceModelMapper;
+import demo.lowcode.platform.mapper.DomainComponentMapper;
 import demo.lowcode.platform.mapper.DomainDeviceModelMapper;
+import demo.lowcode.platform.mapper.DomainMapper;
+import demo.lowcode.platform.mapper.DomainTemplateMapper;
+import demo.lowcode.platform.mapper.TemplateMapper;
 import demo.lowcode.platform.model.DomainMeta;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.FileSystemResource;
@@ -21,12 +21,11 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import java.io.File;
-import java.io.IOException;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
@@ -403,6 +402,7 @@ public class DomainBusiness {
         // step2: 存入和模板的绑定关系到数据库
         List<Long> templateIds = new ArrayList<>();
         for(NewTemplate template : domainTemInfo.getTemplates()){
+            String resolvedImageUrl = resolveImportedTemplateImageUrl(template);
             if(template.getTemplate_id() == null){
                 Template existTemplate = templateMapper.selectByTemplateId(template.getId());
                 if (existTemplate!=null){
@@ -415,7 +415,7 @@ public class DomainBusiness {
                     newTemplate.setDescribing_the_model(template.getDescribing_the_model());
                     newTemplate.setDescription(template.getDescription());
                     newTemplate.setDomain(template.getDomain());
-                    newTemplate.setImage_url(template.getImage_url());
+                    newTemplate.setImage_url(resolvedImageUrl);
                     newTemplate.setName(template.getName());
                     newTemplate.setTags(template.getTags());
                     newTemplate.setUrl(template.getUrl());
@@ -425,6 +425,7 @@ public class DomainBusiness {
             } else {
                 templateIds.add(template.getId());
             }
+            template.setImage_url(resolvedImageUrl);
         }
 
         // 批量插入领域-模板关系
@@ -498,6 +499,7 @@ public class DomainBusiness {
             exportTemplate.setTags(template.getTags());
             exportTemplate.setDomain(template.getDomain());
             exportTemplate.setImage_url(template.getImage_url());
+            exportTemplate.setImage_ref(buildFileRefFromUrl(template.getImage_url()));
             exportTemplate.setDescribing_the_model(template.getDescribing_the_model());
             exportTemplate.setUrl(template.getUrl());
             exportTemplates.add(exportTemplate);
@@ -564,6 +566,27 @@ public class DomainBusiness {
             dto.setUpdateTime(dateFormat.format(component.getUpdateTime()));
         }
         return dto;
+    }
+
+    private String resolveImportedTemplateImageUrl(NewTemplate template) {
+        if (template == null) {
+            return null;
+        }
+        return template.getImage_url();
+    }
+
+    private String buildFileRefFromUrl(String imageUrl) {
+        if (imageUrl == null || imageUrl.isBlank()) {
+            return null;
+        }
+        if (!imageUrl.startsWith("/file/image/")) {
+            return null;
+        }
+        String fileId = imageUrl.substring("/file/image/".length()).trim();
+        if (fileId.isEmpty()) {
+            return null;
+        }
+        return "file-" + fileId;
     }
 
     private String normalizeText(String value) {
