@@ -518,13 +518,14 @@ public class SceneBusiness {
                 if (entry.isDirectory()) {
                     continue;
                 }
+                String normalizedEntryName = normalizeZipEntryName(entry.getName());
                 byte[] entryBytes = zipInputStream.readAllBytes();
-                if (PACKAGE_SCENE_FILE.equals(entry.getName())) {
+                if (PACKAGE_SCENE_FILE.equals(normalizedEntryName)) {
                     sceneTemInfo = mapper.readValue(entryBytes, SceneTemInfo.class);
-                } else if (PACKAGE_FILES_FILE.equals(entry.getName())) {
+                } else if (PACKAGE_FILES_FILE.equals(normalizedEntryName)) {
                     packageFiles = mapper.readValue(entryBytes, DomainPackageFiles.class);
-                } else if (entry.getName().startsWith(PACKAGE_BLOBS_DIR)) {
-                    blobBytes.put(entry.getName(), entryBytes);
+                } else if (normalizedEntryName.startsWith(PACKAGE_BLOBS_DIR)) {
+                    blobBytes.put(normalizedEntryName, entryBytes);
                 }
             }
         }
@@ -550,14 +551,15 @@ public class SceneBusiness {
             return importedFileUrls;
         }
         for (ExportedStoredFile exportedFile : packageFiles.getFiles()) {
-            byte[] bytes = blobBytes.get(exportedFile.getBlobPath());
+            String normalizedBlobPath = normalizeZipEntryName(exportedFile.getBlobPath());
+            byte[] bytes = blobBytes.get(normalizedBlobPath);
             if (bytes == null || bytes.length == 0) {
-                continue;
+                throw new RuntimeException("资源文件缺失: " + normalizedBlobPath);
             }
             if (exportedFile.getSha256() != null && !exportedFile.getSha256().isBlank()) {
                 String actualSha256 = calculateSha256(bytes);
                 if (!exportedFile.getSha256().equalsIgnoreCase(actualSha256)) {
-                    throw new RuntimeException("资源文件校验失败: " + exportedFile.getBlobPath());
+                    throw new RuntimeException("资源文件校验失败: " + normalizedBlobPath);
                 }
             }
             StoredFile storedFile = fileService.saveImportedFile(
@@ -583,8 +585,12 @@ public class SceneBusiness {
         }
         if (sceneTemInfo.getDomainInfo() != null && sceneTemInfo.getDomainInfo().getTemplates() != null) {
             for (NewTemplate template : sceneTemInfo.getDomainInfo().getTemplates()) {
-                if (template.getImage_ref() != null && importedFileUrls.containsKey(template.getImage_ref())) {
-                    template.setImage_url(importedFileUrls.get(template.getImage_ref()));
+                if (template.getImage_ref() != null && !template.getImage_ref().isBlank()) {
+                    if (importedFileUrls.containsKey(template.getImage_ref())) {
+                        template.setImage_url(importedFileUrls.get(template.getImage_ref()));
+                    } else {
+                        throw new RuntimeException("模板图片资源未成功导入: " + template.getImage_ref());
+                    }
                 }
             }
         }
@@ -637,8 +643,11 @@ public class SceneBusiness {
             return null;
         }
         String imageRef = area.getImageRef();
-        if (imageRef != null && importedFileUrls.containsKey(imageRef)) {
-            return importedFileUrls.get(imageRef);
+        if (imageRef != null && !imageRef.isBlank()) {
+            if (importedFileUrls.containsKey(imageRef)) {
+                return importedFileUrls.get(imageRef);
+            }
+            throw new RuntimeException("区域图片资源未成功导入: " + imageRef);
         }
         return area.getImage();
     }
@@ -652,8 +661,11 @@ public class SceneBusiness {
             return null;
         }
         String imageRef = sceneData.getImageRef();
-        if (imageRef != null && importedFileUrls.containsKey(imageRef)) {
-            return importedFileUrls.get(imageRef);
+        if (imageRef != null && !imageRef.isBlank()) {
+            if (importedFileUrls.containsKey(imageRef)) {
+                return importedFileUrls.get(imageRef);
+            }
+            throw new RuntimeException("场景图片资源未成功导入: " + imageRef);
         }
         return sceneData.getImageUrl();
     }
@@ -661,6 +673,13 @@ public class SceneBusiness {
     private String buildFileRefFromUrl(String imageUrl) {
         Long fileId = extractFileId(imageUrl);
         return fileId == null ? null : "file-" + fileId;
+    }
+
+    private String normalizeZipEntryName(String entryName) {
+        if (entryName == null) {
+            return null;
+        }
+        return entryName.replace('\\', '/');
     }
 
     private Long extractFileId(String imageUrl) {
