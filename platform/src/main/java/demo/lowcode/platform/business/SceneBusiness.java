@@ -520,6 +520,7 @@ public class SceneBusiness {
                 }
                 String normalizedEntryName = normalizeZipEntryName(entry.getName());
                 byte[] entryBytes = zipInputStream.readAllBytes();
+                System.out.println("[scene-import] zip entry: raw=" + entry.getName() + ", normalized=" + normalizedEntryName + ", bytes=" + entryBytes.length);
                 if (PACKAGE_SCENE_FILE.equals(normalizedEntryName)) {
                     sceneTemInfo = mapper.readValue(entryBytes, SceneTemInfo.class);
                 } else if (PACKAGE_FILES_FILE.equals(normalizedEntryName)) {
@@ -537,6 +538,8 @@ public class SceneBusiness {
             packageFiles = new DomainPackageFiles();
             packageFiles.setVersion(1);
         }
+        System.out.println("[scene-import] package files count=" + (packageFiles.getFiles() == null ? -1 : packageFiles.getFiles().size()));
+        System.out.println("[scene-import] blob keys=" + blobBytes.keySet());
 
         ImportedScenePackage importedScenePackage = new ImportedScenePackage();
         importedScenePackage.setSceneTemInfo(sceneTemInfo);
@@ -548,11 +551,17 @@ public class SceneBusiness {
     private Map<String, String> importPackageFiles(DomainPackageFiles packageFiles, Map<String, byte[]> blobBytes) {
         Map<String, String> importedFileUrls = new HashMap<>();
         if (packageFiles == null || packageFiles.getFiles() == null) {
+            System.out.println("[scene-import] importPackageFiles skipped: packageFiles or files is null");
             return importedFileUrls;
         }
+        System.out.println("[scene-import] importPackageFiles start, files count=" + packageFiles.getFiles().size());
         for (ExportedStoredFile exportedFile : packageFiles.getFiles()) {
             String normalizedBlobPath = normalizeZipEntryName(exportedFile.getBlobPath());
             byte[] bytes = blobBytes.get(normalizedBlobPath);
+            System.out.println("[scene-import] importing ref=" + exportedFile.getRef()
+                    + ", blobPath=" + exportedFile.getBlobPath()
+                    + ", normalizedBlobPath=" + normalizedBlobPath
+                    + ", bytesFound=" + (bytes == null ? 0 : bytes.length));
             if (bytes == null || bytes.length == 0) {
                 throw new RuntimeException("资源文件缺失: " + normalizedBlobPath);
             }
@@ -571,8 +580,10 @@ public class SceneBusiness {
                     exportedFile.getBizType(),
                     exportedFile.getBizId()
             );
+            System.out.println("[scene-import] saved sys_file ref=" + exportedFile.getRef() + ", newId=" + storedFile.getId());
             importedFileUrls.put(exportedFile.getRef(), "/file/image/" + storedFile.getId());
         }
+        System.out.println("[scene-import] importedFileUrls=" + importedFileUrls);
         return importedFileUrls;
     }
 
