@@ -18,4 +18,5 @@ public class NewScene {
     private Location location;
     private String imageUrl;
     private String imageRef;
+    private String polygon;
 }

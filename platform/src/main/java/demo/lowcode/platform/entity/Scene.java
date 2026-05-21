@@ -69,6 +69,11 @@ public class Scene {
     @ApiModelProperty(value = "场景图片URL")
     private String imageUrl;
 
+    @Column(name = "polygon")
+    @ApiModelProperty(value = "场景多边形坐标", example = "[{\"x\":100,\"y\":200},{\"x\":300,\"y\":400},{\"x\":500,\"y\":100}]")
+    @TableField(value = "polygon")
+    private String polygon;
+
     @Column(name = "create_time", nullable = false)
     @ApiModelProperty(value = "创建时间")
     private Date createTime;

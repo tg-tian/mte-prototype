@@ -183,6 +183,7 @@ public class SceneBusiness {
         scene.setUpdateTime(now);
         scene.setUrl(newScene.getUrl());
         scene.setImageUrl(newScene.getImageUrl());
+        scene.setPolygon(newScene.getPolygon());
         sceneMapper.insert(scene);
         return scene;
     }
@@ -220,6 +221,9 @@ public class SceneBusiness {
         }
         if(newScene.getImageUrl() != null){
             existingScene.setImageUrl(newScene.getImageUrl());
+        }
+        if(newScene.getPolygon() != null){
+            existingScene.setPolygon(newScene.getPolygon());
         }
         if (newScene.getDomainId() != null) {
             Domain domain = domainMapper.selectById(newScene.getDomainId());
@@ -290,6 +294,7 @@ public class SceneBusiness {
             sceneData.setLocation(loc);
         }
         sceneData.setImageUrl(scene.getImageUrl());
+        sceneData.setPolygon(scene.getPolygon());
         sceneData.setImageRef(buildFileRefFromUrl(scene.getImageUrl()));
         exportInfo.setSceneData(sceneData);
 
