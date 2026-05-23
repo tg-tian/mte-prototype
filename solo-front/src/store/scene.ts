@@ -127,16 +127,19 @@ export const useSceneStore = defineStore('scene', {
             try {
                 // 始终使用真实API数据
                 const res: any = await updateScene(id, sceneData);
-                
+
                 if (res && res.status === 200) {
+                    // 将后端 Scene 实体字段映射为前端格式后再合并
+                    const mappedData = mapBackendSceneToFrontend(res.data)
+
                     // 如果当前场景正在被更新，则同步更新它
                     if (this.currentScene && this.currentScene.id === id) {
-                        this.currentScene = { ...this.currentScene, ...res.data }
+                        this.currentScene = { ...this.currentScene, ...mappedData }
                     }
-                    
+
                     // 刷新场景列表
                     await this.fetchScenes(sceneData.domainId)
-                    return res.data
+                    return mappedData
                 }
             } catch (error) {
                 console.error('Failed to update scene:', error)
@@ -179,16 +182,27 @@ export const useSceneStore = defineStore('scene', {
                     }
                 }
                 const res: any = await publishScene(data);
-                
+
                 if (res && res.status === 200) {
-                    // 如果当前场景正在被更新，则同步更新它
-                    if (this.currentScene && this.currentScene.id === sceneId) {
-                        this.currentScene = { ...this.currentScene, ...res.data }
+                    // 后端 publishScene 返回的数据可能是 SceneTemInfo 或 Scene，
+                    // 不能直接映射，需要重新从 API 获取场景数据
+                    const freshScene: any = await getSceneById(sceneId)
+                    if (freshScene && freshScene.status === 200) {
+                        const mappedData = mapBackendSceneToFrontend(freshScene.data)
+                        if (this.currentScene && this.currentScene.id === sceneId) {
+                            this.currentScene = { ...this.currentScene, ...mappedData }
+                        }
+                        await this.fetchScenes(domainId)
+                        return mappedData
                     }
-                    
-                    // 刷新场景列表
+
+                    // fallback: 用返回值尝试映射
+                    const mappedData = mapBackendSceneToFrontend(res.data)
+                    if (this.currentScene && this.currentScene.id === sceneId) {
+                        this.currentScene = { ...this.currentScene, ...mappedData }
+                    }
                     await this.fetchScenes(domainId)
-                    return res.data
+                    return mappedData
                 }
             } catch (error) {
                 console.error('Failed to publish scene:', error)
@@ -227,3 +241,25 @@ export const useSceneStore = defineStore('scene', {
 
     persist: true
 })
+
+// Helper: map backend Scene entity fields to frontend Scene model
+function mapBackendSceneToFrontend(data: any): any {
+    if (!data) return null
+    return {
+        id: data.sceneId || data.id,
+        code: data.sceneCode || data.code,
+        domainId: data.domainId,
+        name: data.sceneName || data.name,
+        description: data.sceneDescription || data.description,
+        createTime: data.createTime,
+        updateTime: data.updateTime,
+        deviceCount: data.deviceCount || 0,
+        status: data.status || '1',
+        url: data.url || '',
+        imageUrl: data.imageUrl || '',
+        location: data.location || {
+            lng: data.longitude,
+            lat: data.latitude
+        }
+    }
+}

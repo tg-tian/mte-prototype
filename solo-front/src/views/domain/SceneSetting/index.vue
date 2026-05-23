@@ -670,8 +670,7 @@ const areaRules = {
     { min: 2, max: 20, message: '长度在 2 到 20 个字符', trigger: 'blur' }
   ],
   description: [
-    { required: false, message: '请输入区域描述', trigger: 'blur' },
-    { min: 2, max: 50, message: '长度在 2 到 50 个字符', trigger: 'blur' }
+    { required: false, message: '请输入区域描述', trigger: 'blur' }
   ],
   position: [
     { required: false, message: '请输入区域位置', trigger: 'blur' }
@@ -810,11 +809,20 @@ const submitAreaForm = async () => {
     if (valid) {
       submitting.value = true;
       try {
+        // 构造发送给后端的数据，排除 children（后端不处理）
+        const areaData: any = {
+          name: areaForm.value.name,
+          description: areaForm.value.description,
+          image: areaForm.value.image,
+          position: areaForm.value.position,
+          parentId: areaForm.value.parentId,
+          sceneId: parseInt(route.query.sceneId as string) || null
+        };
         if (isEdit.value && currentId.value !== null) {
-          await areaStore.updateArea(currentId.value, { ...areaForm.value, sceneId: parseInt(route.query.sceneId as string) || null });
+          await areaStore.updateArea(currentId.value, areaData);
           ElMessage.success('更新区域成功');
         } else {
-          await areaStore.createArea({ ...areaForm.value, sceneId: parseInt(route.query.sceneId as string) || null });
+          await areaStore.createArea(areaData);
           ElMessage.success('创建区域成功');
         }
 
