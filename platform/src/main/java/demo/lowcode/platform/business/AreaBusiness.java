@@ -47,7 +47,7 @@ public class AreaBusiness extends ServiceImpl<AreaMapper, Area> implements IServ
         area.setDescription(newArea.getDescription());
         area.setName(newArea.getName());
         area.setImage(newArea.getImage());
-        area.setPosition(newArea.getPosition());
+        area.setPolygon(newArea.getPolygon());
         area.setParentId(newArea.getParentId());
         area.setSceneId(newArea.getSceneId());
         areaMapper.insert(area);
@@ -77,7 +77,7 @@ public class AreaBusiness extends ServiceImpl<AreaMapper, Area> implements IServ
         existingArea.setDescription(updatedArea.getDescription());
         existingArea.setImage(updatedArea.getImage());
         existingArea.setParentId(updatedArea.getParentId());
-        existingArea.setPosition(updatedArea.getPosition());
+        existingArea.setPolygon(updatedArea.getPolygon());
         existingArea.setSceneId(updatedArea.getSceneId());
         areaMapper.updateById(existingArea);
         return existingArea;

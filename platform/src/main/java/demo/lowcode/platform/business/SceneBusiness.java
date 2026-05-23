@@ -1002,7 +1002,7 @@ public class SceneBusiness {
         area.setSceneId(sceneId);
         area.setDescription(areaInfo.getDescription());
         area.setImage(areaInfo.getImage());
-        area.setPosition(areaInfo.getPosition());
+        area.setPolygon(areaInfo.getPolygon());
         area.setParentId(parentId == null ? -1L : parentId);
         areaMapper.insert(area);
 

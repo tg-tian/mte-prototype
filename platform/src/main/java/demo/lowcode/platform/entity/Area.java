@@ -49,9 +49,9 @@ public class Area {
     @TableField(value = "image")
     private String image;
 
-    @ApiModelProperty(value = "区域坐标", example = "{\"x\":100,\"y\":200}")
-    @TableField(value = "position")
-    private String position;
+    @ApiModelProperty(value = "区域多边形坐标", example = "[{\"x\":100,\"y\":200},{\"x\":300,\"y\":400},{\"x\":500,\"y\":100}]")
+    @TableField(value = "polygon")
+    private String polygon;
 
     @ApiModelProperty(value = "父区域ID", example = "0")
     @TableField(value = "parent_id")

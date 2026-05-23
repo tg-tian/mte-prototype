@@ -16,7 +16,7 @@ public class NewArea {
     private String description;
     private String image;
     private String imageRef;
-    private String position;
+    private String polygon;
     private Long parentId;
     private List<NewArea> children;
 }
