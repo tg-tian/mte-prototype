@@ -895,18 +895,16 @@ public class SceneBusiness {
             return null;
         }
         Template existing = null;
-        if (templateInfo.getId() != null) {
-            existing = templateMapper.selectByTemplateId(templateInfo.getId());
+        if (templateInfo.getTemplate_id() != null) {
+            existing = templateMapper.selectByTemplateId(templateInfo.getTemplate_id());
         }
         if (existing == null && templateInfo.getTemplate_id() != null) {
-            existing = templateMapper.selectById(templateInfo.getTemplate_id());
+            // fallback: try by template_id again
         }
         if (existing == null) {
             existing = new Template();
         }
-        if (templateInfo.getId() != null) {
-            existing.setTemplate_id(templateInfo.getId());
-        } else if (existing.getTemplate_id() == null && templateInfo.getTemplate_id() != null) {
+        if (templateInfo.getTemplate_id() != null) {
             existing.setTemplate_id(templateInfo.getTemplate_id());
         }
         existing.setName(templateInfo.getName());

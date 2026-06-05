@@ -403,18 +403,14 @@ public class DomainBusiness {
         List<Long> templateIds = new ArrayList<>();
         ObjectMapper mapper = new ObjectMapper();
         for(NewTemplate template : domainTemInfo.getTemplates()){
-            if(template.getTemplate_id() == null){
-                Template existTemplate = templateMapper.selectByTemplateId(template.getId());
-                if (existTemplate!=null){
-                    templateIds.add(existTemplate.getTemplate_id());
-                }else{
-                    // 该模板未保存过，保存到数据库
-                    Template newTemplate = mapNewTemplateToEntity(template, mapper);
-                    templateMapper.insert(newTemplate);
-                    templateIds.add(newTemplate.getTemplate_id());
-                }
+            if(template.getTemplate_id() == null) continue;
+            Template existTemplate = templateMapper.selectByTemplateId(template.getTemplate_id());
+            if (existTemplate != null) {
+                templateIds.add(existTemplate.getTemplate_id());
             } else {
-                templateIds.add(template.getId());
+                Template newTemplate = mapNewTemplateToEntity(template, mapper);
+                templateMapper.insert(newTemplate);
+                templateIds.add(newTemplate.getTemplate_id());
             }
         }
 
@@ -482,8 +478,7 @@ public class DomainBusiness {
         List<NewTemplate> exportTemplates = new ArrayList<>();
         for (Template template : templates) {
             NewTemplate exportTemplate = new NewTemplate();
-            exportTemplate.setId(template.getTemplate_id());
-            exportTemplate.setTemplate_id(template.getId());
+            exportTemplate.setTemplate_id(template.getTemplate_id());
             exportTemplate.setName(template.getName());
             exportTemplate.setTemplate_index(template.getTemplate_index());
             exportTemplate.setTemplate_description(template.getTemplate_description());
@@ -572,7 +567,7 @@ public class DomainBusiness {
 
     private Template mapNewTemplateToEntity(NewTemplate dto, ObjectMapper mapper) {
         Template t = new Template();
-        t.setTemplate_id(dto.getId());
+        t.setTemplate_id(dto.getTemplate_id());
         t.setName(dto.getName());
         t.setTemplate_index(dto.getTemplate_index());
         t.setTemplate_description(dto.getTemplate_description());
