@@ -444,7 +444,7 @@ public class SceneBusiness {
         }
         if (exportInfo.getDomainInfo() != null && exportInfo.getDomainInfo().getTemplates() != null) {
             for (NewTemplate template : exportInfo.getDomainInfo().getTemplates()) {
-                collectFileReference(refToId, template.getImage_url());
+                collectFileReference(refToId, template.getExample_image_url());
             }
         }
         if (exportInfo.getAreaTree() != null) {
@@ -602,13 +602,7 @@ public class SceneBusiness {
         }
         if (sceneTemInfo.getDomainInfo() != null && sceneTemInfo.getDomainInfo().getTemplates() != null) {
             for (NewTemplate template : sceneTemInfo.getDomainInfo().getTemplates()) {
-                if (template.getImage_ref() != null && !template.getImage_ref().isBlank()) {
-                    if (importedFileUrls.containsKey(template.getImage_ref())) {
-                        template.setImage_url(importedFileUrls.get(template.getImage_ref()));
-                    } else {
-                        throw new RuntimeException("模板图片资源未成功导入: " + template.getImage_ref());
-                    }
-                }
+                // 外部模板不再使用 image_ref 机制，跳过本地图片替换
             }
         }
         if (sceneTemInfo.getAreaTree() != null) {
@@ -868,7 +862,7 @@ public class SceneBusiness {
                 Template template = upsertTemplate(templateInfo);
                 if (template != null && template.getId() != null) {
                     try {
-                        domainTemplateMapper.insertDomainTemplateRelation(domainId, template.getId());
+                        domainTemplateMapper.insertDomainTemplateRelation(domain.getDomainCode(), template.getId());
                     } catch (Exception ignored) {
                     }
                 }
@@ -916,13 +910,26 @@ public class SceneBusiness {
             existing.setTemplate_id(templateInfo.getTemplate_id());
         }
         existing.setName(templateInfo.getName());
-        existing.setDescription(templateInfo.getDescription());
-        existing.setCategory(templateInfo.getCategory());
-        existing.setTags(templateInfo.getTags());
-        existing.setDomain(templateInfo.getDomain());
-        existing.setImage_url(templateInfo.getImage_url());
-        existing.setDescribing_the_model(templateInfo.getDescribing_the_model());
-        existing.setUrl(templateInfo.getUrl());
+        existing.setTemplate_index(templateInfo.getTemplate_index());
+        existing.setTemplate_description(templateInfo.getTemplate_description());
+        existing.setExample_image_url(templateInfo.getExample_image_url());
+        existing.setCode_url(templateInfo.getCode_url());
+        existing.setRepository_url(templateInfo.getRepository_url());
+        existing.setFile_source(templateInfo.getFile_source());
+        existing.setSubmitter(templateInfo.getSubmitter());
+        existing.setLicense(templateInfo.getLicense());
+        existing.setCode_file(templateInfo.getCode_file());
+        // tags: DTO 是 Map，存为 JSON 字符串
+        if (templateInfo.getTags() != null) {
+            try {
+                ObjectMapper mapper = new ObjectMapper();
+                existing.setTags(mapper.writeValueAsString(templateInfo.getTags()));
+            } catch (Exception e) {
+                existing.setTags(null);
+            }
+        }
+        existing.setCreated_at(templateInfo.getCreated_at());
+        existing.setUpdated_at(templateInfo.getUpdated_at());
         if (existing.getId() == null) {
             templateMapper.insert(existing);
         } else {

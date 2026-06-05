@@ -220,7 +220,7 @@ public class DomainBusiness {
         if (existDomain == null) {
             throw new RuntimeException("领域不存在");
         }
-        domainTemplateMapper.deleteDomainTemplateRelationsByDomainId(id);
+        domainTemplateMapper.deleteDomainTemplateRelationsByDomainCode(existDomain.getDomainCode());
         domainComponentMapper.deleteDomainComponentsByDomainId(id);
         domainDeviceModelMapper.deleteDomainDeviceModelRelationsByDomainId(id);
         domainMapper.deleteById(id);
@@ -369,12 +369,12 @@ public class DomainBusiness {
 
     @Transactional
     public void updateDomainTemplate(DomainTemplateInfo domainTemInfo) {
-        Domain existDomain = domainMapper.selectById(domainTemInfo.getDomainId());
+        Domain existDomain = domainMapper.getDomainByCode(domainTemInfo.getDomainCode());
         if (existDomain == null) {
             throw new RuntimeException("领域不存在");
         }
-        domainTemplateMapper.deleteDomainTemplateRelationsByDomainId(domainTemInfo.getDomainId());
-        domainTemplateMapper.insertDomainTemplateRelation(domainTemInfo.getDomainId(), domainTemInfo.getTemplateId());
+        domainTemplateMapper.deleteDomainTemplateRelationsByDomainCode(domainTemInfo.getDomainCode());
+        domainTemplateMapper.insertDomainTemplateRelation(domainTemInfo.getDomainCode(), domainTemInfo.getTemplateId());
         existDomain.setUpdateTime(new Date());
         domainMapper.updateById(existDomain);
     }
@@ -401,36 +401,26 @@ public class DomainBusiness {
 
         // step2: 存入和模板的绑定关系到数据库
         List<Long> templateIds = new ArrayList<>();
+        ObjectMapper mapper = new ObjectMapper();
         for(NewTemplate template : domainTemInfo.getTemplates()){
-            String resolvedImageUrl = resolveImportedTemplateImageUrl(template);
             if(template.getTemplate_id() == null){
                 Template existTemplate = templateMapper.selectByTemplateId(template.getId());
                 if (existTemplate!=null){
                     templateIds.add(existTemplate.getId());
                 }else{
                     // 该模板未保存过，保存到数据库
-                    Template newTemplate = new Template();
-                    newTemplate.setTemplate_id(template.getId());
-                    newTemplate.setCategory(template.getCategory());
-                    newTemplate.setDescribing_the_model(template.getDescribing_the_model());
-                    newTemplate.setDescription(template.getDescription());
-                    newTemplate.setDomain(template.getDomain());
-                    newTemplate.setImage_url(resolvedImageUrl);
-                    newTemplate.setName(template.getName());
-                    newTemplate.setTags(template.getTags());
-                    newTemplate.setUrl(template.getUrl());
+                    Template newTemplate = mapNewTemplateToEntity(template, mapper);
                     templateMapper.insert(newTemplate);
                     templateIds.add(newTemplate.getId());
                 }
             } else {
                 templateIds.add(template.getId());
             }
-            template.setImage_url(resolvedImageUrl);
         }
 
         // 批量插入领域-模板关系
         if (!templateIds.isEmpty()) {
-            domainTemplateMapper.batchInsertDomainTemplateRelations(domainId, templateIds);
+            domainTemplateMapper.batchInsertDomainTemplateRelations(domain.getDomainCode(), templateIds);
         }
 
         // step3：存入和组件的绑定关系到数据库
@@ -464,7 +454,7 @@ public class DomainBusiness {
     public DomainTemInfo buildDomainExportInfo(Domain domain, DomainTemInfo requestDslData, String targetStatus, String targetUrl) {
         DomainTemInfo exportInfo = new DomainTemInfo();
         exportInfo.setDomainData(buildDomainData(domain, requestDslData, targetStatus, targetUrl));
-        exportInfo.setTemplates(buildTemplateExportList(domain.getDomainId()));
+        exportInfo.setTemplates(buildTemplateExportList(domain.getDomainCode()));
         exportInfo.setDeviceTypes(deviceModelMapper.selectByDomainId(domain.getDomainId()));
         exportInfo.setComponents(buildComponentExportList(domain.getDomainId()));
         return exportInfo;
@@ -486,22 +476,34 @@ public class DomainBusiness {
         return domainData;
     }
 
-    private List<NewTemplate> buildTemplateExportList(Long domainId) {
-        List<Template> templates = templateMapper.getDomainTemplate(domainId);
+    private List<NewTemplate> buildTemplateExportList(String domainCode) {
+        List<Template> templates = templateMapper.getDomainTemplate(domainCode);
+        ObjectMapper mapper = new ObjectMapper();
         List<NewTemplate> exportTemplates = new ArrayList<>();
         for (Template template : templates) {
             NewTemplate exportTemplate = new NewTemplate();
-            // 保持与历史导入语义一致: id 表示模板库ID。
             exportTemplate.setId(template.getTemplate_id());
+            exportTemplate.setTemplate_id(template.getId());
             exportTemplate.setName(template.getName());
-            exportTemplate.setDescription(template.getDescription());
-            exportTemplate.setCategory(template.getCategory());
-            exportTemplate.setTags(template.getTags());
-            exportTemplate.setDomain(template.getDomain());
-            exportTemplate.setImage_url(template.getImage_url());
-            exportTemplate.setImage_ref(buildFileRefFromUrl(template.getImage_url()));
-            exportTemplate.setDescribing_the_model(template.getDescribing_the_model());
-            exportTemplate.setUrl(template.getUrl());
+            exportTemplate.setTemplate_index(template.getTemplate_index());
+            exportTemplate.setTemplate_description(template.getTemplate_description());
+            exportTemplate.setExample_image_url(template.getExample_image_url());
+            exportTemplate.setCode_url(template.getCode_url());
+            exportTemplate.setRepository_url(template.getRepository_url());
+            exportTemplate.setFile_source(template.getFile_source());
+            exportTemplate.setSubmitter(template.getSubmitter());
+            exportTemplate.setLicense(template.getLicense());
+            exportTemplate.setCode_file(template.getCode_file());
+            // tags: 本地存的是 JSON 字符串，导出时反序列化为 Map
+            if (template.getTags() != null && !template.getTags().isBlank()) {
+                try {
+                    exportTemplate.setTags(mapper.readValue(template.getTags(), Map.class));
+                } catch (Exception e) {
+                    exportTemplate.setTags(null);
+                }
+            }
+            exportTemplate.setCreated_at(template.getCreated_at());
+            exportTemplate.setUpdated_at(template.getUpdated_at());
             exportTemplates.add(exportTemplate);
         }
         return exportTemplates;
@@ -568,11 +570,30 @@ public class DomainBusiness {
         return dto;
     }
 
-    private String resolveImportedTemplateImageUrl(NewTemplate template) {
-        if (template == null) {
-            return null;
+    private Template mapNewTemplateToEntity(NewTemplate dto, ObjectMapper mapper) {
+        Template t = new Template();
+        t.setTemplate_id(dto.getId());
+        t.setName(dto.getName());
+        t.setTemplate_index(dto.getTemplate_index());
+        t.setTemplate_description(dto.getTemplate_description());
+        t.setExample_image_url(dto.getExample_image_url());
+        t.setCode_url(dto.getCode_url());
+        t.setRepository_url(dto.getRepository_url());
+        t.setFile_source(dto.getFile_source());
+        t.setSubmitter(dto.getSubmitter());
+        t.setLicense(dto.getLicense());
+        t.setCode_file(dto.getCode_file());
+        // tags: DTO 是 Map，存为 JSON 字符串
+        if (dto.getTags() != null) {
+            try {
+                t.setTags(mapper.writeValueAsString(dto.getTags()));
+            } catch (Exception e) {
+                t.setTags(null);
+            }
         }
-        return template.getImage_url();
+        t.setCreated_at(dto.getCreated_at());
+        t.setUpdated_at(dto.getUpdated_at());
+        return t;
     }
 
     private String buildFileRefFromUrl(String imageUrl) {

@@ -11,53 +11,75 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Date;
+
 @Entity
 @TableName(value = "template", autoResultMap = true)
 @Data
 @Component
 @AllArgsConstructor
 @NoArgsConstructor
-@ApiModel(value = "模板", description = "模板的详细信息，与模板库同步")
+@ApiModel(value = "模板", description = "模板详细信息，与 lctemplates 外部模板库同步")
 public class Template {
     @Id
     @TableId(type = IdType.AUTO)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @ApiModelProperty(value = "主键", example = "1")
+    @ApiModelProperty(value = "本地主键", example = "1")
     private Long id;
 
     @Column(name = "template_id", nullable = false)
-    @ApiModelProperty(value = "模板库中的id")
+    @ApiModelProperty(value = "外部模板库中的 id")
     private Long template_id;
 
     @Column(name = "name")
     @ApiModelProperty(value = "模板名称")
     private String name;
 
-    @Column(name = "description")
-    @ApiModelProperty(value = "模板描述")
-    private String description;
+    @Column(name = "template_index")
+    @ApiModelProperty(value = "模板索引标识")
+    private String template_index;
 
-    @Column(name = "category")
-    @ApiModelProperty(value = "模板类别")
-    private String category;
+    @Column(name = "template_description")
+    @ApiModelProperty(value = "模板描述")
+    private String template_description;
+
+    @Column(name = "example_image_url")
+    @ApiModelProperty(value = "示例图片 URL")
+    private String example_image_url;
+
+    @Column(name = "code_url")
+    @ApiModelProperty(value = "代码地址")
+    private String code_url;
+
+    @Column(name = "repository_url")
+    @ApiModelProperty(value = "仓库地址")
+    private String repository_url;
+
+    @Column(name = "file_source")
+    @ApiModelProperty(value = "文件来源")
+    private String file_source;
+
+    @Column(name = "submitter")
+    @ApiModelProperty(value = "提交者")
+    private String submitter;
+
+    @Column(name = "license")
+    @ApiModelProperty(value = "许可证")
+    private String license;
+
+    @Column(name = "code_file")
+    @ApiModelProperty(value = "DSL 内容（JSON 字符串）")
+    private String code_file;
 
     @Column(name = "tags")
-    @ApiModelProperty(value = "模板标签")
+    @ApiModelProperty(value = "标签 JSON（按 kind 分组）")
     private String tags;
 
-    @Column(name = "domain")
-    @ApiModelProperty(value = "业务标签")
-    private String domain;
+    @Column(name = "created_at")
+    @ApiModelProperty(value = "外部创建时间")
+    private Date created_at;
 
-    @Column(name = "image_url")
-    @ApiModelProperty(value = "图片地址")
-    private String image_url;
-
-    @Column(name = "describing_the_model")
-    @ApiModelProperty(value = "DSL/平台")
-    private String describing_the_model;
-
-    @Column(name = "url")
-    @ApiModelProperty(value = "描述详情")
-    private String url;
+    @Column(name = "updated_at")
+    @ApiModelProperty(value = "外部更新时间")
+    private Date updated_at;
 }

@@ -3,7 +3,6 @@ package demo.lowcode.platform.dto;
 import lombok.Data;
 
 @Data
-public class TemplateUnbindInfo {
-    private String domainCode;
+public class TemplateImportInfo {
     private Long templateId;
 }

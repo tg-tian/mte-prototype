@@ -9,21 +9,26 @@
         <id property="id" column="id"/>
         <result property="template_id" column="template_id"/>
         <result property="name" column="name"/>
-        <result property="description" column="description"/>
-        <result property="category" column="category"/>
+        <result property="template_index" column="template_index"/>
+        <result property="template_description" column="template_description"/>
+        <result property="example_image_url" column="example_image_url"/>
+        <result property="code_url" column="code_url"/>
+        <result property="repository_url" column="repository_url"/>
+        <result property="file_source" column="file_source"/>
+        <result property="submitter" column="submitter"/>
+        <result property="license" column="license"/>
+        <result property="code_file" column="code_file"/>
         <result property="tags" column="tags"/>
-        <result property="domain" column="domain"/>
-        <result property="image_url" column="image_url"/>
-        <result property="describing_the_model" column="describing_the_model"/>
-        <result property="url" column="url"/>
+        <result property="created_at" column="created_at"/>
+        <result property="updated_at" column="updated_at"/>
     </resultMap>
 
     <!--获取领域模板列表-->
     <select id="getDomainTemplate" resultMap="templateResultMap">
         SELECT * FROM template
-        WHERE id IN (
+        WHERE template_id IN (
             SELECT template_id FROM domain_template
-            WHERE domain_id = #{domainId}
+            WHERE domain_code = #{domainCode}
         )
     </select>
 

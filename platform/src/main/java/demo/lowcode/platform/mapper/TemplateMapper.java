@@ -9,7 +9,7 @@ import java.util.List;
 
 @Mapper
 public interface TemplateMapper extends BaseMapper<Template> {
-    List<Template> getDomainTemplate(@Param("domainId") Long domainId);
+    List<Template> getDomainTemplate(@Param("domainCode") String domainCode);
     
     Template selectByTemplateId(@Param("templateId") Long templateId);
 }

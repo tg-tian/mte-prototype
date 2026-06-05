@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class TemplateBindInfo {
-    private Long domainId;
+    private String domainCode;
     private Long templateId;
 }
