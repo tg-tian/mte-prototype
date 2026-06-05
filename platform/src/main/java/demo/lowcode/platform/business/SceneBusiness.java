@@ -862,7 +862,7 @@ public class SceneBusiness {
                 Template template = upsertTemplate(templateInfo);
                 if (template != null && template.getId() != null) {
                     try {
-                        domainTemplateMapper.insertDomainTemplateRelation(domain.getDomainCode(), template.getId());
+                        domainTemplateMapper.insertDomainTemplateRelation(domain.getDomainCode(), template.getTemplate_id());
                     } catch (Exception ignored) {
                     }
                 }

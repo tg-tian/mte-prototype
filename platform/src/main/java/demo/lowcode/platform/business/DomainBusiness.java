@@ -406,12 +406,12 @@ public class DomainBusiness {
             if(template.getTemplate_id() == null){
                 Template existTemplate = templateMapper.selectByTemplateId(template.getId());
                 if (existTemplate!=null){
-                    templateIds.add(existTemplate.getId());
+                    templateIds.add(existTemplate.getTemplate_id());
                 }else{
                     // 该模板未保存过，保存到数据库
                     Template newTemplate = mapNewTemplateToEntity(template, mapper);
                     templateMapper.insert(newTemplate);
-                    templateIds.add(newTemplate.getId());
+                    templateIds.add(newTemplate.getTemplate_id());
                 }
             } else {
                 templateIds.add(template.getId());
