@@ -38,7 +38,7 @@ public class AreaBusiness extends ServiceImpl<AreaMapper, Area> implements IServ
      */
     public Area createArea(NewArea newArea) {
         // 验证关联的场景是否存在
-        Scene scene = sceneMapper.selectById(newArea.getSceneId());
+        Scene scene = sceneMapper.selectBySceneIdValue(newArea.getSceneId());
         if (scene == null) {
             throw new RuntimeException("关联的场景不存在");
         }
@@ -66,7 +66,7 @@ public class AreaBusiness extends ServiceImpl<AreaMapper, Area> implements IServ
 
         // 验证关联的场景是否存在
         if (updatedArea.getSceneId() != null) {
-            Scene scene = sceneMapper.selectById(updatedArea.getSceneId());
+            Scene scene = sceneMapper.selectBySceneIdValue(updatedArea.getSceneId());
             if (scene == null) {
                 throw new RuntimeException("关联的场景不存在");
             }

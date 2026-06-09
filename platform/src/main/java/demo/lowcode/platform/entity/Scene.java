@@ -29,8 +29,11 @@ public class Scene {
     @Id
     @TableId(type = IdType.AUTO)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "scene_id")
-    @ApiModelProperty(value = "场景ID", example = "1")
+    @ApiModelProperty(value = "物理主键ID")
+    private Long id;
+
+    @Column(name = "scene_id", unique = true)
+    @ApiModelProperty(value = "场景逻辑ID", example = "1")
     private Long sceneId;
 
     @Column(name = "scene_code", unique = true)

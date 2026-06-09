@@ -143,7 +143,7 @@ public class SceneBusiness {
     }
 
     public Scene getSceneById (Long sceneId){
-        return sceneMapper.selectById(sceneId);
+        return sceneMapper.selectBySceneIdValue(sceneId);
     }
 
     public Scene createScene(NewScene newScene){
@@ -190,7 +190,7 @@ public class SceneBusiness {
 
     public Scene changeScene(Long id, NewScene newScene){
 
-        Scene existingScene = sceneMapper.selectById(id);
+        Scene existingScene = sceneMapper.selectBySceneIdValue(id);
         if (existingScene == null) {
             throw new IllegalArgumentException("场景不存在");
         }
@@ -209,7 +209,6 @@ public class SceneBusiness {
             throw new IllegalArgumentException("场景编码已存在");
         }
 
-        existingScene.setSceneId(id);
         existingScene.setSceneCode(code);
         existingScene.setSceneName(name);
         existingScene.setSceneDescription(newScene.getDescription());
@@ -242,7 +241,7 @@ public class SceneBusiness {
     }
 
     public Object publishScene(ScenePubInfo pubInfo) {
-        Scene existingScene = sceneMapper.selectById(pubInfo.getSceneId());
+        Scene existingScene = sceneMapper.selectBySceneIdValue(pubInfo.getSceneId());
         if (existingScene == null) {
             throw new RuntimeException("场景不存在");
         }
@@ -392,7 +391,7 @@ public class SceneBusiness {
     }
 
     public byte[] downloadScene(Long id) {
-        Scene existScene = sceneMapper.selectById(id);
+        Scene existScene = sceneMapper.selectBySceneIdValue(id);
         if (existScene == null) {
             throw new RuntimeException("场景不存在");
         }

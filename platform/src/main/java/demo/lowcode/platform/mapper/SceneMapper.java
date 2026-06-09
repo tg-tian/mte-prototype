@@ -11,9 +11,11 @@ import java.util.List;
 public interface SceneMapper extends BaseMapper<Scene> {
     Long getSceneId(@Param("sceneCode") String sceneCode);
 
+    Scene selectBySceneCode(@Param("sceneCode") String sceneCode);
+
+    Scene selectBySceneIdValue(@Param("sceneId") Long sceneId);
+
     List<Scene> selectByDomainId(@Param("domainId") Long domainId);
 
-    Scene selectBySceneCode(@Param("sceneCode") String sceneCode);
-    
     List<Scene> selectAll();
 }
