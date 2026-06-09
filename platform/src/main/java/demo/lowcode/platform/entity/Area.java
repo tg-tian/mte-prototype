@@ -25,7 +25,13 @@ public class Area {
     @Id
     @TableId(type = IdType.AUTO)
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @ApiModelProperty(value = "区域ID", example = "1")
+    @Column(name = "id")
+    @ApiModelProperty(value = "物理主键ID")
+    @com.fasterxml.jackson.annotation.JsonIgnore
+    private Long pk;
+
+    @Column(name = "area_id", unique = true)
+    @ApiModelProperty(value = "区域逻辑ID", example = "1")
     private Long id;
 
     @Column(name = "name", nullable = false)

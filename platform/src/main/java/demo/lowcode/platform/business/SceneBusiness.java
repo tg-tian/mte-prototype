@@ -1006,6 +1006,16 @@ public class SceneBusiness {
             return;
         }
         Area area = new Area();
+        // 导入时保留导出文件中的 area_id 值
+        if (areaInfo.getId() != null && areaInfo.getId() > 0) {
+            Area conflicting = areaMapper.selectByAreaIdValue(areaInfo.getId());
+            if (conflicting != null) {
+                // area_id 已被占用，留空让 insert 后回填物理pk值
+                area.setId(null);
+            } else {
+                area.setId(areaInfo.getId());
+            }
+        }
         area.setName(areaInfo.getName());
         area.setSceneId(sceneId);
         area.setDescription(areaInfo.getDescription());
@@ -1013,6 +1023,10 @@ public class SceneBusiness {
         area.setPolygon(areaInfo.getPolygon());
         area.setParentId(parentId == null ? -1L : parentId);
         areaMapper.insert(area);
+        // insert 后回填逻辑ID：如果 area_id 未指定，用物理pk值
+        if (area.getId() == null) {
+            area.setId(area.getPk());
+        }
 
         if (areaInfo.getChildren() != null) {
             for (NewArea child : areaInfo.getChildren()) {

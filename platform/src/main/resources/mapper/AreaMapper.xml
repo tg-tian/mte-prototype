@@ -1,38 +1,52 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+        "http://mybatis.org//dtd/mybatis-3-mapper.dtd">
 
 
 <mapper namespace="demo.lowcode.platform.mapper.AreaMapper">
-    <update id="updateParent">
+    <update id="updateParentByAreaIds">
         UPDATE area
-        SET parent_id = #{id}
-        WHERE id IN
-        <foreach collection="children" item="childId" open="(" separator="," close=")">
-            #{childId}
+        SET parent_id = #{parentId}
+        WHERE area_id IN
+        <foreach collection="children" item="childAreaId" open="(" separator="," close=")">
+            #{childAreaId}
         </foreach>
     </update>
 
-    <update id="deleteParent">
+    <update id="deleteParentByAreaId">
         UPDATE area
         SET parent_id = -1
-        WHERE id = #{id}
+        WHERE area_id = #{areaId}
     </update>
+
     <!-- 根据场景 ID 获取区域列表 -->
     <select id="selectBySceneId" resultType="demo.lowcode.platform.entity.Area">
         SELECT * FROM area
         WHERE scene_id = #{sceneId}
     </select>
 
-    <select id="selectById" resultType="demo.lowcode.platform.entity.Area">
-        SELECT * FROM area
-        WHERE id = #{id}
-    </select>
-    <select id="selectByParentId" resultType="demo.lowcode.platform.entity.Area">
-        SELECT * FROM area
-        WHERE parent_id = #{id}
+    <select id="selectByAreaIdValue" resultType="demo.lowcode.platform.entity.Area">
+        SELECT * FROM area WHERE area_id = #{areaId}
     </select>
 
+    <update id="updateByAreaIdValue">
+        UPDATE area
+        SET name        = #{area.name},
+            scene_id    = #{area.sceneId},
+            description = #{area.description},
+            image       = #{area.image},
+            polygon     = #{area.polygon},
+            parent_id   = #{area.parentId}
+        WHERE area_id = #{areaId}
+    </update>
+
+    <delete id="deleteByAreaIdValue">
+        DELETE FROM area WHERE area_id = #{areaId}
+    </delete>
+
+    <select id="selectByParentIdValue" resultType="demo.lowcode.platform.entity.Area">
+        SELECT * FROM area WHERE parent_id = #{parentId}
+    </select>
 
 </mapper>

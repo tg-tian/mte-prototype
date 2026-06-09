@@ -44,6 +44,16 @@ public class AreaBusiness extends ServiceImpl<AreaMapper, Area> implements IServ
         }
         // 插入区域
         Area area = new Area();
+        // 导入区域时使用导出文件中记录的 id（逻辑ID area_id），手动创建时 id 留空由 insert 后回填
+        if (newArea.getId() != null && newArea.getId() > 0) {
+            Area conflicting = areaMapper.selectByAreaIdValue(newArea.getId());
+            if (conflicting != null) {
+                // area_id 已被其他区域占用，留空让 insert 后自动回填
+                area.setId(null);
+            } else {
+                area.setId(newArea.getId());
+            }
+        }
         area.setDescription(newArea.getDescription());
         area.setName(newArea.getName());
         area.setImage(newArea.getImage());
@@ -51,6 +61,10 @@ public class AreaBusiness extends ServiceImpl<AreaMapper, Area> implements IServ
         area.setParentId(newArea.getParentId());
         area.setSceneId(newArea.getSceneId());
         areaMapper.insert(area);
+        // insert 后回填逻辑ID：新创建时 area_id = 物理id
+        if (area.getId() == null) {
+            area.setId(area.getPk());
+        }
         return area;
     }
 
@@ -58,8 +72,8 @@ public class AreaBusiness extends ServiceImpl<AreaMapper, Area> implements IServ
      * 更新区域信息
      */
     public Area updateArea(Long id, NewArea updatedArea) {
-        // 检查区域是否存在
-        Area existingArea = areaMapper.selectById(id);
+        // 检查区域是否存在（id 参数是逻辑ID area_id）
+        Area existingArea = areaMapper.selectByAreaIdValue(id);
         if (existingArea == null) {
             throw new RuntimeException("区域不存在");
         }
@@ -79,7 +93,7 @@ public class AreaBusiness extends ServiceImpl<AreaMapper, Area> implements IServ
         existingArea.setParentId(updatedArea.getParentId());
         existingArea.setPolygon(updatedArea.getPolygon());
         existingArea.setSceneId(updatedArea.getSceneId());
-        areaMapper.updateById(existingArea);
+        areaMapper.updateByAreaIdValue(existingArea.getId(), existingArea);
         return existingArea;
     }
 
@@ -87,32 +101,32 @@ public class AreaBusiness extends ServiceImpl<AreaMapper, Area> implements IServ
      * 删除区域
      */
     public void deleteAreaById(Long id) {
-        Area area = areaMapper.selectById(id);
+        Area area = areaMapper.selectByAreaIdValue(id);
         if (area == null) {
             throw new RuntimeException("区域不存在");
         }
 
-        List<Area> areas = areaMapper.selectByParentId(area.getId());
+        List<Area> areas = areaMapper.selectByParentIdValue(area.getId());
         List<Long> ids = areas.stream().map(Area::getId).collect(Collectors.toList());
         if (ids.size() > 0){
-            areaMapper.updateParent(-1L,ids);
+            areaMapper.updateParentByAreaIds(-1L, ids);
         }
 
-        areaMapper.deleteById(id);
+        areaMapper.deleteByAreaIdValue(id);
     }
 
 
     public void addChildren(Long parentId, List<Long> childrenIds) {
-        Area area = areaMapper.selectById(parentId);
+        Area area = areaMapper.selectByAreaIdValue(parentId);
         if (area == null) {
             throw new RuntimeException("区域不存在");
         }
-        areaMapper.updateParent(parentId,childrenIds);
+        areaMapper.updateParentByAreaIds(parentId, childrenIds);
     }
 
     public NewArea buildAreaTree(Long sceneId, Long areaId) {
         List<Area> areas = areaMapper.selectBySceneId(sceneId);
-        Area area = areaMapper.selectById(areaId);
+        Area area = areaMapper.selectByAreaIdValue(areaId);
         Area area1 = findRoot(area, areas);
         ObjectMapper objectMapper = new ObjectMapper();
         NewArea root = objectMapper.convertValue(area1, NewArea.class);
@@ -151,6 +165,6 @@ public class AreaBusiness extends ServiceImpl<AreaMapper, Area> implements IServ
     }
 
     public void deleteParent(Long id) {
-        areaMapper.deleteParent(id);
+        areaMapper.deleteParentByAreaId(id);
     }
 }
