@@ -15,6 +15,10 @@ public interface SceneMapper extends BaseMapper<Scene> {
 
     Scene selectBySceneIdValue(@Param("sceneId") Long sceneId);
 
+    int updateBySceneIdValue(@Param("sceneId") Long sceneId, @Param("scene") Scene scene);
+
+    int deleteBySceneIdValue(@Param("sceneId") Long sceneId);
+
     List<Scene> selectByDomainId(@Param("domainId") Long domainId);
 
     List<Scene> selectAll();

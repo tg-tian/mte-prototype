@@ -169,6 +169,10 @@ public class SceneBusiness {
         }
 
         Scene scene = new Scene();
+        // 导入场景时使用导出文件中记录的 sceneId（逻辑ID），手动创建时 sceneId 留空由数据库生成
+        if (newScene.getSceneId() != null && newScene.getSceneId() > 0) {
+            scene.setSceneId(newScene.getSceneId());
+        }
         scene.setSceneCode(code);
         scene.setSceneName(name);
         scene.setSceneDescription(newScene.getDescription());
@@ -232,12 +236,12 @@ public class SceneBusiness {
             existingScene.setDomainId(newScene.getDomainId());
         }
         existingScene.setUpdateTime(new Date());
-        sceneMapper.updateById(existingScene);
+        sceneMapper.updateBySceneIdValue(existingScene.getSceneId(), existingScene);
         return existingScene;
     }
 
     public void deleteSceneByID(Long id){
-        sceneMapper.deleteById(id);
+        sceneMapper.deleteBySceneIdValue(id);
     }
 
     public Object publishScene(ScenePubInfo pubInfo) {
@@ -270,7 +274,7 @@ public class SceneBusiness {
         existingScene.setStatus(targetStatus);
         existingScene.setUrl(targetUrl);
         existingScene.setUpdateTime(new Date());
-        sceneMapper.updateById(existingScene);
+        sceneMapper.updateBySceneIdValue(existingScene.getSceneId(), existingScene);
 
         return result;
     }

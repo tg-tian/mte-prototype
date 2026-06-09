@@ -22,6 +22,26 @@
     <select id="selectBySceneIdValue" resultType="demo.lowcode.platform.entity.Scene">
         SELECT * FROM scene WHERE scene_id = #{sceneId}
     </select>
+
+    <update id="updateBySceneIdValue">
+        UPDATE scene
+        SET scene_code        = #{scene.sceneCode},
+            scene_name        = #{scene.sceneName},
+            scene_description = #{scene.sceneDescription},
+            domain_id         = #{scene.domainId},
+            status            = #{scene.status},
+            longitude         = #{scene.longitude},
+            latitude          = #{scene.latitude},
+            url               = #{scene.url},
+            image_url         = #{scene.imageUrl},
+            polygon           = #{scene.polygon},
+            update_time       = #{scene.updateTime}
+        WHERE scene_id = #{sceneId}
+    </update>
+
+    <delete id="deleteBySceneIdValue">
+        DELETE FROM scene WHERE scene_id = #{sceneId}
+    </delete>
     
     <!--获取所有场景列表-->
     <select id="selectAll" resultType="demo.lowcode.platform.entity.Scene">
