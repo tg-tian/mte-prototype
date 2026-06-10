@@ -1,10 +1,22 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper
         PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
-        "http://mybatis.org//dtd/mybatis-3-mapper.dtd">
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 
 <mapper namespace="demo.lowcode.platform.mapper.AreaMapper">
+    <!-- 显式定义结果映射，确保数据库列正确映射到实体字段 -->
+    <resultMap id="AreaResultMap" type="demo.lowcode.platform.entity.Area">
+        <id property="pk" column="id"/>
+        <result property="id" column="area_id"/>
+        <result property="name" column="name"/>
+        <result property="sceneId" column="scene_id"/>
+        <result property="description" column="description"/>
+        <result property="image" column="image"/>
+        <result property="polygon" column="polygon"/>
+        <result property="parentId" column="parent_id"/>
+    </resultMap>
+
     <update id="updateParentByAreaIds">
         UPDATE area
         SET parent_id = #{parentId}
@@ -21,12 +33,12 @@
     </update>
 
     <!-- 根据场景 ID 获取区域列表 -->
-    <select id="selectBySceneId" resultType="demo.lowcode.platform.entity.Area">
+    <select id="selectBySceneId" resultMap="AreaResultMap">
         SELECT * FROM area
         WHERE scene_id = #{sceneId}
     </select>
 
-    <select id="selectByAreaIdValue" resultType="demo.lowcode.platform.entity.Area">
+    <select id="selectByAreaIdValue" resultMap="AreaResultMap">
         SELECT * FROM area WHERE area_id = #{areaId}
     </select>
 
@@ -45,7 +57,7 @@
         DELETE FROM area WHERE area_id = #{areaId}
     </delete>
 
-    <select id="selectByParentIdValue" resultType="demo.lowcode.platform.entity.Area">
+    <select id="selectByParentIdValue" resultMap="AreaResultMap">
         SELECT * FROM area WHERE parent_id = #{parentId}
     </select>
 

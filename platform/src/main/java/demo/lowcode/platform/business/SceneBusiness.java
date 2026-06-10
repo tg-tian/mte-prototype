@@ -325,14 +325,16 @@ public class SceneBusiness {
     private List<NewArea> buildAreaTree(List<Area> allAreas) {
         List<NewArea> result = new ArrayList<>();
         ObjectMapper mapper = new ObjectMapper();
-        
+
         Map<Long, NewArea> areaMap = new HashMap<>();
         for (Area area : allAreas) {
             NewArea newArea = mapper.convertValue(area, NewArea.class);
+            // 显式设置区域逻辑ID，确保导出的是 area_id 而不是其他值
+            newArea.setId(area.getId());
             newArea.setImageRef(buildFileRefFromUrl(area.getImage()));
             areaMap.put(area.getId(), newArea);
         }
-        
+
         for (Area area : allAreas) {
             NewArea newArea = areaMap.get(area.getId());
             if (area.getParentId() == null || area.getParentId() == -1) {

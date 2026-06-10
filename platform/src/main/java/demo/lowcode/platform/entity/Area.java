@@ -31,6 +31,7 @@ public class Area {
     private Long pk;
 
     @Column(name = "area_id", unique = true)
+    @TableField("area_id")
     @ApiModelProperty(value = "区域逻辑ID", example = "1")
     private Long id;
 
