@@ -43,6 +43,11 @@ public class DeviceModel {
   @ApiModelProperty(value = "品类")
   private String category;
 
+  @Column(name = "model_icon")
+  @TableField("model_icon")
+  @ApiModelProperty(value = "模型图标，SVG 的 Base64 编码")
+  private String modelIcon;
+
   @Column(name = "create_time")
   @TableField(value = "create_time", fill = FieldFill.INSERT)
   @ApiModelProperty(value = "创建时间")

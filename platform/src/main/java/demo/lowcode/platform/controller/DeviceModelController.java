@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("/meta/device-models")
+@RequestMapping({"/meta/device-models", "/v1/device-types"})
 @CrossOrigin
 @Api(value = "设备模型接口", tags = { "设备模型管理" })
 public class DeviceModelController {

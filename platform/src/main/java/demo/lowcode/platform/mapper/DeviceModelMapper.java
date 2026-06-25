@@ -34,6 +34,7 @@ public interface DeviceModelMapper extends BaseMapper<DeviceModel> {
 
   @Select("SELECT dm.* FROM device_model dm INNER JOIN domain_device_model ddm ON ddm.device_model_id = dm.id WHERE ddm.domain_id = #{domainId}")
   @Results(id = "deviceModelResultMap", value = {
+      @Result(column = "model_icon", property = "modelIcon"),
       @Result(column = "model", property = "model", typeHandler = JacksonTypeHandler.class)
   })
   List<DeviceModel> selectByDomainId(Long domainId);
