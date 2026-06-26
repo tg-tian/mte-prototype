@@ -486,8 +486,8 @@ public class SceneBusiness {
         ObjectMapper mapper = new ObjectMapper();
         mapper.findAndRegisterModules();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
-        List<TemplateExportInfo> allTemplates = buildAllTemplateExportList();
-        collectTemplateFileReferences(packageFiles, allTemplates);
+        List<TemplateExportInfo> boundTemplates = buildBoundTemplateExportList(exportInfo);
+        collectTemplateFileReferences(packageFiles, boundTemplates);
 
         DomainPackageManifest manifest = new DomainPackageManifest();
         manifest.setVersion(1);
@@ -497,7 +497,7 @@ public class SceneBusiness {
         manifest.setIncludesFiles(packageFiles.getFiles() != null && !packageFiles.getFiles().isEmpty());
 
         byte[] sceneJsonBytes = mapper.writeValueAsBytes(exportInfo);
-        byte[] templatesJsonBytes = mapper.writeValueAsBytes(allTemplates);
+        byte[] templatesJsonBytes = mapper.writeValueAsBytes(boundTemplates);
         byte[] filesJsonBytes = mapper.writeValueAsBytes(packageFiles);
         byte[] manifestJsonBytes = mapper.writeValueAsBytes(manifest);
 
@@ -522,19 +522,21 @@ public class SceneBusiness {
         }
     }
 
-    private List<TemplateExportInfo> buildAllTemplateExportList() {
-        List<Template> templates = templateMapper.selectList(null);
-        if (templates == null || templates.isEmpty()) {
+    private List<TemplateExportInfo> buildBoundTemplateExportList(SceneTemInfo exportInfo) {
+        if (exportInfo == null
+                || exportInfo.getDomainInfo() == null
+                || exportInfo.getDomainInfo().getTemplates() == null
+                || exportInfo.getDomainInfo().getTemplates().isEmpty()) {
             return new ArrayList<>();
         }
         List<TemplateExportInfo> exportTemplates = new ArrayList<>();
-        for (Template template : templates) {
+        for (NewTemplate template : exportInfo.getDomainInfo().getTemplates()) {
             TemplateExportInfo exportTemplate = new TemplateExportInfo();
             exportTemplate.setTemplate_id(template.getTemplate_id());
             exportTemplate.setName(template.getName());
             exportTemplate.setTemplate_index(template.getTemplate_index());
             exportTemplate.setTemplate_description(template.getTemplate_description());
-            exportTemplate.setTags(template.getTags());
+            exportTemplate.setTags(toJson(template.getTags()));
             exportTemplate.setExample_image_url(template.getExample_image_url());
             exportTemplate.setImageRef(buildFileRefFromUrl(template.getExample_image_url()));
             exportTemplate.setCode_url(template.getCode_url());
