@@ -1,21 +1,16 @@
 package demo.lowcode.platform.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import jakarta.annotation.Nullable;
 import lombok.Data;
-
-import java.util.Date;
-import java.util.Map;
 
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class NewTemplate {
-    private Long id;
-    @Nullable
+public class TemplateExportInfo {
     private Long template_id;
     private String name;
     private String template_index;
     private String template_description;
+    private String tags;
     private String example_image_url;
     private String imageRef;
     private String code_url;
@@ -24,7 +19,4 @@ public class NewTemplate {
     private String submitter;
     private String license;
     private String code_file;
-    private Map<String, Object> tags;
-    private Date created_at;
-    private Date updated_at;
 }

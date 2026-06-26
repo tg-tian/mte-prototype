@@ -41,6 +41,7 @@ public class SceneBusiness {
     private static final Pattern IMAGE_FILE_URL_PATTERN = Pattern.compile("^/file/image/(\\d+)$");
     private static final String PACKAGE_MANIFEST_FILE = "manifest.json";
     private static final String PACKAGE_SCENE_FILE = "scene.json";
+    private static final String PACKAGE_TEMPLATES_FILE = "templates.json";
     private static final String PACKAGE_FILES_FILE = "files.json";
     private static final String PACKAGE_BLOBS_DIR = "blobs/";
 
@@ -442,6 +443,7 @@ public class SceneBusiness {
     private DomainPackageFiles buildScenePackageFiles(SceneTemInfo exportInfo) {
         DomainPackageFiles files = new DomainPackageFiles();
         files.setVersion(1);
+        ensurePackageFileList(files);
         Map<String, Long> refToId = new LinkedHashMap<>();
 
         if (exportInfo.getSceneData() != null) {
@@ -450,6 +452,7 @@ public class SceneBusiness {
         if (exportInfo.getDomainInfo() != null && exportInfo.getDomainInfo().getTemplates() != null) {
             for (NewTemplate template : exportInfo.getDomainInfo().getTemplates()) {
                 collectFileReference(refToId, template.getExample_image_url());
+                template.setImageRef(buildFileRefFromUrl(template.getExample_image_url()));
             }
         }
         if (exportInfo.getAreaTree() != null) {
@@ -483,15 +486,18 @@ public class SceneBusiness {
         ObjectMapper mapper = new ObjectMapper();
         mapper.findAndRegisterModules();
         mapper.enable(SerializationFeature.INDENT_OUTPUT);
+        List<TemplateExportInfo> allTemplates = buildAllTemplateExportList();
+        collectTemplateFileReferences(packageFiles, allTemplates);
 
         DomainPackageManifest manifest = new DomainPackageManifest();
         manifest.setVersion(1);
-        manifest.setDomainCode(scene.getSceneCode());
+        manifest.setSceneCode(scene.getSceneCode());
         manifest.setExportedAt(OffsetDateTime.now().format(DateTimeFormatter.ISO_OFFSET_DATE_TIME));
         manifest.setIncludesDomain(true);
         manifest.setIncludesFiles(packageFiles.getFiles() != null && !packageFiles.getFiles().isEmpty());
 
         byte[] sceneJsonBytes = mapper.writeValueAsBytes(exportInfo);
+        byte[] templatesJsonBytes = mapper.writeValueAsBytes(allTemplates);
         byte[] filesJsonBytes = mapper.writeValueAsBytes(packageFiles);
         byte[] manifestJsonBytes = mapper.writeValueAsBytes(manifest);
 
@@ -499,6 +505,7 @@ public class SceneBusiness {
              ZipOutputStream zipOutputStream = new ZipOutputStream(outputStream, StandardCharsets.UTF_8)) {
             writeZipEntry(zipOutputStream, PACKAGE_MANIFEST_FILE, manifestJsonBytes);
             writeZipEntry(zipOutputStream, PACKAGE_SCENE_FILE, sceneJsonBytes);
+            writeZipEntry(zipOutputStream, PACKAGE_TEMPLATES_FILE, templatesJsonBytes);
             writeZipEntry(zipOutputStream, PACKAGE_FILES_FILE, filesJsonBytes);
             if (packageFiles.getFiles() != null) {
                 for (ExportedStoredFile storedFile : packageFiles.getFiles()) {
@@ -515,11 +522,78 @@ public class SceneBusiness {
         }
     }
 
+    private List<TemplateExportInfo> buildAllTemplateExportList() {
+        List<Template> templates = templateMapper.selectList(null);
+        if (templates == null || templates.isEmpty()) {
+            return new ArrayList<>();
+        }
+        List<TemplateExportInfo> exportTemplates = new ArrayList<>();
+        for (Template template : templates) {
+            TemplateExportInfo exportTemplate = new TemplateExportInfo();
+            exportTemplate.setTemplate_id(template.getTemplate_id());
+            exportTemplate.setName(template.getName());
+            exportTemplate.setTemplate_index(template.getTemplate_index());
+            exportTemplate.setTemplate_description(template.getTemplate_description());
+            exportTemplate.setTags(template.getTags());
+            exportTemplate.setExample_image_url(template.getExample_image_url());
+            exportTemplate.setImageRef(buildFileRefFromUrl(template.getExample_image_url()));
+            exportTemplate.setCode_url(template.getCode_url());
+            exportTemplate.setRepository_url(template.getRepository_url());
+            exportTemplate.setFile_source(template.getFile_source());
+            exportTemplate.setSubmitter(template.getSubmitter());
+            exportTemplate.setLicense(template.getLicense());
+            exportTemplate.setCode_file(template.getCode_file());
+            exportTemplates.add(exportTemplate);
+        }
+        return exportTemplates;
+    }
+
+    private void collectTemplateFileReferences(DomainPackageFiles packageFiles, List<TemplateExportInfo> templates) {
+        if (templates == null || templates.isEmpty()) {
+            return;
+        }
+        ensurePackageFileList(packageFiles);
+        Set<String> existingRefs = packageFiles.getFiles().stream()
+                .map(ExportedStoredFile::getRef)
+                .filter(Objects::nonNull)
+                .collect(Collectors.toSet());
+        for (TemplateExportInfo template : templates) {
+            Long fileId = extractFileId(template.getExample_image_url());
+            if (fileId == null) {
+                continue;
+            }
+            String ref = "file-" + fileId;
+            template.setImageRef(ref);
+            if (existingRefs.contains(ref)) {
+                continue;
+            }
+            StoredFile storedFile = storedFileMapper.selectById(fileId);
+            if (storedFile == null || storedFile.getFileData() == null) {
+                continue;
+            }
+            ExportedStoredFile exportedStoredFile = new ExportedStoredFile();
+            exportedStoredFile.setRef(ref);
+            exportedStoredFile.setSourceId(storedFile.getId());
+            exportedStoredFile.setFileName(storedFile.getFileName());
+            exportedStoredFile.setOriginalName(storedFile.getOriginalName());
+            exportedStoredFile.setContentType(storedFile.getContentType());
+            exportedStoredFile.setFileSize(storedFile.getFileSize());
+            exportedStoredFile.setBizType(storedFile.getBizType());
+            exportedStoredFile.setBizId(storedFile.getBizId());
+            exportedStoredFile.setBlobPath(buildBlobPath(ref, storedFile));
+            exportedStoredFile.setSha256(calculateSha256(storedFile.getFileData()));
+            packageFiles.getFiles().add(exportedStoredFile);
+            existingRefs.add(ref);
+        }
+    }
+
     private ImportedScenePackage readScenePackage(InputStream inputStream) throws IOException {
         ObjectMapper mapper = new ObjectMapper();
         mapper.findAndRegisterModules();
 
+        DomainPackageManifest manifest = null;
         SceneTemInfo sceneTemInfo = null;
+        List<TemplateExportInfo> packageTemplates = new ArrayList<>();
         DomainPackageFiles packageFiles = null;
         Map<String, byte[]> blobBytes = new HashMap<>();
 
@@ -531,9 +605,12 @@ public class SceneBusiness {
                 }
                 String normalizedEntryName = normalizeZipEntryName(entry.getName());
                 byte[] entryBytes = zipInputStream.readAllBytes();
-                System.out.println("[scene-import] zip entry: raw=" + entry.getName() + ", normalized=" + normalizedEntryName + ", bytes=" + entryBytes.length);
-                if (PACKAGE_SCENE_FILE.equals(normalizedEntryName)) {
+                if (PACKAGE_MANIFEST_FILE.equals(normalizedEntryName)) {
+                    manifest = mapper.readValue(entryBytes, DomainPackageManifest.class);
+                } else if (PACKAGE_SCENE_FILE.equals(normalizedEntryName)) {
                     sceneTemInfo = mapper.readValue(entryBytes, SceneTemInfo.class);
+                } else if (PACKAGE_TEMPLATES_FILE.equals(normalizedEntryName)) {
+                    packageTemplates = mapper.readerForListOf(TemplateExportInfo.class).readValue(entryBytes);
                 } else if (PACKAGE_FILES_FILE.equals(normalizedEntryName)) {
                     packageFiles = mapper.readValue(entryBytes, DomainPackageFiles.class);
                 } else if (normalizedEntryName.startsWith(PACKAGE_BLOBS_DIR)) {
@@ -549,11 +626,13 @@ public class SceneBusiness {
             packageFiles = new DomainPackageFiles();
             packageFiles.setVersion(1);
         }
-        System.out.println("[scene-import] package files count=" + (packageFiles.getFiles() == null ? -1 : packageFiles.getFiles().size()));
-        System.out.println("[scene-import] blob keys=" + blobBytes.keySet());
+        ensurePackageFileList(packageFiles);
+        applyManifestFallback(sceneTemInfo, manifest);
 
         ImportedScenePackage importedScenePackage = new ImportedScenePackage();
+        importedScenePackage.setManifest(manifest);
         importedScenePackage.setSceneTemInfo(sceneTemInfo);
+        importedScenePackage.setTemplates(packageTemplates);
         importedScenePackage.setFiles(packageFiles);
         importedScenePackage.setBlobBytes(blobBytes);
         return importedScenePackage;
@@ -598,6 +677,29 @@ public class SceneBusiness {
         return importedFileUrls;
     }
 
+    private void importPackageTemplates(List<TemplateExportInfo> templates, Map<String, String> importedFileUrls) {
+        if (templates == null || templates.isEmpty()) {
+            return;
+        }
+        for (TemplateExportInfo templateInfo : templates) {
+            if (templateInfo == null) {
+                continue;
+            }
+            templateInfo.setExample_image_url(resolveImportedTemplateImageUrl(templateInfo, importedFileUrls));
+            upsertTemplate(templateInfo);
+        }
+    }
+
+    private void applyManifestFallback(SceneTemInfo sceneTemInfo, DomainPackageManifest manifest) {
+        if (sceneTemInfo == null || sceneTemInfo.getSceneData() == null || manifest == null) {
+            return;
+        }
+        String sceneCode = sceneTemInfo.getSceneData().getCode();
+        if ((sceneCode == null || sceneCode.isBlank()) && manifest.getSceneCode() != null && !manifest.getSceneCode().isBlank()) {
+            sceneTemInfo.getSceneData().setCode(manifest.getSceneCode());
+        }
+    }
+
     private void applyImportedFileUrls(SceneTemInfo sceneTemInfo, Map<String, String> importedFileUrls) {
         if (sceneTemInfo == null) {
             return;
@@ -607,7 +709,7 @@ public class SceneBusiness {
         }
         if (sceneTemInfo.getDomainInfo() != null && sceneTemInfo.getDomainInfo().getTemplates() != null) {
             for (NewTemplate template : sceneTemInfo.getDomainInfo().getTemplates()) {
-                // 外部模板不再使用 image_ref 机制，跳过本地图片替换
+                template.setExample_image_url(resolveImportedTemplateImageUrl(template, importedFileUrls));
             }
         }
         if (sceneTemInfo.getAreaTree() != null) {
@@ -686,6 +788,40 @@ public class SceneBusiness {
         return sceneData.getImageUrl();
     }
 
+    private String resolveImportedTemplateImageUrl(NewTemplate template, Map<String, String> importedFileUrls) {
+        if (template == null) {
+            return null;
+        }
+        String imageRef = template.getImageRef();
+        if (imageRef != null && !imageRef.isBlank()) {
+            if (importedFileUrls.containsKey(imageRef)) {
+                return importedFileUrls.get(imageRef);
+            }
+            throw new RuntimeException("模板图片资源未成功导入: " + imageRef);
+        }
+        return template.getExample_image_url();
+    }
+
+    private String resolveImportedTemplateImageUrl(TemplateExportInfo template, Map<String, String> importedFileUrls) {
+        if (template == null) {
+            return null;
+        }
+        String imageRef = template.getImageRef();
+        if (imageRef != null && !imageRef.isBlank()) {
+            if (importedFileUrls.containsKey(imageRef)) {
+                return importedFileUrls.get(imageRef);
+            }
+            throw new RuntimeException("模板图片资源未成功导入: " + imageRef);
+        }
+        return template.getExample_image_url();
+    }
+
+    private void ensurePackageFileList(DomainPackageFiles packageFiles) {
+        if (packageFiles != null && packageFiles.getFiles() == null) {
+            packageFiles.setFiles(new ArrayList<>());
+        }
+    }
+
     private String buildFileRefFromUrl(String imageUrl) {
         Long fileId = extractFileId(imageUrl);
         return fileId == null ? null : "file-" + fileId;
@@ -737,9 +873,19 @@ public class SceneBusiness {
     }
 
     private static class ImportedScenePackage {
+        private DomainPackageManifest manifest;
         private SceneTemInfo sceneTemInfo;
+        private List<TemplateExportInfo> templates;
         private DomainPackageFiles files;
         private Map<String, byte[]> blobBytes;
+
+        public DomainPackageManifest getManifest() {
+            return manifest;
+        }
+
+        public void setManifest(DomainPackageManifest manifest) {
+            this.manifest = manifest;
+        }
 
         public SceneTemInfo getSceneTemInfo() {
             return sceneTemInfo;
@@ -747,6 +893,14 @@ public class SceneBusiness {
 
         public void setSceneTemInfo(SceneTemInfo sceneTemInfo) {
             this.sceneTemInfo = sceneTemInfo;
+        }
+
+        public List<TemplateExportInfo> getTemplates() {
+            return templates;
+        }
+
+        public void setTemplates(List<TemplateExportInfo> templates) {
+            this.templates = templates;
         }
 
         public DomainPackageFiles getFiles() {
@@ -777,6 +931,7 @@ public class SceneBusiness {
                 ImportedScenePackage importedPackage = readScenePackage(file.getInputStream());
                 Map<String, String> importedFileUrls = importPackageFiles(importedPackage.getFiles(), importedPackage.getBlobBytes());
                 applyImportedFileUrls(importedPackage.getSceneTemInfo(), importedFileUrls);
+                importPackageTemplates(importedPackage.getTemplates(), importedFileUrls);
                 return importScene(importedPackage.getSceneTemInfo());
             }
 
@@ -941,6 +1096,39 @@ public class SceneBusiness {
         return existing;
     }
 
+    private Template upsertTemplate(TemplateExportInfo templateInfo) {
+        if (templateInfo == null) {
+            return null;
+        }
+        Template existing = null;
+        if (templateInfo.getTemplate_id() != null) {
+            existing = templateMapper.selectByTemplateId(templateInfo.getTemplate_id());
+        }
+        if (existing == null) {
+            existing = new Template();
+        }
+        if (templateInfo.getTemplate_id() != null) {
+            existing.setTemplate_id(templateInfo.getTemplate_id());
+        }
+        existing.setName(templateInfo.getName());
+        existing.setTemplate_index(templateInfo.getTemplate_index());
+        existing.setTemplate_description(templateInfo.getTemplate_description());
+        existing.setExample_image_url(templateInfo.getExample_image_url());
+        existing.setCode_url(templateInfo.getCode_url());
+        existing.setRepository_url(templateInfo.getRepository_url());
+        existing.setFile_source(templateInfo.getFile_source());
+        existing.setSubmitter(templateInfo.getSubmitter());
+        existing.setLicense(templateInfo.getLicense());
+        existing.setCode_file(templateInfo.getCode_file());
+        existing.setTags(templateInfo.getTags());
+        if (existing.getId() == null) {
+            templateMapper.insert(existing);
+        } else {
+            templateMapper.updateById(existing);
+        }
+        return existing;
+    }
+
     private Component upsertComponent(ComponentDto componentInfo) {
         if (componentInfo == null) {
             return null;
@@ -993,6 +1181,9 @@ public class SceneBusiness {
         existing.setModelName(deviceModelInfo.getModelName());
         existing.setProvider(deviceModelInfo.getProvider());
         existing.setCategory(deviceModelInfo.getCategory());
+        if (deviceModelInfo.getModelIcon() != null) {
+            existing.setModelIcon(deviceModelInfo.getModelIcon());
+        }
         existing.setModel(deviceModelInfo.getModel());
         existing.setUpdateTime(LocalDateTime.now());
         if (existing.getId() == null) {
