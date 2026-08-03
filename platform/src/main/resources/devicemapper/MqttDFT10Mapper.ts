@@ -13,8 +13,7 @@ export class MqttDFT10Mapper implements DeviceMapper {
   propertyMap: Record<string, any> = {
     power_on: 'powerOn',
     stream_status: 'streamStatus',
-    last_seen: 'lastSeen',
-    configured: 'configured'
+    last_seen: 'lastSeen'
   };
 
   eventMap: Record<string, any> = {
@@ -98,17 +97,6 @@ export class MqttDFT10Mapper implements DeviceMapper {
 
   off(deviceId: string, _args: any): void {
     const payload = { action: 'off', args: {} };
-    this.client.publish(`devices/${deviceId}/command`, JSON.stringify(payload));
-  }
-
-  configure(deviceId: string, args: any): void {
-    const payload = {
-      action: 'configure',
-      args: {
-        apiKey: args?.apiKey,
-        secretKey: args?.secretKey
-      }
-    };
     this.client.publish(`devices/${deviceId}/command`, JSON.stringify(payload));
   }
 }
