@@ -1,5 +1,6 @@
 package demo.lowcode.platform.business;
 
+import com.baomidou.mybatisplus.core.toolkit.IdWorker;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
@@ -159,21 +160,24 @@ public class SceneBusiness {
         if (newScene.getDomainId() == null) {
             throw new IllegalArgumentException("领域ID不能为空");
         }
+        if (newScene.getSceneId() == null || newScene.getSceneId() <= 0) {
+            throw new IllegalArgumentException("场景ID不能为空");
+        }
         Domain domain = domainMapper.selectById(newScene.getDomainId());
         if (domain == null) {
             throw new IllegalArgumentException("领域不存在");
         }
 
+        if (sceneMapper.selectBySceneIdValue(newScene.getSceneId()) != null) {
+            throw new IllegalArgumentException("场景ID已存在");
+        }
         Scene existingScene = sceneMapper.selectBySceneCode(code);
         if (existingScene != null) {
             throw new IllegalArgumentException("场景已存在");
         }
 
         Scene scene = new Scene();
-        // 导入场景时使用导出文件中记录的 sceneId（逻辑ID），手动创建时 sceneId 留空由数据库生成
-        if (newScene.getSceneId() != null && newScene.getSceneId() > 0) {
-            scene.setSceneId(newScene.getSceneId());
-        }
+        scene.setSceneId(newScene.getSceneId());
         scene.setSceneCode(code);
         scene.setSceneName(name);
         scene.setSceneDescription(newScene.getDescription());
@@ -1205,8 +1209,8 @@ public class SceneBusiness {
         if (areaInfo.getId() != null && areaInfo.getId() > 0) {
             Area conflicting = areaMapper.selectByAreaIdValue(areaInfo.getId());
             if (conflicting != null) {
-                // area_id 已被占用，留空让 insert 后回填物理pk值
-                area.setId(null);
+                // area_id 已被占用，生成新的逻辑ID
+                area.setId(IdWorker.getId());
             } else {
                 area.setId(areaInfo.getId());
             }
@@ -1217,11 +1221,10 @@ public class SceneBusiness {
         area.setImage(areaInfo.getImage());
         area.setPolygon(areaInfo.getPolygon());
         area.setParentId(parentId == null ? -1L : parentId);
-        areaMapper.insert(area);
-        // insert 后回填逻辑ID：如果 area_id 未指定，用物理pk值
         if (area.getId() == null) {
-            area.setId(area.getPk());
+            area.setId(IdWorker.getId());
         }
+        areaMapper.insert(area);
 
         if (areaInfo.getChildren() != null) {
             for (NewArea child : areaInfo.getChildren()) {

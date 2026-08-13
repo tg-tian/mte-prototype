@@ -40,6 +40,7 @@ public class Area {
     private String name;
 
     @Column(name = "scene_id", nullable = false)
+    @TableField("scene_id")
     @ApiModelProperty(value = "关联场景ID", example = "1")
     private Long sceneId;
 

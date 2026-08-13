@@ -38,33 +38,31 @@ public class AreaBusiness extends ServiceImpl<AreaMapper, Area> implements IServ
      */
     public Area createArea(NewArea newArea) {
         // 验证关联的场景是否存在
-        Scene scene = sceneMapper.selectBySceneIdValue(newArea.getSceneId());
+        Long sceneId = newArea.getSceneId() != null ? newArea.getSceneId() :
+                (newArea.getScene() == null ? null : newArea.getScene().getSceneId());
+        if (sceneId == null) {
+            throw new RuntimeException("关联的场景不存在");
+        }
+        Scene scene = sceneMapper.selectBySceneIdValue(sceneId);
         if (scene == null) {
             throw new RuntimeException("关联的场景不存在");
         }
         // 插入区域
         Area area = new Area();
-        // 导入区域时使用导出文件中记录的 id（逻辑ID area_id），手动创建时 id 留空由 insert 后回填
-        if (newArea.getId() != null && newArea.getId() > 0) {
-            Area conflicting = areaMapper.selectByAreaIdValue(newArea.getId());
-            if (conflicting != null) {
-                // area_id 已被其他区域占用，留空让 insert 后自动回填
-                area.setId(null);
-            } else {
-                area.setId(newArea.getId());
-            }
+        if (newArea.getId() == null || newArea.getId() <= 0) {
+            throw new RuntimeException("区域ID不能为空");
         }
+        if (areaMapper.selectByAreaIdValue(newArea.getId()) != null) {
+            throw new RuntimeException("区域ID已存在");
+        }
+        area.setId(newArea.getId());
         area.setDescription(newArea.getDescription());
         area.setName(newArea.getName());
         area.setImage(newArea.getImage());
         area.setPolygon(newArea.getPolygon());
         area.setParentId(newArea.getParentId());
-        area.setSceneId(newArea.getSceneId());
+        area.setSceneId(sceneId);
         areaMapper.insert(area);
-        // insert 后回填逻辑ID：新创建时 area_id = 物理id
-        if (area.getId() == null) {
-            area.setId(area.getPk());
-        }
         return area;
     }
 

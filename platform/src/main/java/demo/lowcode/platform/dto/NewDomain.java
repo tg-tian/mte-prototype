@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 @Component
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class NewDomain {
+    private Long domainId;
     private String code;
     private String name;
     private String description;

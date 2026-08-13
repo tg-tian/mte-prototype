@@ -165,11 +165,17 @@ public class DomainBusiness {
     }
 
     public Domain createDomain(NewDomain newDomain){
+        if (newDomain.getDomainId() == null || newDomain.getDomainId() <= 0) {
+            throw new RuntimeException("领域ID不能为空");
+        }
         if (newDomain.getCode() == null || newDomain.getCode().trim().isEmpty()) {
             throw new RuntimeException("领域编码不能为空");
         }
         if (newDomain.getName() == null || newDomain.getName().trim().isEmpty()) {
             throw new RuntimeException("领域名称不能为空");
+        }
+        if (domainMapper.selectById(newDomain.getDomainId()) != null) {
+            throw new RuntimeException("领域ID已存在");
         }
         Domain existDomain = domainMapper.getDomainByCode(newDomain.getCode());
         if (existDomain != null) {
@@ -177,6 +183,7 @@ public class DomainBusiness {
         }
 
         Domain domain = new Domain();
+        domain.setDomainId(newDomain.getDomainId());
         domain.setDomainCode(newDomain.getCode().trim());
         domain.setDomainName(normalizeText(newDomain.getName()).trim());
         domain.setDomainDescription(normalizeText(newDomain.getDescription()));
@@ -382,11 +389,18 @@ public class DomainBusiness {
     @Transactional
     public Domain createDomainFromTemplate(DomainTemInfo domainTemInfo) {
         Domain domain = new Domain();
+        if (domainTemInfo.getDomainData().getDomainId() == null || domainTemInfo.getDomainData().getDomainId() <= 0) {
+            throw new RuntimeException("领域ID不能为空");
+        }
+        if (domainMapper.selectById(domainTemInfo.getDomainData().getDomainId()) != null) {
+            throw new RuntimeException("领域ID已存在");
+        }
         if (domainMapper.getDomainByCode(domainTemInfo.getDomainData().getCode()) != null){
             throw new RuntimeException("领域编码已存在");
         }
 
         // step1: 存入基本信息到数据库，获取id
+        domain.setDomainId(domainTemInfo.getDomainData().getDomainId());
         domain.setDomainCode(domainTemInfo.getDomainData().getCode());
         domain.setDomainName(normalizeText(domainTemInfo.getDomainData().getName()));
         domain.setDomainDescription(normalizeText(domainTemInfo.getDomainData().getDescription()));
@@ -460,6 +474,7 @@ public class DomainBusiness {
         NewDomain domainData = requestDslData != null && requestDslData.getDomainData() != null
                 ? requestDslData.getDomainData()
                 : new NewDomain();
+        domainData.setDomainId(domain.getDomainId());
         domainData.setCode(domain.getDomainCode());
         domainData.setName(domain.getDomainName());
         domainData.setDescription(domain.getDomainDescription());
