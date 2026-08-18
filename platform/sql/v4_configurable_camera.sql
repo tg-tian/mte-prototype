@@ -34,7 +34,8 @@ INSERT INTO device_model (
           "secret_key": { "type": "string", "description": "Secret Key" }
         },
         "description": "配置识别服务"
-      }
+      },
+      "reset": { "arguments": {}, "description": "重置识别服务配置" }
     },
     "events": {
       "detected": {
@@ -42,10 +43,7 @@ INSERT INTO device_model (
         "description": "识别到人",
         "fields": {
           "user_id": { "max": null, "min": null, "type": "string", "unit": "", "readOnly": false, "enumValues": [], "description": "用户ID" },
-          "person_name": { "max": null, "min": null, "type": "string", "unit": "", "readOnly": false, "enumValues": [], "description": "人员姓名" },
-          "meeting_room": { "max": null, "min": null, "type": "string", "unit": "", "readOnly": false, "enumValues": [], "description": "会议室" },
-          "vip": { "max": null, "min": null, "type": "boolean", "unit": "", "readOnly": false, "enumValues": [], "description": "是否VIP" },
-          "timestamp": { "max": null, "min": null, "type": "number", "unit": "", "readOnly": false, "enumValues": [], "description": "时间戳" }
+          "person_name": { "max": null, "min": null, "type": "string", "unit": "", "readOnly": false, "enumValues": [], "description": "人员姓名" }
         },
         "outputs": {}
       }
@@ -88,16 +86,14 @@ INSERT INTO device (
   '{
     "on": "const payload = { action: ''on'', args: {} }; this.client.publish(''devices/'' + deviceId + ''/command'', JSON.stringify(payload));",
     "off": "const payload = { action: ''off'', args: {} }; this.client.publish(''devices/'' + deviceId + ''/command'', JSON.stringify(payload));",
-    "configure": "const payload = { action: ''configureRecognition'', args: { url: args.url, apiKey: args.api_key ?? args.apiKey, secretKey: args.secret_key ?? args.secretKey } }; this.client.publish(''devices/'' + deviceId + ''/command'', JSON.stringify(payload));"
+    "configure": "const payload = { action: ''configureRecognition'', args: { url: args.url, apiKey: args.api_key ?? args.apiKey, secretKey: args.secret_key ?? args.secretKey } }; this.client.publish(''devices/'' + deviceId + ''/command'', JSON.stringify(payload));",
+    "reset": "const payload = { action: ''resetRecognition'', args: {} }; this.client.publish(''devices/'' + deviceId + ''/command'', JSON.stringify(payload));"
   }',
   '{
     "face_detected": {
       "_to": "detected",
-      "person_id": "user_id",
-      "person_name": "person_name",
-      "meeting_room": "meeting_room",
-      "vip": "vip",
-      "timestamp": "timestamp"
+      "user_id": "user_id",
+      "person_name": "person_name"
     }
   }',
   NOW(),

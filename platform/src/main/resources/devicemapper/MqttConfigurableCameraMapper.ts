@@ -20,11 +20,8 @@ export class MqttConfigurableCameraMapper implements DeviceMapper {
   eventMap: Record<string, any> = {
     face_detected: {
       _to: 'detected',
-      person_id: 'user_id',
-      person_name: 'person_name',
-      meeting_room: 'meeting_room',
-      vip: 'vip',
-      timestamp: 'timestamp'
+      user_id: 'user_id',
+      person_name: 'person_name'
     }
   };
 
@@ -101,5 +98,9 @@ export class MqttConfigurableCameraMapper implements DeviceMapper {
 
   configure(deviceId: string, args: any): void {
     const payload = { action: 'configureRecognition', args: { url: args.url, apiKey: args.api_key ?? args.apiKey, secretKey: args.secret_key ?? args.secretKey } }; this.client.publish('devices/' + deviceId + '/command', JSON.stringify(payload));
+  }
+
+  reset(deviceId: string, args: any): void {
+    const payload = { action: 'resetRecognition', args: {} }; this.client.publish('devices/' + deviceId + '/command', JSON.stringify(payload));
   }
 }
